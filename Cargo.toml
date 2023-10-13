@@ -1,0 +1,7 @@
+[package]
+authors = ["Michael Robert Buche"]
+edition = "2021"
+license = "BSD-3-Clause"
+name = "flavio"
+repository = "https://github.com/mrbuche/flavio/"
+version = "0.1.0"
