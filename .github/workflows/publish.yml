@@ -6,15 +6,15 @@ on:
 env:
   CARGO_TERM_COLOR: always
 jobs:
-  cargo-publish:
+  publish:
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
     steps:
       - name: checkout
         uses: actions/checkout@v4
-      - name: cargo-package
+      - name: cargo package
         run: cargo package --verbose
-      - name: cargo-login
+      - name: cargo login
         run: cargo login ${{ secrets.CRATES_IO_TOKEN }}
-      - name: cargo-publish
+      - name: cargo publish
         run: cargo publish --verbose
