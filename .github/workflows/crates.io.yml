@@ -1,0 +1,19 @@
+name: crates.io
+on:
+  release:
+    types: [ published ]
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  publish:
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: package
+        run: cargo package --verbose
+      - name: login
+        run: cargo login ${{ secrets.CRATES_IO_TOKEN }}
+      - name: publish
+        run: cargo publish --verbose
