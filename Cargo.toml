@@ -1,5 +1,6 @@
 [package]
 authors = ["Michael Robert Buche"]
+description = "flavio welcomes you"
 edition = "2021"
 license = "BSD-3-Clause"
 name = "flavio"
