@@ -1,4 +1,4 @@
-name: crates.io
+name: publish
 on:
   release:
     branches: [ main ]
@@ -12,9 +12,9 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v4
-      - name: package
+      - name: cargo package
         run: cargo package --verbose
-      - name: login
+      - name: cargo login
         run: cargo login ${{ secrets.CRATES_IO_TOKEN }}
-      - name: publish
+      - name: cargo publish
         run: cargo publish --verbose
