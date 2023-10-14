@@ -1,6 +1,12 @@
 use super::TensorRank0;
 
 #[test]
+fn tensor_rank_0()
+{
+    let _: TensorRank0;
+}
+
+#[test]
 fn copy()
 {
     let a: TensorRank0 = 1.0;
