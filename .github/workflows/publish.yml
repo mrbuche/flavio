@@ -13,8 +13,8 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
       - name: cargo package
-        run: cargo package --verbose
+        run: cargo package
       - name: cargo login
         run: cargo login ${{ secrets.CRATES_IO_TOKEN }}
       - name: cargo publish
-        run: cargo publish --verbose
+        run: cargo publish

@@ -19,5 +19,7 @@ jobs:
         with:
           toolchain: nightly
           override: true
-      - name: cargo test
-        run: cargo test --verbose
+      - name: cargo test math 32
+        run: cargo test --features math,32
+      - name: cargo test math 64
+        run: cargo test --features math,64
