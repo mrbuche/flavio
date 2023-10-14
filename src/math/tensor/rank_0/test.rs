@@ -1,6 +1,14 @@
 use super::TensorRank0;
 
 #[test]
+fn copy()
+{
+    let a: TensorRank0 = 1.0;
+    let b = a;
+    assert_eq!(a, b);
+}
+
+#[test]
 fn add()
 {
     let a: TensorRank0 = 1.0;
