@@ -1,8 +1,9 @@
 [package]
 authors = ["Michael Robert Buche"]
 description = "flavio welcomes you"
-documentation = "https://mrbuche.github.io/flavio"
+documentation = "https://docs.rs/crate/flavio"
 edition = "2021"
+homepage = "https://mrbuche.github.io/flavio"
 license = "BSD-3-Clause"
 name = "flavio"
 repository = "https://github.com/mrbuche/flavio"
