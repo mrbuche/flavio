@@ -5,4 +5,4 @@ type Float = f32;
 type Float = f64;
 
 #[cfg(feature = "math")]
-mod math;
+pub mod math;
