@@ -6,3 +6,9 @@ license = "BSD-3-Clause"
 name = "flavio"
 repository = "https://github.com/mrbuche/flavio/"
 version = "0.1.2"
+
+[features]
+32 = []
+64 = []
+math = []
+
