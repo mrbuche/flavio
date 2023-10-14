@@ -7,6 +7,7 @@ use super::
     // rank_2::TensorRank2
 };
 
+// eliminate in order to identify explicit copying at some point
 #[derive(Clone, Copy)]
 pub struct TensorRank1<const D: usize>
 (
