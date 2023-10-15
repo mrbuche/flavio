@@ -49,8 +49,8 @@ pub trait TensorRank2Traits<const D: usize>
 where
     Self: Index<usize, Output = TensorRank1<D>>
 {
-    type InverseOutput;
-    fn inverse(&self) -> Self::InverseOutput
+    type Inverse;
+    fn inverse(&self) -> Self::Inverse
     {
         todo!("Can use the LU decomposition as the default implementation and override for certain dimensions.");
     }
@@ -58,12 +58,16 @@ where
     {
         (0..D).map(|i| self[i][i]).sum()
     }
+    fn transpose(&self) -> Self::Inverse
+    {
+        todo!();
+    }
     fn zero() -> Self;
 }
 
 impl<const D: usize> TensorRank2Traits<D> for TensorRank2<D>
 {
-    type InverseOutput = Self;
+    type Inverse = Self;
     fn zero() -> Self
     {
         Self(std::array::from_fn(|_| TensorRank1::zero()))
