@@ -47,7 +47,7 @@ impl<const D: usize> TensorRank2<D>
 
 pub trait TensorRank2Traits<const D: usize>
 where
-    Self: Index<usize>
+    Self: Index<usize> // do I have to specify the output or something?
 //     Self: Mul<&Self>
 {
     // fn frobenius_norm(&self) -> TensorRank0
