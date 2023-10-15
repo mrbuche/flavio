@@ -47,36 +47,17 @@ impl<const D: usize> TensorRank2<D>
 
 pub trait TensorRank2Traits<const D: usize>
 where
-    Self: Index<usize> // do I have to specify the output or something?
-//     Self: Mul<&Self>
+    Self: Index<usize, Output = TensorRank1<D>>
 {
-    // fn frobenius_norm(&self) -> TensorRank0
-    // {
-    //     (self.transpose() * self).trace().sqrt()
-    // }
     fn trace(&self) -> TensorRank0
     {
         (0..D).map(|i| self[i][i]).sum()
     }
-    fn transpose(&self) -> Self;
-    //
-    // can't you make some of these default implementations?
-    // would be very useful for not redefining over and over
-    // compiler seems to have whenever I try
-    //
     fn zero() -> Self;
 }
 
 impl<const D: usize> TensorRank2Traits<D> for TensorRank2<D>
 {
-    fn trace(&self) -> TensorRank0
-    {
-        (0..D).map(|i| self[i][i]).sum()
-    }
-    fn transpose(&self) -> Self
-    {
-        todo!();
-    }
     fn zero() -> Self
     {
         Self(std::array::from_fn(|_| TensorRank1::zero()))
