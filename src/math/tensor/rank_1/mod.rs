@@ -28,18 +28,6 @@ pub struct TensorRank1<const D: usize>
     pub [TensorRank0; D]
 );
 
-impl<const D: usize> FromIterator<TensorRank0> for TensorRank1<D>
-{
-    fn from_iter<I: IntoIterator<Item=TensorRank0>>(into_iterator: I) -> Self
-    {
-        let mut tensor_rank_1 = Self::zero();
-        tensor_rank_1.iter_mut().zip(into_iterator).for_each(|(tensor_rank_1_i, value_i)|
-            *tensor_rank_1_i = value_i
-        );
-        tensor_rank_1
-    }
-}
-
 // move into TensorRank1Traits if ever becomes possible
 impl<const D: usize> TensorRank1<D>
 {
@@ -53,16 +41,40 @@ impl<const D: usize> TensorRank1<D>
     }
 }
 
-pub trait TensorRank1Traits
+pub trait TensorRank1Traits<const D: usize>
+where
+    Self: Mul<Output = TensorRank0>
+        + Sized
 {
-    fn zero() -> Self;
-}
-
-impl<const D: usize> TensorRank1Traits for TensorRank1<D>
-{
+    fn new(array: [TensorRank0; D]) -> Self;
+    fn norm(&self) -> TensorRank0;
     fn zero() -> Self
     {
-        Self([0.0; D])
+        Self::new([0.0; D])
+    }
+}
+
+impl<const D: usize> TensorRank1Traits<D> for TensorRank1<D>
+{
+    fn new(array: [TensorRank0; D]) -> Self
+    {
+        Self(array)
+    }
+    fn norm(&self) -> TensorRank0
+    {
+        self.iter().map(|self_i| self_i.powi(2)).sum()
+    }
+}
+
+impl<const D: usize> FromIterator<TensorRank0> for TensorRank1<D>
+{
+    fn from_iter<I: IntoIterator<Item=TensorRank0>>(into_iterator: I) -> Self
+    {
+        let mut tensor_rank_1 = Self::zero();
+        tensor_rank_1.iter_mut().zip(into_iterator).for_each(|(tensor_rank_1_i, value_i)|
+            *tensor_rank_1_i = value_i
+        );
+        tensor_rank_1
     }
 }
 
