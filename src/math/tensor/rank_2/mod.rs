@@ -60,18 +60,18 @@ where
 {
     fn determinant(&self) -> TensorRank0
     {
-        todo!();
+        panic!("Determinant only implemented for D=2 and D=3.");
     }
     fn deviatoric(&self) -> Self
     {
         self.transpose() - Self::identity() * (self.trace() / 3.0)
     }
-    fn dyad(vector_a: TensorRank1<D>, vector_b: TensorRank1<D>) -> Self;
+    fn dyad(vector_a: &TensorRank1<D>, vector_b: &TensorRank1<D>) -> Self;
     fn full_contraction_with(&self, tensor_rank_2: &Self) -> TensorRank0;
     fn identity() -> Self
     {
-        (0..D).into_iter().map(|i|
-            (0..D).into_iter().map(|j|
+        (0..D).map(|i|
+            (0..D).map(|j|
                 ((i == j) as u8) as TensorRank0
             ).collect()
         ).collect()
@@ -136,12 +136,14 @@ where
     fn squared(self) -> Self;
     fn trace(&self) -> TensorRank0
     {
-        (0..D).map(|i| self[i][i]).sum()
+        (0..D).map(|i|
+            self[i][i]
+        ).sum()
     }
     fn transpose(&self) -> Self
     {
-        (0..D).into_iter().map(|i|
-            (0..D).into_iter().map(|j|
+        (0..D).map(|i|
+            (0..D).map(|j|
                 self[j][i]
             ).collect()
         ).collect()
@@ -151,7 +153,7 @@ where
 
 impl<const D: usize> TensorRank2Traits<D> for TensorRank2<D>
 {
-    fn dyad(vector_a: TensorRank1<D>, vector_b: TensorRank1<D>) -> Self
+    fn dyad(vector_a: &TensorRank1<D>, vector_b: &TensorRank1<D>) -> Self
     {
         vector_a.iter().map(|vector_a_i|
             vector_b.iter().map(|vector_b_j|
@@ -240,6 +242,78 @@ impl<const D: usize> TensorRank2Traits<D> for TensorRank2<D>
     fn zero() -> Self
     {
         Self(std::array::from_fn(|_| TensorRank1::zero()))
+    }
+}
+
+impl TensorRank2<2>
+{
+    fn determinant(&self) -> TensorRank0
+    {
+        self[0][0] * self[1][1] - self[0][1] * self[1][0]
+    }
+    fn inverse(&self) -> Self
+    {
+        Self::new([
+            [ self[1][1], -self[0][1]],
+            [-self[1][0],  self[0][0]]
+        ])/self.determinant()
+    }
+    fn inverse_transpose(&self) -> Self
+    {
+        Self::new([
+            [ self[1][1], -self[1][0]],
+            [-self[0][1],  self[0][0]]
+        ])/self.determinant()
+    }
+}
+
+impl TensorRank2<3>
+{
+    fn determinant(&self) -> TensorRank0
+    {
+          self[0][0] * (self[1][1] * self[2][2] - self[1][2] * self[2][1])
+        + self[0][1] * (self[1][2] * self[2][0] - self[1][0] * self[2][2])
+        + self[0][2] * (self[1][0] * self[2][1] - self[1][1] * self[2][0])
+    }
+    fn inverse(&self) -> Self
+    {
+        Self([
+            TensorRank1([
+                self[1][1] * self[2][2] - self[1][2] * self[2][1],
+                self[0][2] * self[2][1] - self[0][1] * self[2][2],
+                self[0][1] * self[1][2] - self[0][2] * self[1][1],
+            ]),
+            TensorRank1([
+                self[1][2] * self[2][0] - self[1][0] * self[2][2],
+                self[0][0] * self[2][2] - self[0][2] * self[2][0],
+                self[0][2] * self[1][0] - self[0][0] * self[1][2],
+            ]),
+            TensorRank1([
+                self[1][0] * self[2][1] - self[1][1] * self[2][0],
+                self[0][1] * self[2][0] - self[0][0] * self[2][1],
+                self[0][0] * self[1][1] - self[0][1] * self[1][0],
+            ])
+        ])/self.determinant()
+    }
+    fn inverse_transpose(&self) -> Self
+    {
+        TensorRank2([
+            TensorRank1([
+                self[1][1] * self[2][2] - self[1][2] * self[2][1],
+                self[1][2] * self[2][0] - self[1][0] * self[2][2],
+                self[1][0] * self[2][1] - self[1][1] * self[2][0],
+            ]),
+            TensorRank1([
+                self[0][2] * self[2][1] - self[0][1] * self[2][2],
+                self[0][0] * self[2][2] - self[0][2] * self[2][0],
+                self[0][1] * self[2][0] - self[0][0] * self[2][1],
+            ]),
+            TensorRank1([
+                self[0][1] * self[1][2] - self[0][2] * self[1][1],
+                self[0][2] * self[1][0] - self[0][0] * self[1][2],
+                self[0][0] * self[1][1] - self[0][1] * self[1][0],
+            ])
+        ])/self.determinant()
     }
 }
 
