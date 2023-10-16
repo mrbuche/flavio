@@ -28,6 +28,19 @@ fn get_dummy_array_dim_4() -> [[TensorRank0; 4]; 4]
      [13.0, 14.0, 15.0, 16.0]]
 }
 
+fn get_dummy_array_dim_9() -> [[TensorRank0; 9]; 9]
+{
+    [[2.0, 2.0, 4.0, 0.0, 0.0, 1.0, 1.0, 3.0, 3.0],
+     [0.0, 3.0, 1.0, 0.0, 0.0, 1.0, 4.0, 2.0, 1.0],
+     [3.0, 0.0, 1.0, 2.0, 0.0, 3.0, 4.0, 4.0, 2.0],
+     [4.0, 4.0, 0.0, 2.0, 1.0, 1.0, 0.0, 0.0, 4.0],
+     [0.0, 1.0, 0.0, 1.0, 1.0, 3.0, 0.0, 1.0, 1.0],
+     [4.0, 2.0, 3.0, 4.0, 2.0, 4.0, 3.0, 0.0, 4.0],
+     [1.0, 3.0, 2.0, 0.0, 0.0, 0.0, 2.0, 4.0, 2.0],
+     [2.0, 2.0, 2.0, 4.0, 1.0, 2.0, 4.0, 2.0, 2.0],
+     [1.0, 2.0, 3.0, 4.0, 0.0, 1.0, 4.0, 2.0, 1.0]]
+}
+
 fn get_dummy_tensor_rank_2_dim_2() -> TensorRank2<2>
 {
     TensorRank2::new(get_dummy_array_dim_2())
@@ -41,6 +54,11 @@ fn get_dummy_tensor_rank_2_dim_3() -> TensorRank2<3>
 fn get_dummy_tensor_rank_2_dim_4() -> TensorRank2<4>
 {
     TensorRank2::new(get_dummy_array_dim_4())
+}
+
+fn get_dummy_tensor_rank_2_dim_9() -> TensorRank2<9>
+{
+    TensorRank2::new(get_dummy_array_dim_9())
 }
 
 #[test]
@@ -154,13 +172,37 @@ fn inverse_3()
 #[test]
 fn inverse_4()
 {
-    todo!();
+    (get_dummy_tensor_rank_2_dim_4() * get_dummy_tensor_rank_2_dim_4().inverse()
+    ).iter().enumerate().for_each(|(i, tensor_rank_2_i)|
+        tensor_rank_2_i.iter().enumerate().for_each(|(j, tensor_rank_2_ij)|
+            if i == j
+            {
+                assert_eq!(tensor_rank_2_ij, &1.0)
+            }
+            else
+            {
+                assert_eq!(tensor_rank_2_ij, &0.0)
+            }
+        )
+    );
 }
 
 #[test]
 fn inverse_9()
 {
-    todo!();
+    (get_dummy_tensor_rank_2_dim_9() * get_dummy_tensor_rank_2_dim_9().inverse()
+    ).iter().enumerate().for_each(|(i, tensor_rank_2_i)|
+        tensor_rank_2_i.iter().enumerate().for_each(|(j, tensor_rank_2_ij)|
+            if i == j
+            {
+                assert_eq!(tensor_rank_2_ij, &1.0)
+            }
+            else
+            {
+                assert_eq!(tensor_rank_2_ij, &0.0)
+            }
+        )
+    );
 }
 
 #[test]
@@ -202,13 +244,37 @@ fn inverse_transpose_3()
 #[test]
 fn inverse_transpose_4()
 {
-    todo!();
+    (get_dummy_tensor_rank_2_dim_4().transpose() * get_dummy_tensor_rank_2_dim_4().inverse_transpose()
+    ).iter().enumerate().for_each(|(i, tensor_rank_2_i)|
+        tensor_rank_2_i.iter().enumerate().for_each(|(j, tensor_rank_2_ij)|
+            if i == j
+            {
+                assert_eq!(tensor_rank_2_ij, &1.0)
+            }
+            else
+            {
+                assert_eq!(tensor_rank_2_ij, &0.0)
+            }
+        )
+    );
 }
 
 #[test]
 fn inverse_transpose_9()
 {
-    todo!();
+    (get_dummy_tensor_rank_2_dim_9().transpose() * get_dummy_tensor_rank_2_dim_9().inverse_transpose()
+    ).iter().enumerate().for_each(|(i, tensor_rank_2_i)|
+        tensor_rank_2_i.iter().enumerate().for_each(|(j, tensor_rank_2_ij)|
+            if i == j
+            {
+                assert_eq!(tensor_rank_2_ij, &1.0)
+            }
+            else
+            {
+                assert_eq!(tensor_rank_2_ij, &0.0)
+            }
+        )
+    );
 }
 
 #[test]
