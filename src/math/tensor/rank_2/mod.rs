@@ -60,7 +60,7 @@ where
 {
     fn determinant(&self) -> TensorRank0
     {
-        panic!("Determinant only implemented for D=2 and D=3.");
+        panic!("Determinant only implemented for D = 2, 3, or 4.");
     }
     fn deviatoric(&self) -> Self
     {
@@ -314,6 +314,22 @@ impl TensorRank2<3>
                 self[0][0] * self[1][1] - self[0][1] * self[1][0],
             ])
         ])/self.determinant()
+    }
+}
+
+impl TensorRank2<4>
+{
+    fn determinant(&self) -> TensorRank0
+    {
+        todo!();
+    }
+    fn inverse(&self) -> Self
+    {
+        todo!();
+    }
+    fn inverse_transpose(&self) -> Self
+    {
+        todo!();
     }
 }
 
