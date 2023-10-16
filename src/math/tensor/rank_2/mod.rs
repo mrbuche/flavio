@@ -45,21 +45,19 @@ impl<const D: usize> TensorRank2<D>
     }
 }
 
+// not as big of a deal to have all the default trait implementations
+// if just going to redo them in a struct-tuple deal as Tensor<D, I, J>
+// only helps with things like the inverse, which want to be overridden for some specific <D> implementations here
 pub trait TensorRank2Traits<const D: usize>
 where
     Self: Index<usize, Output = TensorRank1<D>>
         + IndexMut<usize, Output = TensorRank1<D>>
         + Mul<Output = Self>
-        + Mul<&Self, Output = Self>
         + Sized
 {
-    // not as big of a deal to have all the default trait implementations
-    // if just going to redo them in a struct-tuple deal as Tensor<D, I, J>
-    // only helps with things like the inverse, which want to be overridden for some specific <D> implementations here
-    fn frobenius_norm(&self) -> TensorRank0
-    {
-        (self.transpose()*self).trace().sqrt()
-    }
+    fn construct_from_dyad_i_j(vector_a: TensorRank1<D>, vector_b: TensorRank1<D>) -> Self;
+    fn full_contraction_with(&self, tensor_rank_2: &Self) -> TensorRank0;
+    fn frobenius_norm(&self) -> TensorRank0;
     fn inverse(&self) -> Self
     {
         let (tensor_l, tensor_u) = self.lu_decomposition();
@@ -102,6 +100,11 @@ where
         self
     }
     fn lu_decomposition(&self) -> (Self, Self);
+    fn second_invariant(self) -> TensorRank0
+    {
+        0.5*(self.trace().powi(2) - self.squared().trace())
+    }
+    fn squared(self) -> Self;
     fn trace(&self) -> TensorRank0
     {
         (0..D).map(|i| self[i][i]).sum()
@@ -112,6 +115,28 @@ where
 
 impl<const D: usize> TensorRank2Traits<D> for TensorRank2<D>
 {
+    fn construct_from_dyad_i_j(vector_a: TensorRank1<D>, vector_b: TensorRank1<D>) -> Self
+    {
+        let mut output = TensorRank2::<D>::zero();
+        output.iter_mut().zip(vector_a.iter()).for_each(|(output_i, vector_a_i)|
+            output_i.iter_mut().zip(vector_b.iter()).for_each(|(output_ij, vector_b_j)|
+                *output_ij = vector_a_i * vector_b_j
+            )
+        );
+        output
+    }
+    fn full_contraction_with(&self, tensor_rank_2: &Self) -> TensorRank0
+    {
+        self.iter().zip(tensor_rank_2.iter()).map(|(self_i, tensor_rank_2_i)|
+            self_i.iter().zip(tensor_rank_2_i.iter()).map(|(self_ij, tensor_rank_2_ij)|
+                self_ij * tensor_rank_2_ij
+            ).sum::<TensorRank0>()
+        ).sum()
+    }
+    fn frobenius_norm(&self) -> TensorRank0
+    {
+        (self.transpose()*self).trace().sqrt()
+    }
     fn lu_decomposition(&self) -> (Self, Self)
     {
         let mut tensor_l = Self::zero();
@@ -176,6 +201,10 @@ impl<const D: usize> TensorRank2Traits<D> for TensorRank2<D>
         // }
         (tensor_l, tensor_u)
     }
+    fn squared(self) -> Self
+    {
+        self * &self
+    }
     fn transpose(&self) -> Self
     {
         let mut transpose = Self::zero();
@@ -209,9 +238,85 @@ impl<const D: usize> IndexMut<usize> for TensorRank2<D>
     }
 }
 
+impl<const D: usize> Mul<TensorRank0> for TensorRank2<D>
+{
+    type Output = Self;
+    fn mul(mut self, tensor_rank_0: TensorRank0) -> Self::Output
+    {
+        self.iter_mut().for_each(|self_i|
+            self_i.iter_mut().for_each(|self_ij|
+                *self_ij *= &tensor_rank_0
+            )
+        );
+        self
+    }
+}
 
+impl<const D: usize> Mul<&TensorRank0> for TensorRank2<D>
+{
+    type Output = Self;
+    fn mul(mut self, tensor_rank_0: &TensorRank0) -> Self::Output
+    {
+        self.iter_mut().for_each(|self_i|
+            self_i.iter_mut().for_each(|self_ij|
+                *self_ij *= tensor_rank_0
+            )
+        );
+        self
+    }
+}
 
+impl<const D: usize> Div<TensorRank0> for TensorRank2<D>
+{
+    type Output = Self;
+    fn div(mut self, tensor_rank_0: TensorRank0) -> Self::Output
+    {
+        self.iter_mut().for_each(|self_i|
+            self_i.iter_mut().for_each(|self_ij|
+                *self_ij /= &tensor_rank_0
+            )
+        );
+        self
+    }
+}
 
+impl<const D: usize> Div<&TensorRank0> for TensorRank2<D>
+{
+    type Output = Self;
+    fn div(mut self, tensor_rank_0: &TensorRank0) -> Self::Output
+    {
+        self.iter_mut().for_each(|self_i|
+            self_i.iter_mut().for_each(|self_ij|
+                *self_ij /= tensor_rank_0
+            )
+        );
+        self
+    }
+}
+
+impl<const D: usize> Mul<TensorRank1<D>> for TensorRank2<D>
+{
+    type Output = TensorRank1<D>;
+    fn mul(self, tensor_rank_1: TensorRank1<D>) -> Self::Output
+    {
+        self.iter().map(|self_i|
+            self_i * &tensor_rank_1
+        ).collect()
+    }
+}
+
+impl<const D: usize> Mul<&TensorRank1<D>> for TensorRank2<D>
+{
+    type Output = TensorRank1<D>;
+    fn mul(self, tensor_rank_1: &TensorRank1<D>) -> Self::Output
+    {
+        self.iter().map(|self_i|
+            self_i * tensor_rank_1
+        ).collect()
+    }
+}
+
+// look for places to use map(), sum(), and collect()
 
 impl<const D: usize> Mul for TensorRank2<D>
 {

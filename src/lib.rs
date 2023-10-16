@@ -17,3 +17,5 @@ pub mod math;
 // type Output = Tensor<D, I, K>
 // fn inverse(&self) -> Tensor<D, J, I> // for Tensor<D, I, J>
 // fn from_dyad(vector_a: Vector<D, I>, vector_b: Vector<D, J>) -> Tensor<D, I, J>
+// and also
+// impl TensorRank2Traits<D> for Tensor<D, I, J>
