@@ -3,7 +3,6 @@ use flavio::math::
     TensorRank0,
     TensorRank1,
     TensorRank2,
-    TensorRank3,
     TensorRank4
 };
 
@@ -27,12 +26,6 @@ fn tensor_rank_1()
 fn tensor_rank_2()
 {
     let _: TensorRank2<3>;
-}
-
-#[test]
-fn tensor_rank_3()
-{
-    let _: TensorRank3<3>;
 }
 
 #[test]
