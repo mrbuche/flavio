@@ -1,11 +1,26 @@
+#[cfg(test)]
+mod test;
+
+#[cfg(feature = "math")]
+pub mod math;
+
 #[cfg(feature = "32")]
 type Float = f32;
 
 #[cfg(feature = "64")]
 type Float = f64;
 
-#[cfg(feature = "math")]
-pub mod math;
+#[cfg(feature = "32")]
+pub const ABS_TOL: Float = 1e-5;
+
+#[cfg(feature = "64")]
+pub const ABS_TOL: Float = 1e-14;
+
+#[cfg(feature = "32")]
+pub const REL_TOL: Float = 1e-5;
+
+#[cfg(feature = "64")]
+pub const REL_TOL: Float = 1e-14;
 
 // implement tensors as Tensor<D, I, J>
 // similarly for vectors, etc.
