@@ -48,13 +48,16 @@ impl<const D: usize> TensorRank2<D>
 // not as big of a deal to have all the default trait implementations
 // if just going to redo them in a struct-tuple deal as Tensor<D, I, J>
 // only helps with things like the inverse, which want to be overridden for some specific <D> implementations here
-pub trait TensorRank2Traits<const D: usize>
+pub trait TensorRank2Traits<'a, const D: usize>
 where
-    Self: FromIterator<TensorRank1<D>>
+    Self: 'a
+        + Add<&'a Self, Output = Self>
+        + FromIterator<TensorRank1<D>>
         + Index<usize, Output = TensorRank1<D>>
         + IndexMut<usize, Output = TensorRank1<D>>
         + Mul<TensorRank0, Output = Self>
         + Mul<Output = Self>
+        + Mul<&'a Self, Output = Self>
         + Sized
         + Sub<Output = Self>
 {
@@ -62,7 +65,11 @@ where
     {
         panic!("Determinant only implemented for D = 2, 3, or 4.");
     }
-    fn deviatoric(&self) -> Self;
+    fn deviatoric(&'a self) -> Self
+    {
+        let factor = -self.trace() / (D as TensorRank0);
+        Self::identity() * factor + self
+    }
     fn dyad(vector_a: &TensorRank1<D>, vector_b: &TensorRank1<D>) -> Self;
     fn full_contraction(&self, tensor_rank_2: &Self) -> TensorRank0;
     fn identity() -> Self
@@ -125,7 +132,10 @@ where
             TensorRank1(*array_i)
         ).collect()
     }
-    fn norm(&self) -> TensorRank0;
+    fn norm(&'a self) -> TensorRank0
+    {
+        ((self.transpose() * self).trace()/2.0).sqrt()
+    }
     fn second_invariant(self) -> TensorRank0
     {
         0.5*(self.trace().powi(2) - self.squared().trace())
@@ -148,13 +158,8 @@ where
     fn zero() -> Self;
 }
 
-impl<const D: usize> TensorRank2Traits<D> for TensorRank2<D>
+impl<'a, const D: usize> TensorRank2Traits<'a, D> for TensorRank2<D>
 {
-    fn deviatoric(&self) -> Self
-    {
-        let factor = -self.trace() / (D as TensorRank0);
-        Self::identity() * factor + self
-    }
     fn dyad(vector_a: &TensorRank1<D>, vector_b: &TensorRank1<D>) -> Self
     {
         vector_a.iter().map(|vector_a_i|
@@ -232,10 +237,6 @@ impl<const D: usize> TensorRank2Traits<D> for TensorRank2<D>
         //     }
         // }
         (tensor_l, tensor_u)
-    }
-    fn norm(&self) -> TensorRank0
-    {
-        ((self.transpose() * self).trace()/2.0).sqrt()
     }
     fn squared(self) -> Self
     {
