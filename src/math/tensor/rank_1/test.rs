@@ -258,7 +258,7 @@ fn new()
 #[test]
 fn norm()
 {
-    assert_eq!(get_tensor_rank_1().norm(), 30.0);
+    assert_eq!(get_tensor_rank_1().norm(), 5.477_225_575_051_661);
 }
 
 #[test]

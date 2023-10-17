@@ -35,11 +35,11 @@ pub struct TensorRank2<const D: usize>
 // move into TensorRank2Traits if ever becomes possible
 impl<const D: usize> TensorRank2<D>
 {
-    fn iter(&self) -> impl Iterator<Item=&TensorRank1<D>>
+    fn iter(&self) -> impl Iterator<Item = &TensorRank1<D>>
     {
         self.0.iter()
     }
-    fn iter_mut(&mut self) -> impl Iterator<Item=&mut TensorRank1<D>>
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut TensorRank1<D>>
     {
         self.0.iter_mut()
     }
@@ -59,19 +59,30 @@ where
         + Mul<Output = Self>
         + Mul<&'a Self, Output = Self>
         + Sized
-        + Sub<Output = Self>
+        + Sub<Output = Self>,
+    &'a Self: Mul<&'a Self, Output = Self>
 {
     fn determinant(&self) -> TensorRank0
     {
-        panic!("Determinant only implemented for D = 2, 3, or 4.");
+        panic!();
     }
     fn deviatoric(&'a self) -> Self
     {
         let factor = -self.trace() / (D as TensorRank0);
         Self::identity() * factor + self
     }
-    fn dyad(vector_a: &TensorRank1<D>, vector_b: &TensorRank1<D>) -> Self;
-    fn full_contraction(&self, tensor_rank_2: &Self) -> TensorRank0;
+    fn dyad(vector_a: &TensorRank1<D>, vector_b: &TensorRank1<D>) -> Self
+    {
+        vector_a.iter().map(|vector_a_i|
+            vector_b.iter().map(|vector_b_j|
+                vector_a_i * vector_b_j
+            ).collect()
+        ).collect()
+    }
+    fn full_contraction(&'a self, tensor_rank_2: &'a Self) -> TensorRank0
+    {
+        (self.transpose() * tensor_rank_2).trace()
+    }
     fn identity() -> Self
     {
         (0..D).map(|i|
@@ -125,7 +136,70 @@ where
         }
         self
     }
-    fn lu_decomposition(&self) -> (Self, Self);
+    fn lu_decomposition(&self) -> (Self, Self)
+    {
+        let mut tensor_l = Self::zero();
+        let mut tensor_u = Self::zero();
+        // self.iter().enumerate().for_each(|(i, self_i)|
+        // {
+        //     self.iter().enumerate().zip(tensor_l.iter_mut()).for_each(|((j, self_j), tensor_l_j)|
+        //     {
+        //         if j >= i
+        //         {
+        //             tensor_l_j[i] = self_j[i];
+        //             for k in 0..i
+        //             {
+        //                 tensor_l_j[i] -= tensor_l_j[k] * tensor_u[k][i];
+        //             }
+        //         }
+        //     });
+        //     self_i.iter().enumerate().for_each(|(j, self_ij)|
+        //     {
+        //         if j == i
+        //         {
+        //             tensor_u[i][j] = 1.0;
+        //         }
+        //         else if j > i
+        //         {
+        //             tensor_u[i][j] = self_ij / tensor_l[i][i];
+        //             for k in 0..i
+        //             {
+        //                 tensor_u[i][j] -= (tensor_l[i][k] * tensor_u[k][j]) / tensor_l[i][i];
+        //             }
+        //         }
+        //     });
+        // });
+        for i in 0..D
+        {
+            for j in 0..D
+            {
+                if j >= i
+                {
+                    tensor_l[j][i] = self[j][i];
+                    for k in 0..i
+                    {
+                        tensor_l[j][i] -=  tensor_l[j][k] * tensor_u[k][i];
+                    }
+                }
+            }
+            for j in 0..D
+            {
+                if j == i
+                {
+                    tensor_u[i][j] = 1.0;
+                }
+                else if j > i
+                {
+                    tensor_u[i][j] = self[i][j] / tensor_l[i][i];
+                    for k in 0..i
+                    {
+                        tensor_u[i][j] -= (tensor_l[i][k] * tensor_u[k][j]) / tensor_l[i][i];
+                    }
+                }
+            }
+        }
+        (tensor_l, tensor_u)
+    }
     fn new(array: [[TensorRank0; D]; D]) -> Self
     {
         array.iter().map(|array_i|
@@ -136,11 +210,14 @@ where
     {
         ((self.transpose() * self).trace()/2.0).sqrt()
     }
-    fn second_invariant(self) -> TensorRank0
+    fn second_invariant(&'a self) -> TensorRank0
     {
         0.5*(self.trace().powi(2) - self.squared().trace())
     }
-    fn squared(self) -> Self;
+    fn squared(&'a self) -> Self
+    {
+        self * self
+    }
     fn trace(&self) -> TensorRank0
     {
         (0..D).map(|i|
@@ -155,102 +232,15 @@ where
             ).collect()
         ).collect()
     }
-    fn zero() -> Self;
-}
-
-impl<'a, const D: usize> TensorRank2Traits<'a, D> for TensorRank2<D>
-{
-    fn dyad(vector_a: &TensorRank1<D>, vector_b: &TensorRank1<D>) -> Self
-    {
-        vector_a.iter().map(|vector_a_i|
-            vector_b.iter().map(|vector_b_j|
-                vector_a_i * vector_b_j
-            ).collect()
-        ).collect()
-    }
-    fn full_contraction(&self, tensor_rank_2: &Self) -> TensorRank0
-    {
-        self.iter().zip(tensor_rank_2.iter()).map(|(self_i, tensor_rank_2_i)|
-            self_i * tensor_rank_2_i
-        ).sum()
-    }
-    fn lu_decomposition(&self) -> (Self, Self)
-    {
-        let mut tensor_l = Self::zero();
-        let mut tensor_u = Self::zero();
-        self.iter().enumerate().for_each(|(i, self_i)|
-        {
-            self.iter().enumerate().zip(tensor_l.iter_mut()).for_each(|((j, self_j), tensor_l_j)|
-            {
-                if j >= i
-                {
-                    tensor_l_j[i] = self_j[i];
-                    for k in 0..i
-                    {
-                        tensor_l_j[i] -= tensor_l_j[k] * tensor_u[k][i];
-                    }
-                }
-            });
-            self_i.iter().enumerate().for_each(|(j, self_ij)|
-            {
-                if j == i
-                {
-                    tensor_u[i][j] = 1.0;
-                }
-                else if j > i
-                {
-                    tensor_u[i][j] = self_ij / tensor_l[i][i];
-                    for k in 0..i
-                    {
-                        tensor_u[i][j] -= (tensor_l[i][k] * tensor_u[k][j]) / tensor_l[i][i];
-                    }
-                }
-            });
-        });
-        // for i in 0..D
-        // {
-        //     for j in 0..D
-        //     {
-        //         if j >= i
-        //         {
-        //             tensor_l[j][i] = self[j][i];
-        //             for k in 0..i
-        //             {
-        //                 tensor_l[j][i] -=  tensor_l[j][k] * tensor_u[k][i];
-        //             }
-        //         }
-        //     }
-        //     for j in 0..D
-        //     {
-        //         if j == i
-        //         {
-        //             tensor_u[i][j] = 1.0;
-        //         }
-        //         else if j > i
-        //         {
-        //             tensor_u[i][j] = self[i][j] / tensor_l[i][i];
-        //             for k in 0..i
-        //             {
-        //                 tensor_u[i][j] -= (tensor_l[i][k] * tensor_u[k][j]) / tensor_l[i][i];
-        //             }
-        //         }
-        //     }
-        // }
-        (tensor_l, tensor_u)
-    }
-    fn squared(self) -> Self
-    {
-        self.transpose().iter().map(|self_j|
-            self.iter().map(|self_i|
-                self_i * self_j
-            ).collect()
-        ).collect()
-    }
     fn zero() -> Self
     {
-        Self(std::array::from_fn(|_| TensorRank1::zero()))
+        (0..D).map(|_|
+            TensorRank1::zero()
+        ).collect()
     }
 }
+
+impl<'a, const D: usize> TensorRank2Traits<'a, D> for TensorRank2<D> {}
 
 // even if get all the traits defaulted
 // cannot implement them for all D and then for specific D
@@ -443,7 +433,7 @@ impl<const D: usize> FromIterator<TensorRank1<D>> for TensorRank2<D>
 {
     fn from_iter<I: IntoIterator<Item=TensorRank1<D>>>(into_iterator: I) -> Self
     {
-        let mut tensor_rank_2 = Self::zero();
+        let mut tensor_rank_2 = Self(std::array::from_fn(|_| TensorRank1::zero()));
         tensor_rank_2.iter_mut().zip(into_iterator).for_each(|(tensor_rank_2_i, value_i)|
             *tensor_rank_2_i = value_i
         );
@@ -650,6 +640,19 @@ impl<const D: usize> Mul<TensorRank2<D>> for &TensorRank2<D>
 {
     type Output = TensorRank2<D>;
     fn mul(self, tensor_rank_2: TensorRank2<D>) -> Self::Output
+    {
+        tensor_rank_2.transpose().iter().map(|tensor_rank_2_j|
+            self.iter().map(|self_i|
+                self_i * tensor_rank_2_j
+            ).collect()
+        ).collect()
+    }
+}
+
+impl<const D: usize> Mul for &TensorRank2<D>
+{
+    type Output = TensorRank2<D>;
+    fn mul(self, tensor_rank_2: &TensorRank2<D>) -> Self::Output
     {
         tensor_rank_2.transpose().iter().map(|tensor_rank_2_j|
             self.iter().map(|self_i|
