@@ -95,6 +95,49 @@ impl<const D: usize> IndexMut<usize> for TensorRank1<D>
     }
 }
 
+impl<const D: usize> Div<TensorRank0> for TensorRank1<D>
+{
+    type Output = Self;
+    fn div(mut self, tensor_rank_0: TensorRank0) -> Self::Output
+    {
+        self.iter_mut().for_each(|self_i|
+            *self_i /= &tensor_rank_0
+        );
+        self
+    }
+}
+impl<const D: usize> Div<&TensorRank0> for TensorRank1<D>
+{
+    type Output = Self;
+    fn div(mut self, tensor_rank_0: &TensorRank0) -> Self::Output
+    {
+        self.iter_mut().for_each(|self_i|
+            *self_i /= tensor_rank_0
+        );
+        self
+    }
+}
+
+impl<const D: usize> DivAssign<TensorRank0> for TensorRank1<D>
+{
+    fn div_assign(&mut self, tensor_rank_0: TensorRank0)
+    {
+        self.iter_mut().for_each(|self_i|
+            *self_i /= &tensor_rank_0
+        );
+    }
+}
+
+impl<const D: usize> DivAssign<&TensorRank0> for TensorRank1<D>
+{
+    fn div_assign(&mut self, tensor_rank_0: &TensorRank0)
+    {
+        self.iter_mut().for_each(|self_i|
+            *self_i /= tensor_rank_0
+        );
+    }
+}
+
 impl<const D: usize> Mul<TensorRank0> for TensorRank1<D>
 {
     type Output = Self;
@@ -135,49 +178,6 @@ impl<const D: usize> MulAssign<&TensorRank0> for TensorRank1<D>
     {
         self.iter_mut().for_each(|self_i|
             *self_i *= tensor_rank_0
-        );
-    }
-}
-
-impl<const D: usize> Div<TensorRank0> for TensorRank1<D>
-{
-    type Output = Self;
-    fn div(mut self, tensor_rank_0: TensorRank0) -> Self::Output
-    {
-        self.iter_mut().for_each(|self_i|
-            *self_i /= &tensor_rank_0
-        );
-        self
-    }
-}
-impl<const D: usize> Div<&TensorRank0> for TensorRank1<D>
-{
-    type Output = Self;
-    fn div(mut self, tensor_rank_0: &TensorRank0) -> Self::Output
-    {
-        self.iter_mut().for_each(|self_i|
-            *self_i /= tensor_rank_0
-        );
-        self
-    }
-}
-
-impl<const D: usize> DivAssign<TensorRank0> for TensorRank1<D>
-{
-    fn div_assign(&mut self, tensor_rank_0: TensorRank0)
-    {
-        self.iter_mut().for_each(|self_i|
-            *self_i /= &tensor_rank_0
-        );
-    }
-}
-
-impl<const D: usize> DivAssign<&TensorRank0> for TensorRank1<D>
-{
-    fn div_assign(&mut self, tensor_rank_0: &TensorRank0)
-    {
-        self.iter_mut().for_each(|self_i|
-            *self_i /= tensor_rank_0
         );
     }
 }

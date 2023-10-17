@@ -36,12 +36,6 @@ fn get_tensor_rank_1_sub_tensor_rank_1_a() -> TensorRank1<4>
 }
 
 #[test]
-fn todo()
-{
-    todo!("Make comprehensive tests, and traits for <D> and <3> instead of base impls in order to use for mechanics.");
-}
-
-#[test]
 fn add_tensor_rank_1_to_self()
 {
     (get_tensor_rank_1() + get_tensor_rank_1_a()).iter()
@@ -108,6 +102,50 @@ fn copy()
 }
 
 #[test]
+fn div_tensor_rank_0_to_self()
+{
+    (get_tensor_rank_1() / 3.3).iter()
+    .zip(get_array().iter())
+    .for_each(|(tensor_rank_1_i, array_i)|
+        assert_eq!(tensor_rank_1_i, &(array_i / 3.3))
+    );
+}
+
+#[test]
+fn div_tensor_rank_0_ref_to_self()
+{
+    (get_tensor_rank_1() / &3.3).iter()
+    .zip(get_array().iter())
+    .for_each(|(tensor_rank_1_i, array_i)|
+        assert_eq!(tensor_rank_1_i, &(array_i / 3.3))
+    );
+}
+
+#[test]
+fn div_assign_tensor_rank_0()
+{
+    let mut tensor_rank_1 = get_tensor_rank_1();
+    tensor_rank_1 /= 3.3;
+    tensor_rank_1.iter()
+    .zip(get_array().iter())
+    .for_each(|(tensor_rank_1_i, array_i)|
+        assert_eq!(tensor_rank_1_i, &(array_i / 3.3))
+    );
+}
+
+#[test]
+fn div_assign_tensor_rank_0_ref()
+{
+    let mut tensor_rank_1 = get_tensor_rank_1();
+    tensor_rank_1 /= &3.3;
+    tensor_rank_1.iter()
+    .zip(get_array().iter())
+    .for_each(|(tensor_rank_1_i, array_i)|
+        assert_eq!(tensor_rank_1_i, &(array_i / 3.3))
+    );
+}
+
+#[test]
 fn from_iter()
 {
     let into_iterator = (0..8).map(|x| x as TensorRank0).into_iter();
@@ -116,6 +154,70 @@ fn from_iter()
     .zip(into_iterator)
     .for_each(|(tensor_rank_1_i, value_i)|
         assert_eq!(tensor_rank_1_i, &value_i)
+    );
+}
+
+#[test]
+fn index()
+{
+    get_tensor_rank_1().iter()
+    .zip(get_array().iter())
+    .for_each(|(tensor_rank_1_i, array_i)|
+        assert_eq!(tensor_rank_1_i, array_i)
+    );
+}
+
+#[test]
+fn index_mut()
+{
+    get_tensor_rank_1().iter_mut()
+    .zip(get_array().iter_mut())
+    .for_each(|(tensor_rank_1_i, array_i)|
+        assert_eq!(tensor_rank_1_i, array_i)
+    );
+}
+
+#[test]
+fn mul_tensor_rank_0_to_self()
+{
+    (get_tensor_rank_1() * 3.3).iter()
+    .zip(get_array().iter())
+    .for_each(|(tensor_rank_1_i, array_i)|
+        assert_eq!(tensor_rank_1_i, &(array_i * 3.3))
+    );
+}
+
+#[test]
+fn mul_tensor_rank_0_ref_to_self()
+{
+    (get_tensor_rank_1() * &3.3).iter()
+    .zip(get_array().iter())
+    .for_each(|(tensor_rank_1_i, array_i)|
+        assert_eq!(tensor_rank_1_i, &(array_i * 3.3))
+    );
+}
+
+#[test]
+fn mul_assign_tensor_rank_0()
+{
+    let mut tensor_rank_1 = get_tensor_rank_1();
+    tensor_rank_1 *= 3.3;
+    tensor_rank_1.iter()
+    .zip(get_array().iter())
+    .for_each(|(tensor_rank_1_i, array_i)|
+        assert_eq!(tensor_rank_1_i, &(array_i * 3.3))
+    );
+}
+
+#[test]
+fn mul_assign_tensor_rank_0_ref()
+{
+    let mut tensor_rank_1 = get_tensor_rank_1();
+    tensor_rank_1 *= &3.3;
+    tensor_rank_1.iter()
+    .zip(get_array().iter())
+    .for_each(|(tensor_rank_1_i, array_i)|
+        assert_eq!(tensor_rank_1_i, &(array_i * 3.3))
     );
 }
 
