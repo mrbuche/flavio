@@ -22,7 +22,7 @@ use super::
 };
 
 // eliminate in order to identify explicit copying at some point
-#[derive(Clone, Copy)]
+// #[derive(Clone, Copy)]
 pub struct TensorRank1<const D: usize>
 (
     pub [TensorRank0; D]
@@ -100,20 +100,17 @@ impl<const D: usize> Div<TensorRank0> for TensorRank1<D>
     type Output = Self;
     fn div(mut self, tensor_rank_0: TensorRank0) -> Self::Output
     {
-        self.iter_mut().for_each(|self_i|
-            *self_i /= &tensor_rank_0
-        );
+        self /= tensor_rank_0;
         self
     }
 }
+
 impl<const D: usize> Div<&TensorRank0> for TensorRank1<D>
 {
     type Output = Self;
     fn div(mut self, tensor_rank_0: &TensorRank0) -> Self::Output
     {
-        self.iter_mut().for_each(|self_i|
-            *self_i /= tensor_rank_0
-        );
+        self /= tensor_rank_0;
         self
     }
 }
@@ -143,9 +140,7 @@ impl<const D: usize> Mul<TensorRank0> for TensorRank1<D>
     type Output = Self;
     fn mul(mut self, tensor_rank_0: TensorRank0) -> Self::Output
     {
-        self.iter_mut().for_each(|self_i|
-            *self_i *= &tensor_rank_0
-        );
+        self *= tensor_rank_0;
         self
     }
 }
@@ -155,9 +150,7 @@ impl<const D: usize> Mul<&TensorRank0> for TensorRank1<D>
     type Output = Self;
     fn mul(mut self, tensor_rank_0: &TensorRank0) -> Self::Output
     {
-        self.iter_mut().for_each(|self_i|
-            *self_i *= tensor_rank_0
-        );
+        self *= tensor_rank_0;
         self
     }
 }
@@ -187,9 +180,7 @@ impl<const D: usize> Add for TensorRank1<D>
     type Output = Self;
     fn add(mut self, tensor_rank_1: Self) -> Self::Output
     {
-        self.iter_mut().zip(tensor_rank_1.iter()).for_each(|(self_i, tensor_rank_1_i)|
-            *self_i += tensor_rank_1_i
-        );
+        self += tensor_rank_1;
         self
     }
 }
@@ -199,9 +190,7 @@ impl<const D: usize> Add<&Self> for TensorRank1<D>
     type Output = Self;
     fn add(mut self, tensor_rank_1: &Self) -> Self::Output
     {
-        self.iter_mut().zip(tensor_rank_1.iter()).for_each(|(self_i, tensor_rank_1_i)|
-            *self_i += tensor_rank_1_i
-        );
+        self += tensor_rank_1;
         self
     }
 }
@@ -211,9 +200,7 @@ impl<const D: usize> Add<TensorRank1<D>> for &TensorRank1<D>
     type Output = TensorRank1<D>;
     fn add(self, mut tensor_rank_1: TensorRank1<D>) -> Self::Output
     {
-        tensor_rank_1.iter_mut().zip(self.iter()).for_each(|(tensor_rank_1_i, self_i)|
-            *tensor_rank_1_i += self_i
-        );
+        tensor_rank_1 += self;
         tensor_rank_1
     }
 }
@@ -243,9 +230,7 @@ impl<const D: usize> Sub for TensorRank1<D>
     type Output = Self;
     fn sub(mut self, tensor_rank_1: Self) -> Self::Output
     {
-        self.iter_mut().zip(tensor_rank_1.iter()).for_each(|(self_i, tensor_rank_1_i)|
-            *self_i -= tensor_rank_1_i
-        );
+        self -= tensor_rank_1;
         self
     }
 }
@@ -255,9 +240,7 @@ impl<const D: usize> Sub<&Self> for TensorRank1<D>
     type Output = Self;
     fn sub(mut self, tensor_rank_1: &Self) -> Self::Output
     {
-        self.iter_mut().zip(tensor_rank_1.iter()).for_each(|(self_i, tensor_rank_1_i)|
-            *self_i -= tensor_rank_1_i
-        );
+        self -= tensor_rank_1;
         self
     }
 }
