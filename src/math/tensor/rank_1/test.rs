@@ -22,6 +22,18 @@ fn todo()
 }
 
 #[test]
+fn add_tensor_rank_1()
+{
+    todo!("also the reference variants in other tests?");
+}
+
+#[test]
+fn add_assign_tensor_rank_1()
+{
+    todo!();
+}
+
+#[test]
 fn copy()
 {
     let tensor_rank_1_a = get_dummy_tensor_rank_1();
