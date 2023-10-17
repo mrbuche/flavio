@@ -239,8 +239,11 @@ impl<const D: usize> TensorRank2Traits<D> for TensorRank2<D>
     }
     fn squared(self) -> Self
     {
-        // self * &self
-        todo!();
+        self.transpose().iter().map(|self_j|
+            self.iter().map(|self_i|
+                self_i * self_j
+            ).collect()
+        ).collect()
     }
     fn zero() -> Self
     {
@@ -528,9 +531,9 @@ impl<const D: usize> Mul for TensorRank2<D>
     type Output = Self;
     fn mul(self, tensor_rank_2: Self) -> Self::Output
     {
-        tensor_rank_2.transpose().iter().map(|tensor_rank_2_transpose_j|
+        tensor_rank_2.transpose().iter().map(|tensor_rank_2_j|
             self.iter().map(|self_i|
-                self_i * tensor_rank_2_transpose_j
+                self_i * tensor_rank_2_j
             ).collect()
         ).collect()
     }
@@ -541,9 +544,9 @@ impl<const D: usize> Mul<&Self> for TensorRank2<D>
     type Output = Self;
     fn mul(self, tensor_rank_2: &Self) -> Self::Output
     {
-        tensor_rank_2.transpose().iter().map(|tensor_rank_2_transpose_j|
+        tensor_rank_2.transpose().iter().map(|tensor_rank_2_j|
             self.iter().map(|self_i|
-                self_i * tensor_rank_2_transpose_j
+                self_i * tensor_rank_2_j
             ).collect()
         ).collect()
     }
@@ -554,9 +557,9 @@ impl<const D: usize> Mul<TensorRank2<D>> for &TensorRank2<D>
     type Output = TensorRank2<D>;
     fn mul(self, tensor_rank_2: TensorRank2<D>) -> Self::Output
     {
-        tensor_rank_2.transpose().iter().map(|tensor_rank_2_transpose_j|
+        tensor_rank_2.transpose().iter().map(|tensor_rank_2_j|
             self.iter().map(|self_i|
-                self_i * tensor_rank_2_transpose_j
+                self_i * tensor_rank_2_j
             ).collect()
         ).collect()
     }
