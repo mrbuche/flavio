@@ -338,25 +338,28 @@ impl<const D: usize> Mul for &TensorRank1<D>
     }
 }
 
-impl<const D: usize> MulAssign for TensorRank1<D>
-{
-    fn mul_assign(&mut self, tensor_rank_1: Self)
-    {
-        self.iter_mut().zip(tensor_rank_1.iter()).for_each(|(self_i, tensor_rank_1_i)|
-            *self_i *= tensor_rank_1_i
-        );
-    }
-}
+// impl<const D: usize> MulAssign for TensorRank1<D>
+// {
+//     fn mul_assign(&mut self, tensor_rank_1: Self)
+//     {
+//         self.iter_mut().zip(tensor_rank_1.iter()).for_each(|(self_i, tensor_rank_1_i)|
+//             *self_i *= tensor_rank_1_i
+//         );
+//     }
+// }
 
-impl<const D: usize> MulAssign<&Self> for TensorRank1<D>
-{
-    fn mul_assign(&mut self, tensor_rank_1: &Self)
-    {
-        self.iter_mut().zip(tensor_rank_1.iter()).for_each(|(self_i, tensor_rank_1_i)|
-            *self_i *= tensor_rank_1_i
-        );
-    }
-}
+// impl<const D: usize> MulAssign<&Self> for TensorRank1<D>
+// {
+//     fn mul_assign(&mut self, tensor_rank_1: &Self)
+//     {
+//         self.iter_mut().zip(tensor_rank_1.iter()).for_each(|(self_i, tensor_rank_1_i)|
+//             *self_i *= tensor_rank_1_i
+//         );
+//     }
+// }
+
+// is MulAssign needed?
+// make tests if bring it back
 
 // impl<const D: usize> Mul<TensorRank2<D>> for TensorRank1<D>
 // {
