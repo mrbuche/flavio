@@ -89,18 +89,6 @@ fn add_assign_tensor_rank_1_ref()
     );
 }
 
-// #[test]
-// fn copy()
-// {
-//     let tensor_rank_1_a = get_tensor_rank_1();
-//     let tensor_rank_1_b = tensor_rank_1_a;
-//     tensor_rank_1_a.iter()
-//     .zip(tensor_rank_1_b.iter())
-//     .for_each(|(tensor_rank_1_a_i, tensor_rank_1_b_i)|
-//         assert_eq!(tensor_rank_1_a_i, tensor_rank_1_b_i)
-//     );
-// }
-
 #[test]
 fn div_tensor_rank_0_to_self()
 {

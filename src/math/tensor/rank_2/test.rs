@@ -82,27 +82,90 @@ fn get_tensor_rank_2_dim_4_squared() -> TensorRank2<4>
     ])
 }
 
-#[test]
-fn todo()
+fn get_other_tensor_rank_2_dim_4() -> TensorRank2<4>
 {
-    todo!("Test ops and refs variants with ranks 0, 1, 2.");
+    TensorRank2::new([
+        [3.0, 2.0, 3.0, 5.0],
+        [6.0, 5.0, 2.0, 4.0],
+        [4.0, 5.0, 0.0, 4.0],
+        [4.0, 4.0, 1.0, 6.0]
+    ])
 }
 
-// #[test]
-// fn copy()
-// {
-//     let tensor_rank_2_a = get_tensor_rank_2_dim_4();
-//     let tensor_rank_2_b = tensor_rank_2_a;
-//     tensor_rank_2_a.iter()
-//     .zip(tensor_rank_2_b.iter())
-//     .for_each(|(tensor_rank_2_a_i, tensor_rank_2_b_i)|
-//         tensor_rank_2_a_i.iter()
-//         .zip(tensor_rank_2_b_i.iter())
-//         .for_each(|(tensor_rank_2_a_ij, tensor_rank_2_b_ij)|
-//             assert_eq!(tensor_rank_2_a_ij, tensor_rank_2_b_ij)
-//         )
-//     );
-// }
+// Mul
+// array([51., 14., 22., 27.])
+
+// Add
+// array([[ 4.,  6.,  9., 11.],
+//        [ 7., 10.,  3.,  4.],
+//        [ 5.,  8.,  5.,  4.],
+//        [ 5.,  8.,  7.,  6.]])
+
+// Sub
+// array([[-2.,  2.,  3.,  1.],
+//        [-5.,  0., -1., -4.],
+//        [-3., -2.,  5., -4.],
+//        [-3.,  0.,  5., -6.]])
+
+// Mul
+// array([[75., 76., 17., 81.],
+//        [37., 32., 13., 29.],
+//        [41., 42.,  9., 37.],
+//        [51., 52., 11., 45.]])
+
+#[test]
+fn add_tensor_rank_2_to_self()
+{
+    todo!()
+}
+
+#[test]
+fn add_tensor_rank_2_ref_to_self()
+{
+    todo!()
+}
+
+#[test]
+fn add_tensor_rank_2_to_self_ref()
+{
+    todo!()
+}
+
+#[test]
+fn add_assign_tensor_rank_1()
+{
+    todo!()
+}
+
+#[test]
+fn add_assign_tensor_rank_1_ref()
+{
+    todo!()
+}
+
+#[test]
+fn div_tensor_rank_0_to_self()
+{
+    todo!()
+}
+
+#[test]
+fn div_tensor_rank_0_ref_to_self()
+{
+    todo!()
+}
+
+#[test]
+fn div_assign_tensor_rank_0()
+{
+    todo!()
+}
+
+#[test]
+fn div_assign_tensor_rank_0_ref()
+{
+    todo!()
+}
 
 #[test]
 fn determinant_dim_2()
@@ -178,10 +241,7 @@ fn from_iter()
 #[test]
 fn full_contraction()
 {
-    assert_eq_within_tols(
-        &(get_tensor_rank_2_dim_4().full_contraction(&(get_tensor_rank_2_dim_4() / 3.3))),
-        &(get_tensor_rank_2_dim_4().norm().powi(2) * 2.0 / 3.3)
-    )
+    assert_eq_within_tols(&get_tensor_rank_2_dim_4().full_contraction(&get_other_tensor_rank_2_dim_4()), &137.0);
 }
 
 #[test]
@@ -478,6 +538,66 @@ fn lu_decomposition()
 }
 
 #[test]
+fn mul_tensor_rank_0_to_self()
+{
+    todo!()
+}
+
+#[test]
+fn mul_tensor_rank_0_ref_to_self()
+{
+    todo!()
+}
+
+#[test]
+fn mul_assign_tensor_rank_0()
+{
+    todo!()
+}
+
+#[test]
+fn mul_assign_tensor_rank_0_ref()
+{
+    todo!()
+}
+
+#[test]
+fn mul_tensor_rank_1_to_self()
+{
+    todo!()
+}
+
+#[test]
+fn mul_tensor_rank_1_ref_to_self()
+{
+    todo!()
+}
+
+#[test]
+fn mul_tensor_rank_2_to_self()
+{
+    todo!()
+}
+
+#[test]
+fn mul_tensor_rank_2_ref_to_self()
+{
+    todo!()
+}
+
+#[test]
+fn mul_tensor_rank_2_to_self_ref()
+{
+    todo!()
+}
+
+#[test]
+fn mul_tensor_rank_2_ref_to_self_ref()
+{
+    todo!()
+}
+
+#[test]
 fn new()
 {
     get_tensor_rank_2_dim_4().iter()
@@ -518,6 +638,30 @@ fn squared()
 }
 
 #[test]
+fn sub_tensor_rank_2_to_self()
+{
+    todo!()
+}
+
+#[test]
+fn sub_tensor_rank_2_ref_to_self()
+{
+    todo!()
+}
+
+#[test]
+fn sub_assign_tensor_rank_1()
+{
+    todo!()
+}
+
+#[test]
+fn sub_assign_tensor_rank_1_ref()
+{
+    todo!()
+}
+
+#[test]
 fn trace_dim_2()
 {
     assert_eq!(get_tensor_rank_2_dim_2().trace(), 5.0);
@@ -542,7 +686,7 @@ fn trace_dim_9()
 }
 
 #[test]
-fn transpose_dim_4()
+fn transpose()
 {
     let tensor_rank_2 = get_tensor_rank_2_dim_4();
     let tensor_rank_2_transpose = tensor_rank_2.transpose();
@@ -567,7 +711,43 @@ fn transpose_dim_4()
 }
 
 #[test]
-fn zero()
+fn zero_dim_2()
+{
+    TensorRank2::<2>::zero().iter()
+    .for_each(|tensor_rank_2_i|
+        tensor_rank_2_i.iter()
+        .for_each(|tensor_rank_2_ij|
+            assert_eq!(tensor_rank_2_ij, &0.0)
+        )
+    );
+}
+
+#[test]
+fn zero_dim_3()
+{
+    TensorRank2::<3>::zero().iter()
+    .for_each(|tensor_rank_2_i|
+        tensor_rank_2_i.iter()
+        .for_each(|tensor_rank_2_ij|
+            assert_eq!(tensor_rank_2_ij, &0.0)
+        )
+    );
+}
+
+#[test]
+fn zero_dim_4()
+{
+    TensorRank2::<4>::zero().iter()
+    .for_each(|tensor_rank_2_i|
+        tensor_rank_2_i.iter()
+        .for_each(|tensor_rank_2_ij|
+            assert_eq!(tensor_rank_2_ij, &0.0)
+        )
+    );
+}
+
+#[test]
+fn zero_dim_9()
 {
     TensorRank2::<9>::zero().iter()
     .for_each(|tensor_rank_2_i|

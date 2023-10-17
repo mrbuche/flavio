@@ -59,37 +59,7 @@ where
 {
     fn determinant(&self) -> TensorRank0
     {
-        if D == 2
-        {
-            self[0][0] * self[1][1] - self[0][1] * self[1][0]
-        }
-        else if D == 3
-        {
-            let c_00 = self[1][1] * self[2][2] - self[1][2] * self[2][1];
-            let c_10 = self[1][2] * self[2][0] - self[1][0] * self[2][2];
-            let c_20 = self[1][0] * self[2][1] - self[1][1] * self[2][0];
-            self[0][0] * c_00 + self[0][1] * c_10 + self[0][2] * c_20
-        }
-        else if D == 4
-        {
-            let s0 = self[0][0] * self[1][1] - self[0][1] * self[1][0];
-            let s1 = self[0][0] * self[1][2] - self[0][2] * self[1][0];
-            let s2 = self[0][0] * self[1][3] - self[0][3] * self[1][0];
-            let s3 = self[0][1] * self[1][2] - self[0][2] * self[1][1];
-            let s4 = self[0][1] * self[1][3] - self[0][3] * self[1][1];
-            let s5 = self[0][2] * self[1][3] - self[0][3] * self[1][2];
-            let c5 = self[2][2] * self[3][3] - self[2][3] * self[3][2];
-            let c4 = self[2][1] * self[3][3] - self[2][3] * self[3][1];
-            let c3 = self[2][1] * self[3][2] - self[2][2] * self[3][1];
-            let c2 = self[2][0] * self[3][3] - self[2][3] * self[3][0];
-            let c1 = self[2][0] * self[3][2] - self[2][2] * self[3][0];
-            let c0 = self[2][0] * self[3][1] - self[2][1] * self[3][0];
-            s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * c0
-        }
-        else
-        {
-            panic!()
-        }
+        panic!()
     }
     fn deviatoric(&'a self) -> Self
     {
@@ -269,6 +239,10 @@ impl<'a, const D: usize> TensorRank2Traits<'a, D> for TensorRank2<D> {}
 
 impl TensorRank2<2>
 {
+    fn determinant(&self) -> TensorRank0
+    {
+        self[0][0] * self[1][1] - self[0][1] * self[1][0]
+    }
     fn inverse(&self) -> Self
     {
         Self::new([
@@ -287,6 +261,13 @@ impl TensorRank2<2>
 
 impl TensorRank2<3>
 {
+    fn determinant(&self) -> TensorRank0
+    {
+        let c_00 = self[1][1] * self[2][2] - self[1][2] * self[2][1];
+        let c_10 = self[1][2] * self[2][0] - self[1][0] * self[2][2];
+        let c_20 = self[1][0] * self[2][1] - self[1][1] * self[2][0];
+        self[0][0] * c_00 + self[0][1] * c_10 + self[0][2] * c_20
+    }
     fn inverse(&self) -> Self
     {
         let c_00 = self[1][1] * self[2][2] - self[1][2] * self[2][1];
@@ -337,6 +318,22 @@ impl TensorRank2<3>
 
 impl TensorRank2<4>
 {
+    fn determinant(&self) -> TensorRank0
+    {
+        let s0 = self[0][0] * self[1][1] - self[0][1] * self[1][0];
+        let s1 = self[0][0] * self[1][2] - self[0][2] * self[1][0];
+        let s2 = self[0][0] * self[1][3] - self[0][3] * self[1][0];
+        let s3 = self[0][1] * self[1][2] - self[0][2] * self[1][1];
+        let s4 = self[0][1] * self[1][3] - self[0][3] * self[1][1];
+        let s5 = self[0][2] * self[1][3] - self[0][3] * self[1][2];
+        let c5 = self[2][2] * self[3][3] - self[2][3] * self[3][2];
+        let c4 = self[2][1] * self[3][3] - self[2][3] * self[3][1];
+        let c3 = self[2][1] * self[3][2] - self[2][2] * self[3][1];
+        let c2 = self[2][0] * self[3][3] - self[2][3] * self[3][0];
+        let c1 = self[2][0] * self[3][2] - self[2][2] * self[3][0];
+        let c0 = self[2][0] * self[3][1] - self[2][1] * self[3][0];
+        s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * c0
+    }
     fn inverse(&self) -> Self
     {
         let s0 = self[0][0] * self[1][1] - self[0][1] * self[1][0];
