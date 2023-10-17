@@ -17,12 +17,9 @@ use std::ops::
 
 use super::
 {
-    rank_0::TensorRank0,
-    rank_2::TensorRank2
+    rank_0::TensorRank0
 };
 
-// eliminate in order to identify explicit copying at some point
-// #[derive(Clone, Copy)]
 pub struct TensorRank1<const D: usize>
 (
     pub [TensorRank0; D]
@@ -51,9 +48,7 @@ where
 {
     fn new(array: [TensorRank0; D]) -> Self
     {
-        array.iter().map(|array_i|
-            *array_i
-        ).collect()
+        array.into_iter().collect()
     }
     fn norm(&'a self) -> TensorRank0
     {

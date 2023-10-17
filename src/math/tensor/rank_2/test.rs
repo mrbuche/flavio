@@ -72,6 +72,16 @@ fn get_tensor_rank_2_dim_9() -> TensorRank2<9>
     TensorRank2::new(get_array_dim_9())
 }
 
+fn get_tensor_rank_2_dim_4_squared() -> TensorRank2<4>
+{
+    TensorRank2::new([
+        [17.0, 66.0, 76.0, 6.0],
+        [ 7.0, 32.0, 16.0, 6.0],
+        [ 9.0, 34.0, 34.0, 6.0],
+        [11.0, 42.0, 40.0, 6.0]
+    ])
+}
+
 #[test]
 fn todo()
 {
@@ -168,13 +178,16 @@ fn from_iter()
 #[test]
 fn full_contraction()
 {
-    todo!();
+    assert_eq_within_tols(
+        &(get_tensor_rank_2_dim_4().full_contraction(&(get_tensor_rank_2_dim_4() / 3.3))),
+        &(get_tensor_rank_2_dim_4().norm().powi(2) * 2.0 / 3.3)
+    )
 }
 
 #[test]
 fn identity()
 {
-    TensorRank2::<8>::identity().iter()
+    TensorRank2::<9>::identity().iter()
     .enumerate()
     .for_each(|(i, tensor_rank_2_i)|
         tensor_rank_2_i.iter()
@@ -383,19 +396,85 @@ fn inverse_transpose_9()
 #[test]
 fn inverse_lower_triangular()
 {
-    todo!();
+    let tensor_l = get_tensor_rank_2_dim_9().lu_decomposition().0;
+    let inverse_tensor_l = get_tensor_rank_2_dim_9().lu_decomposition().0.inverse_lower_triangular();
+    (&inverse_tensor_l * &tensor_l).iter()
+    .enumerate()
+    .zip(inverse_tensor_l.iter())
+    .for_each(|((i, tensor_rank_2_i), inverse_tensor_l_i)|
+        tensor_rank_2_i.iter()
+        .enumerate()
+        .zip(inverse_tensor_l_i.iter())
+        .for_each(|((j, tensor_rank_2_ij), inverse_tensor_l_ij)|
+            if i == j
+            {
+                assert_eq_within_tols(tensor_rank_2_ij, &1.0)
+            }
+            else if i < j
+            {
+                assert_eq!(inverse_tensor_l_ij, &0.0);
+                assert_eq_within_tols(tensor_rank_2_ij, &0.0)
+            }
+            else
+            {
+                assert_eq_within_tols(tensor_rank_2_ij, &0.0)
+            }
+        )
+    );
 }
 
 #[test]
 fn inverse_upper_triangular()
 {
-    todo!();
+    let tensor_u = get_tensor_rank_2_dim_9().lu_decomposition().1;
+    let inverse_tensor_u = get_tensor_rank_2_dim_9().lu_decomposition().1.inverse_upper_triangular();
+    (&inverse_tensor_u * &tensor_u).iter()
+    .enumerate()
+    .zip(inverse_tensor_u.iter())
+    .for_each(|((i, tensor_rank_2_i), inverse_tensor_u_i)|
+        tensor_rank_2_i.iter()
+        .enumerate()
+        .zip(inverse_tensor_u_i.iter())
+        .for_each(|((j, tensor_rank_2_ij), inverse_tensor_u_ij)|
+            if i == j
+            {
+                assert_eq_within_tols(tensor_rank_2_ij, &1.0)
+            }
+            else if i > j
+            {
+                assert_eq!(inverse_tensor_u_ij, &0.0);
+                assert_eq_within_tols(tensor_rank_2_ij, &0.0)
+            }
+            else
+            {
+                assert_eq_within_tols(tensor_rank_2_ij, &0.0)
+            }
+        )
+    );
 }
 
 #[test]
 fn lu_decomposition()
 {
-    todo!();
+    let (tensor_l, tensor_u) = get_tensor_rank_2_dim_9().lu_decomposition();
+    tensor_l.iter()
+    .enumerate()
+    .zip(tensor_u.iter())
+    .for_each(|((i, tensor_l_i), tensor_u_i)|
+        tensor_l_i.iter()
+        .enumerate()
+        .zip(tensor_u_i.iter())
+        .for_each(|((j, tensor_l_ij), tensor_u_ij)|
+            if i > j
+            {
+                assert_eq!(tensor_u_ij, &0.0);
+            }
+            else if i < j
+            {
+                assert_eq!(tensor_l_ij, &0.0);
+            }
+        )
+    );
 }
 
 #[test]
@@ -421,13 +500,21 @@ fn norm()
 #[test]
 fn second_invariant()
 {
-    todo!();
+    assert_eq!(get_tensor_rank_2_dim_4().second_invariant(), 16.0);
 }
 
 #[test]
 fn squared()
 {
-    todo!();
+    get_tensor_rank_2_dim_4().squared().iter()
+    .zip(get_tensor_rank_2_dim_4_squared().iter())
+    .for_each(|(tensor_rank_2_i, squared_tensor_rank_2_i)|
+        tensor_rank_2_i.iter()
+        .zip(squared_tensor_rank_2_i.iter())
+        .for_each(|(tensor_rank_2_ij, squared_tensor_rank_2_ij)|
+            assert_eq!(tensor_rank_2_ij, squared_tensor_rank_2_ij)
+        )
+    );
 }
 
 #[test]
@@ -482,7 +569,7 @@ fn transpose_dim_4()
 #[test]
 fn zero()
 {
-    TensorRank2::<8>::zero().iter()
+    TensorRank2::<9>::zero().iter()
     .for_each(|tensor_rank_2_i|
         tensor_rank_2_i.iter()
         .for_each(|tensor_rank_2_ij|

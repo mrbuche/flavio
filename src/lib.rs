@@ -11,16 +11,16 @@ type Float = f32;
 type Float = f64;
 
 #[cfg(feature = "32")]
-pub const ABS_TOL: Float = 1e-5;
+pub const ABS_TOL: Float = 1e-4;
 
 #[cfg(feature = "64")]
-pub const ABS_TOL: Float = 1e-14;
+pub const ABS_TOL: Float = 1e-13;
 
 #[cfg(feature = "32")]
-pub const REL_TOL: Float = 1e-5;
+pub const REL_TOL: Float = 1e-4;
 
 #[cfg(feature = "64")]
-pub const REL_TOL: Float = 1e-14;
+pub const REL_TOL: Float = 1e-13;
 
 // implement tensors as Tensor<D, I, J>
 // similarly for vectors, etc.

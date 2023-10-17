@@ -25,8 +25,6 @@ use super::
     }
 };
 
-// eliminate in order to identify explicit copying at some point
-// #[derive(Clone, Copy)]
 pub struct TensorRank2<const D: usize>
 (
     pub [TensorRank1<D>; D]
@@ -45,9 +43,6 @@ impl<const D: usize> TensorRank2<D>
     }
 }
 
-// not as big of a deal to have all the default trait implementations
-// if just going to redo them in a struct-tuple deal as Tensor<D, I, J>
-// only helps with things like the inverse, which want to be overridden for some specific <D> implementations here
 pub trait TensorRank2Traits<'a, const D: usize>
 where
     Self: 'a
@@ -64,7 +59,37 @@ where
 {
     fn determinant(&self) -> TensorRank0
     {
-        panic!();
+        if D == 2
+        {
+            self[0][0] * self[1][1] - self[0][1] * self[1][0]
+        }
+        else if D == 3
+        {
+            let c_00 = self[1][1] * self[2][2] - self[1][2] * self[2][1];
+            let c_10 = self[1][2] * self[2][0] - self[1][0] * self[2][2];
+            let c_20 = self[1][0] * self[2][1] - self[1][1] * self[2][0];
+            self[0][0] * c_00 + self[0][1] * c_10 + self[0][2] * c_20
+        }
+        else if D == 4
+        {
+            let s0 = self[0][0] * self[1][1] - self[0][1] * self[1][0];
+            let s1 = self[0][0] * self[1][2] - self[0][2] * self[1][0];
+            let s2 = self[0][0] * self[1][3] - self[0][3] * self[1][0];
+            let s3 = self[0][1] * self[1][2] - self[0][2] * self[1][1];
+            let s4 = self[0][1] * self[1][3] - self[0][3] * self[1][1];
+            let s5 = self[0][2] * self[1][3] - self[0][3] * self[1][2];
+            let c5 = self[2][2] * self[3][3] - self[2][3] * self[3][2];
+            let c4 = self[2][1] * self[3][3] - self[2][3] * self[3][1];
+            let c3 = self[2][1] * self[3][2] - self[2][2] * self[3][1];
+            let c2 = self[2][0] * self[3][3] - self[2][3] * self[3][0];
+            let c1 = self[2][0] * self[3][2] - self[2][2] * self[3][0];
+            let c0 = self[2][0] * self[3][1] - self[2][1] * self[3][0];
+            s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * c0
+        }
+        else
+        {
+            panic!()
+        }
     }
     fn deviatoric(&'a self) -> Self
     {
@@ -242,18 +267,8 @@ where
 
 impl<'a, const D: usize> TensorRank2Traits<'a, D> for TensorRank2<D> {}
 
-// even if get all the traits defaulted
-// cannot implement them for all D and then for specific D
-// would need to implement only for specific D
-// but good to still have all the defaults
-// otherwise need to re-implement for each D
-
 impl TensorRank2<2>
 {
-    fn determinant(&self) -> TensorRank0
-    {
-        self[0][0] * self[1][1] - self[0][1] * self[1][0]
-    }
     fn inverse(&self) -> Self
     {
         Self::new([
@@ -272,13 +287,6 @@ impl TensorRank2<2>
 
 impl TensorRank2<3>
 {
-    fn determinant(&self) -> TensorRank0
-    {
-        let c_00 = self[1][1] * self[2][2] - self[1][2] * self[2][1];
-        let c_10 = self[1][2] * self[2][0] - self[1][0] * self[2][2];
-        let c_20 = self[1][0] * self[2][1] - self[1][1] * self[2][0];
-        self[0][0] * c_00 + self[0][1] * c_10 + self[0][2] * c_20
-    }
     fn inverse(&self) -> Self
     {
         let c_00 = self[1][1] * self[2][2] - self[1][2] * self[2][1];
@@ -329,22 +337,6 @@ impl TensorRank2<3>
 
 impl TensorRank2<4>
 {
-    fn determinant(&self) -> TensorRank0
-    {
-        let s0 = self[0][0] * self[1][1] - self[0][1] * self[1][0];
-        let s1 = self[0][0] * self[1][2] - self[0][2] * self[1][0];
-        let s2 = self[0][0] * self[1][3] - self[0][3] * self[1][0];
-        let s3 = self[0][1] * self[1][2] - self[0][2] * self[1][1];
-        let s4 = self[0][1] * self[1][3] - self[0][3] * self[1][1];
-        let s5 = self[0][2] * self[1][3] - self[0][3] * self[1][2];
-        let c5 = self[2][2] * self[3][3] - self[2][3] * self[3][2];
-        let c4 = self[2][1] * self[3][3] - self[2][3] * self[3][1];
-        let c3 = self[2][1] * self[3][2] - self[2][2] * self[3][1];
-        let c2 = self[2][0] * self[3][3] - self[2][3] * self[3][0];
-        let c1 = self[2][0] * self[3][2] - self[2][2] * self[3][0];
-        let c0 = self[2][0] * self[3][1] - self[2][1] * self[3][0];
-        s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * c0
-    }
     fn inverse(&self) -> Self
     {
         let s0 = self[0][0] * self[1][1] - self[0][1] * self[1][0];
@@ -615,8 +607,9 @@ impl<const D: usize> Mul for TensorRank2<D>
     type Output = Self;
     fn mul(self, tensor_rank_2: Self) -> Self::Output
     {
-        tensor_rank_2.transpose().iter().map(|tensor_rank_2_j|
-            self.iter().map(|self_i|
+        let tensor_rank_2_transpose = tensor_rank_2.transpose();
+        self.iter().map(|self_i|
+            tensor_rank_2_transpose.iter().map(|tensor_rank_2_j|
                 self_i * tensor_rank_2_j
             ).collect()
         ).collect()
@@ -628,8 +621,9 @@ impl<const D: usize> Mul<&Self> for TensorRank2<D>
     type Output = Self;
     fn mul(self, tensor_rank_2: &Self) -> Self::Output
     {
-        tensor_rank_2.transpose().iter().map(|tensor_rank_2_j|
-            self.iter().map(|self_i|
+        let tensor_rank_2_transpose = tensor_rank_2.transpose();
+        self.iter().map(|self_i|
+            tensor_rank_2_transpose.iter().map(|tensor_rank_2_j|
                 self_i * tensor_rank_2_j
             ).collect()
         ).collect()
@@ -641,8 +635,9 @@ impl<const D: usize> Mul<TensorRank2<D>> for &TensorRank2<D>
     type Output = TensorRank2<D>;
     fn mul(self, tensor_rank_2: TensorRank2<D>) -> Self::Output
     {
-        tensor_rank_2.transpose().iter().map(|tensor_rank_2_j|
-            self.iter().map(|self_i|
+        let tensor_rank_2_transpose = tensor_rank_2.transpose();
+        self.iter().map(|self_i|
+            tensor_rank_2_transpose.iter().map(|tensor_rank_2_j|
                 self_i * tensor_rank_2_j
             ).collect()
         ).collect()
@@ -654,8 +649,9 @@ impl<const D: usize> Mul for &TensorRank2<D>
     type Output = TensorRank2<D>;
     fn mul(self, tensor_rank_2: &TensorRank2<D>) -> Self::Output
     {
-        tensor_rank_2.transpose().iter().map(|tensor_rank_2_j|
-            self.iter().map(|self_i|
+        let tensor_rank_2_transpose = tensor_rank_2.transpose();
+        self.iter().map(|self_i|
+            tensor_rank_2_transpose.iter().map(|tensor_rank_2_j|
                 self_i * tensor_rank_2_j
             ).collect()
         ).collect()
