@@ -2,7 +2,8 @@ use flavio::math::
 {
     TensorRank0,
     TensorRank1,
-    TensorRank2
+    TensorRank2,
+    TensorRank4
 };
 
 // "Each file in the tests directory is a separate crate."
@@ -25,4 +26,10 @@ fn tensor_rank_1()
 fn tensor_rank_2()
 {
     let _: TensorRank2<3>;
+}
+
+#[test]
+fn tensor_rank_4()
+{
+    let _: TensorRank4<3>;
 }
