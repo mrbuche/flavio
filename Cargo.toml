@@ -7,7 +7,7 @@ homepage = "https://mrbuche.github.io/flavio"
 license = "BSD-3-Clause"
 name = "flavio"
 repository = "https://github.com/mrbuche/flavio"
-version = "0.1.5"
+version = "0.1.6"
 
 [features]
 32 = []
@@ -15,4 +15,4 @@ version = "0.1.5"
 math = []
 
 [package.metadata.docs.rs]
-rustc-args = ["--features", "math,64"]
+features = ["math", "64"]
