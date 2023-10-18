@@ -31,7 +31,6 @@ pub struct TensorRank2<const D: usize>
     pub [TensorRank1<D>; D]
 );
 
-// move into TensorRank2Traits if ever becomes possible
 impl<const D: usize> TensorRank2<D>
 {
     fn iter(&self) -> impl Iterator<Item = &TensorRank1<D>>
@@ -136,35 +135,6 @@ where
     {
         let mut tensor_l = Self::zero();
         let mut tensor_u = Self::zero();
-        // self.iter().enumerate().for_each(|(i, self_i)|
-        // {
-        //     self.iter().enumerate().zip(tensor_l.iter_mut()).for_each(|((j, self_j), tensor_l_j)|
-        //     {
-        //         if j >= i
-        //         {
-        //             tensor_l_j[i] = self_j[i];
-        //             for k in 0..i
-        //             {
-        //                 tensor_l_j[i] -= tensor_l_j[k] * tensor_u[k][i];
-        //             }
-        //         }
-        //     });
-        //     self_i.iter().enumerate().for_each(|(j, self_ij)|
-        //     {
-        //         if j == i
-        //         {
-        //             tensor_u[i][j] = 1.0;
-        //         }
-        //         else if j > i
-        //         {
-        //             tensor_u[i][j] = self_ij / tensor_l[i][i];
-        //             for k in 0..i
-        //             {
-        //                 tensor_u[i][j] -= (tensor_l[i][k] * tensor_u[k][j]) / tensor_l[i][i];
-        //             }
-        //         }
-        //     });
-        // });
         for i in 0..D
         {
             for j in 0..D
@@ -686,18 +656,6 @@ impl<const D: usize> Sub<&Self> for TensorRank2<D>
         self
     }
 }
-
-// impl<const D: usize> Sub<TensorRank2<D>> for &TensorRank2<D>
-// {
-//     type Output = TensorRank2<D>;
-//     fn sub(self, mut tensor_rank_2: TensorRank2<D>) -> Self::Output
-//     {
-//         tensor_rank_2.iter_mut().zip(self.iter()).for_each(|(tensor_rank_2_i, self_i)|
-//             *tensor_rank_2_i = self_i - *tensor_rank_2_i
-//         );
-//         tensor_rank_2
-//     }
-// }
 
 impl<const D: usize> SubAssign for TensorRank2<D>
 {
