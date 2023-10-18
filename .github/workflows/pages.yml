@@ -20,7 +20,9 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v4
-      - name: mdbook
+      - name: install mdbook
+        run: cargo install mdbook
+      - name: mdbook build
         run: cd docs/ && mdbook build
       - name: pages
         uses: actions/configure-pages@v3
