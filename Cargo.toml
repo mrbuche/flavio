@@ -13,3 +13,6 @@ version = "0.1.4"
 32 = []
 64 = []
 math = []
+
+[package.metadata.docs.rs]
+rustc-args = ["--features", "math,64"]

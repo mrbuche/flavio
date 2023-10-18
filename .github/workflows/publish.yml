@@ -17,4 +17,4 @@ jobs:
       - name: cargo login
         run: cargo login ${{ secrets.CRATES_IO_TOKEN }}
       - name: cargo publish
-        run: cargo publish --features math,64
+        run: cargo publish
