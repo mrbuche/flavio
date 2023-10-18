@@ -1,3 +1,8 @@
+// Start by doing what's necessary,
+// then do what's possible,
+// and suddenly you are doing the impossible.
+// --- St. Francis of Assisi
+
 fn main()
 {
     println!("\n\n\x1b[1mf l a v i o\x1b[0m\n\n");
