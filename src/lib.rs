@@ -22,6 +22,9 @@ pub const REL_TOL: Float = 1e-4;
 #[cfg(feature = "64")]
 pub const REL_TOL: Float = 1e-13;
 
+// should implement VectorList, TensorList, etc. in math/
+// then give them rules in mechanics/
+
 // implement tensors as Tensor<D, I, J>
 // similarly for vectors, etc.
 // using 0 for reference

@@ -235,9 +235,7 @@ where
     }
 }
 
-impl<'a, const D: usize> TensorRank2Traits<'a, D> for TensorRank2<D> {}
-
-impl TensorRank2<2>
+impl<'a> TensorRank2Traits<'a, 2> for TensorRank2<2>
 {
     fn determinant(&self) -> TensorRank0
     {
@@ -259,7 +257,7 @@ impl TensorRank2<2>
     }
 }
 
-impl TensorRank2<3>
+impl<'a> TensorRank2Traits<'a, 3> for TensorRank2<3>
 {
     fn determinant(&self) -> TensorRank0
     {
@@ -316,7 +314,7 @@ impl TensorRank2<3>
     }
 }
 
-impl TensorRank2<4>
+impl<'a> TensorRank2Traits<'a, 4> for TensorRank2<4>
 {
     fn determinant(&self) -> TensorRank0
     {
@@ -417,6 +415,9 @@ impl TensorRank2<4>
         ]) / (s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * c0)
     }
 }
+
+impl<'a> TensorRank2Traits<'a, 9> for TensorRank2<9> {}
+
 
 impl<const D: usize> FromIterator<TensorRank1<D>> for TensorRank2<D>
 {
@@ -599,7 +600,9 @@ impl<const D: usize> AddAssign<&Self> for TensorRank2<D>
     }
 }
 
-impl<const D: usize> Mul for TensorRank2<D>
+impl<'a, const D: usize> Mul for TensorRank2<D>
+where
+    Self: 'a + TensorRank2Traits<'a, D>
 {
     type Output = Self;
     fn mul(self, tensor_rank_2: Self) -> Self::Output
@@ -613,7 +616,9 @@ impl<const D: usize> Mul for TensorRank2<D>
     }
 }
 
-impl<const D: usize> Mul<&Self> for TensorRank2<D>
+impl<'a, const D: usize> Mul<&'a Self> for TensorRank2<D>
+where
+    Self: 'a + TensorRank2Traits<'a, D>
 {
     type Output = Self;
     fn mul(self, tensor_rank_2: &Self) -> Self::Output
@@ -627,7 +632,9 @@ impl<const D: usize> Mul<&Self> for TensorRank2<D>
     }
 }
 
-impl<const D: usize> Mul<TensorRank2<D>> for &TensorRank2<D>
+impl<'a, const D: usize> Mul<TensorRank2<D>> for &TensorRank2<D>
+where
+    TensorRank2<D>: 'a + TensorRank2Traits<'a, D>
 {
     type Output = TensorRank2<D>;
     fn mul(self, tensor_rank_2: TensorRank2<D>) -> Self::Output
@@ -641,7 +648,9 @@ impl<const D: usize> Mul<TensorRank2<D>> for &TensorRank2<D>
     }
 }
 
-impl<const D: usize> Mul for &TensorRank2<D>
+impl<'a, const D: usize> Mul for &TensorRank2<D>
+where
+    TensorRank2<D>: 'a + TensorRank2Traits<'a, D>
 {
     type Output = TensorRank2<D>;
     fn mul(self, tensor_rank_2: &TensorRank2<D>) -> Self::Output
