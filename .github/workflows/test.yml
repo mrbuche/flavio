@@ -20,10 +20,10 @@ jobs:
           toolchain: nightly
           override: true
       - name: cargo clippy math 32
-        run: cargo clippy --features math,32 -- -D warnings
+        run: cargo clippy --release --features math,32 -- -D warnings
       - name: cargo clippy math 64
-        run: cargo clippy --features math,64 -- -D warnings
+        run: cargo clippy --release --features math,64 -- -D warnings
       - name: cargo test math 32
-        run: cargo test --features math,32
+        run: cargo test --release --features math,32
       - name: cargo test math 64
-        run: cargo test --features math,64
+        run: cargo test --release --features math,64

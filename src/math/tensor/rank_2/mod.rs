@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod test;
 
+use std::cmp::Ordering;
 use std::ops::
 {
     Add,
@@ -179,17 +180,20 @@ where
             }
             for j in 0..D
             {
-                if j == i
-                {
-                    tensor_u[i][j] = 1.0;
-                }
-                else if j > i
-                {
-                    tensor_u[i][j] = self[i][j] / tensor_l[i][i];
-                    for k in 0..i
+                match j.cmp(&i) {
+                    Ordering::Equal =>
                     {
-                        tensor_u[i][j] -= (tensor_l[i][k] * tensor_u[k][j]) / tensor_l[i][i];
+                        tensor_u[i][j] = 1.0;
                     }
+                    Ordering::Greater =>
+                    {
+                        tensor_u[i][j] = self[i][j] / tensor_l[i][i];
+                        for k in 0..i
+                        {
+                            tensor_u[i][j] -= (tensor_l[i][k] * tensor_u[k][j]) / tensor_l[i][i];
+                        }
+                    }
+                    Ordering::Less => ()
                 }
             }
         }
@@ -417,7 +421,6 @@ impl<'a> TensorRank2Traits<'a, 4> for TensorRank2<4>
 }
 
 impl<'a> TensorRank2Traits<'a, 9> for TensorRank2<9> {}
-
 
 impl<const D: usize> FromIterator<TensorRank1<D>> for TensorRank2<D>
 {
