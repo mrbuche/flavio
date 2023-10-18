@@ -1,7 +1,7 @@
 name: pages
 on:
   push:
-    branches: [ dev ]
+    branches: [ main ]
 permissions:
   contents: read
   pages: write
