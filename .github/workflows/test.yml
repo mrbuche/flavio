@@ -22,3 +22,14 @@ jobs:
         run: cargo test --release --features math,32
       - name: cargo test math 64
         run: cargo test --release --features math,64
+  mdbook:
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: install mdbook
+        run: cargo install mdbook
+      - name: mdbook build
+        run: cd docs/ && mdbook build
