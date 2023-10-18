@@ -1,5 +1,4 @@
 {
-    "title": "flavio",
     "creators": [
       {
         "name": "Michael R. Buche",
@@ -7,9 +6,11 @@
         "orcid": "0000-0003-1892-0502"
       }
     ],
+    "description": "flavio welcomes you",
     "keywords": [
       "rust"
     ],
     "license": "BSD-3-Clause",
+    "title": "flavio",
     "upload_type": "software"
   }
