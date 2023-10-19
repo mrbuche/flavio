@@ -33,13 +33,17 @@ pub struct TensorRank2<const D: usize>
 
 impl<const D: usize> TensorRank2<D>
 {
-    fn iter(&self) -> impl Iterator<Item = &TensorRank1<D>>
+    pub fn iter(&self) -> impl Iterator<Item = &TensorRank1<D>>
     {
         self.0.iter()
     }
-    fn iter_mut(&mut self) -> impl Iterator<Item = &mut TensorRank1<D>>
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut TensorRank1<D>>
     {
         self.0.iter_mut()
+    }
+    pub fn zero() -> Self
+    {
+        Self(std::array::from_fn(|_| TensorRank1::zero()))
     }
 }
 
@@ -201,12 +205,7 @@ where
             ).collect()
         ).collect()
     }
-    fn zero() -> Self
-    {
-        (0..D).map(|_|
-            TensorRank1::zero()
-        ).collect()
-    }
+    fn zero() -> Self;
 }
 
 impl<'a> TensorRank2Traits<'a, 2> for TensorRank2<2>
@@ -228,6 +227,10 @@ impl<'a> TensorRank2Traits<'a, 2> for TensorRank2<2>
             [ self[1][1], -self[1][0]],
             [-self[0][1],  self[0][0]]
         ]) / self.determinant()
+    }
+    fn zero() -> Self
+    {
+        Self(std::array::from_fn(|_| TensorRank1::zero()))
     }
 }
 
@@ -285,6 +288,10 @@ impl<'a> TensorRank2Traits<'a, 3> for TensorRank2<3>
                 self[0][0] * self[1][1] - self[0][1] * self[1][0],
             ])
         ]) / (self[0][0] * c_00 + self[0][1] * c_10 + self[0][2] * c_20)
+    }
+    fn zero() -> Self
+    {
+        Self(std::array::from_fn(|_| TensorRank1::zero()))
     }
 }
 
@@ -388,15 +395,25 @@ impl<'a> TensorRank2Traits<'a, 4> for TensorRank2<4>
             ])
         ]) / (s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * c0)
     }
+    fn zero() -> Self
+    {
+        Self(std::array::from_fn(|_| TensorRank1::zero()))
+    }
 }
 
-impl<'a> TensorRank2Traits<'a, 9> for TensorRank2<9> {}
+impl<'a> TensorRank2Traits<'a, 9> for TensorRank2<9>
+{
+    fn zero() -> Self
+    {
+        Self(std::array::from_fn(|_| TensorRank1::zero()))
+    }
+}
 
 impl<const D: usize> FromIterator<TensorRank1<D>> for TensorRank2<D>
 {
     fn from_iter<I: IntoIterator<Item=TensorRank1<D>>>(into_iterator: I) -> Self
     {
-        let mut tensor_rank_2 = Self(std::array::from_fn(|_| TensorRank1::zero()));
+        let mut tensor_rank_2 = Self::zero();
         tensor_rank_2.iter_mut().zip(into_iterator).for_each(|(tensor_rank_2_i, value_i)|
             *tensor_rank_2_i = value_i
         );
