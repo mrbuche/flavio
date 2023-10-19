@@ -238,9 +238,37 @@ fn div_tensor_rank_0_to_self()
 }
 
 #[test]
+fn div_tensor_rank_0_to_self_ref()
+{
+    (&get_tensor_rank_2_dim_4() / 3.3).iter()
+    .zip(get_array_dim_4().iter())
+    .for_each(|(tensor_rank_1_i, array_i)|
+        tensor_rank_1_i.iter()
+        .zip(array_i.iter())
+        .for_each(|(tensor_rank_1_ij, array_ij)|
+            assert_eq!(tensor_rank_1_ij, &(array_ij / 3.3))
+        )
+    );
+}
+
+#[test]
 fn div_tensor_rank_0_ref_to_self()
 {
     (get_tensor_rank_2_dim_4() / &3.3).iter()
+    .zip(get_array_dim_4().iter())
+    .for_each(|(tensor_rank_1_i, array_i)|
+        tensor_rank_1_i.iter()
+        .zip(array_i.iter())
+        .for_each(|(tensor_rank_1_ij, array_ij)|
+            assert_eq!(tensor_rank_1_ij, &(array_ij / 3.3))
+        )
+    );
+}
+
+#[test]
+fn div_tensor_rank_0_ref_to_self_ref()
+{
+    (&get_tensor_rank_2_dim_4() / &3.3).iter()
     .zip(get_array_dim_4().iter())
     .for_each(|(tensor_rank_1_i, array_i)|
         tensor_rank_1_i.iter()
@@ -391,7 +419,7 @@ fn deviatoric_dim_9()
 fn deviatoric_and_trace_dim_2()
 {
     let tensor_rank_2 = get_tensor_rank_2_dim_2();
-    let (deviatoric, trace) = &tensor_rank_2.deviatoric_and_trace();
+    let (deviatoric, trace) = tensor_rank_2.deviatoric_and_trace();
     assert_eq!(trace, tensor_rank_2.trace());
     deviatoric.iter()
     .zip(tensor_rank_2.deviatoric().iter())
@@ -956,9 +984,37 @@ fn mul_tensor_rank_0_to_self()
 }
 
 #[test]
+fn mul_tensor_rank_0_to_self_ref()
+{
+    (&get_tensor_rank_2_dim_4() * 3.3).iter()
+    .zip(get_array_dim_4().iter())
+    .for_each(|(tensor_rank_1_i, array_i)|
+        tensor_rank_1_i.iter()
+        .zip(array_i.iter())
+        .for_each(|(tensor_rank_1_ij, array_ij)|
+            assert_eq!(tensor_rank_1_ij, &(array_ij * 3.3))
+        )
+    );
+}
+
+#[test]
 fn mul_tensor_rank_0_ref_to_self()
 {
     (get_tensor_rank_2_dim_4() * &3.3).iter()
+    .zip(get_array_dim_4().iter())
+    .for_each(|(tensor_rank_1_i, array_i)|
+        tensor_rank_1_i.iter()
+        .zip(array_i.iter())
+        .for_each(|(tensor_rank_1_ij, array_ij)|
+            assert_eq!(tensor_rank_1_ij, &(array_ij * 3.3))
+        )
+    );
+}
+
+#[test]
+fn mul_tensor_rank_0_ref_to_self_ref()
+{
+    (&get_tensor_rank_2_dim_4() * &3.3).iter()
     .zip(get_array_dim_4().iter())
     .for_each(|(tensor_rank_1_i, array_i)|
         tensor_rank_1_i.iter()

@@ -778,6 +778,17 @@ impl<const D: usize> Div<TensorRank0> for TensorRank2<D>
     }
 }
 
+impl<const D: usize> Div<TensorRank0> for &TensorRank2<D>
+{
+    type Output = TensorRank2<D>;
+    fn div(self, tensor_rank_0: TensorRank0) -> Self::Output
+    {
+        self.iter().map(|self_i|
+            self_i / tensor_rank_0
+        ).collect()
+    }
+}
+
 impl<const D: usize> Div<&TensorRank0> for TensorRank2<D>
 {
     type Output = Self;
@@ -785,6 +796,17 @@ impl<const D: usize> Div<&TensorRank0> for TensorRank2<D>
     {
         self /= tensor_rank_0;
         self
+    }
+}
+
+impl<const D: usize> Div<&TensorRank0> for &TensorRank2<D>
+{
+    type Output = TensorRank2<D>;
+    fn div(self, tensor_rank_0: &TensorRank0) -> Self::Output
+    {
+        self.iter().map(|self_i|
+            self_i / tensor_rank_0
+        ).collect()
     }
 }
 
@@ -818,6 +840,17 @@ impl<const D: usize> Mul<TensorRank0> for TensorRank2<D>
     }
 }
 
+impl<const D: usize> Mul<TensorRank0> for &TensorRank2<D>
+{
+    type Output = TensorRank2<D>;
+    fn mul(self, tensor_rank_0: TensorRank0) -> Self::Output
+    {
+        self.iter().map(|self_i|
+            self_i * tensor_rank_0
+        ).collect()
+    }
+}
+
 impl<const D: usize> Mul<&TensorRank0> for TensorRank2<D>
 {
     type Output = Self;
@@ -825,6 +858,17 @@ impl<const D: usize> Mul<&TensorRank0> for TensorRank2<D>
     {
         self *= tensor_rank_0;
         self
+    }
+}
+
+impl<const D: usize> Mul<&TensorRank0> for &TensorRank2<D>
+{
+    type Output = TensorRank2<D>;
+    fn mul(self, tensor_rank_0: &TensorRank0) -> Self::Output
+    {
+        self.iter().map(|self_i|
+            self_i * tensor_rank_0
+        ).collect()
     }
 }
 

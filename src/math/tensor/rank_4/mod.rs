@@ -67,11 +67,7 @@ impl<const D: usize> TensorRank4Traits<D, &TensorRank2<D>, &TensorRank2<D>> for 
     {
         tensor_rank_2_a.iter().map(|tensor_rank_2_a_i|
             tensor_rank_2_a_i.iter().map(|tensor_rank_2_a_ij|
-                tensor_rank_2_b.iter().map(|tensor_rank_2_b_k|
-                    tensor_rank_2_b_k.iter().map(|tensor_rank_2_b_kl|
-                        tensor_rank_2_a_ij * tensor_rank_2_b_kl
-                    ).collect()
-                ).collect()
+                tensor_rank_2_b * tensor_rank_2_a_ij
             ).collect()
         ).collect()
     }
@@ -80,9 +76,7 @@ impl<const D: usize> TensorRank4Traits<D, &TensorRank2<D>, &TensorRank2<D>> for 
         tensor_rank_2_a.iter().map(|tensor_rank_2_a_i|
             tensor_rank_2_b.iter().map(|tensor_rank_2_b_j|
                 tensor_rank_2_a_i.iter().map(|tensor_rank_2_a_ik|
-                    tensor_rank_2_b_j.iter().map(|tensor_rank_2_b_jl|
-                        tensor_rank_2_a_ik * tensor_rank_2_b_jl
-                    ).collect()
+                    tensor_rank_2_b_j * tensor_rank_2_a_ik
                 ).collect()
             ).collect()
         ).collect()
@@ -92,9 +86,7 @@ impl<const D: usize> TensorRank4Traits<D, &TensorRank2<D>, &TensorRank2<D>> for 
         tensor_rank_2_a.iter().map(|tensor_rank_2_a_i|
             tensor_rank_2_b.iter().map(|tensor_rank_2_b_j|
                 tensor_rank_2_b_j.iter().map(|tensor_rank_2_b_jk|
-                    tensor_rank_2_a_i.iter().map(|tensor_rank_2_a_il|
-                        tensor_rank_2_a_il * tensor_rank_2_b_jk
-                    ).collect()
+                    tensor_rank_2_a_i * tensor_rank_2_b_jk
                 ).collect()
             ).collect()
         ).collect()
