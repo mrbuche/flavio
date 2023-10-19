@@ -72,13 +72,20 @@ fn get_tensor_rank_2_dim_9() -> TensorRank2<9>
     TensorRank2::new(get_array_dim_9())
 }
 
-fn get_tensor_rank_2_dim_4_squared() -> TensorRank2<4>
+fn get_other_tensor_rank_2_dim_2() -> TensorRank2<2>
 {
     TensorRank2::new([
-        [17.0, 66.0, 76.0, 6.0],
-        [ 7.0, 32.0, 16.0, 6.0],
-        [ 9.0, 34.0, 34.0, 6.0],
-        [11.0, 42.0, 40.0, 6.0]
+        [5.0, 6.0],
+        [7.0, 8.0]
+    ])
+}
+
+fn get_other_tensor_rank_2_dim_3() -> TensorRank2<3>
+{
+    TensorRank2::new([
+        [3.0, 2.0, 3.0],
+        [6.0, 5.0, 2.0],
+        [4.0, 5.0, 0.0]
     ])
 }
 
@@ -89,6 +96,21 @@ fn get_other_tensor_rank_2_dim_4() -> TensorRank2<4>
         [6.0, 5.0, 2.0, 4.0],
         [4.0, 5.0, 0.0, 4.0],
         [4.0, 4.0, 1.0, 6.0]
+    ])
+}
+
+fn get_other_tensor_rank_2_dim_9() -> TensorRank2<9>
+{
+    TensorRank2::new([
+        [0.0, 4.0, 2.0, 0.0, 1.0, 4.0, 2.0, 4.0, 1.0],
+        [1.0, 2.0, 2.0, 1.0, 0.0, 3.0, 0.0, 2.0, 0.0],
+        [3.0, 0.0, 2.0, 3.0, 3.0, 0.0, 0.0, 0.0, 2.0],
+        [2.0, 3.0, 0.0, 0.0, 1.0, 3.0, 3.0, 4.0, 2.0],
+        [0.0, 4.0, 1.0, 3.0, 1.0, 1.0, 1.0, 2.0, 1.0],
+        [1.0, 3.0, 0.0, 3.0, 3.0, 2.0, 1.0, 3.0, 4.0],
+        [0.0, 0.0, 0.0, 1.0, 0.0, 3.0, 1.0, 3.0, 4.0],
+        [2.0, 0.0, 4.0, 3.0, 1.0, 2.0, 0.0, 3.0, 4.0],
+        [4.0, 2.0, 0.0, 0.0, 4.0, 0.0, 4.0, 2.0, 2.0]
     ])
 }
 
@@ -264,23 +286,29 @@ fn div_assign_tensor_rank_0_ref()
 #[test]
 fn determinant_dim_2()
 {
-    assert_eq!(get_tensor_rank_2_dim_2().determinant(), -2.0);
+    assert_eq_within_tols(&get_tensor_rank_2_dim_2().determinant(), &(-2.0));
 }
 
 #[test]
 fn determinant_dim_3()
 {
-    assert_eq!(get_tensor_rank_2_dim_3().determinant(), 290.0);
+    assert_eq_within_tols(&get_tensor_rank_2_dim_3().determinant(), &290.0);
 }
 
 #[test]
 fn determinant_dim_4()
 {
-    assert_eq!(get_tensor_rank_2_dim_4().determinant(), 36.0);
+    assert_eq_within_tols(&get_tensor_rank_2_dim_4().determinant(), &36.0);
 } 
 
 #[test]
-fn deviatoric()
+fn determinant_dim_9()
+{
+    assert_eq_within_tols(&get_tensor_rank_2_dim_9().determinant(), &2398.0);
+} 
+
+#[test]
+fn deviatoric_dim_4()
 {
     let tensor_rank_2 = get_tensor_rank_2_dim_4();
     let trace = tensor_rank_2.trace();
@@ -333,9 +361,27 @@ fn from_iter()
 }
 
 #[test]
-fn full_contraction()
+fn full_contraction_dim_2()
+{
+    assert_eq_within_tols(&get_tensor_rank_2_dim_2().full_contraction(&get_other_tensor_rank_2_dim_2()), &70.0);
+}
+
+#[test]
+fn full_contraction_dim_3()
+{
+    assert_eq_within_tols(&get_tensor_rank_2_dim_3().full_contraction(&get_other_tensor_rank_2_dim_3()), &167.0);
+}
+
+#[test]
+fn full_contraction_dim_4()
 {
     assert_eq_within_tols(&get_tensor_rank_2_dim_4().full_contraction(&get_other_tensor_rank_2_dim_4()), &137.0);
+}
+
+#[test]
+fn full_contraction_dim_9()
+{
+    assert_eq_within_tols(&get_tensor_rank_2_dim_9().full_contraction(&get_other_tensor_rank_2_dim_9()), &269.0);
 }
 
 #[test]
@@ -782,9 +828,27 @@ fn new()
 }
 
 #[test]
-fn norm()
+fn norm_dim_2()
+{
+    assert_eq!(get_tensor_rank_2_dim_2().norm(), 3.872_983_346_207_417);
+}
+
+#[test]
+fn norm_dim_3()
+{
+    assert_eq!(get_tensor_rank_2_dim_3().norm(), 11.937_336_386_313_323);
+}
+
+#[test]
+fn norm_dim_4()
 {
     assert_eq!(get_tensor_rank_2_dim_4().norm(), 10.099_504_938_362_077);
+}
+
+#[test]
+fn norm_dim_9()
+{
+    assert_eq!(get_tensor_rank_2_dim_9().norm(), 14.832_396_974_191_326);
 }
 
 #[test]
@@ -794,17 +858,27 @@ fn second_invariant()
 }
 
 #[test]
-fn squared()
+fn squared_trace_dim_2()
 {
-    get_tensor_rank_2_dim_4().squared().iter()
-    .zip(get_tensor_rank_2_dim_4_squared().iter())
-    .for_each(|(tensor_rank_2_i, squared_tensor_rank_2_i)|
-        tensor_rank_2_i.iter()
-        .zip(squared_tensor_rank_2_i.iter())
-        .for_each(|(tensor_rank_2_ij, squared_tensor_rank_2_ij)|
-            assert_eq!(tensor_rank_2_ij, squared_tensor_rank_2_ij)
-        )
-    );
+    assert_eq_within_tols(&get_tensor_rank_2_dim_2().squared_trace(), &29.0);
+}
+
+#[test]
+fn squared_trace_dim_3()
+{
+    assert_eq_within_tols(&get_tensor_rank_2_dim_3().squared_trace(), &258.0);
+}
+
+#[test]
+fn squared_trace_dim_4()
+{
+    assert_eq_within_tols(&get_tensor_rank_2_dim_4().squared_trace(), &89.0);
+}
+
+#[test]
+fn squared_trace_dim_9()
+{
+    assert_eq_within_tols(&get_tensor_rank_2_dim_9().squared_trace(), &318.0);
 }
 
 #[test]

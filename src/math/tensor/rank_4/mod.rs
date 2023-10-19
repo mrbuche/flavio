@@ -109,6 +109,8 @@ impl<const D: usize> TensorRank4Traits<D, &TensorRank2<D>, &TensorRank2<D>> for 
     }
 }
 
+// try to make use of TensorRank2::sum() for some of the contractions !!!!!!!!!!!!!!!!!!!!!!!!!
+
 impl<const D: usize> FromIterator<TensorRank3<D>> for TensorRank4<D>
 {
     fn from_iter<I: IntoIterator<Item=TensorRank3<D>>>(into_iterator: I) -> Self
