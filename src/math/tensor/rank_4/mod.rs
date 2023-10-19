@@ -3,12 +3,16 @@ mod test;
 
 use std::ops::
 {
+    Add,
+    AddAssign,
     Div,
     DivAssign,
     Index,
     IndexMut,
     Mul,
-    MulAssign
+    MulAssign,
+    Sub,
+    SubAssign
 };
 
 use super::
