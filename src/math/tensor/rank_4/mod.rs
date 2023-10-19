@@ -39,7 +39,7 @@ impl<const D: usize> TensorRank4<D>
     }
 }
 
-pub trait TensorRank4Traits<const D: usize>
+pub trait TensorRank4Traits<const D: usize, T2A, T2B>
 where
     Self: FromIterator<TensorRank3<D>>
         + Index<usize, Output = TensorRank3<D>>
@@ -50,6 +50,15 @@ where
     {
         panic!()
     }
+    fn dyad_ij_kl(tensor_rank_2_a: T2A, tensor_rank_2_b: T2B) -> Self;
+    fn dyad_ik_jl(tensor_rank_2_a: T2A, tensor_rank_2_b: T2B) -> Self;
+    fn dyad_il_jk(tensor_rank_2_a: T2A, tensor_rank_2_b: T2B) -> Self;
+    fn dyad_il_kj(tensor_rank_2_a: T2A, tensor_rank_2_b: T2B) -> Self;
+    fn zero() -> Self;
+}
+
+impl<const D: usize> TensorRank4Traits<D, &TensorRank2<D>, &TensorRank2<D>> for TensorRank4<D>
+{
     fn dyad_ij_kl(tensor_rank_2_a: &TensorRank2<D>, tensor_rank_2_b: &TensorRank2<D>) -> Self
     {
         tensor_rank_2_a.iter().map(|tensor_rank_2_a_i|
@@ -86,15 +95,9 @@ where
             ).collect()
         ).collect()
     }
-    fn dyad_il_kj(tensor_rank_2_a: &TensorRank2<D>, tensor_rank_2_b: &TensorRank2<D>) -> Self;
-    fn zero() -> Self;
-}
-
-impl TensorRank4Traits<9> for TensorRank4<9>
-{
-    fn dyad_il_kj(tensor_rank_2_a: &TensorRank2<9>, tensor_rank_2_b: &TensorRank2<9>) -> Self
+    fn dyad_il_kj(tensor_rank_2_a: &TensorRank2<D>, tensor_rank_2_b: &TensorRank2<D>) -> Self
     {
-        Self::dyad_il_jk(tensor_rank_2_a, &(tensor_rank_2_b.transpose()))
+        todo!();
     }
     fn zero() -> Self
     {
