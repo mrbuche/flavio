@@ -3,8 +3,12 @@ mod test;
 
 use std::ops::
 {
+    Div,
+    DivAssign,
     Index,
-    IndexMut
+    IndexMut,
+    Mul,
+    MulAssign
 };
 
 use super::
@@ -131,5 +135,85 @@ impl<const D: usize> IndexMut<usize> for TensorRank4<D>
     fn index_mut(&mut self, index: usize) -> &mut Self::Output
     {
         &mut self.0[index]
+    }
+}
+
+impl<const D: usize> Div<TensorRank0> for TensorRank4<D>
+{
+    type Output = Self;
+    fn div(mut self, tensor_rank_0: TensorRank0) -> Self::Output
+    {
+        self /= &tensor_rank_0;
+        self
+    }
+}
+
+impl<const D: usize> Div<&TensorRank0> for TensorRank4<D>
+{
+    type Output = Self;
+    fn div(mut self, tensor_rank_0: &TensorRank0) -> Self::Output
+    {
+        self /= tensor_rank_0;
+        self
+    }
+}
+
+impl<const D: usize> DivAssign<TensorRank0> for TensorRank4<D>
+{
+    fn div_assign(&mut self, tensor_rank_0: TensorRank0)
+    {
+        self.iter_mut().for_each(|self_i|
+            *self_i /= &tensor_rank_0
+        );
+    }
+}
+
+impl<const D: usize> DivAssign<&TensorRank0> for TensorRank4<D>
+{
+    fn div_assign(&mut self, tensor_rank_0: &TensorRank0)
+    {
+        self.iter_mut().for_each(|self_i|
+            *self_i /= tensor_rank_0
+        );
+    }
+}
+
+impl<const D: usize> Mul<TensorRank0> for TensorRank4<D>
+{
+    type Output = Self;
+    fn mul(mut self, tensor_rank_0: TensorRank0) -> Self::Output
+    {
+        self *= &tensor_rank_0;
+        self
+    }
+}
+
+impl<const D: usize> Mul<&TensorRank0> for TensorRank4<D>
+{
+    type Output = Self;
+    fn mul(mut self, tensor_rank_0: &TensorRank0) -> Self::Output
+    {
+        self *= tensor_rank_0;
+        self
+    }
+}
+
+impl<const D: usize> MulAssign<TensorRank0> for TensorRank4<D>
+{
+    fn mul_assign(&mut self, tensor_rank_0: TensorRank0)
+    {
+        self.iter_mut().for_each(|self_i|
+            *self_i *= &tensor_rank_0
+        );
+    }
+}
+
+impl<const D: usize> MulAssign<&TensorRank0> for TensorRank4<D>
+{
+    fn mul_assign(&mut self, tensor_rank_0: &TensorRank0)
+    {
+        self.iter_mut().for_each(|self_i|
+            *self_i *= tensor_rank_0
+        );
     }
 }
