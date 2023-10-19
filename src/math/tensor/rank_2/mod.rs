@@ -322,7 +322,7 @@ impl TensorRank2Traits<3> for TensorRank2<3>
         let c_00 = self[1][1] * self[2][2] - self[1][2] * self[2][1];
         let c_10 = self[1][2] * self[2][0] - self[1][0] * self[2][2];
         let c_20 = self[1][0] * self[2][1] - self[1][1] * self[2][0];
-        let determinant = (self[0][0] * c_00 + self[0][1] * c_10 + self[0][2] * c_20);
+        let determinant = self[0][0] * c_00 + self[0][1] * c_10 + self[0][2] * c_20;
         (
             Self([
                 TensorRank1([
@@ -372,7 +372,7 @@ impl TensorRank2Traits<3> for TensorRank2<3>
         let c_00 = self[1][1] * self[2][2] - self[1][2] * self[2][1];
         let c_10 = self[1][2] * self[2][0] - self[1][0] * self[2][2];
         let c_20 = self[1][0] * self[2][1] - self[1][1] * self[2][0];
-        let determinant = (self[0][0] * c_00 + self[0][1] * c_10 + self[0][2] * c_20);
+        let determinant = self[0][0] * c_00 + self[0][1] * c_10 + self[0][2] * c_20;
         (
             Self([
                 TensorRank1([
@@ -724,15 +724,6 @@ impl TensorRank2Traits<9> for TensorRank2<9>
         Self(std::array::from_fn(|_| TensorRank1::zero()))
     }
 }
-
-// consider implementing things like transpose and inverse for &TensorRank2 since they are copy anyway
-//     same with scalar computations like trace, det, etc.
-//     can panic!() for implementations that wouldnt make sense?
-//     need to test all this!
-// going to have to relax a lot of the trait bounds if do this
-//     might be OK anyway since going reimplement in mechanics/ anyway
-//     and can go back to more performant implementations (consider for TensorRank1 as well)
-//     just need the inverse and determinant to be in trait defaults
 
 impl<const D: usize> FromIterator<TensorRank1<D>> for TensorRank2<D>
 {

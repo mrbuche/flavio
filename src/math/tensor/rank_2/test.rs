@@ -391,7 +391,7 @@ fn deviatoric_dim_9()
 fn deviatoric_and_trace_dim_2()
 {
     let tensor_rank_2 = get_tensor_rank_2_dim_2();
-    let (deviatoric, trace) = tensor_rank_2.deviatoric_and_trace();
+    let (deviatoric, trace) = &tensor_rank_2.deviatoric_and_trace();
     assert_eq!(trace, tensor_rank_2.trace());
     deviatoric.iter()
     .zip(tensor_rank_2.deviatoric().iter())
