@@ -18,6 +18,7 @@ use std::ops::
 use super::
 {
     rank_0::TensorRank0,
+    rank_1::TensorRank1,
     rank_2::
     {
         TensorRank2,
@@ -54,15 +55,20 @@ where
         + IndexMut<usize, Output = TensorRank3<D>>
         + Sized
 {
-    fn determinant(&self) -> TensorRank0
-    {
-        panic!()
-    }
     fn dyad_ij_kl(tensor_rank_2_a: T2A, tensor_rank_2_b: T2B) -> Self;
     fn dyad_ik_jl(tensor_rank_2_a: T2A, tensor_rank_2_b: T2B) -> Self;
     fn dyad_il_jk(tensor_rank_2_a: T2A, tensor_rank_2_b: T2B) -> Self;
     fn dyad_il_kj(tensor_rank_2_a: T2A, tensor_rank_2_b: T2B) -> Self;
-    fn zero() -> Self;
+    fn new(array: [[[[TensorRank0; D]; D]; D]; D]) -> Self
+    {
+        array.iter().map(|array_i|
+            array_i.iter().map(|array_ij|
+                array_ij.iter().map(|array_ijk|
+                    TensorRank1(*array_ijk)
+                ).collect()
+            ).collect()
+        ).collect()
+    }
 }
 
 impl<const D: usize> TensorRank4Traits<D, &TensorRank2<D>, &TensorRank2<D>> for TensorRank4<D>
@@ -97,11 +103,12 @@ impl<const D: usize> TensorRank4Traits<D, &TensorRank2<D>, &TensorRank2<D>> for 
     }
     fn dyad_il_kj(tensor_rank_2_a: &TensorRank2<D>, tensor_rank_2_b: &TensorRank2<D>) -> Self
     {
-        todo!();
-    }
-    fn zero() -> Self
-    {
-        Self(std::array::from_fn(|_| TensorRank3::zero()))
+        let tensor_rank_2_b_transpose = (0..D).map(|i|
+            (0..D).map(|j|
+                tensor_rank_2_b[j][i]
+            ).collect()
+        ).collect();
+        Self::dyad_il_jk(tensor_rank_2_a, &tensor_rank_2_b_transpose)
     }
 }
 

@@ -215,8 +215,8 @@ fn div_tensor_rank_0_to_self()
         .for_each(|(tensor_rank_3_ij, array_ij)|
             tensor_rank_3_ij.iter()
             .zip(array_ij.iter())
-            .for_each(|(tensor_rank_1_ijk, array_ijk)|
-                assert_eq!(tensor_rank_1_ijk, &(array_ijk / 3.3))
+            .for_each(|(tensor_rank_3_ijk, array_ijk)|
+                assert_eq!(tensor_rank_3_ijk, &(array_ijk / 3.3))
             )
         )
     );
@@ -233,8 +233,8 @@ fn div_tensor_rank_0_ref_to_self()
         .for_each(|(tensor_rank_3_ij, array_ij)|
             tensor_rank_3_ij.iter()
             .zip(array_ij.iter())
-            .for_each(|(tensor_rank_1_ijk, array_ijk)|
-                assert_eq!(tensor_rank_1_ijk, &(array_ijk / 3.3))
+            .for_each(|(tensor_rank_3_ijk, array_ijk)|
+                assert_eq!(tensor_rank_3_ijk, &(array_ijk / 3.3))
             )
         )
     );
@@ -253,8 +253,8 @@ fn div_assign_tensor_rank_0()
         .for_each(|(tensor_rank_3_ij, array_ij)|
             tensor_rank_3_ij.iter()
             .zip(array_ij.iter())
-            .for_each(|(tensor_rank_1_ijk, array_ijk)|
-                assert_eq!(tensor_rank_1_ijk, &(array_ijk / 3.3))
+            .for_each(|(tensor_rank_3_ijk, array_ijk)|
+                assert_eq!(tensor_rank_3_ijk, &(array_ijk / 3.3))
             )
         )
     );
@@ -273,8 +273,8 @@ fn div_assign_tensor_rank_0_ref()
         .for_each(|(tensor_rank_3_ij, array_ij)|
             tensor_rank_3_ij.iter()
             .zip(array_ij.iter())
-            .for_each(|(tensor_rank_1_ijk, array_ijk)|
-                assert_eq!(tensor_rank_1_ijk, &(array_ijk / 3.3))
+            .for_each(|(tensor_rank_3_ijk, array_ijk)|
+                assert_eq!(tensor_rank_3_ijk, &(array_ijk / 3.3))
             )
         )
     );
@@ -339,8 +339,8 @@ fn mul_tensor_rank_0_to_self()
         .for_each(|(tensor_rank_3_ij, array_ij)|
             tensor_rank_3_ij.iter()
             .zip(array_ij.iter())
-            .for_each(|(tensor_rank_1_ijk, array_ijk)|
-                assert_eq!(tensor_rank_1_ijk, &(array_ijk * 3.3))
+            .for_each(|(tensor_rank_3_ijk, array_ijk)|
+                assert_eq!(tensor_rank_3_ijk, &(array_ijk * 3.3))
             )
         )
     );
@@ -357,8 +357,8 @@ fn mul_tensor_rank_0_ref_to_self()
         .for_each(|(tensor_rank_3_ij, array_ij)|
             tensor_rank_3_ij.iter()
             .zip(array_ij.iter())
-            .for_each(|(tensor_rank_1_ijk, array_ijk)|
-                assert_eq!(tensor_rank_1_ijk, &(array_ijk * 3.3))
+            .for_each(|(tensor_rank_3_ijk, array_ijk)|
+                assert_eq!(tensor_rank_3_ijk, &(array_ijk * 3.3))
             )
         )
     );
@@ -377,8 +377,8 @@ fn mul_assign_tensor_rank_0()
         .for_each(|(tensor_rank_3_ij, array_ij)|
             tensor_rank_3_ij.iter()
             .zip(array_ij.iter())
-            .for_each(|(tensor_rank_1_ijk, array_ijk)|
-                assert_eq!(tensor_rank_1_ijk, &(array_ijk * 3.3))
+            .for_each(|(tensor_rank_3_ijk, array_ijk)|
+                assert_eq!(tensor_rank_3_ijk, &(array_ijk * 3.3))
             )
         )
     );
@@ -397,8 +397,8 @@ fn mul_assign_tensor_rank_0_ref()
         .for_each(|(tensor_rank_3_ij, array_ij)|
             tensor_rank_3_ij.iter()
             .zip(array_ij.iter())
-            .for_each(|(tensor_rank_1_ijk, array_ijk)|
-                assert_eq!(tensor_rank_1_ijk, &(array_ijk * 3.3))
+            .for_each(|(tensor_rank_3_ijk, array_ijk)|
+                assert_eq!(tensor_rank_3_ijk, &(array_ijk * 3.3))
             )
         )
     );
