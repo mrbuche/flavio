@@ -17,8 +17,7 @@ use std::ops::
 
 use super::
 {
-    rank_0::TensorRank0,
-    rank_2::TensorRank2
+    rank_0::TensorRank0
 };
 
 pub struct TensorRank1<const D: usize>

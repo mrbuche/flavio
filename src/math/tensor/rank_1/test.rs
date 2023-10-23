@@ -166,7 +166,7 @@ fn from_iter()
 }
 
 #[test]
-fn index()
+fn iter()
 {
     get_tensor_rank_1().iter()
     .zip(get_array().iter())
@@ -176,7 +176,7 @@ fn index()
 }
 
 #[test]
-fn index_mut()
+fn iter_mut()
 {
     get_tensor_rank_1().iter_mut()
     .zip(get_array().iter_mut())
