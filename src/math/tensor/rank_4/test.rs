@@ -385,6 +385,18 @@ fn various_contractions()
 }
 
 #[test]
+fn muls_with_tensor_rank_2()
+{
+    todo!()
+}
+
+#[test]
+fn as_tensor_rank_2()
+{
+    todo!()
+}
+
+#[test]
 fn add_tensor_rank_4_to_self()
 {
     (get_tensor_rank_4() + get_other_tensor_rank_4()).iter()
@@ -708,6 +720,12 @@ fn from_iter()
             )
         )
     );
+}
+
+#[test]
+fn inverse()
+{
+    todo!()
 }
 
 #[test]

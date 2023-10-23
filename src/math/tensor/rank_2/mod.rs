@@ -23,7 +23,8 @@ use super::
     {
         TensorRank1,
         TensorRank1Traits
-    }
+    },
+    rank_4::TensorRank4
 };
 
 pub struct TensorRank2<const D: usize>
@@ -54,6 +55,20 @@ where
         + IndexMut<usize, Output = TensorRank1<D>>
         + Sized
 {
+    fn as_tensor_rank_4(&self) -> TensorRank4<3>
+    {
+        let mut tensor_rank_4 = TensorRank4::zero();
+        tensor_rank_4.iter_mut().enumerate().for_each(|(i, tensor_rank_4_i)|
+            tensor_rank_4_i.iter_mut().enumerate().for_each(|(j, tensor_rank_4_ij)|
+                tensor_rank_4_ij.iter_mut().enumerate().for_each(|(k, tensor_rank_4_ijk)|
+                    tensor_rank_4_ijk.iter_mut().enumerate().for_each(|(l, tensor_rank_4_ijkl)|
+                        *tensor_rank_4_ijkl = self[3*i + j][3*k + l]
+                    )
+                )
+            )
+        );
+        tensor_rank_4
+    }
     fn determinant(&self) -> TensorRank0;
     fn deviatoric(&self) -> Self;
     fn deviatoric_and_trace(&self) -> (Self, TensorRank0);

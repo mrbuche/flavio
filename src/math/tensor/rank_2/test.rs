@@ -150,6 +150,12 @@ fn get_other_tensor_rank_2_mul_tensor_rank_2_dim_4() -> TensorRank2<4>
 }
 
 #[test]
+fn as_tensor_rank_4()
+{
+    todo!()
+}
+
+#[test]
 fn add_tensor_rank_2_to_self()
 {
     (get_tensor_rank_2_dim_4() + get_other_tensor_rank_2_dim_4()).iter()
