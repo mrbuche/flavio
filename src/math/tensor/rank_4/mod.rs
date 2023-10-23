@@ -222,3 +222,93 @@ impl<const D: usize> MulAssign<&TensorRank0> for TensorRank4<D>
         );
     }
 }
+
+impl<const D: usize> Add for TensorRank4<D>
+{
+    type Output = Self;
+    fn add(mut self, tensor_rank_4: Self) -> Self::Output
+    {
+        self += tensor_rank_4;
+        self
+    }
+}
+
+impl<const D: usize> Add<&Self> for TensorRank4<D>
+{
+    type Output = Self;
+    fn add(mut self, tensor_rank_4: &Self) -> Self::Output
+    {
+        self += tensor_rank_4;
+        self
+    }
+}
+
+impl<const D: usize> Add<TensorRank4<D>> for &TensorRank4<D>
+{
+    type Output = TensorRank4<D>;
+    fn add(self, mut tensor_rank_4: TensorRank4<D>) -> Self::Output
+    {
+        tensor_rank_4 += self;
+        tensor_rank_4
+    }
+}
+
+impl<const D: usize> AddAssign for TensorRank4<D>
+{
+    fn add_assign(&mut self, tensor_rank_4: Self)
+    {
+        self.iter_mut().zip(tensor_rank_4.iter()).for_each(|(self_i, tensor_rank_4_i)|
+            *self_i += tensor_rank_4_i
+        );
+    }
+}
+
+impl<const D: usize> AddAssign<&Self> for TensorRank4<D>
+{
+    fn add_assign(&mut self, tensor_rank_4: &Self)
+    {
+        self.iter_mut().zip(tensor_rank_4.iter()).for_each(|(self_i, tensor_rank_4_i)|
+            *self_i += tensor_rank_4_i
+        );
+    }
+}
+
+impl<const D: usize> Sub for TensorRank4<D>
+{
+    type Output = Self;
+    fn sub(mut self, tensor_rank_4: Self) -> Self::Output
+    {
+        self -= tensor_rank_4;
+        self
+    }
+}
+
+impl<const D: usize> Sub<&Self> for TensorRank4<D>
+{
+    type Output = Self;
+    fn sub(mut self, tensor_rank_4: &Self) -> Self::Output
+    {
+        self -= tensor_rank_4;
+        self
+    }
+}
+
+impl<const D: usize> SubAssign for TensorRank4<D>
+{
+    fn sub_assign(&mut self, tensor_rank_4: Self)
+    {
+        self.iter_mut().zip(tensor_rank_4.iter()).for_each(|(self_i, tensor_rank_4_i)|
+            *self_i -= tensor_rank_4_i
+        );
+    }
+}
+
+impl<const D: usize> SubAssign<&Self> for TensorRank4<D>
+{
+    fn sub_assign(&mut self, tensor_rank_4: &Self)
+    {
+        self.iter_mut().zip(tensor_rank_4.iter()).for_each(|(self_i, tensor_rank_4_i)|
+            *self_i -= tensor_rank_4_i
+        );
+    }
+}
