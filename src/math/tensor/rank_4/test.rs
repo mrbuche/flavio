@@ -118,6 +118,12 @@ fn get_other_tensor_rank_2() -> TensorRank2<4>
 }
 
 #[test]
+fn various_contractions()
+{
+    todo!()
+}
+
+#[test]
 fn add_tensor_rank_4_to_self()
 {
     todo!();
