@@ -3,9 +3,12 @@ mod test;
 
 use std::ops::
 {
+    Div,
+    DivAssign,
     Index,
     IndexMut,
-    Mul
+    Mul,
+    MulAssign
 };
 
 use crate::math::
@@ -88,6 +91,130 @@ impl<const D: usize, const L: usize> IndexMut<usize> for TensorRank1List<D, L>
     fn index_mut(&mut self, index: usize) -> &mut Self::Output
     {
         &mut self.0[index]
+    }
+}
+
+impl<const D: usize, const L: usize> Div<TensorRank0> for TensorRank1List<D, L>
+{
+    type Output = Self;
+    fn div(mut self, tensor_rank_0: TensorRank0) -> Self::Output
+    {
+        self /= &tensor_rank_0;
+        self
+    }
+}
+
+impl<const D: usize, const L: usize> Div<TensorRank0> for &TensorRank1List<D, L>
+{
+    type Output = TensorRank1List<D, L>;
+    fn div(self, tensor_rank_0: TensorRank0) -> Self::Output
+    {
+        self.iter().map(|self_i|
+            self_i / tensor_rank_0
+        ).collect()
+    }
+}
+
+impl<const D: usize, const L: usize> Div<&TensorRank0> for TensorRank1List<D, L>
+{
+    type Output = Self;
+    fn div(mut self, tensor_rank_0: &TensorRank0) -> Self::Output
+    {
+        self /= tensor_rank_0;
+        self
+    }
+}
+
+impl<const D: usize, const L: usize> Div<&TensorRank0> for &TensorRank1List<D, L>
+{
+    type Output = TensorRank1List<D, L>;
+    fn div(self, tensor_rank_0: &TensorRank0) -> Self::Output
+    {
+        self.iter().map(|self_i|
+            self_i / tensor_rank_0
+        ).collect()
+    }
+}
+
+impl<const D: usize, const L: usize> DivAssign<TensorRank0> for TensorRank1List<D, L>
+{
+    fn div_assign(&mut self, tensor_rank_0: TensorRank0)
+    {
+        self.iter_mut().for_each(|entry|
+            *entry /= &tensor_rank_0
+        );
+    }
+}
+
+impl<const D: usize, const L: usize> DivAssign<&TensorRank0> for TensorRank1List<D, L>
+{
+    fn div_assign(&mut self, tensor_rank_0: &TensorRank0)
+    {
+        self.iter_mut().for_each(|entry|
+            *entry /= tensor_rank_0
+        );
+    }
+}
+
+impl<const D: usize, const L: usize> Mul<TensorRank0> for TensorRank1List<D, L>
+{
+    type Output = Self;
+    fn mul(mut self, tensor_rank_0: TensorRank0) -> Self::Output
+    {
+        self *= &tensor_rank_0;
+        self
+    }
+}
+
+impl<const D: usize, const L: usize> Mul<TensorRank0> for &TensorRank1List<D, L>
+{
+    type Output = TensorRank1List<D, L>;
+    fn mul(self, tensor_rank_0: TensorRank0) -> Self::Output
+    {
+        self.iter().map(|self_i|
+            self_i * tensor_rank_0
+        ).collect()
+    }
+}
+
+impl<const D: usize, const L: usize> Mul<&TensorRank0> for TensorRank1List<D, L>
+{
+    type Output = Self;
+    fn mul(mut self, tensor_rank_0: &TensorRank0) -> Self::Output
+    {
+        self *= tensor_rank_0;
+        self
+    }
+}
+
+impl<const D: usize, const L: usize> Mul<&TensorRank0> for &TensorRank1List<D, L>
+{
+    type Output = TensorRank1List<D, L>;
+    fn mul(self, tensor_rank_0: &TensorRank0) -> Self::Output
+    {
+        self.iter().map(|self_i|
+            self_i * tensor_rank_0
+        ).collect()
+    }
+}
+
+impl<const D: usize, const L: usize> MulAssign<TensorRank0> for TensorRank1List<D, L>
+{
+    fn mul_assign(&mut self, tensor_rank_0: TensorRank0)
+    {
+        self.iter_mut().for_each(|entry|
+            *entry *= &tensor_rank_0
+        );
+    }
+}
+
+impl<const D: usize, const L: usize> MulAssign<&TensorRank0> for TensorRank1List<D, L>
+{
+    fn mul_assign(&mut self, tensor_rank_0: &TensorRank0)
+    {
+        self.iter_mut().for_each(|entry|
+            *entry *= tensor_rank_0
+        );
     }
 }
 

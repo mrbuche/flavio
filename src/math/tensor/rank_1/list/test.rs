@@ -5,7 +5,31 @@ use super::
 };
 
 #[test]
-fn div_tensor_rank_0_to_self()
+fn add_tensor_rank_1_list_to_self()
+{
+    todo!()
+}
+
+#[test]
+fn add_tensor_rank_1_list_ref_to_self()
+{
+    todo!()
+}
+
+#[test]
+fn add_tensor_rank_1_list_to_self_ref()
+{
+    todo!()
+}
+
+#[test]
+fn add_assign_tensor_rank_1_list()
+{
+    todo!()
+}
+
+#[test]
+fn add_assign_tensor_rank_1_list_ref()
 {
     todo!()
 }
@@ -120,6 +144,30 @@ fn mul_tensor_rank_1_list_ref_to_self_ref()
 
 #[test]
 fn new()
+{
+    todo!()
+}
+
+#[test]
+fn sub_tensor_rank_1_list_to_self()
+{
+    todo!()
+}
+
+#[test]
+fn sub_tensor_rank_1_list_ref_to_self()
+{
+    todo!()
+}
+
+#[test]
+fn sub_assign_tensor_rank_1_list()
+{
+    todo!()
+}
+
+#[test]
+fn sub_assign_tensor_rank_1_list_ref()
 {
     todo!()
 }
