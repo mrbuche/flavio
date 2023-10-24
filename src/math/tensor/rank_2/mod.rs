@@ -56,19 +56,9 @@ where
         + Sized
 {
     type AsTensorRank4;
-    fn as_tensor_rank_4(&self) -> AsTensorRank4
+    fn as_tensor_rank_4(&self) -> Self::AsTensorRank4
     {
-        let mut tensor_rank_4 = TensorRank4::zero();
-        tensor_rank_4.iter_mut().enumerate().for_each(|(i, tensor_rank_4_i)|
-            tensor_rank_4_i.iter_mut().enumerate().for_each(|(j, tensor_rank_4_ij)|
-                tensor_rank_4_ij.iter_mut().enumerate().for_each(|(k, tensor_rank_4_ijk)|
-                    tensor_rank_4_ijk.iter_mut().enumerate().for_each(|(l, tensor_rank_4_ijkl)|
-                        *tensor_rank_4_ijkl = self[3*i + j][3*k + l]
-                    )
-                )
-            )
-        );
-        tensor_rank_4
+        panic!()
     }
     fn determinant(&self) -> TensorRank0;
     fn deviatoric(&self) -> Self;
@@ -199,6 +189,7 @@ where
 
 impl TensorRank2Traits<2> for TensorRank2<2>
 {
+    type AsTensorRank4 = TensorRank4<1>;
     fn determinant(&self) -> TensorRank0
     {
         self[0][0] * self[1][1] - self[0][1] * self[1][0]
@@ -283,6 +274,7 @@ impl TensorRank2Traits<2> for TensorRank2<2>
 
 impl TensorRank2Traits<3> for TensorRank2<3>
 {
+    type AsTensorRank4 = TensorRank4<1>;
     fn determinant(&self) -> TensorRank0
     {
         let c_00 = self[1][1] * self[2][2] - self[1][2] * self[2][1];
@@ -434,6 +426,7 @@ impl TensorRank2Traits<3> for TensorRank2<3>
 
 impl TensorRank2Traits<4> for TensorRank2<4>
 {
+    type AsTensorRank4 = TensorRank4<1>;
     fn determinant(&self) -> TensorRank0
     {
         let s0 = self[0][0] * self[1][1] - self[0][1] * self[1][0];
@@ -666,6 +659,21 @@ impl TensorRank2Traits<4> for TensorRank2<4>
 
 impl TensorRank2Traits<9> for TensorRank2<9>
 {
+    type AsTensorRank4 = TensorRank4<3>;
+    fn as_tensor_rank_4(&self) -> Self::AsTensorRank4
+    {
+        let mut tensor_rank_4 = TensorRank4::zero();
+        tensor_rank_4.iter_mut().enumerate().for_each(|(i, tensor_rank_4_i)|
+            tensor_rank_4_i.iter_mut().enumerate().for_each(|(j, tensor_rank_4_ij)|
+                tensor_rank_4_ij.iter_mut().enumerate().for_each(|(k, tensor_rank_4_ijk)|
+                    tensor_rank_4_ijk.iter_mut().enumerate().for_each(|(l, tensor_rank_4_ijkl)|
+                        *tensor_rank_4_ijkl = self[3*i + j][3*k + l]
+                    )
+                )
+            )
+        );
+        tensor_rank_4
+    }
     fn determinant(&self) -> TensorRank0
     {
         let (tensor_l, tensor_u) = self.lu_decomposition();

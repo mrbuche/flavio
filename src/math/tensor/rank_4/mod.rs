@@ -55,7 +55,8 @@ where
         + IndexMut<usize, Output = TensorRank3<D>>
         + Sized
 {
-    fn as_tensor_rank_2(&self) -> TensorRank2<D>;
+    type AsTensorRank2;
+    fn as_tensor_rank_2(&self) -> Self::AsTensorRank2;
     fn dyad_ij_kl(tensor_rank_2_a: T2A, tensor_rank_2_b: T2B) -> Self;
     fn dyad_ik_jl(tensor_rank_2_a: T2A, tensor_rank_2_b: T2B) -> Self;
     fn dyad_il_jk(tensor_rank_2_a: T2A, tensor_rank_2_b: T2B) -> Self;
@@ -72,15 +73,14 @@ where
     }
     fn inverse(&self) -> Self
     {
-        // self.as_tensor_rank_2().inverse().as_tensor_rank_4()
-        todo!()
+        self.as_tensor_rank_2().inverse().as_tensor_rank_4()
     }
 }
 
-impl<const D: usize> TensorRank4Traits<D, &TensorRank2<D>, &TensorRank2<D>> for TensorRank4<D>
+impl TensorRank4Traits<3, &TensorRank2<3>, &TensorRank2<3>> for TensorRank4<3>
 {
-    type AsTensorRank2;
-    fn as_tensor_rank_2(&self) -> AsTensorRank2
+    type AsTensorRank2 = TensorRank2<9>;
+    fn as_tensor_rank_2(&self) -> Self::AsTensorRank2
     {
         let mut tensor_rank_2 = TensorRank2::zero();
         self.iter().enumerate().for_each(|(i, self_i)|
@@ -94,7 +94,7 @@ impl<const D: usize> TensorRank4Traits<D, &TensorRank2<D>, &TensorRank2<D>> for 
         );
         tensor_rank_2
     }
-    fn dyad_ij_kl(tensor_rank_2_a: &TensorRank2<D>, tensor_rank_2_b: &TensorRank2<D>) -> Self
+    fn dyad_ij_kl(tensor_rank_2_a: &TensorRank2<3>, tensor_rank_2_b: &TensorRank2<3>) -> Self
     {
         tensor_rank_2_a.iter().map(|tensor_rank_2_a_i|
             tensor_rank_2_a_i.iter().map(|tensor_rank_2_a_ij|
@@ -102,7 +102,7 @@ impl<const D: usize> TensorRank4Traits<D, &TensorRank2<D>, &TensorRank2<D>> for 
             ).collect()
         ).collect()
     }
-    fn dyad_ik_jl(tensor_rank_2_a: &TensorRank2<D>, tensor_rank_2_b: &TensorRank2<D>) -> Self
+    fn dyad_ik_jl(tensor_rank_2_a: &TensorRank2<3>, tensor_rank_2_b: &TensorRank2<3>) -> Self
     {
         tensor_rank_2_a.iter().map(|tensor_rank_2_a_i|
             tensor_rank_2_b.iter().map(|tensor_rank_2_b_j|
@@ -112,7 +112,7 @@ impl<const D: usize> TensorRank4Traits<D, &TensorRank2<D>, &TensorRank2<D>> for 
             ).collect()
         ).collect()
     }
-    fn dyad_il_jk(tensor_rank_2_a: &TensorRank2<D>, tensor_rank_2_b: &TensorRank2<D>) -> Self
+    fn dyad_il_jk(tensor_rank_2_a: &TensorRank2<3>, tensor_rank_2_b: &TensorRank2<3>) -> Self
     {
         tensor_rank_2_a.iter().map(|tensor_rank_2_a_i|
             tensor_rank_2_b.iter().map(|tensor_rank_2_b_j|
@@ -122,14 +122,9 @@ impl<const D: usize> TensorRank4Traits<D, &TensorRank2<D>, &TensorRank2<D>> for 
             ).collect()
         ).collect()
     }
-    fn dyad_il_kj(tensor_rank_2_a: &TensorRank2<D>, tensor_rank_2_b: &TensorRank2<D>) -> Self
+    fn dyad_il_kj(tensor_rank_2_a: &TensorRank2<3>, tensor_rank_2_b: &TensorRank2<3>) -> Self
     {
-        let tensor_rank_2_b_transpose = (0..D).map(|i|
-            (0..D).map(|j|
-                tensor_rank_2_b[j][i]
-            ).collect()
-        ).collect();
-        Self::dyad_il_jk(tensor_rank_2_a, &tensor_rank_2_b_transpose)
+        Self::dyad_il_jk(tensor_rank_2_a, &(tensor_rank_2_b.transpose()))
     }
 }
 
