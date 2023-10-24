@@ -5,7 +5,12 @@ use super::
     TensorRank1,
     TensorRank1Traits,
     TensorRank2,
-    TensorRank2Traits
+    TensorRank2Traits,
+    TensorRank4
+};
+use crate::math::tensor::rank_4::
+{
+    TensorRank4Traits
 };
 
 fn get_array_dim_2() -> [[TensorRank0; 2]; 2]
@@ -149,10 +154,67 @@ fn get_other_tensor_rank_2_mul_tensor_rank_2_dim_4() -> TensorRank2<4>
     ])
 }
 
+fn get_tensor_rank_2_dim_9_as_tensor_rank_4_dim_3() -> TensorRank4<3>
+{
+    TensorRank4::new([[[
+        [2.0, 2.0, 4.0],
+        [0.0, 0.0, 1.0],
+        [1.0, 3.0, 3.0]
+        ], [
+        [0.0, 3.0, 1.0],
+        [0.0, 0.0, 1.0],
+        [4.0, 2.0, 1.0]
+        ], [
+        [3.0, 0.0, 1.0],
+        [2.0, 0.0, 3.0],
+        [4.0, 4.0, 2.0]
+    ]], [[
+        [4.0, 4.0, 0.0],
+        [2.0, 1.0, 1.0],
+        [0.0, 0.0, 4.0]
+        ], [
+        [0.0, 1.0, 0.0],
+        [1.0, 1.0, 3.0],
+        [0.0, 1.0, 1.0]
+        ], [
+        [4.0, 2.0, 3.0],
+        [4.0, 2.0, 4.0],
+        [3.0, 0.0, 4.0]
+    ]], [[
+        [1.0, 3.0, 2.0],
+        [0.0, 0.0, 0.0],
+        [2.0, 4.0, 2.0]
+        ], [
+        [2.0, 2.0, 2.0],
+        [4.0, 1.0, 2.0],
+        [4.0, 2.0, 2.0]
+        ], [
+        [1.0, 2.0, 3.0],
+        [4.0, 0.0, 1.0],
+        [4.0, 2.0, 1.0]
+    ]]])
+}
+
 #[test]
 fn as_tensor_rank_4()
 {
-    todo!()
+    get_tensor_rank_2_dim_9().as_tensor_rank_4().iter()
+    .zip(get_tensor_rank_2_dim_9_as_tensor_rank_4_dim_3().iter())
+    .for_each(|(as_tensor_rank_4_i, tensor_rank_4_i)|
+        as_tensor_rank_4_i.iter()
+        .zip(tensor_rank_4_i.iter())
+        .for_each(|(as_tensor_rank_4_ij, tensor_rank_4_ij)|
+            as_tensor_rank_4_ij.iter()
+            .zip(tensor_rank_4_ij.iter())
+            .for_each(|(as_tensor_rank_4_ijk, tensor_rank_4_ijk)|
+                as_tensor_rank_4_ijk.iter()
+                .zip(tensor_rank_4_ijk.iter())
+                .for_each(|(as_tensor_rank_4_ijkl, tensor_rank_4_ijkl)|
+                    assert_eq!(as_tensor_rank_4_ijkl, tensor_rank_4_ijkl)
+                )
+            )
+        )
+    );
 }
 
 #[test]

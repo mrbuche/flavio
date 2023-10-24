@@ -55,7 +55,8 @@ where
         + IndexMut<usize, Output = TensorRank1<D>>
         + Sized
 {
-    fn as_tensor_rank_4(&self) -> TensorRank4<3>
+    type AsTensorRank4;
+    fn as_tensor_rank_4(&self) -> AsTensorRank4
     {
         let mut tensor_rank_4 = TensorRank4::zero();
         tensor_rank_4.iter_mut().enumerate().for_each(|(i, tensor_rank_4_i)|

@@ -79,7 +79,8 @@ where
 
 impl<const D: usize> TensorRank4Traits<D, &TensorRank2<D>, &TensorRank2<D>> for TensorRank4<D>
 {
-    fn as_tensor_rank_2(&self) -> TensorRank2<D>
+    type AsTensorRank2;
+    fn as_tensor_rank_2(&self) -> AsTensorRank2
     {
         let mut tensor_rank_2 = TensorRank2::zero();
         self.iter().enumerate().for_each(|(i, self_i)|
