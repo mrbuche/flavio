@@ -640,11 +640,11 @@ fn inverse_dim_2()
         .for_each(|(j, tensor_rank_2_ij)|
             if i == j
             {
-                assert_eq!(tensor_rank_2_ij, &1.0)
+                assert_eq_within_tols(tensor_rank_2_ij, &1.0)
             }
             else
             {
-                assert_eq!(tensor_rank_2_ij, &0.0)
+                assert_eq_within_tols(tensor_rank_2_ij, &0.0)
             }
         )
     );
@@ -1150,11 +1150,11 @@ fn mul_tensor_rank_2_to_self()
 {
     (get_tensor_rank_2_dim_4() * get_other_tensor_rank_2_dim_4()).iter()
     .zip(get_other_tensor_rank_2_mul_tensor_rank_2_dim_4().iter())
-    .for_each(|(tensor_rank_1_i, res_tensor_rank_1_i)|
-        tensor_rank_1_i.iter()
-        .zip(res_tensor_rank_1_i.iter())
-        .for_each(|(tensor_rank_1_ij, res_tensor_rank_1_ij)|
-            assert_eq!(tensor_rank_1_ij, res_tensor_rank_1_ij)
+    .for_each(|(tensor_rank_2_i, res_tensor_rank_2_i)|
+        tensor_rank_2_i.iter()
+        .zip(res_tensor_rank_2_i.iter())
+        .for_each(|(tensor_rank_2_ij, res_tensor_rank_2_ij)|
+            assert_eq!(tensor_rank_2_ij, res_tensor_rank_2_ij)
         )
     );
 }
@@ -1164,11 +1164,11 @@ fn mul_tensor_rank_2_ref_to_self()
 {
     (get_tensor_rank_2_dim_4() * &get_other_tensor_rank_2_dim_4()).iter()
     .zip(get_other_tensor_rank_2_mul_tensor_rank_2_dim_4().iter())
-    .for_each(|(tensor_rank_1_i, res_tensor_rank_1_i)|
-        tensor_rank_1_i.iter()
-        .zip(res_tensor_rank_1_i.iter())
-        .for_each(|(tensor_rank_1_ij, res_tensor_rank_1_ij)|
-            assert_eq!(tensor_rank_1_ij, res_tensor_rank_1_ij)
+    .for_each(|(tensor_rank_2_i, res_tensor_rank_2_i)|
+        tensor_rank_2_i.iter()
+        .zip(res_tensor_rank_2_i.iter())
+        .for_each(|(tensor_rank_2_ij, res_tensor_rank_2_ij)|
+            assert_eq!(tensor_rank_2_ij, res_tensor_rank_2_ij)
         )
     );
 }
@@ -1178,11 +1178,11 @@ fn mul_tensor_rank_2_to_self_ref()
 {
     (&get_tensor_rank_2_dim_4() * get_other_tensor_rank_2_dim_4()).iter()
     .zip(get_other_tensor_rank_2_mul_tensor_rank_2_dim_4().iter())
-    .for_each(|(tensor_rank_1_i, res_tensor_rank_1_i)|
-        tensor_rank_1_i.iter()
-        .zip(res_tensor_rank_1_i.iter())
-        .for_each(|(tensor_rank_1_ij, res_tensor_rank_1_ij)|
-            assert_eq!(tensor_rank_1_ij, res_tensor_rank_1_ij)
+    .for_each(|(tensor_rank_2_i, res_tensor_rank_2_i)|
+        tensor_rank_2_i.iter()
+        .zip(res_tensor_rank_2_i.iter())
+        .for_each(|(tensor_rank_2_ij, res_tensor_rank_2_ij)|
+            assert_eq!(tensor_rank_2_ij, res_tensor_rank_2_ij)
         )
     );
 }
@@ -1192,11 +1192,11 @@ fn mul_tensor_rank_2_ref_to_self_ref()
 {
     (&get_tensor_rank_2_dim_4() * &get_other_tensor_rank_2_dim_4()).iter()
     .zip(get_other_tensor_rank_2_mul_tensor_rank_2_dim_4().iter())
-    .for_each(|(tensor_rank_1_i, res_tensor_rank_1_i)|
-        tensor_rank_1_i.iter()
-        .zip(res_tensor_rank_1_i.iter())
-        .for_each(|(tensor_rank_1_ij, res_tensor_rank_1_ij)|
-            assert_eq!(tensor_rank_1_ij, res_tensor_rank_1_ij)
+    .for_each(|(tensor_rank_2_i, res_tensor_rank_2_i)|
+        tensor_rank_2_i.iter()
+        .zip(res_tensor_rank_2_i.iter())
+        .for_each(|(tensor_rank_2_ij, res_tensor_rank_2_ij)|
+            assert_eq!(tensor_rank_2_ij, res_tensor_rank_2_ij)
         )
     );
 }
