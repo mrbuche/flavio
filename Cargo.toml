@@ -7,7 +7,7 @@ homepage = "https://mrbuche.github.io/flavio"
 license = "BSD-3-Clause"
 name = "flavio"
 repository = "https://github.com/mrbuche/flavio"
-version = "0.1.7"
+version = "0.1.8"
 
 [features]
 32 = []
