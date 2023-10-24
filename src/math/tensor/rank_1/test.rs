@@ -100,9 +100,29 @@ fn div_tensor_rank_0_to_self()
 }
 
 #[test]
+fn div_tensor_rank_0_to_self_ref()
+{
+    (&get_tensor_rank_1() / 3.3).iter()
+    .zip(get_array().iter())
+    .for_each(|(tensor_rank_1_i, array_i)|
+        assert_eq!(tensor_rank_1_i, &(array_i / 3.3))
+    );
+}
+
+#[test]
 fn div_tensor_rank_0_ref_to_self()
 {
     (get_tensor_rank_1() / &3.3).iter()
+    .zip(get_array().iter())
+    .for_each(|(tensor_rank_1_i, array_i)|
+        assert_eq!(tensor_rank_1_i, &(array_i / 3.3))
+    );
+}
+
+#[test]
+fn div_tensor_rank_0_ref_to_self_ref()
+{
+    (&get_tensor_rank_1() / &3.3).iter()
     .zip(get_array().iter())
     .for_each(|(tensor_rank_1_i, array_i)|
         assert_eq!(tensor_rank_1_i, &(array_i / 3.3))
@@ -146,7 +166,7 @@ fn from_iter()
 }
 
 #[test]
-fn index()
+fn iter()
 {
     get_tensor_rank_1().iter()
     .zip(get_array().iter())
@@ -156,7 +176,7 @@ fn index()
 }
 
 #[test]
-fn index_mut()
+fn iter_mut()
 {
     get_tensor_rank_1().iter_mut()
     .zip(get_array().iter_mut())
@@ -176,9 +196,29 @@ fn mul_tensor_rank_0_to_self()
 }
 
 #[test]
+fn mul_tensor_rank_0_to_self_ref()
+{
+    (&get_tensor_rank_1() * 3.3).iter()
+    .zip(get_array().iter())
+    .for_each(|(tensor_rank_1_i, array_i)|
+        assert_eq!(tensor_rank_1_i, &(array_i * 3.3))
+    );
+}
+
+#[test]
 fn mul_tensor_rank_0_ref_to_self()
 {
     (get_tensor_rank_1() * &3.3).iter()
+    .zip(get_array().iter())
+    .for_each(|(tensor_rank_1_i, array_i)|
+        assert_eq!(tensor_rank_1_i, &(array_i * 3.3))
+    );
+}
+
+#[test]
+fn mul_tensor_rank_0_ref_to_self_ref()
+{
+    (&get_tensor_rank_1() * &3.3).iter()
     .zip(get_array().iter())
     .for_each(|(tensor_rank_1_i, array_i)|
         assert_eq!(tensor_rank_1_i, &(array_i * 3.3))

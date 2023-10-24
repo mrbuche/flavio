@@ -23,7 +23,8 @@ use super::
     {
         TensorRank1,
         TensorRank1Traits
-    }
+    },
+    rank_4::TensorRank4
 };
 
 pub struct TensorRank2<const D: usize>
@@ -33,39 +34,35 @@ pub struct TensorRank2<const D: usize>
 
 impl<const D: usize> TensorRank2<D>
 {
-    fn iter(&self) -> impl Iterator<Item = &TensorRank1<D>>
+    pub fn iter(&self) -> impl Iterator<Item = &TensorRank1<D>>
     {
         self.0.iter()
     }
-    fn iter_mut(&mut self) -> impl Iterator<Item = &mut TensorRank1<D>>
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut TensorRank1<D>>
     {
         self.0.iter_mut()
     }
+    pub fn zero() -> Self
+    {
+        Self(std::array::from_fn(|_| TensorRank1::zero()))
+    }
 }
 
-pub trait TensorRank2Traits<'a, const D: usize>
+pub trait TensorRank2Traits<const D: usize>
 where
-    Self: 'a
-        + Add<&'a Self, Output = Self>
-        + FromIterator<TensorRank1<D>>
+    Self: FromIterator<TensorRank1<D>>
         + Index<usize, Output = TensorRank1<D>>
         + IndexMut<usize, Output = TensorRank1<D>>
-        + Mul<TensorRank0, Output = Self>
-        + Mul<Output = Self>
-        + Mul<&'a Self, Output = Self>
         + Sized
-        + Sub<Output = Self>,
-    &'a Self: Mul<&'a Self, Output = Self>
 {
-    fn determinant(&self) -> TensorRank0
+    type AsTensorRank4;
+    fn as_tensor_rank_4(&self) -> Self::AsTensorRank4
     {
         panic!()
     }
-    fn deviatoric(&'a self) -> Self
-    {
-        let factor = -self.trace() / (D as TensorRank0);
-        Self::identity() * factor + self
-    }
+    fn determinant(&self) -> TensorRank0;
+    fn deviatoric(&self) -> Self;
+    fn deviatoric_and_trace(&self) -> (Self, TensorRank0);
     fn dyad(vector_a: &TensorRank1<D>, vector_b: &TensorRank1<D>) -> Self
     {
         vector_a.iter().map(|vector_a_i|
@@ -74,10 +71,7 @@ where
             ).collect()
         ).collect()
     }
-    fn full_contraction(&'a self, tensor_rank_2: &'a Self) -> TensorRank0
-    {
-        (self.transpose() * tensor_rank_2).trace()
-    }
+    fn full_contraction(&self, tensor_rank_2: &Self) -> TensorRank0;
     fn identity() -> Self
     {
         (0..D).map(|i|
@@ -86,15 +80,10 @@ where
             ).collect()
         ).collect()
     }
-    fn inverse(&self) -> Self
-    {
-        let (tensor_l, tensor_u) = self.lu_decomposition();
-        tensor_u.inverse_upper_triangular() * tensor_l.inverse_lower_triangular()
-    }
-    fn inverse_transpose(&self) -> Self
-    {
-        self.inverse().transpose()
-    }
+    fn inverse(&self) -> Self;
+    fn inverse_and_determinant(&self) -> (Self, TensorRank0);
+    fn inverse_transpose(&self) -> Self;
+    fn inverse_transpose_and_determinant(&self) -> (Self, TensorRank0);
     fn inverse_lower_triangular(mut self) -> Self
     {
         let mut sum;
@@ -175,18 +164,12 @@ where
             TensorRank1(*array_i)
         ).collect()
     }
-    fn norm(&'a self) -> TensorRank0
+    fn norm(&self) -> TensorRank0;
+    fn second_invariant(&self) -> TensorRank0
     {
-        ((self.transpose() * self).trace()/2.0).sqrt()
+        0.5*(self.trace().powi(2) - self.squared_trace())
     }
-    fn second_invariant(&'a self) -> TensorRank0
-    {
-        0.5*(self.trace().powi(2) - self.squared().trace())
-    }
-    fn squared(&'a self) -> Self
-    {
-        self * self
-    }
+    fn squared_trace(&self) -> TensorRank0;
     fn trace(&self) -> TensorRank0
     {
         (0..D).map(|i|
@@ -201,19 +184,35 @@ where
             ).collect()
         ).collect()
     }
-    fn zero() -> Self
-    {
-        (0..D).map(|_|
-            TensorRank1::zero()
-        ).collect()
-    }
+    fn zero() -> Self;
 }
 
-impl<'a> TensorRank2Traits<'a, 2> for TensorRank2<2>
+impl TensorRank2Traits<2> for TensorRank2<2>
 {
+    type AsTensorRank4 = TensorRank4<1>;
     fn determinant(&self) -> TensorRank0
     {
         self[0][0] * self[1][1] - self[0][1] * self[1][0]
+    }
+    fn deviatoric(&self) -> Self
+    {
+        Self::identity() * (self.trace() / -2.0) + self
+    }
+    fn deviatoric_and_trace(&self) -> (Self, TensorRank0)
+    {
+        let trace = self.trace();
+        (
+            Self::identity() * (trace / -2.0) + self,
+            trace
+        )
+    }
+    fn full_contraction(&self, tensor_rank_2: &Self) -> TensorRank0
+    {
+        self.iter().zip(tensor_rank_2.iter()).map(|(self_i, tensor_rank_2_i)|
+            self_i.iter().zip(tensor_rank_2_i.iter()).map(|(self_ij, tensor_rank_2_ij)|
+                self_ij * tensor_rank_2_ij
+            ).sum::<TensorRank0>()
+        ).sum()
     }
     fn inverse(&self) -> Self
     {
@@ -222,6 +221,17 @@ impl<'a> TensorRank2Traits<'a, 2> for TensorRank2<2>
             [-self[1][0],  self[0][0]]
         ]) / self.determinant()
     }
+    fn inverse_and_determinant(&self) -> (Self, TensorRank0)
+    {
+        let determinant = self.determinant();
+        (
+            Self::new([
+                [ self[1][1], -self[0][1]],
+                [-self[1][0],  self[0][0]]
+            ]) / determinant,
+            determinant
+        )
+    }
     fn inverse_transpose(&self) -> Self
     {
         Self::new([
@@ -229,16 +239,68 @@ impl<'a> TensorRank2Traits<'a, 2> for TensorRank2<2>
             [-self[0][1],  self[0][0]]
         ]) / self.determinant()
     }
+    fn inverse_transpose_and_determinant(&self) -> (Self, TensorRank0)
+    {
+        let determinant = self.determinant();
+        (
+            Self::new([
+                [ self[1][1], -self[1][0]],
+                [-self[0][1],  self[0][0]]
+            ]) / determinant,
+            determinant
+        )
+    }
+    fn norm(&self) -> TensorRank0
+    {
+        (self.iter().map(|self_i|
+            self_i.iter().map(|self_ij|
+                self_ij.powi(2)
+            ).sum::<TensorRank0>()
+        ).sum::<TensorRank0>()/2.0).sqrt()
+    }
+    fn squared_trace(&self) -> TensorRank0
+    {
+        self.iter().enumerate().map(|(i, self_i)|
+            self_i.iter().zip(self.iter()).map(|(self_ij, self_j)|
+                self_ij * self_j[i]
+            ).sum::<TensorRank0>()
+        ).sum()
+    }
+    fn zero() -> Self
+    {
+        Self(std::array::from_fn(|_| TensorRank1::zero()))
+    }
 }
 
-impl<'a> TensorRank2Traits<'a, 3> for TensorRank2<3>
+impl TensorRank2Traits<3> for TensorRank2<3>
 {
+    type AsTensorRank4 = TensorRank4<1>;
     fn determinant(&self) -> TensorRank0
     {
         let c_00 = self[1][1] * self[2][2] - self[1][2] * self[2][1];
         let c_10 = self[1][2] * self[2][0] - self[1][0] * self[2][2];
         let c_20 = self[1][0] * self[2][1] - self[1][1] * self[2][0];
         self[0][0] * c_00 + self[0][1] * c_10 + self[0][2] * c_20
+    }
+    fn deviatoric(&self) -> Self
+    {
+        Self::identity() * (self.trace() / -3.0) + self
+    }
+    fn deviatoric_and_trace(&self) -> (Self, TensorRank0)
+    {
+        let trace = self.trace();
+        (
+            Self::identity() * (trace / -3.0) + self,
+            trace
+        )
+    }
+    fn full_contraction(&self, tensor_rank_2: &Self) -> TensorRank0
+    {
+        self.iter().zip(tensor_rank_2.iter()).map(|(self_i, tensor_rank_2_i)|
+            self_i.iter().zip(tensor_rank_2_i.iter()).map(|(self_ij, tensor_rank_2_ij)|
+                self_ij * tensor_rank_2_ij
+            ).sum::<TensorRank0>()
+        ).sum()
     }
     fn inverse(&self) -> Self
     {
@@ -263,12 +325,39 @@ impl<'a> TensorRank2Traits<'a, 3> for TensorRank2<3>
             ])
         ]) / (self[0][0] * c_00 + self[0][1] * c_10 + self[0][2] * c_20)
     }
+    fn inverse_and_determinant(&self) -> (Self, TensorRank0)
+    {
+        let c_00 = self[1][1] * self[2][2] - self[1][2] * self[2][1];
+        let c_10 = self[1][2] * self[2][0] - self[1][0] * self[2][2];
+        let c_20 = self[1][0] * self[2][1] - self[1][1] * self[2][0];
+        let determinant = self[0][0] * c_00 + self[0][1] * c_10 + self[0][2] * c_20;
+        (
+            Self([
+                TensorRank1([
+                    c_00,
+                    self[0][2] * self[2][1] - self[0][1] * self[2][2],
+                    self[0][1] * self[1][2] - self[0][2] * self[1][1],
+                ]),
+                TensorRank1([
+                    c_10,
+                    self[0][0] * self[2][2] - self[0][2] * self[2][0],
+                    self[0][2] * self[1][0] - self[0][0] * self[1][2],
+                ]),
+                TensorRank1([
+                    c_20,
+                    self[0][1] * self[2][0] - self[0][0] * self[2][1],
+                    self[0][0] * self[1][1] - self[0][1] * self[1][0],
+                ])
+            ]) / determinant,
+            determinant
+        )
+    }
     fn inverse_transpose(&self) -> Self
     {
         let c_00 = self[1][1] * self[2][2] - self[1][2] * self[2][1];
         let c_10 = self[1][2] * self[2][0] - self[1][0] * self[2][2];
         let c_20 = self[1][0] * self[2][1] - self[1][1] * self[2][0];
-        TensorRank2([
+        Self([
             TensorRank1([
                 c_00,
                 c_10,
@@ -286,10 +375,58 @@ impl<'a> TensorRank2Traits<'a, 3> for TensorRank2<3>
             ])
         ]) / (self[0][0] * c_00 + self[0][1] * c_10 + self[0][2] * c_20)
     }
+    fn inverse_transpose_and_determinant(&self) -> (Self, TensorRank0)
+    {
+        let c_00 = self[1][1] * self[2][2] - self[1][2] * self[2][1];
+        let c_10 = self[1][2] * self[2][0] - self[1][0] * self[2][2];
+        let c_20 = self[1][0] * self[2][1] - self[1][1] * self[2][0];
+        let determinant = self[0][0] * c_00 + self[0][1] * c_10 + self[0][2] * c_20;
+        (
+            Self([
+                TensorRank1([
+                    c_00,
+                    c_10,
+                    c_20,
+                ]),
+                TensorRank1([
+                    self[0][2] * self[2][1] - self[0][1] * self[2][2],
+                    self[0][0] * self[2][2] - self[0][2] * self[2][0],
+                    self[0][1] * self[2][0] - self[0][0] * self[2][1],
+                ]),
+                TensorRank1([
+                    self[0][1] * self[1][2] - self[0][2] * self[1][1],
+                    self[0][2] * self[1][0] - self[0][0] * self[1][2],
+                    self[0][0] * self[1][1] - self[0][1] * self[1][0],
+                ])
+            ]) / determinant,
+            determinant
+        )
+    }
+    fn norm(&self) -> TensorRank0
+    {
+        (self.iter().map(|self_i|
+            self_i.iter().map(|self_ij|
+                self_ij.powi(2)
+            ).sum::<TensorRank0>()
+        ).sum::<TensorRank0>()/2.0).sqrt()
+    }
+    fn squared_trace(&self) -> TensorRank0
+    {
+        self.iter().enumerate().map(|(i, self_i)|
+            self_i.iter().zip(self.iter()).map(|(self_ij, self_j)|
+                self_ij * self_j[i]
+            ).sum::<TensorRank0>()
+        ).sum()
+    }
+    fn zero() -> Self
+    {
+        Self(std::array::from_fn(|_| TensorRank1::zero()))
+    }
 }
 
-impl<'a> TensorRank2Traits<'a, 4> for TensorRank2<4>
+impl TensorRank2Traits<4> for TensorRank2<4>
 {
+    type AsTensorRank4 = TensorRank4<1>;
     fn determinant(&self) -> TensorRank0
     {
         let s0 = self[0][0] * self[1][1] - self[0][1] * self[1][0];
@@ -305,6 +442,26 @@ impl<'a> TensorRank2Traits<'a, 4> for TensorRank2<4>
         let c1 = self[2][0] * self[3][2] - self[2][2] * self[3][0];
         let c0 = self[2][0] * self[3][1] - self[2][1] * self[3][0];
         s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * c0
+    }
+    fn deviatoric(&self) -> Self
+    {
+        Self::identity() * (self.trace() / -4.0) + self
+    }
+    fn deviatoric_and_trace(&self) -> (Self, TensorRank0)
+    {
+        let trace = self.trace();
+        (
+            Self::identity() * (trace / -4.0) + self,
+            trace
+        )
+    }
+    fn full_contraction(&self, tensor_rank_2: &Self) -> TensorRank0
+    {
+        self.iter().zip(tensor_rank_2.iter()).map(|(self_i, tensor_rank_2_i)|
+            self_i.iter().zip(tensor_rank_2_i.iter()).map(|(self_ij, tensor_rank_2_ij)|
+                self_ij * tensor_rank_2_ij
+            ).sum::<TensorRank0>()
+        ).sum()
     }
     fn inverse(&self) -> Self
     {
@@ -347,6 +504,51 @@ impl<'a> TensorRank2Traits<'a, 4> for TensorRank2<4>
             ])
         ]) / (s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * c0)
     }
+    fn inverse_and_determinant(&self) -> (Self, TensorRank0)
+    {
+        let s0 = self[0][0] * self[1][1] - self[0][1] * self[1][0];
+        let s1 = self[0][0] * self[1][2] - self[0][2] * self[1][0];
+        let s2 = self[0][0] * self[1][3] - self[0][3] * self[1][0];
+        let s3 = self[0][1] * self[1][2] - self[0][2] * self[1][1];
+        let s4 = self[0][1] * self[1][3] - self[0][3] * self[1][1];
+        let s5 = self[0][2] * self[1][3] - self[0][3] * self[1][2];
+        let c5 = self[2][2] * self[3][3] - self[2][3] * self[3][2];
+        let c4 = self[2][1] * self[3][3] - self[2][3] * self[3][1];
+        let c3 = self[2][1] * self[3][2] - self[2][2] * self[3][1];
+        let c2 = self[2][0] * self[3][3] - self[2][3] * self[3][0];
+        let c1 = self[2][0] * self[3][2] - self[2][2] * self[3][0];
+        let c0 = self[2][0] * self[3][1] - self[2][1] * self[3][0];
+        let determinant = s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * c0;
+        (
+            TensorRank2([
+                TensorRank1([
+                    self[1][1] * c5 - self[1][2] * c4 + self[1][3] * c3,
+                    self[0][2] * c4 - self[0][1] * c5 - self[0][3] * c3,
+                    self[3][1] * s5 - self[3][2] * s4 + self[3][3] * s3,
+                    self[2][2] * s4 - self[2][1] * s5 - self[2][3] * s3
+                ]),
+                TensorRank1([
+                    self[1][2] * c2 - self[1][0] * c5 - self[1][3] * c1,
+                    self[0][0] * c5 - self[0][2] * c2 + self[0][3] * c1,
+                    self[3][2] * s2 - self[3][0] * s5 - self[3][3] * s1,
+                    self[2][0] * s5 - self[2][2] * s2 + self[2][3] * s1
+                ]),
+                TensorRank1([
+                    self[1][0] * c4 - self[1][1] * c2 + self[1][3] * c0,
+                    self[0][1] * c2 - self[0][0] * c4 - self[0][3] * c0,
+                    self[3][0] * s4 - self[3][1] * s2 + self[3][3] * s0,
+                    self[2][1] * s2 - self[2][0] * s4 - self[2][3] * s0
+                ]),
+                TensorRank1([
+                    self[1][1] * c1 - self[1][0] * c3 - self[1][2] * c0,
+                    self[0][0] * c3 - self[0][1] * c1 + self[0][2] * c0,
+                    self[3][1] * s1 - self[3][0] * s3 - self[3][2] * s0,
+                    self[2][0] * s3 - self[2][1] * s1 + self[2][2] * s0
+                ])
+            ]) / determinant,
+            determinant
+        )
+    }
     fn inverse_transpose(&self) -> Self
     {
         let s0 = self[0][0] * self[1][1] - self[0][1] * self[1][0];
@@ -361,7 +563,7 @@ impl<'a> TensorRank2Traits<'a, 4> for TensorRank2<4>
         let c2 = self[2][0] * self[3][3] - self[2][3] * self[3][0];
         let c1 = self[2][0] * self[3][2] - self[2][2] * self[3][0];
         let c0 = self[2][0] * self[3][1] - self[2][1] * self[3][0];
-        TensorRank2([
+        Self([
             TensorRank1([
                 self[1][1] * c5 - self[1][2] * c4 + self[1][3] * c3,
                 self[1][2] * c2 - self[1][0] * c5 - self[1][3] * c1,
@@ -388,15 +590,170 @@ impl<'a> TensorRank2Traits<'a, 4> for TensorRank2<4>
             ])
         ]) / (s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * c0)
     }
+    fn inverse_transpose_and_determinant(&self) -> (Self, TensorRank0)
+    {
+        let s0 = self[0][0] * self[1][1] - self[0][1] * self[1][0];
+        let s1 = self[0][0] * self[1][2] - self[0][2] * self[1][0];
+        let s2 = self[0][0] * self[1][3] - self[0][3] * self[1][0];
+        let s3 = self[0][1] * self[1][2] - self[0][2] * self[1][1];
+        let s4 = self[0][1] * self[1][3] - self[0][3] * self[1][1];
+        let s5 = self[0][2] * self[1][3] - self[0][3] * self[1][2];
+        let c5 = self[2][2] * self[3][3] - self[2][3] * self[3][2];
+        let c4 = self[2][1] * self[3][3] - self[2][3] * self[3][1];
+        let c3 = self[2][1] * self[3][2] - self[2][2] * self[3][1];
+        let c2 = self[2][0] * self[3][3] - self[2][3] * self[3][0];
+        let c1 = self[2][0] * self[3][2] - self[2][2] * self[3][0];
+        let c0 = self[2][0] * self[3][1] - self[2][1] * self[3][0];
+        let determinant = s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * c0;
+        (
+            Self([
+                TensorRank1([
+                    self[1][1] * c5 - self[1][2] * c4 + self[1][3] * c3,
+                    self[1][2] * c2 - self[1][0] * c5 - self[1][3] * c1,
+                    self[1][0] * c4 - self[1][1] * c2 + self[1][3] * c0,
+                    self[1][1] * c1 - self[1][0] * c3 - self[1][2] * c0,
+                ]),
+                TensorRank1([
+                    self[0][2] * c4 - self[0][1] * c5 - self[0][3] * c3,
+                    self[0][0] * c5 - self[0][2] * c2 + self[0][3] * c1,
+                    self[0][1] * c2 - self[0][0] * c4 - self[0][3] * c0,
+                    self[0][0] * c3 - self[0][1] * c1 + self[0][2] * c0
+                ]),
+                TensorRank1([
+                    self[3][1] * s5 - self[3][2] * s4 + self[3][3] * s3,
+                    self[3][2] * s2 - self[3][0] * s5 - self[3][3] * s1,
+                    self[3][0] * s4 - self[3][1] * s2 + self[3][3] * s0,
+                    self[3][1] * s1 - self[3][0] * s3 - self[3][2] * s0
+                ]),
+                TensorRank1([
+                    self[2][2] * s4 - self[2][1] * s5 - self[2][3] * s3,
+                    self[2][0] * s5 - self[2][2] * s2 + self[2][3] * s1,
+                    self[2][1] * s2 - self[2][0] * s4 - self[2][3] * s0,
+                    self[2][0] * s3 - self[2][1] * s1 + self[2][2] * s0
+                ])
+            ]) / determinant,
+            determinant
+        )
+    }
+    fn norm(&self) -> TensorRank0
+    {
+        (self.iter().map(|self_i|
+            self_i.iter().map(|self_ij|
+                self_ij.powi(2)
+            ).sum::<TensorRank0>()
+        ).sum::<TensorRank0>()/2.0).sqrt()
+    }
+    fn squared_trace(&self) -> TensorRank0
+    {
+        self.iter().enumerate().map(|(i, self_i)|
+            self_i.iter().zip(self.iter()).map(|(self_ij, self_j)|
+                self_ij * self_j[i]
+            ).sum::<TensorRank0>()
+        ).sum()
+    }
+    fn zero() -> Self
+    {
+        Self(std::array::from_fn(|_| TensorRank1::zero()))
+    }
 }
 
-impl<'a> TensorRank2Traits<'a, 9> for TensorRank2<9> {}
+impl TensorRank2Traits<9> for TensorRank2<9>
+{
+    type AsTensorRank4 = TensorRank4<3>;
+    fn as_tensor_rank_4(&self) -> Self::AsTensorRank4
+    {
+        let mut tensor_rank_4 = TensorRank4::zero();
+        tensor_rank_4.iter_mut().enumerate().for_each(|(i, tensor_rank_4_i)|
+            tensor_rank_4_i.iter_mut().enumerate().for_each(|(j, tensor_rank_4_ij)|
+                tensor_rank_4_ij.iter_mut().enumerate().for_each(|(k, tensor_rank_4_ijk)|
+                    tensor_rank_4_ijk.iter_mut().enumerate().for_each(|(l, tensor_rank_4_ijkl)|
+                        *tensor_rank_4_ijkl = self[3*i + j][3*k + l]
+                    )
+                )
+            )
+        );
+        tensor_rank_4
+    }
+    fn determinant(&self) -> TensorRank0
+    {
+        let (tensor_l, tensor_u) = self.lu_decomposition();
+        tensor_l.iter().enumerate().zip(tensor_u.iter()).map(|((i, tensor_l_i), tensor_u_i)|
+            tensor_l_i[i] * tensor_u_i[i]
+        ).product()
+    }
+    fn deviatoric(&self) -> Self
+    {
+        Self::identity() * (self.trace() / -9.0) + self
+    }
+    fn deviatoric_and_trace(&self) -> (Self, TensorRank0)
+    {
+        let trace = self.trace();
+        (
+            Self::identity() * (trace / -9.0) + self,
+            trace
+        )
+    }
+    fn full_contraction(&self, tensor_rank_2: &Self) -> TensorRank0
+    {
+        self.iter().zip(tensor_rank_2.iter()).map(|(self_i, tensor_rank_2_i)|
+            self_i.iter().zip(tensor_rank_2_i.iter()).map(|(self_ij, tensor_rank_2_ij)|
+                self_ij * tensor_rank_2_ij
+            ).sum::<TensorRank0>()
+        ).sum()
+    }
+    fn inverse(&self) -> Self
+    {
+        let (tensor_l, tensor_u) = self.lu_decomposition();
+        tensor_u.inverse_upper_triangular() * tensor_l.inverse_lower_triangular()
+    }
+    fn inverse_and_determinant(&self) -> (Self, TensorRank0)
+    {
+        let (tensor_l, tensor_u) = self.lu_decomposition();
+        let determinant = 
+            tensor_l.iter().enumerate().zip(tensor_u.iter()).map(|((i, tensor_l_i), tensor_u_i)|
+                tensor_l_i[i] * tensor_u_i[i]
+            ).product();
+        (
+            tensor_u.inverse_upper_triangular() * tensor_l.inverse_lower_triangular(),
+            determinant
+        )
+    }
+    fn inverse_transpose(&self) -> Self
+    {
+        self.inverse().transpose()
+    }
+    fn inverse_transpose_and_determinant(&self) -> (Self, TensorRank0)
+    {
+        let (inverse, determinant) = self.inverse_and_determinant();
+        (inverse.transpose(), determinant)
+    }
+    fn norm(&self) -> TensorRank0
+    {
+        (self.iter().map(|self_i|
+            self_i.iter().map(|self_ij|
+                self_ij.powi(2)
+            ).sum::<TensorRank0>()
+        ).sum::<TensorRank0>()/2.0).sqrt()
+    }
+    fn squared_trace(&self) -> TensorRank0
+    {
+        self.iter().enumerate().map(|(i, self_i)|
+            self_i.iter().zip(self.iter()).map(|(self_ij, self_j)|
+                self_ij * self_j[i]
+            ).sum::<TensorRank0>()
+        ).sum()
+    }
+    fn zero() -> Self
+    {
+        Self(std::array::from_fn(|_| TensorRank1::zero()))
+    }
+}
 
 impl<const D: usize> FromIterator<TensorRank1<D>> for TensorRank2<D>
 {
     fn from_iter<I: IntoIterator<Item=TensorRank1<D>>>(into_iterator: I) -> Self
     {
-        let mut tensor_rank_2 = Self(std::array::from_fn(|_| TensorRank1::zero()));
+        let mut tensor_rank_2 = Self::zero();
         tensor_rank_2.iter_mut().zip(into_iterator).for_each(|(tensor_rank_2_i, value_i)|
             *tensor_rank_2_i = value_i
         );
@@ -421,6 +778,20 @@ impl<const D: usize> IndexMut<usize> for TensorRank2<D>
     }
 }
 
+impl<const D: usize> std::iter::Sum for TensorRank2<D>
+{
+    fn sum<I>(iter: I) -> Self
+    where
+        I: Iterator<Item = Self>
+    {
+        let mut output = TensorRank2::zero();
+        iter.for_each(|item|
+            output += item
+        );
+        output
+    }
+}
+
 impl<const D: usize> Div<TensorRank0> for TensorRank2<D>
 {
     type Output = Self;
@@ -431,6 +802,17 @@ impl<const D: usize> Div<TensorRank0> for TensorRank2<D>
     }
 }
 
+impl<const D: usize> Div<TensorRank0> for &TensorRank2<D>
+{
+    type Output = TensorRank2<D>;
+    fn div(self, tensor_rank_0: TensorRank0) -> Self::Output
+    {
+        self.iter().map(|self_i|
+            self_i / tensor_rank_0
+        ).collect()
+    }
+}
+
 impl<const D: usize> Div<&TensorRank0> for TensorRank2<D>
 {
     type Output = Self;
@@ -438,6 +820,17 @@ impl<const D: usize> Div<&TensorRank0> for TensorRank2<D>
     {
         self /= tensor_rank_0;
         self
+    }
+}
+
+impl<const D: usize> Div<&TensorRank0> for &TensorRank2<D>
+{
+    type Output = TensorRank2<D>;
+    fn div(self, tensor_rank_0: &TensorRank0) -> Self::Output
+    {
+        self.iter().map(|self_i|
+            self_i / tensor_rank_0
+        ).collect()
     }
 }
 
@@ -471,6 +864,17 @@ impl<const D: usize> Mul<TensorRank0> for TensorRank2<D>
     }
 }
 
+impl<const D: usize> Mul<TensorRank0> for &TensorRank2<D>
+{
+    type Output = TensorRank2<D>;
+    fn mul(self, tensor_rank_0: TensorRank0) -> Self::Output
+    {
+        self.iter().map(|self_i|
+            self_i * tensor_rank_0
+        ).collect()
+    }
+}
+
 impl<const D: usize> Mul<&TensorRank0> for TensorRank2<D>
 {
     type Output = Self;
@@ -478,6 +882,17 @@ impl<const D: usize> Mul<&TensorRank0> for TensorRank2<D>
     {
         self *= tensor_rank_0;
         self
+    }
+}
+
+impl<const D: usize> Mul<&TensorRank0> for &TensorRank2<D>
+{
+    type Output = TensorRank2<D>;
+    fn mul(self, tensor_rank_0: &TensorRank0) -> Self::Output
+    {
+        self.iter().map(|self_i|
+            self_i * tensor_rank_0
+        ).collect()
     }
 }
 
@@ -573,66 +988,62 @@ impl<const D: usize> AddAssign<&Self> for TensorRank2<D>
     }
 }
 
-impl<'a, const D: usize> Mul for TensorRank2<D>
+impl<const D: usize> Mul for TensorRank2<D>
 where
-    Self: 'a + TensorRank2Traits<'a, D>
+    Self: TensorRank2Traits<D>
 {
     type Output = Self;
     fn mul(self, tensor_rank_2: Self) -> Self::Output
     {
-        let tensor_rank_2_transpose = tensor_rank_2.transpose();
         self.iter().map(|self_i|
-            tensor_rank_2_transpose.iter().map(|tensor_rank_2_j|
-                self_i * tensor_rank_2_j
-            ).collect()
+            self_i.iter().zip(tensor_rank_2.iter()).map(|(self_ij, tensor_rank_2_j)|
+                tensor_rank_2_j * self_ij
+            ).sum()
         ).collect()
     }
 }
 
-impl<'a, const D: usize> Mul<&'a Self> for TensorRank2<D>
+impl<const D: usize> Mul<&Self> for TensorRank2<D>
 where
-    Self: 'a + TensorRank2Traits<'a, D>
+    Self: TensorRank2Traits<D>
 {
     type Output = Self;
     fn mul(self, tensor_rank_2: &Self) -> Self::Output
     {
-        let tensor_rank_2_transpose = tensor_rank_2.transpose();
         self.iter().map(|self_i|
-            tensor_rank_2_transpose.iter().map(|tensor_rank_2_j|
-                self_i * tensor_rank_2_j
-            ).collect()
+            self_i.iter().zip(tensor_rank_2.iter()).map(|(self_ij, tensor_rank_2_j)|
+                tensor_rank_2_j * self_ij
+            ).sum()
         ).collect()
     }
 }
 
-impl<'a, const D: usize> Mul<TensorRank2<D>> for &TensorRank2<D>
+impl<const D: usize> Mul<TensorRank2<D>> for &TensorRank2<D>
 where
-    TensorRank2<D>: 'a + TensorRank2Traits<'a, D>
+    TensorRank2<D>: TensorRank2Traits<D>
 {
     type Output = TensorRank2<D>;
     fn mul(self, tensor_rank_2: TensorRank2<D>) -> Self::Output
     {
-        let tensor_rank_2_transpose = tensor_rank_2.transpose();
         self.iter().map(|self_i|
-            tensor_rank_2_transpose.iter().map(|tensor_rank_2_j|
-                self_i * tensor_rank_2_j
-            ).collect()
+            self_i.iter().zip(tensor_rank_2.iter()).map(|(self_ij, tensor_rank_2_j)|
+                tensor_rank_2_j * self_ij
+            ).sum()
         ).collect()
     }
 }
 
-impl<'a, const D: usize> Mul for &TensorRank2<D>
+impl<const D: usize> Mul for &TensorRank2<D>
 where
-    TensorRank2<D>: 'a + TensorRank2Traits<'a, D>
+    TensorRank2<D>: TensorRank2Traits<D>
 {
     type Output = TensorRank2<D>;
     fn mul(self, tensor_rank_2: &TensorRank2<D>) -> Self::Output
     {
-        let tensor_rank_2_transpose = tensor_rank_2.transpose();
         self.iter().map(|self_i|
-            tensor_rank_2_transpose.iter().map(|tensor_rank_2_j|
-                self_i * tensor_rank_2_j
-            ).collect()
+            self_i.iter().zip(tensor_rank_2.iter()).map(|(self_ij, tensor_rank_2_j)|
+                tensor_rank_2_j * self_ij
+            ).sum()
         ).collect()
     }
 }

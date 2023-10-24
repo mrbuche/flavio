@@ -90,6 +90,20 @@ impl<const D: usize> IndexMut<usize> for TensorRank1<D>
     }
 }
 
+impl<const D: usize> std::iter::Sum for TensorRank1<D>
+{
+    fn sum<I>(iter: I) -> Self
+    where
+        I: Iterator<Item = Self>
+    {
+        let mut output = TensorRank1::zero();
+        iter.for_each(|item|
+            output += item
+        );
+        output
+    }
+}
+
 impl<const D: usize> Div<TensorRank0> for TensorRank1<D>
 {
     type Output = Self;
@@ -100,6 +114,17 @@ impl<const D: usize> Div<TensorRank0> for TensorRank1<D>
     }
 }
 
+impl<const D: usize> Div<TensorRank0> for &TensorRank1<D>
+{
+    type Output = TensorRank1<D>;
+    fn div(self, tensor_rank_0: TensorRank0) -> Self::Output
+    {
+        self.iter().map(|self_i|
+            self_i / tensor_rank_0
+        ).collect()
+    }
+}
+
 impl<const D: usize> Div<&TensorRank0> for TensorRank1<D>
 {
     type Output = Self;
@@ -107,6 +132,17 @@ impl<const D: usize> Div<&TensorRank0> for TensorRank1<D>
     {
         self /= tensor_rank_0;
         self
+    }
+}
+
+impl<const D: usize> Div<&TensorRank0> for &TensorRank1<D>
+{
+    type Output = TensorRank1<D>;
+    fn div(self, tensor_rank_0: &TensorRank0) -> Self::Output
+    {
+        self.iter().map(|self_i|
+            self_i / tensor_rank_0
+        ).collect()
     }
 }
 
@@ -140,6 +176,17 @@ impl<const D: usize> Mul<TensorRank0> for TensorRank1<D>
     }
 }
 
+impl<const D: usize> Mul<TensorRank0> for &TensorRank1<D>
+{
+    type Output = TensorRank1<D>;
+    fn mul(self, tensor_rank_0: TensorRank0) -> Self::Output
+    {
+        self.iter().map(|self_i|
+            self_i * tensor_rank_0
+        ).collect()
+    }
+}
+
 impl<const D: usize> Mul<&TensorRank0> for TensorRank1<D>
 {
     type Output = Self;
@@ -147,6 +194,17 @@ impl<const D: usize> Mul<&TensorRank0> for TensorRank1<D>
     {
         self *= tensor_rank_0;
         self
+    }
+}
+
+impl<const D: usize> Mul<&TensorRank0> for &TensorRank1<D>
+{
+    type Output = TensorRank1<D>;
+    fn mul(self, tensor_rank_0: &TensorRank0) -> Self::Output
+    {
+        self.iter().map(|self_i|
+            self_i * tensor_rank_0
+        ).collect()
     }
 }
 
