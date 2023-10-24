@@ -1,8 +1,12 @@
 use flavio::math::
 {
     TensorRank0,
+    // TensorRank0List,
     TensorRank1,
+    TensorRank1List,
     TensorRank2,
+    // TensorRank2List,
+    // TensorRank2ListVec,
     TensorRank3,
     TensorRank4
 };
@@ -10,6 +14,8 @@ use flavio::math::
 // "Each file in the tests directory is a separate crate."
 
 // Can you test that only expected items are visible?
+
+// Can you import and test the traits too?
 
 #[test]
 fn tensor_rank_0()
@@ -21,6 +27,12 @@ fn tensor_rank_0()
 fn tensor_rank_1()
 {
     let _: TensorRank1<3>;
+}
+
+#[test]
+fn tensor_rank_1_list()
+{
+    let _: TensorRank1List<3, 8>;
 }
 
 #[test]
