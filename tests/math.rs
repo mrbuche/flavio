@@ -1,12 +1,10 @@
 use flavio::math::
 {
     TensorRank0,
-    // TensorRank0List,
     TensorRank1,
     TensorRank1List,
     TensorRank2,
     TensorRank2List,
-    // TensorRank2ListVec,
     TensorRank3,
     TensorRank4
 };
