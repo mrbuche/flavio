@@ -4,7 +4,7 @@ mod test;
 use crate::math::
 {
     TensorRank1,
-    TensorRank1Traits
+    TensorRank1Trait
 };
 
 pub struct Vector<const D: usize, const I: usize>
@@ -12,7 +12,7 @@ pub struct Vector<const D: usize, const I: usize>
     TensorRank1<D>
 );
 
-pub trait VectorTraits<const D: usize>
+pub trait VectorTrait<const D: usize>
 {}
 
 // traits should be independent of I and J
@@ -27,4 +27,4 @@ pub trait VectorTraits<const D: usize>
 // fn inverse(&self) -> Tensor<D, J, I> // for Tensor<D, I, J>
 // fn from_dyad(vector_a: Vector<D, I>, vector_b: Vector<D, J>) -> Tensor<D, I, J>
 // and also
-// impl TensorRank2Traits<D> for Tensor<D, I, J>
+// impl TensorRank2Trait<D> for Tensor<D, I, J>

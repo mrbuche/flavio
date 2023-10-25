@@ -21,7 +21,7 @@ use super::
     rank_1::
     {
         TensorRank1,
-        TensorRank1Traits
+        TensorRank1Trait
     },
     rank_2::TensorRank2
 };
@@ -47,7 +47,7 @@ impl<const D: usize> TensorRank3<D>
     }
 }
 
-pub trait TensorRank3Traits<const D: usize>
+pub trait TensorRank3Trait<const D: usize>
 where
     Self: FromIterator<TensorRank2<D>>
         + Index<usize, Output = TensorRank2<D>>
@@ -64,7 +64,7 @@ where
     }
 }
 
-impl<const D: usize> TensorRank3Traits<D> for TensorRank3<D> {}
+impl<const D: usize> TensorRank3Trait<D> for TensorRank3<D> {}
 
 impl<const D: usize> FromIterator<TensorRank2<D>> for TensorRank3<D>
 {

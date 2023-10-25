@@ -2,7 +2,7 @@ use super::
 {
     TensorRank0,
     TensorRank2List,
-    TensorRank2ListTraits
+    TensorRank2ListTrait
 };
 
 fn get_array() -> [[[TensorRank0; 3]; 3]; 8]

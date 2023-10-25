@@ -24,7 +24,7 @@ use super::
     rank_1::
     {
         TensorRank1,
-        TensorRank1Traits
+        TensorRank1Trait
     },
     rank_4::TensorRank4
 };
@@ -50,7 +50,7 @@ impl<const D: usize> TensorRank2<D>
     }
 }
 
-pub trait TensorRank2Traits<const D: usize>
+pub trait TensorRank2Trait<const D: usize>
 where
     Self: FromIterator<TensorRank1<D>>
         + Index<usize, Output = TensorRank1<D>>
@@ -189,7 +189,7 @@ where
     fn zero() -> Self;
 }
 
-impl TensorRank2Traits<2> for TensorRank2<2>
+impl TensorRank2Trait<2> for TensorRank2<2>
 {
     type AsTensorRank4 = TensorRank4<1>;
     fn determinant(&self) -> TensorRank0
@@ -274,7 +274,7 @@ impl TensorRank2Traits<2> for TensorRank2<2>
     }
 }
 
-impl TensorRank2Traits<3> for TensorRank2<3>
+impl TensorRank2Trait<3> for TensorRank2<3>
 {
     type AsTensorRank4 = TensorRank4<1>;
     fn determinant(&self) -> TensorRank0
@@ -426,7 +426,7 @@ impl TensorRank2Traits<3> for TensorRank2<3>
     }
 }
 
-impl TensorRank2Traits<4> for TensorRank2<4>
+impl TensorRank2Trait<4> for TensorRank2<4>
 {
     type AsTensorRank4 = TensorRank4<1>;
     fn determinant(&self) -> TensorRank0
@@ -659,7 +659,7 @@ impl TensorRank2Traits<4> for TensorRank2<4>
     }
 }
 
-impl TensorRank2Traits<9> for TensorRank2<9>
+impl TensorRank2Trait<9> for TensorRank2<9>
 {
     type AsTensorRank4 = TensorRank4<3>;
     fn as_tensor_rank_4(&self) -> Self::AsTensorRank4
@@ -992,7 +992,7 @@ impl<const D: usize> AddAssign<&Self> for TensorRank2<D>
 
 impl<const D: usize> Mul for TensorRank2<D>
 where
-    Self: TensorRank2Traits<D>
+    Self: TensorRank2Trait<D>
 {
     type Output = Self;
     fn mul(self, tensor_rank_2: Self) -> Self::Output
@@ -1007,7 +1007,7 @@ where
 
 impl<const D: usize> Mul<&Self> for TensorRank2<D>
 where
-    Self: TensorRank2Traits<D>
+    Self: TensorRank2Trait<D>
 {
     type Output = Self;
     fn mul(self, tensor_rank_2: &Self) -> Self::Output
@@ -1022,7 +1022,7 @@ where
 
 impl<const D: usize> Mul<TensorRank2<D>> for &TensorRank2<D>
 where
-    TensorRank2<D>: TensorRank2Traits<D>
+    TensorRank2<D>: TensorRank2Trait<D>
 {
     type Output = TensorRank2<D>;
     fn mul(self, tensor_rank_2: TensorRank2<D>) -> Self::Output
@@ -1037,7 +1037,7 @@ where
 
 impl<const D: usize> Mul for &TensorRank2<D>
 where
-    TensorRank2<D>: TensorRank2Traits<D>
+    TensorRank2<D>: TensorRank2Trait<D>
 {
     type Output = TensorRank2<D>;
     fn mul(self, tensor_rank_2: &TensorRank2<D>) -> Self::Output

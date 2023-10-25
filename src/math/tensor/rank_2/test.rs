@@ -3,14 +3,14 @@ use super::
 {
     TensorRank0,
     TensorRank1,
-    TensorRank1Traits,
+    TensorRank1Trait,
     TensorRank2,
-    TensorRank2Traits,
+    TensorRank2Trait,
     TensorRank4
 };
 use crate::math::tensor::rank_4::
 {
-    TensorRank4Traits
+    TensorRank4Trait
 };
 
 fn get_array_dim_2() -> [[TensorRank0; 2]; 2]

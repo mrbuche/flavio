@@ -11,7 +11,7 @@ use super::
 {
     TensorRank0,
     TensorRank1,
-    TensorRank1Traits,
+    TensorRank1Trait,
     TensorRank2
 };
 
@@ -32,7 +32,7 @@ impl<const D: usize, const L: usize> TensorRank2List<D, L>
     }
 }
 
-pub trait TensorRank2ListTraits<const D: usize, const L: usize>
+pub trait TensorRank2ListTrait<const D: usize, const L: usize>
 where
     Self: FromIterator<TensorRank2<D>>
         + Index<usize, Output = TensorRank2<D>>
@@ -50,7 +50,7 @@ where
     fn zero() -> Self;
 }
 
-impl<const D: usize, const L: usize> TensorRank2ListTraits<D, L> for TensorRank2List<D, L>
+impl<const D: usize, const L: usize> TensorRank2ListTrait<D, L> for TensorRank2List<D, L>
 {
     fn zero() -> Self
     {

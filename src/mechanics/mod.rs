@@ -4,10 +4,10 @@ mod vector;
 pub use tensor::
 {
     Tensor,
-    TensorTraits
+    TensorTrait
 };
 pub use vector::
 {
     Vector,
-    VectorTraits
+    VectorTrait
 };

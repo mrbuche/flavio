@@ -2,7 +2,7 @@ use super::
 {
     TensorRank0,
     TensorRank1,
-    TensorRank1Traits
+    TensorRank1Trait
 };
 
 fn get_array() -> [TensorRank0; 4]

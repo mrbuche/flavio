@@ -3,9 +3,9 @@ use super::
 {
     TensorRank0,
     TensorRank2,
-    TensorRank2Traits,
+    TensorRank2Trait,
     TensorRank4,
-    TensorRank4Traits
+    TensorRank4Trait
 };
 
 fn get_array() -> [[[[TensorRank0; 3]; 3]; 3]; 3]

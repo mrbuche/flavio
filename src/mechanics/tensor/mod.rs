@@ -4,7 +4,7 @@ mod test;
 use crate::math::
 {
     TensorRank2,
-    TensorRank2Traits
+    TensorRank2Trait
 };
 
 pub struct Tensor<const D: usize, const I: usize, const J: usize>
@@ -12,5 +12,5 @@ pub struct Tensor<const D: usize, const I: usize, const J: usize>
     TensorRank2<D>
 );
 
-pub trait TensorTraits<const D: usize>
+pub trait TensorTrait<const D: usize>
 {}

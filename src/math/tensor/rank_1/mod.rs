@@ -48,7 +48,7 @@ impl<const D: usize> TensorRank1<D>
 }
 
 /// Trait to be implemented for rank-1 tensors.
-pub trait TensorRank1Traits<'a, const D: usize>
+pub trait TensorRank1Trait<'a, const D: usize>
 where
     Self: 'a
         + FromIterator<TensorRank0>
@@ -73,8 +73,8 @@ where
     }
 }
 
-/// Implementation of `TensorRank1Traits` for `TensorRank1`.
-impl<'a, const D: usize> TensorRank1Traits<'a, D> for TensorRank1<D> {}
+/// Implementation of `TensorRank1Trait` for `TensorRank1`.
+impl<'a, const D: usize> TensorRank1Trait<'a, D> for TensorRank1<D> {}
 
 impl<const D: usize> FromIterator<TensorRank0> for TensorRank1<D>
 {

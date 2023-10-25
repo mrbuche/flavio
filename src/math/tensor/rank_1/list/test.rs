@@ -2,9 +2,9 @@ use super::
 {
     TensorRank0,
     TensorRank1List,
-    TensorRank1ListTraits,
+    TensorRank1ListTrait,
     TensorRank2,
-    TensorRank2Traits
+    TensorRank2Trait
 };
 
 fn get_array() -> [[TensorRank0; 3]; 8]

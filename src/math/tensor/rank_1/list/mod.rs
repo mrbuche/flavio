@@ -18,14 +18,14 @@ use std::ops::
 use crate::math::
 {
     TensorRank2,
-    TensorRank2Traits
+    TensorRank2Trait
 };
 
 use super::
 {
     TensorRank0,
     TensorRank1,
-    TensorRank1Traits
+    TensorRank1Trait
 };
 
 pub struct TensorRank1List<const D: usize, const L: usize>
@@ -45,7 +45,7 @@ impl<const D: usize, const L: usize> TensorRank1List<D, L>
     }
 }
 
-pub trait TensorRank1ListTraits<const D: usize, const L: usize>
+pub trait TensorRank1ListTrait<const D: usize, const L: usize>
 where
     Self: FromIterator<TensorRank1<D>>
         + Index<usize, Output = TensorRank1<D>>
@@ -61,7 +61,7 @@ where
     fn zero() -> Self;
 }
 
-impl<const D: usize, const L: usize> TensorRank1ListTraits<D, L> for TensorRank1List<D, L>
+impl<const D: usize, const L: usize> TensorRank1ListTrait<D, L> for TensorRank1List<D, L>
 {
     fn zero() -> Self
     {
