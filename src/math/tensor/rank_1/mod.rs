@@ -28,7 +28,7 @@ pub struct TensorRank1<const D: usize>
     [TensorRank0; D]
 );
 
-/// Inherent implementation of `TensorRank1`.
+/// Inherent implementation of [`TensorRank1`].
 impl<const D: usize> TensorRank1<D>
 {
     /// Returns an iterator.
@@ -73,7 +73,7 @@ where
     }
 }
 
-/// Implementation of `TensorRank1Trait` for `TensorRank1`.
+/// Implementation of [`TensorRank1Trait`] for [`TensorRank1`].
 impl<'a, const D: usize> TensorRank1Trait<'a, D> for TensorRank1<D> {}
 
 impl<const D: usize> FromIterator<TensorRank0> for TensorRank1<D>

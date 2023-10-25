@@ -1,9 +1,11 @@
 [package]
 authors = ["Michael Robert Buche"]
+categories = ["mathematics", "science"]
 description = "flavio welcomes you"
 documentation = "https://docs.rs/crate/flavio"
 edition = "2021"
 homepage = "https://mrbuche.github.io/flavio"
+keywords = ["flavio", "mrbuche"]
 license = "BSD-3-Clause"
 name = "flavio"
 repository = "https://github.com/mrbuche/flavio"
