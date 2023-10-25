@@ -7,7 +7,11 @@ pub use tensor::
     {
         TensorRank1,
         TensorRank1Traits,
-        list::TensorRank1List
+        list::
+        {
+            TensorRank1List,
+            TensorRank1ListTraits
+        }
     },
     rank_2::
     {
