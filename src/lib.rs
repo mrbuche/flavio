@@ -6,6 +6,9 @@ mod test;
 #[cfg(feature = "math")]
 pub mod math;
 
+#[cfg(feature = "mechanics")]
+pub mod mechanics;
+
 #[cfg(feature = "32")]
 type Float = f32;
 
