@@ -30,7 +30,7 @@ use super::
 
 pub struct TensorRank1List<const D: usize, const L: usize>
 (
-    pub [TensorRank1<D>; L]
+    [TensorRank1<D>; L]
 );
 
 impl<const D: usize, const L: usize> TensorRank1List<D, L>
@@ -55,7 +55,7 @@ where
     fn new(array: [[TensorRank0; D]; L]) -> Self
     {
         array.iter().map(|array_i|
-            TensorRank1(*array_i)
+            TensorRank1::new(*array_i)
         ).collect()
     }
     fn zero() -> Self;

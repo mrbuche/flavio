@@ -18,7 +18,11 @@ use std::ops::
 use super::
 {
     rank_0::TensorRank0,
-    rank_1::TensorRank1,
+    rank_1::
+    {
+        TensorRank1,
+        TensorRank1Traits
+    },
     rank_2::
     {
         TensorRank2,
@@ -29,7 +33,7 @@ use super::
 
 pub struct TensorRank4<const D: usize>
 (
-    pub [TensorRank3<D>; D]
+    [TensorRank3<D>; D]
 );
 
 impl<const D: usize> TensorRank4<D>
@@ -69,7 +73,7 @@ where
         array.iter().map(|array_i|
             array_i.iter().map(|array_ij|
                 array_ij.iter().map(|array_ijk|
-                    TensorRank1(*array_ijk)
+                    TensorRank1::new(*array_ijk)
                 ).collect()
             ).collect()
         ).collect()

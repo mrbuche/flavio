@@ -9,7 +9,7 @@ use crate::math::
 
 pub struct Vector<const D: usize, const I: usize>
 (
-    pub TensorRank1<D>
+    TensorRank1<D>
 );
 
 pub trait VectorTraits<const D: usize>

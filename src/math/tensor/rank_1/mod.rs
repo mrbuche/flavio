@@ -22,17 +22,24 @@ use super::
     rank_0::TensorRank0
 };
 
+/// A rank-1 tensor of dimension `D`.
 pub struct TensorRank1<const D: usize>
 (
-    pub [TensorRank0; D]
+    [TensorRank0; D]
 );
 
 impl<const D: usize> TensorRank1<D>
 {
+    /// Returns an iterator.
+    ///
+    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
     pub fn iter(&self) -> impl Iterator<Item = &TensorRank0>
     {
         self.0.iter()
     }
+    /// Returns an iterator that allows modifying each value.
+    ///
+    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
     pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut TensorRank0>
     {
         self.0.iter_mut()

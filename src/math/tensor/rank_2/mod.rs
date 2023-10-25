@@ -31,7 +31,7 @@ use super::
 
 pub struct TensorRank2<const D: usize>
 (
-    pub [TensorRank1<D>; D]
+    [TensorRank1<D>; D]
 );
 
 impl<const D: usize> TensorRank2<D>
@@ -163,7 +163,7 @@ where
     fn new(array: [[TensorRank0; D]; D]) -> Self
     {
         array.iter().map(|array_i|
-            TensorRank1(*array_i)
+            TensorRank1::new(*array_i)
         ).collect()
     }
     fn norm(&self) -> TensorRank0;
@@ -310,17 +310,17 @@ impl TensorRank2Traits<3> for TensorRank2<3>
         let c_10 = self[1][2] * self[2][0] - self[1][0] * self[2][2];
         let c_20 = self[1][0] * self[2][1] - self[1][1] * self[2][0];
         Self([
-            TensorRank1([
+            TensorRank1::new([
                 c_00,
                 self[0][2] * self[2][1] - self[0][1] * self[2][2],
                 self[0][1] * self[1][2] - self[0][2] * self[1][1],
             ]),
-            TensorRank1([
+            TensorRank1::new([
                 c_10,
                 self[0][0] * self[2][2] - self[0][2] * self[2][0],
                 self[0][2] * self[1][0] - self[0][0] * self[1][2],
             ]),
-            TensorRank1([
+            TensorRank1::new([
                 c_20,
                 self[0][1] * self[2][0] - self[0][0] * self[2][1],
                 self[0][0] * self[1][1] - self[0][1] * self[1][0],
@@ -335,17 +335,17 @@ impl TensorRank2Traits<3> for TensorRank2<3>
         let determinant = self[0][0] * c_00 + self[0][1] * c_10 + self[0][2] * c_20;
         (
             Self([
-                TensorRank1([
+                TensorRank1::new([
                     c_00,
                     self[0][2] * self[2][1] - self[0][1] * self[2][2],
                     self[0][1] * self[1][2] - self[0][2] * self[1][1],
                 ]),
-                TensorRank1([
+                TensorRank1::new([
                     c_10,
                     self[0][0] * self[2][2] - self[0][2] * self[2][0],
                     self[0][2] * self[1][0] - self[0][0] * self[1][2],
                 ]),
-                TensorRank1([
+                TensorRank1::new([
                     c_20,
                     self[0][1] * self[2][0] - self[0][0] * self[2][1],
                     self[0][0] * self[1][1] - self[0][1] * self[1][0],
@@ -360,17 +360,17 @@ impl TensorRank2Traits<3> for TensorRank2<3>
         let c_10 = self[1][2] * self[2][0] - self[1][0] * self[2][2];
         let c_20 = self[1][0] * self[2][1] - self[1][1] * self[2][0];
         Self([
-            TensorRank1([
+            TensorRank1::new([
                 c_00,
                 c_10,
                 c_20,
             ]),
-            TensorRank1([
+            TensorRank1::new([
                 self[0][2] * self[2][1] - self[0][1] * self[2][2],
                 self[0][0] * self[2][2] - self[0][2] * self[2][0],
                 self[0][1] * self[2][0] - self[0][0] * self[2][1],
             ]),
-            TensorRank1([
+            TensorRank1::new([
                 self[0][1] * self[1][2] - self[0][2] * self[1][1],
                 self[0][2] * self[1][0] - self[0][0] * self[1][2],
                 self[0][0] * self[1][1] - self[0][1] * self[1][0],
@@ -385,17 +385,17 @@ impl TensorRank2Traits<3> for TensorRank2<3>
         let determinant = self[0][0] * c_00 + self[0][1] * c_10 + self[0][2] * c_20;
         (
             Self([
-                TensorRank1([
+                TensorRank1::new([
                     c_00,
                     c_10,
                     c_20,
                 ]),
-                TensorRank1([
+                TensorRank1::new([
                     self[0][2] * self[2][1] - self[0][1] * self[2][2],
                     self[0][0] * self[2][2] - self[0][2] * self[2][0],
                     self[0][1] * self[2][0] - self[0][0] * self[2][1],
                 ]),
-                TensorRank1([
+                TensorRank1::new([
                     self[0][1] * self[1][2] - self[0][2] * self[1][1],
                     self[0][2] * self[1][0] - self[0][0] * self[1][2],
                     self[0][0] * self[1][1] - self[0][1] * self[1][0],
@@ -480,25 +480,25 @@ impl TensorRank2Traits<4> for TensorRank2<4>
         let c1 = self[2][0] * self[3][2] - self[2][2] * self[3][0];
         let c0 = self[2][0] * self[3][1] - self[2][1] * self[3][0];
         TensorRank2([
-            TensorRank1([
+            TensorRank1::new([
                 self[1][1] * c5 - self[1][2] * c4 + self[1][3] * c3,
                 self[0][2] * c4 - self[0][1] * c5 - self[0][3] * c3,
                 self[3][1] * s5 - self[3][2] * s4 + self[3][3] * s3,
                 self[2][2] * s4 - self[2][1] * s5 - self[2][3] * s3
             ]),
-            TensorRank1([
+            TensorRank1::new([
                 self[1][2] * c2 - self[1][0] * c5 - self[1][3] * c1,
                 self[0][0] * c5 - self[0][2] * c2 + self[0][3] * c1,
                 self[3][2] * s2 - self[3][0] * s5 - self[3][3] * s1,
                 self[2][0] * s5 - self[2][2] * s2 + self[2][3] * s1
             ]),
-            TensorRank1([
+            TensorRank1::new([
                 self[1][0] * c4 - self[1][1] * c2 + self[1][3] * c0,
                 self[0][1] * c2 - self[0][0] * c4 - self[0][3] * c0,
                 self[3][0] * s4 - self[3][1] * s2 + self[3][3] * s0,
                 self[2][1] * s2 - self[2][0] * s4 - self[2][3] * s0
             ]),
-            TensorRank1([
+            TensorRank1::new([
                 self[1][1] * c1 - self[1][0] * c3 - self[1][2] * c0,
                 self[0][0] * c3 - self[0][1] * c1 + self[0][2] * c0,
                 self[3][1] * s1 - self[3][0] * s3 - self[3][2] * s0,
@@ -523,25 +523,25 @@ impl TensorRank2Traits<4> for TensorRank2<4>
         let determinant = s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * c0;
         (
             TensorRank2([
-                TensorRank1([
+                TensorRank1::new([
                     self[1][1] * c5 - self[1][2] * c4 + self[1][3] * c3,
                     self[0][2] * c4 - self[0][1] * c5 - self[0][3] * c3,
                     self[3][1] * s5 - self[3][2] * s4 + self[3][3] * s3,
                     self[2][2] * s4 - self[2][1] * s5 - self[2][3] * s3
                 ]),
-                TensorRank1([
+                TensorRank1::new([
                     self[1][2] * c2 - self[1][0] * c5 - self[1][3] * c1,
                     self[0][0] * c5 - self[0][2] * c2 + self[0][3] * c1,
                     self[3][2] * s2 - self[3][0] * s5 - self[3][3] * s1,
                     self[2][0] * s5 - self[2][2] * s2 + self[2][3] * s1
                 ]),
-                TensorRank1([
+                TensorRank1::new([
                     self[1][0] * c4 - self[1][1] * c2 + self[1][3] * c0,
                     self[0][1] * c2 - self[0][0] * c4 - self[0][3] * c0,
                     self[3][0] * s4 - self[3][1] * s2 + self[3][3] * s0,
                     self[2][1] * s2 - self[2][0] * s4 - self[2][3] * s0
                 ]),
-                TensorRank1([
+                TensorRank1::new([
                     self[1][1] * c1 - self[1][0] * c3 - self[1][2] * c0,
                     self[0][0] * c3 - self[0][1] * c1 + self[0][2] * c0,
                     self[3][1] * s1 - self[3][0] * s3 - self[3][2] * s0,
@@ -566,25 +566,25 @@ impl TensorRank2Traits<4> for TensorRank2<4>
         let c1 = self[2][0] * self[3][2] - self[2][2] * self[3][0];
         let c0 = self[2][0] * self[3][1] - self[2][1] * self[3][0];
         Self([
-            TensorRank1([
+            TensorRank1::new([
                 self[1][1] * c5 - self[1][2] * c4 + self[1][3] * c3,
                 self[1][2] * c2 - self[1][0] * c5 - self[1][3] * c1,
                 self[1][0] * c4 - self[1][1] * c2 + self[1][3] * c0,
                 self[1][1] * c1 - self[1][0] * c3 - self[1][2] * c0,
             ]),
-            TensorRank1([
+            TensorRank1::new([
                 self[0][2] * c4 - self[0][1] * c5 - self[0][3] * c3,
                 self[0][0] * c5 - self[0][2] * c2 + self[0][3] * c1,
                 self[0][1] * c2 - self[0][0] * c4 - self[0][3] * c0,
                 self[0][0] * c3 - self[0][1] * c1 + self[0][2] * c0
             ]),
-            TensorRank1([
+            TensorRank1::new([
                 self[3][1] * s5 - self[3][2] * s4 + self[3][3] * s3,
                 self[3][2] * s2 - self[3][0] * s5 - self[3][3] * s1,
                 self[3][0] * s4 - self[3][1] * s2 + self[3][3] * s0,
                 self[3][1] * s1 - self[3][0] * s3 - self[3][2] * s0
             ]),
-            TensorRank1([
+            TensorRank1::new([
                 self[2][2] * s4 - self[2][1] * s5 - self[2][3] * s3,
                 self[2][0] * s5 - self[2][2] * s2 + self[2][3] * s1,
                 self[2][1] * s2 - self[2][0] * s4 - self[2][3] * s0,
@@ -609,25 +609,25 @@ impl TensorRank2Traits<4> for TensorRank2<4>
         let determinant = s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * c0;
         (
             Self([
-                TensorRank1([
+                TensorRank1::new([
                     self[1][1] * c5 - self[1][2] * c4 + self[1][3] * c3,
                     self[1][2] * c2 - self[1][0] * c5 - self[1][3] * c1,
                     self[1][0] * c4 - self[1][1] * c2 + self[1][3] * c0,
                     self[1][1] * c1 - self[1][0] * c3 - self[1][2] * c0,
                 ]),
-                TensorRank1([
+                TensorRank1::new([
                     self[0][2] * c4 - self[0][1] * c5 - self[0][3] * c3,
                     self[0][0] * c5 - self[0][2] * c2 + self[0][3] * c1,
                     self[0][1] * c2 - self[0][0] * c4 - self[0][3] * c0,
                     self[0][0] * c3 - self[0][1] * c1 + self[0][2] * c0
                 ]),
-                TensorRank1([
+                TensorRank1::new([
                     self[3][1] * s5 - self[3][2] * s4 + self[3][3] * s3,
                     self[3][2] * s2 - self[3][0] * s5 - self[3][3] * s1,
                     self[3][0] * s4 - self[3][1] * s2 + self[3][3] * s0,
                     self[3][1] * s1 - self[3][0] * s3 - self[3][2] * s0
                 ]),
-                TensorRank1([
+                TensorRank1::new([
                     self[2][2] * s4 - self[2][1] * s5 - self[2][3] * s3,
                     self[2][0] * s5 - self[2][2] * s2 + self[2][3] * s1,
                     self[2][1] * s2 - self[2][0] * s4 - self[2][3] * s0,

@@ -999,7 +999,11 @@ fn iter()
     get_tensor_rank_2_dim_4().iter()
     .zip(get_array_dim_4().iter())
     .for_each(|(tensor_rank_2_i, array_i)|
-        assert_eq!(tensor_rank_2_i.0, *array_i)
+        tensor_rank_2_i.iter()
+        .zip(array_i.iter())
+        .for_each(|(tensor_rank_2_ij, array_ij)|
+            assert_eq!(tensor_rank_2_ij, array_ij)
+        )
     );
 }
 
@@ -1009,7 +1013,11 @@ fn iter_mut()
     get_tensor_rank_2_dim_4().iter_mut()
     .zip(get_array_dim_4().iter_mut())
     .for_each(|(tensor_rank_2_i, array_i)|
-        assert_eq!(tensor_rank_2_i.0, *array_i)
+        tensor_rank_2_i.iter_mut()
+        .zip(array_i.iter_mut())
+        .for_each(|(tensor_rank_2_ij, array_ij)|
+            assert_eq!(tensor_rank_2_ij, array_ij)
+        )
     );
 }
 

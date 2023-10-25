@@ -11,12 +11,13 @@ use super::
 {
     TensorRank0,
     TensorRank1,
+    TensorRank1Traits,
     TensorRank2
 };
 
 pub struct TensorRank2List<const D: usize, const L: usize>
 (
-    pub [TensorRank2<D>; L]
+    [TensorRank2<D>; L]
 );
 
 impl<const D: usize, const L: usize> TensorRank2List<D, L>
@@ -42,7 +43,7 @@ where
     {
         array.iter().map(|array_i|
             array_i.iter().map(|array_ij|
-                TensorRank1(*array_ij)
+                TensorRank1::new(*array_ij)
             ).collect()
         ).collect()
     }

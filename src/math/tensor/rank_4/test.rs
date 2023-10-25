@@ -830,14 +830,18 @@ fn iter()
 {
     get_tensor_rank_4().iter()
     .zip(get_array().iter())
-    .for_each(|(tensor_rank_4_i, array_i)|
-        tensor_rank_4_i.iter()
+    .for_each(|(get_tensor_rank_4_i, array_i)|
+        get_tensor_rank_4_i.iter()
         .zip(array_i.iter())
-        .for_each(|(tensor_rank_4_ij, array_ij)|
-            tensor_rank_4_ij.iter()
+        .for_each(|(get_tensor_rank_4_ij, array_ij)|
+            get_tensor_rank_4_ij.iter()
             .zip(array_ij.iter())
-            .for_each(|(tensor_rank_4_ijk, array_ijk)|
-                assert_eq!(tensor_rank_4_ijk.0, *array_ijk)
+            .for_each(|(get_tensor_rank_4_ijk, array_ijk)|
+                get_tensor_rank_4_ijk.iter()
+                .zip(array_ijk.iter())
+                .for_each(|(get_tensor_rank_4_ijkl, array_ijkl)|
+                    assert_eq!(get_tensor_rank_4_ijkl, array_ijkl)
+                )
             )
         )
     );
@@ -848,14 +852,18 @@ fn iter_mut()
 {
     get_tensor_rank_4().iter_mut()
     .zip(get_array().iter_mut())
-    .for_each(|(tensor_rank_4_i, array_i)|
-        tensor_rank_4_i.iter_mut()
+    .for_each(|(get_tensor_rank_4_i, array_i)|
+        get_tensor_rank_4_i.iter_mut()
         .zip(array_i.iter_mut())
-        .for_each(|(tensor_rank_4_ij, array_ij)|
-            tensor_rank_4_ij.iter_mut()
+        .for_each(|(get_tensor_rank_4_ij, array_ij)|
+            get_tensor_rank_4_ij.iter_mut()
             .zip(array_ij.iter_mut())
-            .for_each(|(tensor_rank_4_ijk, array_ijk)|
-                assert_eq!(tensor_rank_4_ijk.0, *array_ijk)
+            .for_each(|(get_tensor_rank_4_ijk, array_ijk)|
+                get_tensor_rank_4_ijk.iter_mut()
+                .zip(array_ijk.iter_mut())
+                .for_each(|(get_tensor_rank_4_ijkl, array_ijkl)|
+                    assert_eq!(get_tensor_rank_4_ijkl, array_ijkl)
+                )
             )
         )
     );

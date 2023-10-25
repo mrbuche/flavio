@@ -309,7 +309,11 @@ fn iter()
         tensor_rank_3_i.iter()
         .zip(array_i.iter())
         .for_each(|(tensor_rank_3_ij, array_ij)|
-            assert_eq!(tensor_rank_3_ij.0, *array_ij)
+            tensor_rank_3_ij.iter()
+            .zip(array_ij.iter())
+            .for_each(|(tensor_rank_3_ijk, array_ijk)|
+                assert_eq!(tensor_rank_3_ijk, array_ijk)
+            )
         )
     );
 }
@@ -323,7 +327,11 @@ fn iter_mut()
         tensor_rank_3_i.iter_mut()
         .zip(array_i.iter_mut())
         .for_each(|(tensor_rank_3_ij, array_ij)|
-            assert_eq!(tensor_rank_3_ij.0, *array_ij)
+            tensor_rank_3_ij.iter_mut()
+            .zip(array_ij.iter_mut())
+            .for_each(|(tensor_rank_3_ijk, array_ijk)|
+                assert_eq!(tensor_rank_3_ijk, array_ijk)
+            )
         )
     );
 }
