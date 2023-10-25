@@ -28,6 +28,7 @@ pub struct TensorRank1<const D: usize>
     [TensorRank0; D]
 );
 
+/// Inherent implementation of `TensorRank1`.
 impl<const D: usize> TensorRank1<D>
 {
     /// Returns an iterator.
@@ -46,6 +47,7 @@ impl<const D: usize> TensorRank1<D>
     }
 }
 
+/// Trait to be implemented for rank-1 tensors.
 pub trait TensorRank1Traits<'a, const D: usize>
 where
     Self: 'a
@@ -54,20 +56,24 @@ where
         + Sized,
     &'a Self: Mul<&'a Self, Output = TensorRank0>
 {
+    /// Returns a rank-1 tensor created from an array.
     fn new(array: [TensorRank0; D]) -> Self
     {
         array.into_iter().collect()
     }
+    /// Returns the rank-1 tensor norm.
     fn norm(&'a self) -> TensorRank0
     {
         (self * self).sqrt()
     }
+    /// Returns the rank-1 zero tensor.
     fn zero() -> Self
     {
         Self::new([0.0; D])
     }
 }
 
+/// Implementation of `TensorRank1Traits` for `TensorRank1`.
 impl<'a, const D: usize> TensorRank1Traits<'a, D> for TensorRank1<D> {}
 
 impl<const D: usize> FromIterator<TensorRank0> for TensorRank1<D>
