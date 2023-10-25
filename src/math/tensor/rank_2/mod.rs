@@ -1,6 +1,8 @@
 #[cfg(test)]
 mod test;
 
+pub mod list;
+
 use std::cmp::Ordering;
 use std::ops::
 {

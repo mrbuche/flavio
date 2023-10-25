@@ -16,7 +16,12 @@ pub use tensor::
     rank_2::
     {
         TensorRank2,
-        TensorRank2Traits
+        TensorRank2Traits,
+        list::
+        {
+            TensorRank2List,
+            TensorRank2ListTraits
+        }
     },
     rank_3::
     {

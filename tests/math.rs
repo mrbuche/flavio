@@ -5,7 +5,7 @@ use flavio::math::
     TensorRank1,
     TensorRank1List,
     TensorRank2,
-    // TensorRank2List,
+    TensorRank2List,
     // TensorRank2ListVec,
     TensorRank3,
     TensorRank4
@@ -39,6 +39,12 @@ fn tensor_rank_1_list()
 fn tensor_rank_2()
 {
     let _: TensorRank2<3>;
+}
+
+#[test]
+fn tensor_rank_2_list()
+{
+    let _: TensorRank2List<3, 8>;
 }
 
 #[test]
