@@ -1,3 +1,7 @@
+use flavio::mechanics::
+{
+    Scalar
+};
 
 // "Each file in the tests directory is a separate crate."
 
@@ -9,4 +13,10 @@
 fn todo()
 {
     todo!()
+}
+
+#[test]
+fn scalar()
+{
+    let _: Scalar;
 }

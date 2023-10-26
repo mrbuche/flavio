@@ -29,18 +29,18 @@ use super::
     rank_4::TensorRank4
 };
 
-pub struct TensorRank2<const D: usize>
+pub struct TensorRank2<const D: usize, const I: usize, const J: usize>
 (
     [TensorRank1<D>; D]
 );
 
-impl<const D: usize> TensorRank2<D>
+impl<const D: usize, const I: usize, const J: usize> TensorRank2<D, I, J>
 {
-    pub fn iter(&self) -> impl Iterator<Item = &TensorRank1<D>>
+    pub fn iter(&self) -> impl Iterator<Item = &TensorRank1<D, J>>
     {
         self.0.iter()
     }
-    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut TensorRank1<D>>
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut TensorRank1<D, J>>
     {
         self.0.iter_mut()
     }
