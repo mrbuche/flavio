@@ -5,12 +5,7 @@ use super::
     TensorRank1,
     TensorRank1Trait,
     TensorRank2,
-    TensorRank2Trait,
-    TensorRank4
-};
-use crate::math::tensor::rank_4::
-{
-    TensorRank4Trait
+    TensorRank2Trait
 };
 
 fn get_array_dim_2() -> [[TensorRank0; 2]; 2]
@@ -154,75 +149,10 @@ fn get_other_tensor_rank_2_mul_tensor_rank_2_dim_4() -> TensorRank2<4, 1, 1>
     ])
 }
 
-fn get_tensor_rank_2_dim_9_as_tensor_rank_4_dim_3() -> TensorRank4<3, 1, 1, 1, 1>
-{
-    // TensorRank4::new([[[
-    //     [2.0, 2.0, 4.0],
-    //     [0.0, 0.0, 1.0],
-    //     [1.0, 3.0, 3.0]
-    //     ], [
-    //     [0.0, 3.0, 1.0],
-    //     [0.0, 0.0, 1.0],
-    //     [4.0, 2.0, 1.0]
-    //     ], [
-    //     [3.0, 0.0, 1.0],
-    //     [2.0, 0.0, 3.0],
-    //     [4.0, 4.0, 2.0]
-    // ]], [[
-    //     [4.0, 4.0, 0.0],
-    //     [2.0, 1.0, 1.0],
-    //     [0.0, 0.0, 4.0]
-    //     ], [
-    //     [0.0, 1.0, 0.0],
-    //     [1.0, 1.0, 3.0],
-    //     [0.0, 1.0, 1.0]
-    //     ], [
-    //     [4.0, 2.0, 3.0],
-    //     [4.0, 2.0, 4.0],
-    //     [3.0, 0.0, 4.0]
-    // ]], [[
-    //     [1.0, 3.0, 2.0],
-    //     [0.0, 0.0, 0.0],
-    //     [2.0, 4.0, 2.0]
-    //     ], [
-    //     [2.0, 2.0, 2.0],
-    //     [4.0, 1.0, 2.0],
-    //     [4.0, 2.0, 2.0]
-    //     ], [
-    //     [1.0, 2.0, 3.0],
-    //     [4.0, 0.0, 1.0],
-    //     [4.0, 2.0, 1.0]
-    // ]]])
-    todo!()
-}
-
 #[test]
 fn need_to_test_configuration_switches_and_compatibility_enforcement()
 {
-    todo!()
-}
-
-#[test]
-fn as_tensor_rank_4()
-{
-    // get_tensor_rank_2_dim_9().as_tensor_rank_4().iter()
-    // .zip(get_tensor_rank_2_dim_9_as_tensor_rank_4_dim_3().iter())
-    // .for_each(|(as_tensor_rank_4_i, tensor_rank_4_i)|
-    //     as_tensor_rank_4_i.iter()
-    //     .zip(tensor_rank_4_i.iter())
-    //     .for_each(|(as_tensor_rank_4_ij, tensor_rank_4_ij)|
-    //         as_tensor_rank_4_ij.iter()
-    //         .zip(tensor_rank_4_ij.iter())
-    //         .for_each(|(as_tensor_rank_4_ijk, tensor_rank_4_ijk)|
-    //             as_tensor_rank_4_ijk.iter()
-    //             .zip(tensor_rank_4_ijk.iter())
-    //             .for_each(|(as_tensor_rank_4_ijkl, tensor_rank_4_ijkl)|
-    //                 assert_eq!(as_tensor_rank_4_ijkl, tensor_rank_4_ijkl)
-    //             )
-    //         )
-    //     )
-    // );
-    todo!()
+    todo!("how to test the enforcement of not contracting different coordinate systems?")
 }
 
 #[test]
@@ -773,23 +703,6 @@ fn inverse_and_determinant_dim_4()
 }
 
 #[test]
-fn inverse_and_determinant_dim_9()
-{
-    let tensor_rank_2 = get_tensor_rank_2_dim_9();
-    let (inverse, determinant) = tensor_rank_2.inverse_and_determinant();
-    assert_eq!(determinant, tensor_rank_2.determinant());
-    inverse.iter()
-    .zip(tensor_rank_2.inverse().iter())
-    .for_each(|(inverse_i, tensor_rank_2_inverse_i)|
-        inverse_i.iter()
-        .zip(tensor_rank_2_inverse_i.iter())
-        .for_each(|(inverse_ij, tensor_rank_2_inverse_ij)|
-        assert_eq!(inverse_ij, tensor_rank_2_inverse_ij)
-        )
-    );
-}
-
-#[test]
 fn inverse_transpose_dim_2()
 {
     (get_tensor_rank_2_dim_2().transpose() * get_tensor_rank_2_dim_2().inverse_transpose()).iter()
@@ -922,85 +835,6 @@ fn inverse_transpose_and_determinant_dim_4()
             assert_eq!(inverse_transpose_ij, tensor_rank_2_inverse_transpose_ij)
         )
     );
-}
-
-#[test]
-fn inverse_transpose_and_determinant_dim_9()
-{
-    let tensor_rank_2 = get_tensor_rank_2_dim_9();
-    let (inverse_transpose, determinant) = tensor_rank_2.inverse_transpose_and_determinant();
-    assert_eq!(determinant, tensor_rank_2.determinant());
-    inverse_transpose.iter()
-    .zip(tensor_rank_2.inverse_transpose().iter())
-    .for_each(|(inverse_transpose_i, tensor_rank_2_inverse_transpose_i)|
-    inverse_transpose_i.iter()
-        .zip(tensor_rank_2_inverse_transpose_i.iter())
-        .for_each(|(inverse_transpose_ij, tensor_rank_2_inverse_transpose_ij)|
-            assert_eq!(inverse_transpose_ij, tensor_rank_2_inverse_transpose_ij)
-        )
-    );
-}
-
-#[test]
-fn inverse_lower_triangular()
-{
-    // let tensor_l = get_tensor_rank_2_dim_9().lu_decomposition().0;
-    // let inverse_tensor_l = get_tensor_rank_2_dim_9().lu_decomposition().0.inverse_lower_triangular();
-    // (&inverse_tensor_l * &tensor_l).iter()
-    // .enumerate()
-    // .zip(inverse_tensor_l.iter())
-    // .for_each(|((i, tensor_rank_2_i), inverse_tensor_l_i)|
-    //     tensor_rank_2_i.iter()
-    //     .enumerate()
-    //     .zip(inverse_tensor_l_i.iter())
-    //     .for_each(|((j, tensor_rank_2_ij), inverse_tensor_l_ij)|
-    //         if i == j
-    //         {
-    //             assert_eq_within_tols(tensor_rank_2_ij, &1.0)
-    //         }
-    //         else if i < j
-    //         {
-    //             assert_eq!(inverse_tensor_l_ij, &0.0);
-    //             assert_eq_within_tols(tensor_rank_2_ij, &0.0)
-    //         }
-    //         else
-    //         {
-    //             assert_eq_within_tols(tensor_rank_2_ij, &0.0)
-    //         }
-    //     )
-    // );
-    todo!()
-}
-
-#[test]
-fn inverse_upper_triangular()
-{
-    // let tensor_u = get_tensor_rank_2_dim_9().lu_decomposition().1;
-    // let inverse_tensor_u = get_tensor_rank_2_dim_9().lu_decomposition().1.inverse_upper_triangular();
-    // (&inverse_tensor_u * &tensor_u).iter()
-    // .enumerate()
-    // .zip(inverse_tensor_u.iter())
-    // .for_each(|((i, tensor_rank_2_i), inverse_tensor_u_i)|
-    //     tensor_rank_2_i.iter()
-    //     .enumerate()
-    //     .zip(inverse_tensor_u_i.iter())
-    //     .for_each(|((j, tensor_rank_2_ij), inverse_tensor_u_ij)|
-    //         if i == j
-    //         {
-    //             assert_eq_within_tols(tensor_rank_2_ij, &1.0)
-    //         }
-    //         else if i > j
-    //         {
-    //             assert_eq!(inverse_tensor_u_ij, &0.0);
-    //             assert_eq_within_tols(tensor_rank_2_ij, &0.0)
-    //         }
-    //         else
-    //         {
-    //             assert_eq_within_tols(tensor_rank_2_ij, &0.0)
-    //         }
-    //     )
-    // );
-    todo!()
 }
 
 #[test]

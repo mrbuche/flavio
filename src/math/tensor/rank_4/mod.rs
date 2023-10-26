@@ -61,27 +61,25 @@ pub trait TensorRank4Trait<const D: usize, TIJ, TIK, TIL, TJL, TJK, TKJ, TKL>
     fn dyad_il_jk(tensor_rank_2_a: TIL, tensor_rank_2_b: TJK) -> Self;
     fn dyad_il_kj(tensor_rank_2_a: TIL, tensor_rank_2_b: TKJ) -> Self;
     fn new(array: [[[[TensorRank0; D]; D]; D]; D]) -> Self;
-    fn inverse(&self) -> Self;
+    fn inverse(self) -> Self;
 }
 
 impl<const I: usize, const J: usize, const K: usize, const L: usize> TensorRank4Trait<3, &TensorRank2<3, I, J>, &TensorRank2<3, I, K>, &TensorRank2<3, I, L>, &TensorRank2<3, J, L>, &TensorRank2<3, J, K>, &TensorRank2<3, K, J>, &TensorRank2<3, K, L>> for TensorRank4<3, I, J, K, L>
 {
-    // I don't see how to make this work and retain the configurations here without passing them through somehow
-    type OutputAsTensorRank2 = TensorRank2<9, I, J>;
+    type OutputAsTensorRank2 = TensorRank2<9, 9, 9>;
     fn as_tensor_rank_2(&self) -> Self::OutputAsTensorRank2
     {
-        // let mut tensor_rank_2 = TensorRank2::zero();
-        // self.iter().enumerate().for_each(|(i, self_i)|
-        //     self_i.iter().enumerate().for_each(|(j, self_ij)|
-        //         self_ij.iter().enumerate().for_each(|(k, self_ijk)|
-        //             self_ijk.iter().enumerate().for_each(|(l, self_ijkl)|
-        //                 tensor_rank_2[3*i + j][3*k + l] = *self_ijkl
-        //             )
-        //         )
-        //     )
-        // );
-        // tensor_rank_2
-        todo!()
+        let mut tensor_rank_2 = TensorRank2::zero();
+        self.iter().enumerate().for_each(|(i, self_i)|
+            self_i.iter().enumerate().for_each(|(j, self_ij)|
+                self_ij.iter().enumerate().for_each(|(k, self_ijk)|
+                    self_ijk.iter().enumerate().for_each(|(l, self_ijkl)|
+                        tensor_rank_2[3*i + j][3*k + l] = *self_ijkl
+                    )
+                )
+            )
+        );
+        tensor_rank_2
     }
     fn dyad_ij_kl(tensor_rank_2_a: &TensorRank2<3, I, J>, tensor_rank_2_b: &TensorRank2<3, K, L>) -> Self
     {
@@ -125,10 +123,29 @@ impl<const I: usize, const J: usize, const K: usize, const L: usize> TensorRank4
             ).collect()
         ).collect()
     }
-    fn inverse(&self) -> Self
+    fn inverse(mut self) -> Self
     {
-        // self.as_tensor_rank_2().inverse().as_tensor_rank_4()
-        todo!()
+        let mut tensor_rank_2 = Self::OutputAsTensorRank2::zero();
+        self.iter().enumerate().for_each(|(i, self_i)|
+            self_i.iter().enumerate().for_each(|(j, self_ij)|
+                self_ij.iter().enumerate().for_each(|(k, self_ijk)|
+                    self_ijk.iter().enumerate().for_each(|(l, self_ijkl)|
+                        tensor_rank_2[3*i + j][3*k + l] = *self_ijkl
+                    )
+                )
+            )
+        );
+        let tensor_rank_2_inverse = tensor_rank_2.inverse();
+        self.iter_mut().enumerate().for_each(|(i, tensor_rank_4_i)|
+            tensor_rank_4_i.iter_mut().enumerate().for_each(|(j, tensor_rank_4_ij)|
+                tensor_rank_4_ij.iter_mut().enumerate().for_each(|(k, tensor_rank_4_ijk)|
+                    tensor_rank_4_ijk.iter_mut().enumerate().for_each(|(l, tensor_rank_4_ijkl)|
+                        *tensor_rank_4_ijkl = tensor_rank_2_inverse[3*i + j][3*k + l]
+                    )
+                )
+            )
+        );
+        self
     }
 }
 
