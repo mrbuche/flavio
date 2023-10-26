@@ -15,18 +15,18 @@ use super::
     TensorRank2
 };
 
-pub struct TensorRank2List<const D: usize, const L: usize>
+pub struct TensorRank2List<const D: usize, const I: usize, const J: usize, const L: usize>
 (
-    [TensorRank2<D>; L]
+    [TensorRank2<D, I, J>; L]
 );
 
-impl<const D: usize, const L: usize> TensorRank2List<D, L>
+impl<const D: usize, const I: usize, const J: usize, const L: usize> TensorRank2List<D, I, J, L>
 {
-    pub fn iter(&self) -> impl Iterator<Item = &TensorRank2<D>>
+    pub fn iter(&self) -> impl Iterator<Item = &TensorRank2<D, I, J>>
     {
         self.0.iter()
     }
-    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut TensorRank2<D>>
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut TensorRank2<D, I, J>>
     {
         self.0.iter_mut()
     }
@@ -38,7 +38,7 @@ pub trait TensorRank2ListTrait<const D: usize, const L: usize>
     fn zero() -> Self;
 }
 
-impl<const D: usize, const L: usize> TensorRank2ListTrait<D, L> for TensorRank2List<D, L>
+impl<const D: usize, const I: usize, const J: usize, const L: usize> TensorRank2ListTrait<D, L> for TensorRank2List<D, I, J, L>
 {
     fn new(array: [[[TensorRank0; D]; D]; L]) -> Self
     {
@@ -54,9 +54,9 @@ impl<const D: usize, const L: usize> TensorRank2ListTrait<D, L> for TensorRank2L
     }
 }
 
-impl<const D: usize, const L: usize> FromIterator<TensorRank2<D>> for TensorRank2List<D, L>
+impl<const D: usize, const I: usize, const J: usize, const L: usize> FromIterator<TensorRank2<D, I, J>> for TensorRank2List<D, I, J, L>
 {
-    fn from_iter<Ii: IntoIterator<Item=TensorRank2<D>>>(into_iterator: Ii) -> Self
+    fn from_iter<Ii: IntoIterator<Item=TensorRank2<D, I, J>>>(into_iterator: Ii) -> Self
     {
         let mut tensor_rank_2_list = Self::zero();
         tensor_rank_2_list.iter_mut().zip(into_iterator).for_each(|(tensor_rank_2_list_entry, entry)|
@@ -66,16 +66,16 @@ impl<const D: usize, const L: usize> FromIterator<TensorRank2<D>> for TensorRank
     }
 }
 
-impl<const D: usize, const L: usize> Index<usize> for TensorRank2List<D, L>
+impl<const D: usize, const I: usize, const J: usize, const L: usize> Index<usize> for TensorRank2List<D, I, J, L>
 {
-    type Output = TensorRank2<D>;
+    type Output = TensorRank2<D, I, J>;
     fn index(&self, index: usize) -> &Self::Output
     {
         &self.0[index]
     }
 }
 
-impl<const D: usize, const L: usize> IndexMut<usize> for TensorRank2List<D, L>
+impl<const D: usize, const I: usize, const J: usize, const L: usize> IndexMut<usize> for TensorRank2List<D, I, J, L>
 {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output
     {

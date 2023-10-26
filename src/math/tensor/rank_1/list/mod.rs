@@ -296,10 +296,10 @@ impl<const D: usize, const I: usize, const L: usize> AddAssign<&Self> for Tensor
     }
 }
 
-impl<const I: usize, const L: usize> Mul for TensorRank1List<3, I, L>
+impl<const I: usize, const J: usize, const L: usize> Mul<TensorRank1List<3, J, L>> for TensorRank1List<3, I, L>
 {
-    type Output = TensorRank2<3>;
-    fn mul(self, tensor_rank_1_list: Self) -> Self::Output
+    type Output = TensorRank2<3, I, J>;
+    fn mul(self, tensor_rank_1_list: TensorRank1List<3, J, L>) -> Self::Output
     {
         self.iter().zip(tensor_rank_1_list.iter()).map(|(self_entry, tensor_rank_1_list_entry)|
             TensorRank2::dyad(self_entry, tensor_rank_1_list_entry)
@@ -307,10 +307,10 @@ impl<const I: usize, const L: usize> Mul for TensorRank1List<3, I, L>
     }
 }
 
-impl<const I: usize, const L: usize> Mul<&Self> for TensorRank1List<3, I, L>
+impl<const I: usize, const J: usize, const L: usize> Mul<&TensorRank1List<3, J, L>> for TensorRank1List<3, I, L>
 {
-    type Output = TensorRank2<3>;
-    fn mul(self, tensor_rank_1_list: &Self) -> Self::Output
+    type Output = TensorRank2<3, I, J>;
+    fn mul(self, tensor_rank_1_list: &TensorRank1List<3, J, L>) -> Self::Output
     {
         self.iter().zip(tensor_rank_1_list.iter()).map(|(self_entry, tensor_rank_1_list_entry)|
             TensorRank2::dyad(self_entry, tensor_rank_1_list_entry)
@@ -318,10 +318,10 @@ impl<const I: usize, const L: usize> Mul<&Self> for TensorRank1List<3, I, L>
     }
 }
 
-impl<const I: usize, const L: usize> Mul<TensorRank1List<3, I, L>> for &TensorRank1List<3, I, L>
+impl<const I: usize, const J: usize, const L: usize> Mul<TensorRank1List<3, J, L>> for &TensorRank1List<3, I, L>
 {
-    type Output = TensorRank2<3>;
-    fn mul(self, tensor_rank_1_list: TensorRank1List<3, I, L>) -> Self::Output
+    type Output = TensorRank2<3, I, J>;
+    fn mul(self, tensor_rank_1_list: TensorRank1List<3, J, L>) -> Self::Output
     {
         self.iter().zip(tensor_rank_1_list.iter()).map(|(self_entry, tensor_rank_1_list_entry)|
             TensorRank2::dyad(self_entry, tensor_rank_1_list_entry)
@@ -329,10 +329,10 @@ impl<const I: usize, const L: usize> Mul<TensorRank1List<3, I, L>> for &TensorRa
     }
 }
 
-impl<const I: usize, const L: usize> Mul<Self> for &TensorRank1List<3, I, L>
+impl<const I: usize, const J: usize, const L: usize> Mul<&TensorRank1List<3, J, L>> for &TensorRank1List<3, I, L>
 {
-    type Output = TensorRank2<3>;
-    fn mul(self, tensor_rank_1_list: Self) -> Self::Output
+    type Output = TensorRank2<3, I, J>;
+    fn mul(self, tensor_rank_1_list: &TensorRank1List<3, J, L>) -> Self::Output
     {
         self.iter().zip(tensor_rank_1_list.iter()).map(|(self_entry, tensor_rank_1_list_entry)|
             TensorRank2::dyad(self_entry, tensor_rank_1_list_entry)
