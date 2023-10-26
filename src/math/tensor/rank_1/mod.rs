@@ -47,6 +47,16 @@ impl<const D: usize> TensorRank1<D>
     }
 }
 
+// scrap the default implementations except for some stuff in tensor rank 2 (where have multiple implementations)
+// not useful, more complicated (bounds), and confusing
+
+// wait...
+// if you are not writing separate structs for different configurations any more
+// why cant you do everything you need to (underlying math + configuration rules) all at once?
+// could use Scalar, Vector, Tensor, TenskrRank3, TensorRank4 right off the bat
+// and put it all in math/
+// would you put type aliases in mechanics/ ?
+
 /// Trait to be implemented for rank-1 tensors.
 pub trait TensorRank1Trait<'a, const D: usize>
 where
