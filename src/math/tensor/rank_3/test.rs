@@ -111,12 +111,6 @@ fn get_other_tensor_rank_3_sub_tensor_rank_3() -> TensorRank3<4, 1, 1, 1>
 }
 
 #[test]
-fn need_to_test_configuration_switches_and_compatibility_enforcement()
-{
-    todo!()
-}
-
-#[test]
 fn add_tensor_rank_3_to_self()
 {
     (get_tensor_rank_3() + get_other_tensor_rank_3()).iter()

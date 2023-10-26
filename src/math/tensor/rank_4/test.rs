@@ -396,12 +396,6 @@ fn get_tensor_rank_4_as_tensor_rank_2() -> TensorRank2<9, 1, 1>
 }
 
 #[test]
-fn need_to_test_configuration_switches_and_compatibility_enforcement()
-{
-    todo!()
-}
-
-#[test]
 fn as_tensor_rank_2()
 {
     get_tensor_rank_4().as_tensor_rank_2().iter()

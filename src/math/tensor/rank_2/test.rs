@@ -150,12 +150,6 @@ fn get_other_tensor_rank_2_mul_tensor_rank_2_dim_4() -> TensorRank2<4, 1, 1>
 }
 
 #[test]
-fn need_to_test_configuration_switches_and_compatibility_enforcement()
-{
-    todo!("how to test the enforcement of not contracting different coordinate systems?")
-}
-
-#[test]
 fn add_tensor_rank_2_to_self()
 {
     (get_tensor_rank_2_dim_4() + get_other_tensor_rank_2_dim_4()).iter()

@@ -78,12 +78,6 @@ fn get_tensor_rank_1_list_mul_other_tensor_rank_1_list() -> TensorRank2<3, 1, 1>
 }
 
 #[test]
-fn need_to_test_configuration_switches_and_compatibility_enforcement()
-{
-    todo!()
-}
-
-#[test]
 fn add_tensor_rank_1_list_to_self()
 {
     (get_tensor_rank_1_list() + get_other_tensor_rank_1_list()).iter()

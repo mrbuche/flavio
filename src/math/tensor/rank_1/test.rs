@@ -36,12 +36,6 @@ fn get_tensor_rank_1_sub_tensor_rank_1_a() -> TensorRank1<4, 1>
 }
 
 #[test]
-fn need_to_test_configuration_switches_and_compatibility_enforcement()
-{
-    todo!()
-}
-
-#[test]
 fn add_tensor_rank_1_to_self()
 {
     (get_tensor_rank_1() + get_tensor_rank_1_a()).iter()
