@@ -1032,8 +1032,6 @@ impl<const D: usize, const I: usize, const J: usize> AddAssign<&Self> for Tensor
 }
 
 impl<const D: usize, const I: usize, const J: usize, const K: usize> Mul<TensorRank2<D, J, K>> for TensorRank2<D, I, J>
-// where
-//     Self: TensorRank2Trait<D>
 {
     type Output = TensorRank2<D, I, K>;
     fn mul(self, tensor_rank_2: TensorRank2<D, J, K>) -> Self::Output
@@ -1047,8 +1045,6 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize> Mul<TensorR
 }
 
 impl<const D: usize, const I: usize, const J: usize, const K: usize> Mul<&TensorRank2<D, J, K>> for TensorRank2<D, I, J>
-// where
-//     Self: TensorRank2Trait<D>
 {
     type Output = TensorRank2<D, I, K>;
     fn mul(self, tensor_rank_2: &TensorRank2<D, J, K>) -> Self::Output
@@ -1062,8 +1058,6 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize> Mul<&Tensor
 }
 
 impl<const D: usize, const I: usize, const J: usize, const K: usize> Mul<TensorRank2<D, J, K>> for &TensorRank2<D, I, J>
-// where
-//     TensorRank2<D>: TensorRank2Trait<D>
 {
     type Output = TensorRank2<D, I, K>;
     fn mul(self, tensor_rank_2: TensorRank2<D, J, K>) -> Self::Output
@@ -1077,8 +1071,6 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize> Mul<TensorR
 }
 
 impl<const D: usize, const I: usize, const J: usize, const K: usize> Mul<&TensorRank2<D, J, K>> for &TensorRank2<D, I, J>
-// where
-//     TensorRank2<D>: TensorRank2Trait<D>
 {
     type Output = TensorRank2<D, I, K>;
     fn mul(self, tensor_rank_2: &TensorRank2<D, J, K>) -> Self::Output

@@ -5,7 +5,10 @@ use super::
     TensorRank2,
     TensorRank2Trait,
     TensorRank4,
-    TensorRank4Trait
+    TensorRank4Trait,
+    ContractAllIndicesWithFirstIndicesOf,
+    ContractFirstThirdFourthIndicesWithFirstIndicesOf,
+    ContractSecondIndexWithFirstIndexOf
 };
 
 fn get_array() -> [[[[TensorRank0; 3]; 3]; 3]; 3]
