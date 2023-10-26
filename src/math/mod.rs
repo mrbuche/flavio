@@ -31,6 +31,9 @@ pub use tensor::
     rank_4::
     {
         TensorRank4,
-        TensorRank4Trait
+        TensorRank4Trait,
+        ContractAllIndicesWithFirstIndicesOf,
+        ContractFirstThirdFourthIndicesWithFirstIndicesOf,
+        ContractSecondIndexWithFirstIndexOf
     }
 };
