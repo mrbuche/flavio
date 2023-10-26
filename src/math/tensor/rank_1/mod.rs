@@ -22,7 +22,9 @@ use super::
     rank_0::TensorRank0
 };
 
-/// A rank-1 tensor of dimension `D`.
+/// A *d*-dimensional tensor of rank 1.
+///
+/// `D` is the dimension.
 pub struct TensorRank1<const D: usize>
 (
     [TensorRank0; D]
@@ -47,50 +49,39 @@ impl<const D: usize> TensorRank1<D>
     }
 }
 
-// scrap the default implementations except for some stuff in tensor rank 2 (where have multiple implementations)
-// not useful, more complicated (bounds), and confusing
-
-// wait...
-// if you are not writing separate structs for different configurations any more
-// why cant you do everything you need to (underlying math + configuration rules) all at once?
-// could use Scalar, Vector, Tensor, TenskrRank3, TensorRank4 right off the bat
-// and put it all in math/
-// would you put type aliases in mechanics/ ?
-
 /// Trait to be implemented for rank-1 tensors.
-pub trait TensorRank1Trait<'a, const D: usize>
-where
-    Self: 'a
-        + FromIterator<TensorRank0>
-        + Mul<Output = TensorRank0>
-        + Sized,
-    &'a Self: Mul<&'a Self, Output = TensorRank0>
+pub trait TensorRank1Trait<const D: usize>
 {
     /// Returns a rank-1 tensor created from an array.
+    fn new(array: [TensorRank0; D]) -> Self;
+    /// Returns the rank-1 tensor norm.
+    fn norm(&self) -> TensorRank0;
+    /// Returns the rank-1 zero tensor.
+    fn zero() -> Self;
+}
+
+/// Implementation of [`TensorRank1Trait`] for [`TensorRank1`].
+impl<const D: usize> TensorRank1Trait<D> for TensorRank1<D>
+{
     fn new(array: [TensorRank0; D]) -> Self
     {
         array.into_iter().collect()
     }
-    /// Returns the rank-1 tensor norm.
-    fn norm(&'a self) -> TensorRank0
+    fn norm(&self) -> TensorRank0
     {
         (self * self).sqrt()
     }
-    /// Returns the rank-1 zero tensor.
     fn zero() -> Self
     {
-        Self::new([0.0; D])
+        Self([0.0; D])
     }
 }
-
-/// Implementation of [`TensorRank1Trait`] for [`TensorRank1`].
-impl<'a, const D: usize> TensorRank1Trait<'a, D> for TensorRank1<D>{}
 
 impl<const D: usize> FromIterator<TensorRank0> for TensorRank1<D>
 {
     fn from_iter<I: IntoIterator<Item=TensorRank0>>(into_iterator: I) -> Self
     {
-        let mut tensor_rank_1 = Self([0.0; D]);
+        let mut tensor_rank_1 = Self::zero();
         tensor_rank_1.iter_mut().zip(into_iterator).for_each(|(tensor_rank_1_i, value_i)|
             *tensor_rank_1_i = value_i
         );

@@ -1,15 +1,1 @@
-mod scalar;
-mod tensor;
-mod vector;
-
-pub use scalar::Scalar;
-pub use tensor::
-{
-    Tensor,
-    TensorTrait
-};
-pub use vector::
-{
-    Vector,
-    VectorTrait
-};
+// pub type CauchyStress = crate::math::TensorRank2<3, 1, 1>;

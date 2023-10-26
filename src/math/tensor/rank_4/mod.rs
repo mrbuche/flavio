@@ -53,11 +53,6 @@ impl<const D: usize> TensorRank4<D>
 }
 
 pub trait TensorRank4Trait<const D: usize, T2A, T2B, T2C, T2D>
-where
-    Self: FromIterator<TensorRank3<D>>
-        + Index<usize, Output = TensorRank3<D>>
-        + IndexMut<usize, Output = TensorRank3<D>>
-        + Sized
 {
     type AsTensorRank2;
     fn as_tensor_rank_2(&self) -> Self::AsTensorRank2;
@@ -68,16 +63,7 @@ where
     fn dyad_ik_jl(tensor_rank_2_a: T2A, tensor_rank_2_b: T2B) -> Self;
     fn dyad_il_jk(tensor_rank_2_a: T2A, tensor_rank_2_b: T2B) -> Self;
     fn dyad_il_kj(tensor_rank_2_a: T2A, tensor_rank_2_b: T2B) -> Self;
-    fn new(array: [[[[TensorRank0; D]; D]; D]; D]) -> Self
-    {
-        array.iter().map(|array_i|
-            array_i.iter().map(|array_ij|
-                array_ij.iter().map(|array_ijk|
-                    TensorRank1::new(*array_ijk)
-                ).collect()
-            ).collect()
-        ).collect()
-    }
+    fn new(array: [[[[TensorRank0; D]; D]; D]; D]) -> Self;
     fn inverse(&self) -> Self;
 }
 
@@ -183,6 +169,16 @@ impl TensorRank4Trait<3, &TensorRank2<3>, &TensorRank2<3>, &TensorRank2<3>, &Ten
     fn dyad_il_kj(tensor_rank_2_a: &TensorRank2<3>, tensor_rank_2_b: &TensorRank2<3>) -> Self
     {
         Self::dyad_il_jk(tensor_rank_2_a, &(tensor_rank_2_b.transpose()))
+    }
+    fn new(array: [[[[TensorRank0; 3]; 3]; 3]; 3]) -> Self
+    {
+        array.iter().map(|array_i|
+            array_i.iter().map(|array_ij|
+                array_ij.iter().map(|array_ijk|
+                    TensorRank1::new(*array_ijk)
+                ).collect()
+            ).collect()
+        ).collect()
     }
     fn inverse(&self) -> Self
     {

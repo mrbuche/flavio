@@ -48,11 +48,11 @@ impl<const D: usize> TensorRank3<D>
 }
 
 pub trait TensorRank3Trait<const D: usize>
-where
-    Self: FromIterator<TensorRank2<D>>
-        + Index<usize, Output = TensorRank2<D>>
-        + IndexMut<usize, Output = TensorRank2<D>>
-        + Sized
+{
+    fn new(array: [[[TensorRank0; D]; D]; D]) -> Self;
+}
+
+impl<const D: usize> TensorRank3Trait<D> for TensorRank3<D>
 {
     fn new(array: [[[TensorRank0; D]; D]; D]) -> Self
     {
@@ -63,8 +63,6 @@ where
         ).collect()
     }
 }
-
-impl<const D: usize> TensorRank3Trait<D> for TensorRank3<D> {}
 
 impl<const D: usize> FromIterator<TensorRank2<D>> for TensorRank3<D>
 {

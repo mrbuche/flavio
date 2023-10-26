@@ -34,3 +34,5 @@ pub use tensor::
         TensorRank4Trait
     }
 };
+
+pub type Scalar = TensorRank0;
