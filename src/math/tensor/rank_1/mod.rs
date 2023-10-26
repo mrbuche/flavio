@@ -74,7 +74,7 @@ where
 }
 
 /// Implementation of [`TensorRank1Trait`] for [`TensorRank1`].
-impl<'a, const D: usize> TensorRank1Trait<'a, D> for TensorRank1<D> {}
+impl<'a, const D: usize> TensorRank1Trait<'a, D> for TensorRank1<D>{}
 
 impl<const D: usize> FromIterator<TensorRank0> for TensorRank1<D>
 {
