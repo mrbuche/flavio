@@ -79,7 +79,7 @@ impl<const D: usize> TensorRank1Trait<D> for TensorRank1<D>
 
 impl<const D: usize> FromIterator<TensorRank0> for TensorRank1<D>
 {
-    fn from_iter<I: IntoIterator<Item=TensorRank0>>(into_iterator: I) -> Self
+    fn from_iter<Ii: IntoIterator<Item=TensorRank0>>(into_iterator: Ii) -> Self
     {
         let mut tensor_rank_1 = Self::zero();
         tensor_rank_1.iter_mut().zip(into_iterator).for_each(|(tensor_rank_1_i, value_i)|

@@ -46,11 +46,12 @@ impl<const D: usize, const L: usize> TensorRank1List<D, L>
 }
 
 pub trait TensorRank1ListTrait<const D: usize, const L: usize>
-where
-    Self: FromIterator<TensorRank1<D>>
-        + Index<usize, Output = TensorRank1<D>>
-        + IndexMut<usize, Output = TensorRank1<D>>
-        + Sized
+{
+    fn new(array: [[TensorRank0; D]; L]) -> Self;
+    fn zero() -> Self;
+}
+
+impl<const D: usize, const L: usize> TensorRank1ListTrait<D, L> for TensorRank1List<D, L>
 {
     fn new(array: [[TensorRank0; D]; L]) -> Self
     {
@@ -58,11 +59,6 @@ where
             TensorRank1::new(*array_i)
         ).collect()
     }
-    fn zero() -> Self;
-}
-
-impl<const D: usize, const L: usize> TensorRank1ListTrait<D, L> for TensorRank1List<D, L>
-{
     fn zero() -> Self
     {
         Self(std::array::from_fn(|_| TensorRank1::zero()))
@@ -71,7 +67,7 @@ impl<const D: usize, const L: usize> TensorRank1ListTrait<D, L> for TensorRank1L
 
 impl<const D: usize, const L: usize> FromIterator<TensorRank1<D>> for TensorRank1List<D, L>
 {
-    fn from_iter<I: IntoIterator<Item=TensorRank1<D>>>(into_iterator: I) -> Self
+    fn from_iter<Ii: IntoIterator<Item=TensorRank1<D>>>(into_iterator: Ii) -> Self
     {
         let mut tensor_rank_1_list = Self::zero();
         tensor_rank_1_list.iter_mut().zip(into_iterator).for_each(|(tensor_rank_1_list_entry, entry)|
