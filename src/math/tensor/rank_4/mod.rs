@@ -52,25 +52,25 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
     }
 }
 
-pub trait TensorRank4Trait<const D: usize, T2A, T2B, T2C, T2D>
+pub trait TensorRank4Trait<const D: usize, TIJ, TIK, TIL, TJL, TJK, TKJ, TKL, TIM, TJN, TKO, TLP>
 {
     type OutputAsTensorRank2;
     type OutputContractAllIndicesWithFirstIndicesOf;
     type OutputContractFirstThirdFourthIndicesWithFirstIndicesOf;
     type OutputContractSecondIndexWithFirstIndexOf;
     fn as_tensor_rank_2(&self) -> Self::OutputAsTensorRank2;
-    fn contract_all_indices_with_first_indices_of(&self, tensor_rank_2_a: T2A, tensor_rank_2_b: T2B, tensor_rank_2_c: T2C, tensor_rank_2_d: T2D) -> Self::OutputContractAllIndicesWithFirstIndicesOf;
-    fn contract_first_third_fourth_indices_with_first_indices_of(&self, tensor_rank_2_a: T2A, tensor_rank_2_c: T2C, tensor_rank_2_d: T2D) -> Self::OutputContractFirstThirdFourthIndicesWithFirstIndicesOf;
-    fn contract_second_index_with_first_index_of(&self, tensor_rank_2_b: T2B) -> Self::OutputContractSecondIndexWithFirstIndexOf;
-    fn dyad_ij_kl(tensor_rank_2_a: T2A, tensor_rank_2_b: T2B) -> Self;
-    fn dyad_ik_jl(tensor_rank_2_a: T2A, tensor_rank_2_b: T2B) -> Self;
-    fn dyad_il_jk(tensor_rank_2_a: T2A, tensor_rank_2_b: T2B) -> Self;
-    fn dyad_il_kj(tensor_rank_2_a: T2A, tensor_rank_2_b: T2B) -> Self;
+    fn contract_all_indices_with_first_indices_of(&self, tensor_rank_2_a: TIM, tensor_rank_2_b: TJN, tensor_rank_2_c: TKO, tensor_rank_2_d: TLP) -> Self::OutputContractAllIndicesWithFirstIndicesOf;
+    fn contract_first_third_fourth_indices_with_first_indices_of(&self, tensor_rank_2_a: TIM, tensor_rank_2_c: TKO, tensor_rank_2_d: TLP) -> Self::OutputContractFirstThirdFourthIndicesWithFirstIndicesOf;
+    fn contract_second_index_with_first_index_of(&self, tensor_rank_2_b: TJN) -> Self::OutputContractSecondIndexWithFirstIndexOf;
+    fn dyad_ij_kl(tensor_rank_2_a: TIJ, tensor_rank_2_b: TKL) -> Self;
+    fn dyad_ik_jl(tensor_rank_2_a: TIK, tensor_rank_2_b: TJL) -> Self;
+    fn dyad_il_jk(tensor_rank_2_a: TIL, tensor_rank_2_b: TJK) -> Self;
+    fn dyad_il_kj(tensor_rank_2_a: TIL, tensor_rank_2_b: TKJ) -> Self;
     fn new(array: [[[[TensorRank0; D]; D]; D]; D]) -> Self;
     fn inverse(&self) -> Self;
 }
 
-impl<const I: usize, const J: usize, const K: usize, const L: usize, const M: usize, const N: usize, const O: usize, const P: usize> TensorRank4Trait<3, &TensorRank2<3, I, M>, &TensorRank2<3, J, N>, &TensorRank2<3, K, O>, &TensorRank2<3, L, P>> for TensorRank4<3, I, J, K, L>
+impl<const I: usize, const J: usize, const K: usize, const L: usize, const M: usize, const N: usize, const O: usize, const P: usize> TensorRank4Trait<3, &TensorRank2<3, I, J>, &TensorRank2<3, I, K>, &TensorRank2<3, I, L>, &TensorRank2<3, J, L>, &TensorRank2<3, J, K>, &TensorRank2<3, K, J>, &TensorRank2<3, K, L>, &TensorRank2<3, I, M>, &TensorRank2<3, J, N>, &TensorRank2<3, K, O>, &TensorRank2<3, L, P>> for TensorRank4<3, I, J, K, L>
 {
     // I don't see how to make this work and retain the configurations here without passing them through somehow
     type OutputAsTensorRank2 = TensorRank2<9, I, J>;

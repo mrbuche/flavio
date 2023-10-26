@@ -49,12 +49,12 @@ fn get_array() -> [[[[TensorRank0; 3]; 3]; 3]; 3]
     ]]]
 }
 
-fn get_tensor_rank_4() -> TensorRank4<3>
+fn get_tensor_rank_4() -> TensorRank4<3, 1, 1, 1, 1>
 {
     TensorRank4::new(get_array())
 }
 
-fn get_other_tensor_rank_4() -> TensorRank4<3>
+fn get_other_tensor_rank_4() -> TensorRank4<3, 1, 1, 1, 1>
 {
     TensorRank4::new([[[
         [2.0, 2.0, 4.0],
@@ -95,7 +95,7 @@ fn get_other_tensor_rank_4() -> TensorRank4<3>
     ]]])
 }
 
-fn get_other_tensor_rank_4_add_tensor_rank_4() -> TensorRank4<3>
+fn get_other_tensor_rank_4_add_tensor_rank_4() -> TensorRank4<3, 1, 1, 1, 1>
 {
     TensorRank4::new([[[
         [6.0, 4.0, 8.0],
@@ -136,7 +136,7 @@ fn get_other_tensor_rank_4_add_tensor_rank_4() -> TensorRank4<3>
     ]]])
 }
 
-fn get_other_tensor_rank_4_sub_tensor_rank_4() -> TensorRank4<3>
+fn get_other_tensor_rank_4_sub_tensor_rank_4() -> TensorRank4<3, 1, 1, 1, 1>
 {
     TensorRank4::new([[[
         [ 2.0,  0.0,  0.0],
@@ -177,7 +177,7 @@ fn get_other_tensor_rank_4_sub_tensor_rank_4() -> TensorRank4<3>
     ]]])
 }
 
-fn get_tensor_rank_4_mul_tensor_rank_2() -> TensorRank4<3>
+fn get_tensor_rank_4_mul_tensor_rank_2() -> TensorRank4<3, 1, 1, 1, 1>
 {
     TensorRank4::new([[[
         [54.0, 52.0, 46.0],
@@ -218,7 +218,7 @@ fn get_tensor_rank_4_mul_tensor_rank_2() -> TensorRank4<3>
     ]]])
 }
 
-fn get_tensor_rank_4_contract_all_indices_with_first_indices_of_tensor_rank_2() -> TensorRank4<3>
+fn get_tensor_rank_4_contract_all_indices_with_first_indices_of_tensor_rank_2() -> TensorRank4<3, 1, 1, 1, 1>
 {
     TensorRank4::new([[[
         [19307.0, 10466.0, 16156.0],
@@ -259,7 +259,7 @@ fn get_tensor_rank_4_contract_all_indices_with_first_indices_of_tensor_rank_2() 
     ]]])
 }
 
-fn get_tensor_rank_4_contract_first_third_fourth_indices_with_first_indices_of_tensor_rank_2() -> TensorRank4<3>
+fn get_tensor_rank_4_contract_first_third_fourth_indices_with_first_indices_of_tensor_rank_2() -> TensorRank4<3, 1, 1, 1, 1>
 {
     TensorRank4::new([[[
         [3382.0, 3251.0, 2580.0],
@@ -300,7 +300,7 @@ fn get_tensor_rank_4_contract_first_third_fourth_indices_with_first_indices_of_t
     ]]])
 }
 
-fn get_tensor_rank_4_contract_second_index_with_first_index_of_tensor_rank_2() -> TensorRank4<3>
+fn get_tensor_rank_4_contract_second_index_with_first_index_of_tensor_rank_2() -> TensorRank4<3, 1, 1, 1, 1>
 {
     TensorRank4::new([[[
         [27.0, 34.0, 45.0],
@@ -341,7 +341,7 @@ fn get_tensor_rank_4_contract_second_index_with_first_index_of_tensor_rank_2() -
     ]]])
 }
 
-fn get_tensor_rank_2() -> TensorRank2<3>
+fn get_tensor_rank_2() -> TensorRank2<3, 1, 1>
 {
     TensorRank2::new([
         [1.0, 4.0, 6.0],
@@ -350,7 +350,7 @@ fn get_tensor_rank_2() -> TensorRank2<3>
     ])
 }
 
-fn get_other_tensor_rank_2() -> TensorRank2<3>
+fn get_other_tensor_rank_2() -> TensorRank2<3, 1, 1>
 {
     TensorRank2::new([
         [3.0, 2.0, 3.0],
@@ -359,7 +359,7 @@ fn get_other_tensor_rank_2() -> TensorRank2<3>
     ])
 }
 
-fn get_other_other_tensor_rank_2() -> TensorRank2<3>
+fn get_other_other_tensor_rank_2() -> TensorRank2<3, 1, 1>
 {
     TensorRank2::new([
         [1.0, 2.0, 3.0],
@@ -368,7 +368,7 @@ fn get_other_other_tensor_rank_2() -> TensorRank2<3>
     ])
 }
 
-fn get_other_other_other_tensor_rank_2() -> TensorRank2<3>
+fn get_other_other_other_tensor_rank_2() -> TensorRank2<3, 1, 1>
 {
     TensorRank2::new([
         [3.0, 2.0, 4.0],
@@ -377,7 +377,7 @@ fn get_other_other_other_tensor_rank_2() -> TensorRank2<3>
     ])
 }
 
-fn get_tensor_rank_4_as_tensor_rank_2() -> TensorRank2<9>
+fn get_tensor_rank_4_as_tensor_rank_2() -> TensorRank2<9, 1, 1>
 {
     TensorRank2::new([
         [4.0, 2.0, 4.0, 1.0, 4.0, 3.0, 2.0, 4.0, 4.0],
@@ -695,7 +695,7 @@ fn dyad_ij_kl()
 {
     let tensor_a = get_tensor_rank_2();
     let tensor_b = get_other_tensor_rank_2();
-    TensorRank4::<3>::dyad_ij_kl(&tensor_a, &tensor_b).iter()
+    TensorRank4::<3, 1, 1, 1, 1>::dyad_ij_kl(&tensor_a, &tensor_b).iter()
     .zip(tensor_a.iter())
     .for_each(|(tensor_rank_4_i, tensor_a_i)|
         tensor_rank_4_i.iter()
@@ -719,7 +719,7 @@ fn dyad_ik_jl()
 {
     let tensor_a = get_tensor_rank_2();
     let tensor_b = get_other_tensor_rank_2();
-    TensorRank4::<3>::dyad_ik_jl(&tensor_a, &tensor_b).iter()
+    TensorRank4::<3, 1, 1, 1, 1>::dyad_ik_jl(&tensor_a, &tensor_b).iter()
     .zip(tensor_a.iter())
     .for_each(|(tensor_rank_4_i, tensor_a_i)|
         tensor_rank_4_i.iter()
@@ -743,7 +743,7 @@ fn dyad_il_jk()
 {
     let tensor_a = get_tensor_rank_2();
     let tensor_b = get_other_tensor_rank_2();
-    TensorRank4::<3>::dyad_il_jk(&tensor_a, &tensor_b).iter()
+    TensorRank4::<3, 1, 1, 1, 1>::dyad_il_jk(&tensor_a, &tensor_b).iter()
     .zip(tensor_a.iter())
     .for_each(|(tensor_rank_4_i, tensor_a_i)|
         tensor_rank_4_i.iter()
@@ -767,7 +767,7 @@ fn dyad_il_kj()
 {
     let tensor_a = get_tensor_rank_2();
     let tensor_b = get_other_tensor_rank_2();
-    TensorRank4::<3>::dyad_il_kj(&tensor_a, &tensor_b).iter()
+    TensorRank4::<3, 1, 1, 1, 1>::dyad_il_kj(&tensor_a, &tensor_b).iter()
     .zip(tensor_a.iter())
     .for_each(|(tensor_rank_4_i, tensor_a_i)|
         tensor_rank_4_i.iter()
@@ -790,7 +790,7 @@ fn dyad_il_kj()
 fn from_iter()
 {
     let into_iterator = get_tensor_rank_4().0.into_iter();
-    let tensor_rank_4 = TensorRank4::<3>::from_iter(get_tensor_rank_4().0.into_iter());
+    let tensor_rank_4 = TensorRank4::<3, 1, 1, 1, 1>::from_iter(get_tensor_rank_4().0.into_iter());
     tensor_rank_4.iter()
     .zip(into_iterator)
     .for_each(|(tensor_rank_4_i, value_i)|
@@ -1128,7 +1128,7 @@ fn sub_assign_tensor_rank_4_ref()
 #[test]
 fn zero()
 {
-    TensorRank4::<3>::zero().iter()
+    TensorRank4::<3, 1, 1, 1, 1>::zero().iter()
     .for_each(|tensor_rank_4_i|
         tensor_rank_4_i.iter()
         .for_each(|tensor_rank_4_ij|

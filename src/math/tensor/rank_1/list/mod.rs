@@ -49,9 +49,6 @@ impl<const D: usize, const I: usize, const L: usize> TensorRank1List<D, I, L>
 pub trait TensorRank1ListTrait<const D: usize, const L: usize>
 {
     fn new(array: [[TensorRank0; D]; L]) -> Self;
-    fn to_current_configuration(self) -> TensorRank1List<D, 1, L>;
-    fn to_intermediate_configuration(self) -> TensorRank1List<D, 2, L>;
-    fn to_reference_configuration(self) -> TensorRank1List<D, 0, L>;
     fn zero() -> Self;
 }
 
@@ -62,30 +59,6 @@ impl<const D: usize, const I: usize, const L: usize> TensorRank1ListTrait<D, L> 
         array.iter().map(|array_i|
             TensorRank1::new(*array_i)
         ).collect()
-    }
-    fn to_current_configuration(self) -> TensorRank1List<D, 1, L>
-    {
-        TensorRank1List(
-            from_fn(|entry|
-                self.0[entry].to_current_configuration()
-            )
-        )
-    }
-    fn to_intermediate_configuration(self) -> TensorRank1List<D, 2, L>
-    {
-        TensorRank1List(
-            from_fn(|entry|
-                self.0[entry].to_intermediate_configuration()
-            )
-        )
-    }
-    fn to_reference_configuration(self) -> TensorRank1List<D, 0, L>
-    {
-        TensorRank1List(
-            from_fn(|entry|
-                self.0[entry].to_reference_configuration()
-            )
-        )
     }
     fn zero() -> Self
     {

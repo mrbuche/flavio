@@ -68,7 +68,7 @@ fn get_tensor_rank_1_list_sub_other_tensor_rank_1_list() -> TensorRank1List<3, 1
     ])
 }
 
-fn get_tensor_rank_1_list_mul_other_tensor_rank_1_list() -> TensorRank2<3, 1>
+fn get_tensor_rank_1_list_mul_other_tensor_rank_1_list() -> TensorRank2<3, 1, 1>
 {
     TensorRank2::new([
         [69.0, 70.0, 90.0],

@@ -18,35 +18,35 @@ fn tensor_rank_0()
 #[test]
 fn tensor_rank_1()
 {
-    let _: TensorRank1<3>;
+    let _: TensorRank1<3, 1>;
 }
 
 #[test]
 fn tensor_rank_1_list()
 {
-    let _: TensorRank1List<3, 8>;
+    let _: TensorRank1List<3, 1, 8>;
 }
 
 #[test]
 fn tensor_rank_2()
 {
-    let _: TensorRank2<3>;
+    let _: TensorRank2<3, 1, 1>;
 }
 
 #[test]
 fn tensor_rank_2_list()
 {
-    let _: TensorRank2List<3, 8>;
+    let _: TensorRank2List<3, 1, 1, 8>;
 }
 
 #[test]
 fn tensor_rank_3()
 {
-    let _: TensorRank3<3>;
+    let _: TensorRank3<3, 1, 1, 1>;
 }
 
 #[test]
 fn tensor_rank_4()
 {
-    let _: TensorRank4<3>;
+    let _: TensorRank4<3, 1, 1, 1, 1>;
 }

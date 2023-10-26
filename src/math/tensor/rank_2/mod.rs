@@ -86,46 +86,84 @@ where
     fn inverse_and_determinant(&self) -> (TensorRank2<D, J, I>, TensorRank0);
     fn inverse_transpose(&self) -> Self;
     fn inverse_transpose_and_determinant(&self) -> (Self, TensorRank0);
-    fn inverse_lower_triangular(mut self) -> TensorRank2<D, J, I>
+    // fn inverse_lower_triangular(mut self) -> TensorRank2<D, 9, J>
+    // {
+    //     let mut sum;
+    //     for i in 0..D
+    //     {
+    //         self[i][i] = 1.0/self[i][i];
+    //         for j in 0..i
+    //         {
+    //             sum = 0.0;
+    //             for k in j..i
+    //             {
+    //                 sum += self[i][k] * self[k][j];
+    //             }
+    //             self[i][j] = -sum * self[i][i];
+    //         }
+    //     }
+    //     self
+    // }
+    // fn inverse_upper_triangular(mut self) -> TensorRank2<D, J, 9>
+    // {
+    //     let mut sum;
+    //     for i in 0..D
+    //     {
+    //         self[i][i] = 1.0/self[i][i];
+    //         for j in 0..i
+    //         {
+    //             sum = 0.0;
+    //             for k in j..i
+    //             {
+    //                 sum += self[j][k] * self[k][i];
+    //             }
+    //             self[j][i] = -sum * self[i][i];
+    //         }
+    //     }
+    //     self
+    // }
+    fn lu_decomposition(&self) -> (TensorRank2<D, I, 9>, TensorRank2<D, 9, J>)
     {
-        let mut sum;
+        let mut tensor_l = TensorRank2::zero();
+        let mut tensor_u = TensorRank2::zero();
         for i in 0..D
         {
-            self[i][i] = 1.0/self[i][i];
-            for j in 0..i
+            for j in 0..D
             {
-                sum = 0.0;
-                for k in j..i
+                if j >= i
                 {
-                    sum += self[i][k] * self[k][j];
+                    tensor_l[j][i] = self[j][i];
+                    for k in 0..i
+                    {
+                        tensor_l[j][i] -=  tensor_l[j][k] * tensor_u[k][i];
+                    }
                 }
-                self[i][j] = -sum * self[i][i];
+            }
+            for j in 0..D
+            {
+                match j.cmp(&i) {
+                    Ordering::Equal =>
+                    {
+                        tensor_u[i][j] = 1.0;
+                    }
+                    Ordering::Greater =>
+                    {
+                        tensor_u[i][j] = self[i][j] / tensor_l[i][i];
+                        for k in 0..i
+                        {
+                            tensor_u[i][j] -= (tensor_l[i][k] * tensor_u[k][j]) / tensor_l[i][i];
+                        }
+                    }
+                    Ordering::Less => ()
+                }
             }
         }
-        self
+        (tensor_l, tensor_u)
     }
-    fn inverse_upper_triangular(mut self) -> TensorRank2<D, J, I>
+    fn lu_decomposition_inverse(&self) -> (TensorRank2<D, 9, I>, TensorRank2<D, J, 9>)
     {
-        let mut sum;
-        for i in 0..D
-        {
-            self[i][i] = 1.0/self[i][i];
-            for j in 0..i
-            {
-                sum = 0.0;
-                for k in j..i
-                {
-                    sum += self[j][k] * self[k][i];
-                }
-                self[j][i] = -sum * self[i][i];
-            }
-        }
-        self
-    }
-    fn lu_decomposition(&self) -> (Self, Self)
-    {
-        let mut tensor_l = Self::zero();
-        let mut tensor_u = Self::zero();
+        let mut tensor_l = TensorRank2::zero();
+        let mut tensor_u = TensorRank2::zero();
         for i in 0..D
         {
             for j in 0..D
@@ -705,20 +743,23 @@ impl<const I: usize, const J: usize> TensorRank2Trait<9, I, J> for TensorRank2<9
     }
     fn inverse(&self) -> TensorRank2<9, J, I>
     {
-        let (tensor_l, tensor_u) = self.lu_decomposition();
-        tensor_u.inverse_upper_triangular() * tensor_l.inverse_lower_triangular()
+        // let (tensor_l, tensor_u) = self.lu_decomposition();
+        // tensor_u.inverse_upper_triangular() * tensor_l.inverse_lower_triangular()
+        let (tensor_l_inverse, tensor_u_inverse) = self.lu_decomposition_inverse();
+        tensor_u_inverse * tensor_l_inverse
     }
     fn inverse_and_determinant(&self) -> (TensorRank2<9, J, I>, TensorRank0)
     {
-        let (tensor_l, tensor_u) = self.lu_decomposition();
-        let determinant = 
-            tensor_l.iter().enumerate().zip(tensor_u.iter()).map(|((i, tensor_l_i), tensor_u_i)|
-                tensor_l_i[i] * tensor_u_i[i]
-            ).product();
-        (
-            tensor_u.inverse_upper_triangular() * tensor_l.inverse_lower_triangular(),
-            determinant
-        )
+        // let (tensor_l, tensor_u) = self.lu_decomposition();
+        // let determinant = 
+        //     tensor_l.iter().enumerate().zip(tensor_u.iter()).map(|((i, tensor_l_i), tensor_u_i)|
+        //         tensor_l_i[i] * tensor_u_i[i]
+        //     ).product();
+        // (
+        //     tensor_u.inverse_upper_triangular() * tensor_l.inverse_lower_triangular(),
+        //     determinant
+        // )
+        panic!()
     }
     fn inverse_transpose(&self) -> Self
     {

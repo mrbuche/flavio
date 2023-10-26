@@ -30,12 +30,12 @@ fn get_array() -> [[[TensorRank0; 4]; 4]; 4]
     ]]
 }
 
-fn get_tensor_rank_3() -> TensorRank3<4>
+fn get_tensor_rank_3() -> TensorRank3<4, 1, 1, 1>
 {
     TensorRank3::new(get_array())
 }
 
-fn get_other_tensor_rank_3() -> TensorRank3<4>
+fn get_other_tensor_rank_3() -> TensorRank3<4, 1, 1, 1>
 {
     TensorRank3::new([[
         [2.0, 1.0, 1.0, 2.0],
@@ -60,7 +60,7 @@ fn get_other_tensor_rank_3() -> TensorRank3<4>
     ]])
 }
 
-fn get_other_tensor_rank_3_add_tensor_rank_3() -> TensorRank3<4>
+fn get_other_tensor_rank_3_add_tensor_rank_3() -> TensorRank3<4, 1, 1, 1>
 {
     TensorRank3::new([[
         [3.0, 3.0, 2.0, 4.0],
@@ -85,7 +85,7 @@ fn get_other_tensor_rank_3_add_tensor_rank_3() -> TensorRank3<4>
     ]])
 }
 
-fn get_other_tensor_rank_3_sub_tensor_rank_3() -> TensorRank3<4>
+fn get_other_tensor_rank_3_sub_tensor_rank_3() -> TensorRank3<4, 1, 1, 1>
 {
     TensorRank3::new([[
         [-1.0,  1.0,  0.0,  0.0],
@@ -290,7 +290,7 @@ fn div_assign_tensor_rank_0_ref()
 fn from_iter()
 {
     let into_iterator = get_tensor_rank_3().0.into_iter();
-    let tensor_rank_3 = TensorRank3::<4>::from_iter(get_tensor_rank_3().0.into_iter());
+    let tensor_rank_3 = TensorRank3::<4, 1, 1, 1>::from_iter(get_tensor_rank_3().0.into_iter());
     tensor_rank_3.iter()
     .zip(into_iterator)
     .for_each(|(tensor_rank_3_i, value_i)|
@@ -515,7 +515,7 @@ fn sub_assign_tensor_rank_3_ref()
 #[test]
 fn zero()
 {
-    TensorRank3::<4>::zero().iter()
+    TensorRank3::<4, 1, 1, 1>::zero().iter()
     .for_each(|tensor_rank_3_i|
         tensor_rank_3_i.iter()
         .for_each(|tensor_rank_3_ij|
