@@ -196,6 +196,12 @@ fn get_tensor_rank_2_dim_9_as_tensor_rank_4_dim_3() -> TensorRank4<3>
 }
 
 #[test]
+fn need_to_test_configuration_switches_and_compatibility_enforcement()
+{
+    todo!()
+}
+
+#[test]
 fn as_tensor_rank_4()
 {
     get_tensor_rank_2_dim_9().as_tensor_rank_4().iter()

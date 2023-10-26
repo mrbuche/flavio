@@ -48,6 +48,12 @@ fn get_tensor_rank_2_list() -> TensorRank2List<3, 8>
 }
 
 #[test]
+fn need_to_test_configuration_switches_and_compatibility_enforcement()
+{
+    todo!()
+}
+
+#[test]
 fn from_iter()
 {
     let into_iterator = get_tensor_rank_2_list().0.into_iter();
