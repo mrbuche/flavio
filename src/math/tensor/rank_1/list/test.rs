@@ -2,9 +2,9 @@ use super::
 {
     TensorRank0,
     TensorRank1List,
-    TensorRank1ListTraits,
+    TensorRank1ListTrait,
     TensorRank2,
-    TensorRank2Traits
+    TensorRank2Trait
 };
 
 fn get_array() -> [[TensorRank0; 3]; 8]
@@ -21,12 +21,12 @@ fn get_array() -> [[TensorRank0; 3]; 8]
     ]
 }
 
-fn get_tensor_rank_1_list() -> TensorRank1List<3, 8>
+fn get_tensor_rank_1_list() -> TensorRank1List<3, 1, 8>
 {
     TensorRank1List::new(get_array())
 }
 
-fn get_other_tensor_rank_1_list() -> TensorRank1List<3, 8>
+fn get_other_tensor_rank_1_list() -> TensorRank1List<3, 1, 8>
 {
     TensorRank1List::new([
         [3.0, 3.0, 6.0],
@@ -40,7 +40,7 @@ fn get_other_tensor_rank_1_list() -> TensorRank1List<3, 8>
     ])
 }
 
-fn get_tensor_rank_1_list_add_other_tensor_rank_1_list() -> TensorRank1List<3, 8>
+fn get_tensor_rank_1_list_add_other_tensor_rank_1_list() -> TensorRank1List<3, 1, 8>
 {
     TensorRank1List::new([
         [8.0, 3.0, 6.0],
@@ -54,7 +54,7 @@ fn get_tensor_rank_1_list_add_other_tensor_rank_1_list() -> TensorRank1List<3, 8
     ])
 }
 
-fn get_tensor_rank_1_list_sub_other_tensor_rank_1_list() -> TensorRank1List<3, 8>
+fn get_tensor_rank_1_list_sub_other_tensor_rank_1_list() -> TensorRank1List<3, 1, 8>
 {
     TensorRank1List::new([
         [ 2.0, -3.0, -6.0],
@@ -68,7 +68,7 @@ fn get_tensor_rank_1_list_sub_other_tensor_rank_1_list() -> TensorRank1List<3, 8
     ])
 }
 
-fn get_tensor_rank_1_list_mul_other_tensor_rank_1_list() -> TensorRank2<3>
+fn get_tensor_rank_1_list_mul_other_tensor_rank_1_list() -> TensorRank2<3, 1, 1>
 {
     TensorRank2::new([
         [69.0, 70.0, 90.0],
@@ -243,7 +243,7 @@ fn div_assign_tensor_rank_0_ref()
 fn from_iter()
 {
     let into_iterator = get_tensor_rank_1_list().0.into_iter();
-    let tensor_rank_1_list = TensorRank1List::<3, 8>::from_iter(get_tensor_rank_1_list().0.into_iter());
+    let tensor_rank_1_list = TensorRank1List::<3, 1, 8>::from_iter(get_tensor_rank_1_list().0.into_iter());
     tensor_rank_1_list.iter()
     .zip(into_iterator)
     .for_each(|(tensor_rank_1_list_entry, entry)|
@@ -504,7 +504,7 @@ fn sub_assign_tensor_rank_1_list_ref()
 #[test]
 fn zero()
 {
-    TensorRank1List::<3, 8>::zero().iter()
+    TensorRank1List::<3, 1, 8>::zero().iter()
     .for_each(|tensor_rank_1_entry|
         tensor_rank_1_entry.iter()
         .for_each(|tensor_rank_1_entry_i|

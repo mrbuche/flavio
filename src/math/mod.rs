@@ -6,31 +6,31 @@ pub use tensor::
     rank_1::
     {
         TensorRank1,
-        TensorRank1Traits,
+        TensorRank1Trait,
         list::
         {
             TensorRank1List,
-            TensorRank1ListTraits
+            TensorRank1ListTrait
         }
     },
     rank_2::
     {
         TensorRank2,
-        TensorRank2Traits,
+        TensorRank2Trait,
         list::
         {
             TensorRank2List,
-            TensorRank2ListTraits
+            TensorRank2ListTrait
         }
     },
     rank_3::
     {
         TensorRank3,
-        TensorRank3Traits
+        TensorRank3Trait
     },
     rank_4::
     {
         TensorRank4,
-        TensorRank4Traits
+        TensorRank4Trait
     }
 };

@@ -2,7 +2,7 @@ use super::
 {
     TensorRank0,
     TensorRank2List,
-    TensorRank2ListTraits
+    TensorRank2ListTrait
 };
 
 fn get_array() -> [[[TensorRank0; 3]; 3]; 8]
@@ -42,7 +42,7 @@ fn get_array() -> [[[TensorRank0; 3]; 3]; 8]
     ]]
 }
 
-fn get_tensor_rank_2_list() -> TensorRank2List<3, 8>
+fn get_tensor_rank_2_list() -> TensorRank2List<3, 1, 1, 8>
 {
     TensorRank2List::new(get_array())
 }
@@ -51,7 +51,7 @@ fn get_tensor_rank_2_list() -> TensorRank2List<3, 8>
 fn from_iter()
 {
     let into_iterator = get_tensor_rank_2_list().0.into_iter();
-    let tensor_rank_2_list = TensorRank2List::<3, 8>::from_iter(get_tensor_rank_2_list().0.into_iter());
+    let tensor_rank_2_list = TensorRank2List::<3, 1, 1, 8>::from_iter(get_tensor_rank_2_list().0.into_iter());
     tensor_rank_2_list.iter()
     .zip(into_iterator)
     .for_each(|(tensor_rank_2_entry, array_entry)|
@@ -124,7 +124,7 @@ fn new()
 #[test]
 fn zero()
 {
-    TensorRank2List::<3, 8>::zero().iter()
+    TensorRank2List::<3, 1, 1, 8>::zero().iter()
     .for_each(|tensor_rank_2_entry|
         tensor_rank_2_entry.iter()
         .for_each(|tensor_rank_2_entry_i|

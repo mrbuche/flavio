@@ -2,7 +2,7 @@ use super::
 {
     TensorRank0,
     TensorRank1,
-    TensorRank1Traits
+    TensorRank1Trait
 };
 
 fn get_array() -> [TensorRank0; 4]
@@ -10,17 +10,17 @@ fn get_array() -> [TensorRank0; 4]
     [1.0, 2.0, 3.0, 4.0]
 }
 
-fn get_tensor_rank_1() -> TensorRank1<4>
+fn get_tensor_rank_1() -> TensorRank1<4, 1>
 {
     TensorRank1::new(get_array())
 }
 
-fn get_tensor_rank_1_a() -> TensorRank1<4>
+fn get_tensor_rank_1_a() -> TensorRank1<4, 1>
 {
     TensorRank1::new([5.0, 7.0, 6.0, 8.0])
 }
 
-fn get_tensor_rank_1_add_tensor_rank_1_a() -> TensorRank1<4>
+fn get_tensor_rank_1_add_tensor_rank_1_a() -> TensorRank1<4, 1>
 {
     TensorRank1::new([6.0, 9.0, 9.0, 12.0])
 }
@@ -30,7 +30,7 @@ fn get_tensor_rank_1_mul_tensor_rank_1_a() -> TensorRank0
     69.0
 }
 
-fn get_tensor_rank_1_sub_tensor_rank_1_a() -> TensorRank1<4>
+fn get_tensor_rank_1_sub_tensor_rank_1_a() -> TensorRank1<4, 1>
 {
     TensorRank1::new([-4.0, -5.0, -3.0, -4.0])
 }
@@ -157,7 +157,7 @@ fn div_assign_tensor_rank_0_ref()
 fn from_iter()
 {
     let into_iterator = (0..8).map(|x| x as TensorRank0).into_iter();
-    let tensor_rank_1 = TensorRank1::<8>::from_iter(into_iterator.clone());
+    let tensor_rank_1 = TensorRank1::<8, 1>::from_iter(into_iterator.clone());
     tensor_rank_1.iter()
     .zip(into_iterator)
     .for_each(|(tensor_rank_1_i, value_i)|
@@ -346,7 +346,7 @@ fn sub_assign_tensor_rank_1_ref()
 #[test]
 fn zero()
 {
-    TensorRank1::<8>::zero().iter()
+    TensorRank1::<8, 1>::zero().iter()
     .for_each(|tensor_rank_1_i|
         assert_eq!(tensor_rank_1_i, &0.0)
     );
