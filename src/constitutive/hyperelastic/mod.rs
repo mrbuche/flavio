@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod test;
 
-mod neo_hookean;
+pub mod neo_hookean;
 
 use super::*;
 

@@ -3,6 +3,8 @@ mod test;
 
 mod hyperelastic;
 
+pub use hyperelastic::neo_hookean::NeoHookeanModel;
+
 use crate::
 {
     math::
