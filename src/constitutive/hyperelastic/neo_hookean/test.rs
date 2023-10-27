@@ -1,6 +1,5 @@
 use crate::constitutive::
 {
-    ConstitutiveModel,
     test::NEOHOOKEANPARAMETERS,
     hyperelastic::test::test_hyperelastic_constitutive_model
 };
