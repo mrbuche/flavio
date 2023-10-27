@@ -35,74 +35,105 @@ macro_rules! test_hyperelastic_constitutive_model
         mod cauchy_stress
         {
             use super::*;
-            #[test]
-            fn bulk_modulus()
+            mod deformed
             {
-                let deformation_gradient = DeformationGradient::identity() * (1.0 + EPSILON).powf(1.0/3.0);
-                let model = get_hyperelastic_constitutive_model();
-                let cauchy_stress = model.calculate_cauchy_stress(&deformation_gradient);
-                assert!((3.0*EPSILON*model.get_bulk_modulus()/cauchy_stress.trace() - 1.0).abs() < EPSILON)
+                use super::*;
+
             }
-            #[test]
-            fn shear_modulus()
+            mod undeformed
             {
-                let mut deformation_gradient = DeformationGradient::identity();
-                deformation_gradient[0][1] = EPSILON;
-                let model = get_hyperelastic_constitutive_model();
-                let cauchy_stress = model.calculate_cauchy_stress(&deformation_gradient);
-                assert!((EPSILON*model.get_shear_modulus()/cauchy_stress[0][1] - 1.0).abs() < EPSILON)
-            }
-            #[test]
-            fn zero()
-            {
-                get_hyperelastic_constitutive_model().calculate_cauchy_stress(&DeformationGradient::identity()).iter()
-                .for_each(|cauchy_stress_i|
-                    cauchy_stress_i.iter()
-                    .for_each(|cauchy_stress_ij|
-                        assert_eq!(cauchy_stress_ij, &0.0)
+                use super::*;
+                #[test]
+                fn bulk_modulus()
+                {
+                    let deformation_gradient = DeformationGradient::identity() * (1.0 + EPSILON).powf(1.0/3.0);
+                    let model = get_hyperelastic_constitutive_model();
+                    let cauchy_stress = model.calculate_cauchy_stress(&deformation_gradient);
+                    assert!((3.0*EPSILON*model.get_bulk_modulus()/cauchy_stress.trace() - 1.0).abs() < EPSILON)
+                }
+                #[test]
+                fn shear_modulus()
+                {
+                    let mut deformation_gradient = DeformationGradient::identity();
+                    deformation_gradient[0][1] = EPSILON;
+                    let model = get_hyperelastic_constitutive_model();
+                    let cauchy_stress = model.calculate_cauchy_stress(&deformation_gradient);
+                    assert!((EPSILON*model.get_shear_modulus()/cauchy_stress[0][1] - 1.0).abs() < EPSILON)
+                }
+                #[test]
+                fn zero()
+                {
+                    get_hyperelastic_constitutive_model().calculate_cauchy_stress(&DeformationGradient::identity()).iter()
+                    .for_each(|cauchy_stress_i|
+                        cauchy_stress_i.iter()
+                        .for_each(|cauchy_stress_ij|
+                            assert_eq!(cauchy_stress_ij, &0.0)
+                        )
                     )
-                )
+                }
             }
         }
         mod helmholtz_free_energy_density
         {
             use super::*;
-            #[test]
-            fn zero()
+            mod deformed
             {
-                assert_eq!(get_hyperelastic_constitutive_model().calculate_helmholtz_free_energy_density(&DeformationGradient::identity()), 0.0)
+                use super::*;
+                #[test]
+                fn positive()
+                {
+                    assert!(get_hyperelastic_constitutive_model().calculate_helmholtz_free_energy_density(&get_deformation_gradient()) > 0.0)
+                }
+            }
+            mod undeformed
+            {
+                use super::*;
+                #[test]
+                fn zero()
+                {
+                    assert_eq!(get_hyperelastic_constitutive_model().calculate_helmholtz_free_energy_density(&DeformationGradient::identity()), 0.0)
+                }
             }
         }
         mod first_piola_kirchoff_stress
         {
             use super::*;
-            #[test]
-            fn bulk_modulus()
+            mod deformed
             {
-                let deformation_gradient = DeformationGradient::identity() * (1.0 + EPSILON).powf(1.0/3.0);
-                let model = get_hyperelastic_constitutive_model();
-                let first_piola_kirchoff_stress = model.calculate_first_piola_kirchoff_stress(&deformation_gradient);
-                assert!((3.0*EPSILON*model.get_bulk_modulus()/first_piola_kirchoff_stress.trace() - 1.0).abs() < EPSILON)
+                use super::*;
+
             }
-            #[test]
-            fn shear_modulus()
+            mod undeformed
             {
-                let mut deformation_gradient = DeformationGradient::identity();
-                deformation_gradient[0][1] = EPSILON;
-                let model = get_hyperelastic_constitutive_model();
-                let first_piola_kirchoff_stress = model.calculate_first_piola_kirchoff_stress(&deformation_gradient);
-                assert!((EPSILON*model.get_shear_modulus()/first_piola_kirchoff_stress[0][1] - 1.0).abs() < EPSILON)
-            }
-            #[test]
-            fn zero()
-            {
-                get_hyperelastic_constitutive_model().calculate_first_piola_kirchoff_stress(&DeformationGradient::identity()).iter()
-                .for_each(|first_piola_kirchoff_stress_i|
-                    first_piola_kirchoff_stress_i.iter()
-                    .for_each(|first_piola_kirchoff_stress_ij|
-                        assert_eq!(first_piola_kirchoff_stress_ij, &0.0)
+                use super::*;
+                #[test]
+                fn bulk_modulus()
+                {
+                    let deformation_gradient = DeformationGradient::identity() * (1.0 + EPSILON).powf(1.0/3.0);
+                    let model = get_hyperelastic_constitutive_model();
+                    let first_piola_kirchoff_stress = model.calculate_first_piola_kirchoff_stress(&deformation_gradient);
+                    assert!((3.0*EPSILON*model.get_bulk_modulus()/first_piola_kirchoff_stress.trace() - 1.0).abs() < EPSILON)
+                }
+                #[test]
+                fn shear_modulus()
+                {
+                    let mut deformation_gradient = DeformationGradient::identity();
+                    deformation_gradient[0][1] = EPSILON;
+                    let model = get_hyperelastic_constitutive_model();
+                    let first_piola_kirchoff_stress = model.calculate_first_piola_kirchoff_stress(&deformation_gradient);
+                    assert!((EPSILON*model.get_shear_modulus()/first_piola_kirchoff_stress[0][1] - 1.0).abs() < EPSILON)
+                }
+                #[test]
+                fn zero()
+                {
+                    get_hyperelastic_constitutive_model().calculate_first_piola_kirchoff_stress(&DeformationGradient::identity()).iter()
+                    .for_each(|first_piola_kirchoff_stress_i|
+                        first_piola_kirchoff_stress_i.iter()
+                        .for_each(|first_piola_kirchoff_stress_ij|
+                            assert_eq!(first_piola_kirchoff_stress_ij, &0.0)
+                        )
                     )
-                )
+                }
             }
         }
     }
