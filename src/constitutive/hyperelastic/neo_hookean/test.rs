@@ -1,5 +1,12 @@
-#[test]
-fn todo()
+use crate::constitutive::
 {
-    todo!("Apply hyperelastic tests.")
-}
+    ConstitutiveModel,
+    test::NEOHOOKEANPARAMETERS,
+    hyperelastic::test::test_hyperelastic_constitutive_model
+};
+use super::NeoHookeanModel;
+
+test_hyperelastic_constitutive_model!(
+    NeoHookeanModel,
+    NEOHOOKEANPARAMETERS
+);

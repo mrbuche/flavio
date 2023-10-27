@@ -8,7 +8,6 @@ pub struct NeoHookeanModel<'a>
     parameters: ConstitutiveModelParameters<'a>
 }
 
-
 impl<'a> NeoHookeanModel<'a>
 {
     fn get_bulk_modulus(&self) -> &Scalar
