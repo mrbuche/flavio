@@ -29,7 +29,10 @@ pub trait ConstitutiveModel<'a>
 {
     fn calculate_cauchy_stress(&self, deformation_gradient: &DeformationGradient) -> CauchyStress;
     fn calculate_cauchy_tangent_stiffness(&self, deformation_gradient: &DeformationGradient) -> CauchyTangentStiffness;
-    fn calculate_left_cauchy_green_deformation(&self, deformation_gradient: &DeformationGradient) -> LeftCauchyGreenDeformation;
+    fn calculate_left_cauchy_green_deformation(&self, deformation_gradient: &DeformationGradient) -> LeftCauchyGreenDeformation
+    {
+        deformation_gradient * deformation_gradient.transpose()
+    }
     fn calculate_first_piola_kirchoff_stress(&self, deformation_gradient: &DeformationGradient) -> FirstPiolaKirchoffStress
     {
         self.calculate_cauchy_stress(deformation_gradient)*deformation_gradient.inverse_transpose()*deformation_gradient.determinant()
