@@ -11,8 +11,7 @@ macro_rules! test_hyperelastic_constitutive_model
                 DeformationGradient,
                 Scalar
             },
-            math::TensorRank2Trait,
-            test::assert_eq_within_tols
+            math::TensorRank2Trait
         };
         fn get_hyperelastic_constitutive_model<'a>() -> $hyperelastic_constitutive_model<'a>
         {
@@ -42,7 +41,7 @@ macro_rules! test_hyperelastic_constitutive_model
                 let deformation_gradient = DeformationGradient::identity() * (1.0 + EPSILON).powf(1.0/3.0);
                 let model = get_hyperelastic_constitutive_model();
                 let cauchy_stress = model.calculate_cauchy_stress(&deformation_gradient);
-                assert_eq_within_tols(model.get_bulk_modulus(), &(cauchy_stress.trace()/3.0/EPSILON))
+                assert!((3.0*EPSILON*model.get_bulk_modulus()/cauchy_stress.trace() - 1.0).abs() < EPSILON)
             }
             #[test]
             fn shear_modulus()
@@ -51,7 +50,7 @@ macro_rules! test_hyperelastic_constitutive_model
                 deformation_gradient[0][1] = EPSILON;
                 let model = get_hyperelastic_constitutive_model();
                 let cauchy_stress = model.calculate_cauchy_stress(&deformation_gradient);
-                assert_eq_within_tols(model.get_shear_modulus(), &(cauchy_stress[0][1]/EPSILON))
+                assert!((EPSILON*model.get_shear_modulus()/cauchy_stress[0][1] - 1.0).abs() < EPSILON)
             }
             #[test]
             fn zero()
@@ -83,7 +82,7 @@ macro_rules! test_hyperelastic_constitutive_model
                 let deformation_gradient = DeformationGradient::identity() * (1.0 + EPSILON).powf(1.0/3.0);
                 let model = get_hyperelastic_constitutive_model();
                 let first_piola_kirchoff_stress = model.calculate_first_piola_kirchoff_stress(&deformation_gradient);
-                assert_eq_within_tols(model.get_bulk_modulus(), &(first_piola_kirchoff_stress.trace()/3.0/EPSILON))
+                assert!((3.0*EPSILON*model.get_bulk_modulus()/first_piola_kirchoff_stress.trace() - 1.0).abs() < EPSILON)
             }
             #[test]
             fn shear_modulus()
@@ -92,7 +91,7 @@ macro_rules! test_hyperelastic_constitutive_model
                 deformation_gradient[0][1] = EPSILON;
                 let model = get_hyperelastic_constitutive_model();
                 let first_piola_kirchoff_stress = model.calculate_first_piola_kirchoff_stress(&deformation_gradient);
-                assert_eq_within_tols(model.get_shear_modulus(), &(first_piola_kirchoff_stress[0][1]/EPSILON))
+                assert!((EPSILON*model.get_shear_modulus()/first_piola_kirchoff_stress[0][1] - 1.0).abs() < EPSILON)
             }
             #[test]
             fn zero()
