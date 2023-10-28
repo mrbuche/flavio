@@ -7,8 +7,11 @@ macro_rules! test_hyperelastic_constitutive_model
         {
             constitutive::
             {
+                CauchyTangentStiffness,
                 ConstitutiveModel,
                 DeformationGradient,
+                FirstPiolaKirchoffStress,
+                FirstPiolaKirchoffTangentStiffness,
                 Scalar
             },
             math::
@@ -25,6 +28,123 @@ macro_rules! test_hyperelastic_constitutive_model
             },
             test::assert_eq_within_tols
         };
+        fn calculate_cauchy_tangent_stiffness_from_finite_difference_of_cauchy_stress(is_deformed: bool) -> CauchyTangentStiffness
+        {
+            let model = get_hyperelastic_constitutive_model();
+            let mut cauchy_tangent_stiffness = CauchyTangentStiffness::zero();
+            for k in 0..3
+            {
+                for l in 0..3
+                {
+                    let mut deformation_gradient_plus = 
+                        if is_deformed
+                        {
+                            get_deformation_gradient()
+                        }
+                        else
+                        {
+                            DeformationGradient::identity()
+                        };
+                    deformation_gradient_plus[k][l] += 0.5*EPSILON;
+                    let calculate_cauchy_stress_plus = model.calculate_cauchy_stress(&deformation_gradient_plus);
+                    let mut deformation_gradient_minus = 
+                        if is_deformed
+                        {
+                            get_deformation_gradient()
+                        }
+                        else
+                        {
+                            DeformationGradient::identity()
+                        };
+                    deformation_gradient_minus[k][l] -= 0.5*EPSILON;
+                    let calculate_cauchy_stress_minus = model.calculate_cauchy_stress(&deformation_gradient_minus);
+                    for i in 0..3
+                    {
+                        for j in 0..3
+                        {
+                            cauchy_tangent_stiffness[i][j][k][l] = (calculate_cauchy_stress_plus[i][j] - calculate_cauchy_stress_minus[i][j])/EPSILON;
+                        }
+                    }
+                }
+            }
+            cauchy_tangent_stiffness
+        }
+        fn calculate_first_piola_kirchoff_stress_from_finite_difference_of_helmholtz_free_energy_density(is_deformed: bool) -> FirstPiolaKirchoffStress
+        {
+            let model = get_hyperelastic_constitutive_model();
+            let mut first_piola_kirchoff_stress = FirstPiolaKirchoffStress::zero();
+            for i in 0..3
+            {
+                for j in 0..3
+                {
+                    let mut deformation_gradient_plus = 
+                        if is_deformed
+                        {
+                            get_deformation_gradient()
+                        }
+                        else
+                        {
+                            DeformationGradient::identity()
+                        };
+                    deformation_gradient_plus[i][j] += 0.5*EPSILON;
+                    let helmholtz_free_energy_density_plus = model.calculate_helmholtz_free_energy_density(&deformation_gradient_plus);
+                    let mut deformation_gradient_minus = 
+                        if is_deformed
+                        {
+                            get_deformation_gradient()
+                        }
+                        else
+                        {
+                            DeformationGradient::identity()
+                        };
+                    deformation_gradient_minus[i][j] -= 0.5*EPSILON;
+                    let helmholtz_free_energy_density_minus = model.calculate_helmholtz_free_energy_density(&deformation_gradient_minus);
+                    first_piola_kirchoff_stress[i][j] = (helmholtz_free_energy_density_plus - helmholtz_free_energy_density_minus)/EPSILON;
+                }
+            }
+            first_piola_kirchoff_stress
+        }
+        fn calculate_first_piola_kirchoff_tangent_stiffness_from_finite_difference_of_first_piola_kirchoff_stress(is_deformed: bool) -> FirstPiolaKirchoffTangentStiffness
+        {
+            let model = get_hyperelastic_constitutive_model();
+            let mut first_piola_kirchoff_tangent_stiffness = FirstPiolaKirchoffTangentStiffness::zero();
+            for k in 0..3
+            {
+                for l in 0..3
+                {
+                    let mut deformation_gradient_plus = 
+                        if is_deformed
+                        {
+                            get_deformation_gradient()
+                        }
+                        else
+                        {
+                            DeformationGradient::identity()
+                        };
+                    deformation_gradient_plus[k][l] += 0.5*EPSILON;
+                    let first_piola_kirchoff_stress_plus = model.calculate_first_piola_kirchoff_stress(&deformation_gradient_plus);
+                    let mut deformation_gradient_minus = 
+                        if is_deformed
+                        {
+                            get_deformation_gradient()
+                        }
+                        else
+                        {
+                            DeformationGradient::identity()
+                        };
+                    deformation_gradient_minus[k][l] -= 0.5*EPSILON;
+                    let first_piola_kirchoff_stress_minus = model.calculate_first_piola_kirchoff_stress(&deformation_gradient_minus);
+                    for i in 0..3
+                    {
+                        for j in 0..3
+                        {
+                            first_piola_kirchoff_tangent_stiffness[i][j][k][l] = (first_piola_kirchoff_stress_plus[i][j] - first_piola_kirchoff_stress_minus[i][j])/EPSILON;
+                        }
+                    }
+                }
+            }
+            first_piola_kirchoff_tangent_stiffness
+        }
         fn get_hyperelastic_constitutive_model<'a>() -> $hyperelastic_constitutive_model<'a>
         {
             $hyperelastic_constitutive_model::new($constitutive_model_parameters)
@@ -48,7 +168,23 @@ macro_rules! test_hyperelastic_constitutive_model
                 #[test]
                 fn finite_difference()
                 {
-                    todo!()
+                    get_hyperelastic_constitutive_model().calculate_cauchy_tangent_stiffness(&get_deformation_gradient()).iter()
+                    .zip(calculate_cauchy_tangent_stiffness_from_finite_difference_of_cauchy_stress(true).iter())
+                    .for_each(|(cauchy_tangent_stiffness_i, fd_cauchy_tangent_stiffness_i)|
+                        cauchy_tangent_stiffness_i.iter()
+                        .zip(fd_cauchy_tangent_stiffness_i.iter())
+                        .for_each(|(cauchy_tangent_stiffness_ij, fd_cauchy_tangent_stiffness_ij)|
+                            cauchy_tangent_stiffness_ij.iter()
+                            .zip(fd_cauchy_tangent_stiffness_ij.iter())
+                            .for_each(|(cauchy_tangent_stiffness_ijk, fd_cauchy_tangent_stiffness_ijk)|
+                                cauchy_tangent_stiffness_ijk.iter()
+                                .zip(fd_cauchy_tangent_stiffness_ijk.iter())
+                                .for_each(|(cauchy_tangent_stiffness_ijkl, fd_cauchy_tangent_stiffness_ijkl)|
+                                    assert!((cauchy_tangent_stiffness_ijkl/fd_cauchy_tangent_stiffness_ijkl - 1.0).abs() < 10.0 * EPSILON)
+                                )
+                            )
+                        )
+                    )
                 }
                 #[test]
                 fn objectivity()
@@ -99,7 +235,26 @@ macro_rules! test_hyperelastic_constitutive_model
                 #[test]
                 fn finite_difference()
                 {
-                    todo!()
+                    get_hyperelastic_constitutive_model().calculate_cauchy_tangent_stiffness(&DeformationGradient::identity()).iter()
+                    .zip(calculate_cauchy_tangent_stiffness_from_finite_difference_of_cauchy_stress(false).iter())
+                    .for_each(|(cauchy_tangent_stiffness_i, fd_cauchy_tangent_stiffness_i)|
+                        cauchy_tangent_stiffness_i.iter()
+                        .zip(fd_cauchy_tangent_stiffness_i.iter())
+                        .for_each(|(cauchy_tangent_stiffness_ij, fd_cauchy_tangent_stiffness_ij)|
+                            cauchy_tangent_stiffness_ij.iter()
+                            .zip(fd_cauchy_tangent_stiffness_ij.iter())
+                            .for_each(|(cauchy_tangent_stiffness_ijk, fd_cauchy_tangent_stiffness_ijk)|
+                                cauchy_tangent_stiffness_ijk.iter()
+                                .zip(fd_cauchy_tangent_stiffness_ijk.iter())
+                                .for_each(|(cauchy_tangent_stiffness_ijkl, fd_cauchy_tangent_stiffness_ijkl)|
+                                    assert!(
+                                        (cauchy_tangent_stiffness_ijkl/fd_cauchy_tangent_stiffness_ijkl - 1.0).abs() < 3.0 * EPSILON ||
+                                        fd_cauchy_tangent_stiffness_ijkl.abs() < EPSILON
+                                    )
+                                )
+                            )
+                        )
+                    )
                 }
                 #[test]
                 fn shear_modulus()
@@ -129,11 +284,6 @@ macro_rules! test_hyperelastic_constitutive_model
             mod deformed
             {
                 use super::*;
-                #[test]
-                fn finite_difference()
-                {
-                    todo!()
-                }
                 #[test]
                 fn objectivity()
                 {
@@ -191,11 +341,6 @@ macro_rules! test_hyperelastic_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn finite_difference()
-                {
-                    todo!()
-                }
-                #[test]
                 fn symmetry()
                 {
                     let model = get_hyperelastic_constitutive_model();
@@ -226,7 +371,15 @@ macro_rules! test_hyperelastic_constitutive_model
                 #[test]
                 fn finite_difference()
                 {
-                    todo!()
+                    get_hyperelastic_constitutive_model().calculate_first_piola_kirchoff_stress(&get_deformation_gradient()).iter()
+                    .zip(calculate_first_piola_kirchoff_stress_from_finite_difference_of_helmholtz_free_energy_density(true).iter())
+                    .for_each(|(first_piola_kirchoff_stress_i, fd_first_piola_kirchoff_stress_i)|
+                        first_piola_kirchoff_stress_i.iter()
+                        .zip(fd_first_piola_kirchoff_stress_i.iter())
+                        .for_each(|(first_piola_kirchoff_stress_ij, fd_first_piola_kirchoff_stress_ij)|
+                            assert!((first_piola_kirchoff_stress_ij/fd_first_piola_kirchoff_stress_ij - 1.0).abs() < EPSILON)
+                        )
+                    )
                 }
                 #[test]
                 fn objectivity()
@@ -249,7 +402,13 @@ macro_rules! test_hyperelastic_constitutive_model
                 #[test]
                 fn finite_difference()
                 {
-                    todo!()
+                    calculate_first_piola_kirchoff_stress_from_finite_difference_of_helmholtz_free_energy_density(false).iter()
+                    .for_each(|fd_first_piola_kirchoff_stress_i|
+                        fd_first_piola_kirchoff_stress_i.iter()
+                        .for_each(|fd_first_piola_kirchoff_stress_ij|
+                            assert!(fd_first_piola_kirchoff_stress_ij.abs() < EPSILON)
+                        )
+                    )
                 }
                 #[test]
                 fn zero()
@@ -267,7 +426,23 @@ macro_rules! test_hyperelastic_constitutive_model
                 #[test]
                 fn finite_difference()
                 {
-                    todo!()
+                    get_hyperelastic_constitutive_model().calculate_first_piola_kirchoff_tangent_stiffness(&get_deformation_gradient()).iter()
+                    .zip(calculate_first_piola_kirchoff_tangent_stiffness_from_finite_difference_of_first_piola_kirchoff_stress(true).iter())
+                    .for_each(|(first_piola_kirchoff_tangent_stiffness_i, fd_first_piola_kirchoff_tangent_stiffness_i)|
+                        first_piola_kirchoff_tangent_stiffness_i.iter()
+                        .zip(fd_first_piola_kirchoff_tangent_stiffness_i.iter())
+                        .for_each(|(first_piola_kirchoff_tangent_stiffness_ij, fd_first_piola_kirchoff_tangent_stiffness_ij)|
+                            first_piola_kirchoff_tangent_stiffness_ij.iter()
+                            .zip(fd_first_piola_kirchoff_tangent_stiffness_ij.iter())
+                            .for_each(|(first_piola_kirchoff_tangent_stiffness_ijk, fd_first_piola_kirchoff_tangent_stiffness_ijk)|
+                                first_piola_kirchoff_tangent_stiffness_ijk.iter()
+                                .zip(fd_first_piola_kirchoff_tangent_stiffness_ijk.iter())
+                                .for_each(|(first_piola_kirchoff_tangent_stiffness_ijkl, fd_first_piola_kirchoff_tangent_stiffness_ijkl)|
+                                    assert!((first_piola_kirchoff_tangent_stiffness_ijkl/fd_first_piola_kirchoff_tangent_stiffness_ijkl - 1.0).abs() < 3.0 * EPSILON)
+                                )
+                            )
+                        )
+                    )
                 }
                 #[test]
                 fn objectivity()
@@ -302,7 +477,26 @@ macro_rules! test_hyperelastic_constitutive_model
                 #[test]
                 fn finite_difference()
                 {
-                    todo!()
+                    get_hyperelastic_constitutive_model().calculate_first_piola_kirchoff_tangent_stiffness(&DeformationGradient::identity()).iter()
+                    .zip(calculate_first_piola_kirchoff_tangent_stiffness_from_finite_difference_of_first_piola_kirchoff_stress(false).iter())
+                    .for_each(|(first_piola_kirchoff_tangent_stiffness_i, fd_first_piola_kirchoff_tangent_stiffness_i)|
+                        first_piola_kirchoff_tangent_stiffness_i.iter()
+                        .zip(fd_first_piola_kirchoff_tangent_stiffness_i.iter())
+                        .for_each(|(first_piola_kirchoff_tangent_stiffness_ij, fd_first_piola_kirchoff_tangent_stiffness_ij)|
+                            first_piola_kirchoff_tangent_stiffness_ij.iter()
+                            .zip(fd_first_piola_kirchoff_tangent_stiffness_ij.iter())
+                            .for_each(|(first_piola_kirchoff_tangent_stiffness_ijk, fd_first_piola_kirchoff_tangent_stiffness_ijk)|
+                                first_piola_kirchoff_tangent_stiffness_ijk.iter()
+                                .zip(fd_first_piola_kirchoff_tangent_stiffness_ijk.iter())
+                                .for_each(|(first_piola_kirchoff_tangent_stiffness_ijkl, fd_first_piola_kirchoff_tangent_stiffness_ijkl)|
+                                    assert!(
+                                        (first_piola_kirchoff_tangent_stiffness_ijkl/fd_first_piola_kirchoff_tangent_stiffness_ijkl - 1.0).abs() < 3.0 * EPSILON ||
+                                        fd_first_piola_kirchoff_tangent_stiffness_ijkl.abs() < EPSILON
+                                    )
+                                )
+                            )
+                        )
+                    )
                 }
                 #[test]
                 fn shear_modulus()
@@ -332,11 +526,6 @@ macro_rules! test_hyperelastic_constitutive_model
             mod deformed
             {
                 use super::*;
-                #[test]
-                fn finite_difference()
-                {
-                    todo!()
-                }
                 #[test]
                 fn objectivity()
                 {
@@ -393,11 +582,6 @@ macro_rules! test_hyperelastic_constitutive_model
             mod undeformed
             {
                 use super::*;
-                #[test]
-                fn finite_difference()
-                {
-                    todo!()
-                }
                 #[test]
                 fn symmetry()
                 {
