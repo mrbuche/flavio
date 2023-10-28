@@ -1,5 +1,6 @@
 # Hyperelastic models
 
+- [Arruda-Boyce model](hyperelastic/arruda-boyce.md)
 - [Gent model](hyperelastic/gent.md)
 - [Mooney-Rivlin model](hyperelastic/mooney-rivlin.md)
 - [Neo-Hookean model](hyperelastic/neo-hookean.md)

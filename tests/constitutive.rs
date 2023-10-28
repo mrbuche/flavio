@@ -3,11 +3,17 @@ mod public
 {
     use flavio::constitutive::
     {
+        ArrudaBoyceModel,
         GentModel,
         MooneyRivlinModel,
         NeoHookeanModel,
         YeohModel
     };
+    #[test]
+    fn arruda_boyce_model()
+    {
+        let _: ArrudaBoyceModel;
+    }
     #[test]
     fn gent_model()
     {
