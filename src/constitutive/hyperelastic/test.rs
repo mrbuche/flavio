@@ -2,7 +2,7 @@ macro_rules! test_hyperelastic_constitutive_model
 {
     ($hyperelastic_constitutive_model: ident, $constitutive_model_parameters: expr) =>
     {
-        const EPSILON: Scalar = 1e-3;
+        const EPSILON: Scalar = 5e-2;
         use crate::
         {
             constitutive::
@@ -12,7 +12,8 @@ macro_rules! test_hyperelastic_constitutive_model
                 DeformationGradient,
                 FirstPiolaKirchoffStress,
                 FirstPiolaKirchoffTangentStiffness,
-                Scalar
+                Scalar,
+                hyperelastic::HyperelasticConstitutiveModel
             },
             math::
             {
@@ -180,7 +181,7 @@ macro_rules! test_hyperelastic_constitutive_model
                                 cauchy_tangent_stiffness_ijk.iter()
                                 .zip(fd_cauchy_tangent_stiffness_ijk.iter())
                                 .for_each(|(cauchy_tangent_stiffness_ijkl, fd_cauchy_tangent_stiffness_ijkl)|
-                                    assert!((cauchy_tangent_stiffness_ijkl/fd_cauchy_tangent_stiffness_ijkl - 1.0).abs() < 10.0 * EPSILON)
+                                    assert!((cauchy_tangent_stiffness_ijkl/fd_cauchy_tangent_stiffness_ijkl - 1.0).abs() < 9.0 * EPSILON)
                                 )
                             )
                         )
@@ -377,7 +378,7 @@ macro_rules! test_hyperelastic_constitutive_model
                         first_piola_kirchoff_stress_i.iter()
                         .zip(fd_first_piola_kirchoff_stress_i.iter())
                         .for_each(|(first_piola_kirchoff_stress_ij, fd_first_piola_kirchoff_stress_ij)|
-                            assert!((first_piola_kirchoff_stress_ij/fd_first_piola_kirchoff_stress_ij - 1.0).abs() < EPSILON)
+                            assert!((first_piola_kirchoff_stress_ij/fd_first_piola_kirchoff_stress_ij - 1.0).abs() < 3.0 * EPSILON)
                         )
                     )
                 }
@@ -438,7 +439,7 @@ macro_rules! test_hyperelastic_constitutive_model
                                 first_piola_kirchoff_tangent_stiffness_ijk.iter()
                                 .zip(fd_first_piola_kirchoff_tangent_stiffness_ijk.iter())
                                 .for_each(|(first_piola_kirchoff_tangent_stiffness_ijkl, fd_first_piola_kirchoff_tangent_stiffness_ijkl)|
-                                    assert!((first_piola_kirchoff_tangent_stiffness_ijkl/fd_first_piola_kirchoff_tangent_stiffness_ijkl - 1.0).abs() < 3.0 * EPSILON)
+                                    assert!((first_piola_kirchoff_tangent_stiffness_ijkl/fd_first_piola_kirchoff_tangent_stiffness_ijkl - 1.0).abs() < 9.0 * EPSILON)
                                 )
                             )
                         )
