@@ -6,7 +6,7 @@ mod public
         NeoHookeanModel
     };
     #[test]
-    fn tensor_rank_0()
+    fn neo_hookean_model()
     {
         let _: NeoHookeanModel;
     }
