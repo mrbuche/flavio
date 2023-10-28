@@ -10,6 +10,7 @@
 
 - [Constitutive models](constitutive.md)
     - [Hyperelastic models](constitutive/hyperelastic.md)
+        - [Arruda-Boyce model](constitutive/hyperelastic/arruda-boyce.md)
         - [Gent model](constitutive/hyperelastic/gent.md)
         - [Mooney-Rivlin model](constitutive/hyperelastic/mooney-rivlin.md)
         - [Neo-Hookean model](constitutive/hyperelastic/neo-hookean.md)
