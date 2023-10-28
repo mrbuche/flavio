@@ -61,3 +61,28 @@ pub trait ConstitutiveModel<'a>
     fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar;
     fn new(parameters: ConstitutiveModelParameters<'a>) -> Self;
 }
+
+pub trait CompositeConstitutiveModel<'a, C1, C2>
+where
+    C1: ConstitutiveModel<'a>,
+    C2: ConstitutiveModel<'a>
+{
+    fn construct_from(constitutive_model_1: C1, constitutive_model_2: C2) -> Self;
+    fn get_constitutive_model_1(&self) -> &C1;
+    fn get_constitutive_model_2(&self) -> &C2;
+}
+
+// pub trait CompositeConstitutiveModelMultiplicativeDecomposition<'a, C1, C2>:
+    // CompositeConstitutiveModel<C1, C2>
+// where
+//     C1: ConstitutiveModelTraits<'a>,
+//     C2: ConstitutiveModelTraits<'a>
+// {
+//     // fn calculate_mandel_stress(&self, deformation_gradient_1: &DeformationGradient1) -> MandelStress
+//     // {
+//     //     deformation_gradient_1.transpose()*self.get_constitutive_model_1().calculate_first_piola_kirchoff_stress(&deformation_gradient_1.convert_to_deformation_gradient()).convert_to_type_1i()
+//     // }
+//     fn calculate_objective(&self, deformation_gradient: &DeformationGradient, deformation_gradient_2: &DeformationGradient2) -> Scalar;
+//     fn calculate_residual(&self, deformation_gradient: &DeformationGradient, deformation_gradient_2: &DeformationGradient2) -> FirstPiolaKirchoffStress2;
+//     fn calculate_residual_tangent(&self, deformation_gradient: &DeformationGradient, deformation_gradient_2: &DeformationGradient2) -> FirstPiolaKirchoffTangentStiffness2;
+// }
