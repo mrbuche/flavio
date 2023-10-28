@@ -1,6 +1,7 @@
 # Hyperelastic models
 
 - [Gent model](hyperelastic/gent.md)
+- [Mooney-Rivlin model](hyperelastic/mooney-rivlin.md)
 - [Neo-Hookean model](hyperelastic/neo-hookean.md)
 - [Yeoh model](hyperelastic/yeoh.md)
 

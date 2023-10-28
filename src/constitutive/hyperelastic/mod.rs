@@ -2,6 +2,7 @@
 mod test;
 
 pub mod gent;
+pub mod mooney_rivlin;
 pub mod neo_hookean;
 pub mod yeoh;
 
