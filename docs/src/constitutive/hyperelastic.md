@@ -1,5 +1,6 @@
 # Hyperelastic models
 
+- [Gent model](hyperelastic/gent.md)
 - [Neo-Hookean model](hyperelastic/neo-hookean.md)
 
 ## Helmholtz free energy density

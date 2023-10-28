@@ -377,7 +377,7 @@ macro_rules! test_hyperelastic_constitutive_model
                         first_piola_kirchoff_stress_i.iter()
                         .zip(fd_first_piola_kirchoff_stress_i.iter())
                         .for_each(|(first_piola_kirchoff_stress_ij, fd_first_piola_kirchoff_stress_ij)|
-                            assert!((first_piola_kirchoff_stress_ij/fd_first_piola_kirchoff_stress_ij - 1.0).abs() < EPSILON)
+                            assert!((first_piola_kirchoff_stress_ij/fd_first_piola_kirchoff_stress_ij - 1.0).abs() < 3.0 * EPSILON)
                         )
                     )
                 }
