@@ -5,6 +5,7 @@ mod hyperelastic;
 
 pub use hyperelastic::
 {
+    HyperelasticConstitutiveModel,
     gent::GentModel,
     mooney_rivlin::MooneyRivlinModel,
     neo_hookean::NeoHookeanModel,
