@@ -6,7 +6,8 @@ mod hyperelastic;
 pub use hyperelastic::
 {
     gent::GentModel,
-    neo_hookean::NeoHookeanModel
+    neo_hookean::NeoHookeanModel,
+    yeoh::YeohModel
 };
 
 use crate::

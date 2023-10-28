@@ -4,7 +4,8 @@ mod public
     use flavio::constitutive::
     {
         GentModel,
-        NeoHookeanModel
+        NeoHookeanModel,
+        YeohModel
     };
     #[test]
     fn gent_model()
@@ -15,5 +16,10 @@ mod public
     fn neo_hookean_model()
     {
         let _: NeoHookeanModel;
+    }
+    #[test]
+    fn yeoh_model()
+    {
+        let _: YeohModel;
     }
 }

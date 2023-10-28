@@ -3,7 +3,12 @@ mod test;
 
 pub mod gent;
 pub mod neo_hookean;
+pub mod yeoh;
 
 use super::*;
 
-pub trait HyperelasticConstitutiveModel<'a>: ConstitutiveModel<'a> {}
+pub trait HyperelasticConstitutiveModel<'a>: ConstitutiveModel<'a>
+{
+    fn get_bulk_modulus(&self) -> &Scalar;
+    fn get_shear_modulus(&self) -> &Scalar;
+}

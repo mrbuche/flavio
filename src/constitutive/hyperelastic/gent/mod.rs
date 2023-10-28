@@ -10,14 +10,6 @@ pub struct GentModel<'a>
 
 impl<'a> GentModel<'a>
 {
-    fn get_bulk_modulus(&self) -> &Scalar
-    {
-        &self.parameters[0]
-    }
-    fn get_shear_modulus(&self) -> &Scalar
-    {
-        &self.parameters[1]
-    }
     fn get_extensibility(&self) -> &Scalar
     {
         &self.parameters[2]
@@ -57,4 +49,14 @@ impl<'a> ConstitutiveModel<'a> for GentModel<'a>
     }
 }
 
-impl<'a> HyperelasticConstitutiveModel<'a> for GentModel<'a> {}
+impl<'a> HyperelasticConstitutiveModel<'a> for GentModel<'a>
+{
+    fn get_bulk_modulus(&self) -> &Scalar
+    {
+        &self.parameters[0]
+    }
+    fn get_shear_modulus(&self) -> &Scalar
+    {
+        &self.parameters[1]
+    }
+}

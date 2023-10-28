@@ -8,18 +8,6 @@ pub struct NeoHookeanModel<'a>
     parameters: ConstitutiveModelParameters<'a>
 }
 
-impl<'a> NeoHookeanModel<'a>
-{
-    fn get_bulk_modulus(&self) -> &Scalar
-    {
-        &self.parameters[0]
-    }
-    fn get_shear_modulus(&self) -> &Scalar
-    {
-        &self.parameters[1]
-    }
-}
-
 impl<'a> ConstitutiveModel<'a> for NeoHookeanModel<'a>
 {
     fn calculate_cauchy_stress(&self, deformation_gradient: &DeformationGradient) -> CauchyStress
@@ -48,4 +36,14 @@ impl<'a> ConstitutiveModel<'a> for NeoHookeanModel<'a>
     }
 }
 
-impl<'a> HyperelasticConstitutiveModel<'a> for NeoHookeanModel<'a> {}
+impl<'a> HyperelasticConstitutiveModel<'a> for NeoHookeanModel<'a>
+{
+    fn get_bulk_modulus(&self) -> &Scalar
+    {
+        &self.parameters[0]
+    }
+    fn get_shear_modulus(&self) -> &Scalar
+    {
+        &self.parameters[1]
+    }
+}

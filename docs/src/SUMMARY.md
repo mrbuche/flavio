@@ -12,6 +12,7 @@
     - [Hyperelastic models](constitutive/hyperelastic.md)
         - [Gent model](constitutive/hyperelastic/gent.md)
         - [Neo-Hookean model](constitutive/hyperelastic/neo-hookean.md)
+        - [Yeoh model](constitutive/hyperelastic/yeoh.md)
 
 -----------
 
