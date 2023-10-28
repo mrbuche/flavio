@@ -18,6 +18,14 @@ jobs:
         run: cargo clippy --release --features math,32 -- -D warnings
       - name: cargo clippy math 64
         run: cargo clippy --release --features math,64 -- -D warnings
+      - name: cargo clippy mechanics 32
+        run: cargo clippy --release --features mechanics,32 -- -D warnings
+      - name: cargo clippy mechanics 64
+        run: cargo clippy --release --features mechanics,64 -- -D warnings
+      - name: cargo clippy constitutive 32
+        run: cargo clippy --release --features constitutive,32 -- -D warnings
+      - name: cargo clippy constitutive 64
+        run: cargo clippy --release --features constitutive,64 -- -D warnings
       - name: cargo test math 32
         run: cargo test --release --features math,32
       - name: cargo test math 64
@@ -26,6 +34,10 @@ jobs:
         run: cargo test --release --features mechanics,32
       - name: cargo test mechanics 64
         run: cargo test --release --features mechanics,64
+      - name: cargo test constitutive 32
+        run: cargo test --release --features constitutive,32
+      - name: cargo test constitutive 64
+        run: cargo test --release --features constitutive,64
   mdbook:
     strategy:
       fail-fast: false
