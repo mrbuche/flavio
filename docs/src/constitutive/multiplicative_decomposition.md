@@ -2,7 +2,7 @@
 
 Also useful to write down. Sometimes called Kr&ouml;ner-Lee decomposition, usually when referring to elastic-plastic decompositions.
 
-Improve this, make more general (second constitutive model usually does not have stress directly specified, the Mandel stress is what is useful), and no need to go into other residuals if not using them.
+Improve this, make more general (second constitutive model usually does not have stress directly specified, the Mandel stress is what is useful; also maybe call it THE Mandel stress), and no need to go into other residuals if not using them.
 
 \\begin{equation}
     \\mathbf{F} =

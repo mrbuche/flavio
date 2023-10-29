@@ -57,7 +57,6 @@ where
         panic!()
     }
 }
-// TODO: implement and test combo methds so do not have to optimize more than once (also goes for below)
 
 impl<C1, C2> HyperelasticConstitutiveModel for CompositeHyperelasticConstitutiveModelMultiplicativeDecomposition<C1, C2>
 {
