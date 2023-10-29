@@ -49,7 +49,7 @@ impl<'a> ConstitutiveModel<'a> for GentModel<'a>
     }
 }
 
-impl<'a> HyperelasticConstitutiveModel<'a> for GentModel<'a>
+impl<'a> HyperelasticConstitutiveModel for GentModel<'a>
 {
     fn get_bulk_modulus(&self) -> &Scalar
     {

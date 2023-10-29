@@ -36,7 +36,7 @@ impl<'a> ConstitutiveModel<'a> for NeoHookeanModel<'a>
     }
 }
 
-impl<'a> HyperelasticConstitutiveModel<'a> for NeoHookeanModel<'a>
+impl<'a> HyperelasticConstitutiveModel for NeoHookeanModel<'a>
 {
     fn get_bulk_modulus(&self) -> &Scalar
     {

@@ -56,7 +56,7 @@ impl<'a> ConstitutiveModel<'a> for YeohModel<'a>
     }
 }
 
-impl<'a> HyperelasticConstitutiveModel<'a> for YeohModel<'a>
+impl<'a> HyperelasticConstitutiveModel for YeohModel<'a>
 {
     fn get_bulk_modulus(&self) -> &Scalar
     {

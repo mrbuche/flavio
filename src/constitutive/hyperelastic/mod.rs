@@ -11,8 +11,7 @@ pub mod yeoh;
 
 use super::*;
 
-pub trait HyperelasticConstitutiveModel<'a>:
-    ConstitutiveModel<'a>
+pub trait HyperelasticConstitutiveModel
 {
     fn get_bulk_modulus(&self) -> &Scalar;
     fn get_shear_modulus(&self) -> &Scalar;
