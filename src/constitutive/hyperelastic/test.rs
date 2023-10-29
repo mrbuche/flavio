@@ -1,6 +1,46 @@
 macro_rules! test_hyperelastic_constitutive_model
 {
-    ($hyperelastic_constitutive_model: ident, $constitutive_model_parameters: expr) =>
+    ($hyperelastic_constitutive_model: ident, $hyperelastic_constitutive_model_parameters: expr, $hyperelastic_constitutive_model_constructed: expr) =>
+    {
+        use crate::constitutive::hyperelastic::HyperelasticConstitutiveModel;
+        fn get_hyperelastic_constitutive_model<'a>() -> $hyperelastic_constitutive_model<'a>
+        {
+            $hyperelastic_constitutive_model::new($hyperelastic_constitutive_model_parameters)
+        }
+        #[test]
+        fn get_bulk_modulus()
+        {
+            assert_eq!(&$hyperelastic_constitutive_model_parameters[0], get_hyperelastic_constitutive_model().get_bulk_modulus())
+        }
+        #[test]
+        fn get_shear_modulus()
+        {
+            assert_eq!(get_hyperelastic_constitutive_model().get_shear_modulus(), &$hyperelastic_constitutive_model_parameters[1])
+        }
+        #[test]
+        fn bulk_modulus()
+        {
+            let model = get_hyperelastic_constitutive_model();
+            let deformation_gradient = DeformationGradient::identity() * (1.0 + EPSILON).powf(1.0/3.0);
+            let first_piola_kirchoff_stress = model.calculate_first_piola_kirchoff_stress(&deformation_gradient);
+            assert!((3.0*EPSILON*model.get_bulk_modulus()/first_piola_kirchoff_stress.trace() - 1.0).abs() < EPSILON)
+        }
+        #[test]
+        fn shear_modulus()
+        {
+            let model = get_hyperelastic_constitutive_model();
+            let mut deformation_gradient = DeformationGradient::identity();
+            deformation_gradient[0][1] = EPSILON;
+            let first_piola_kirchoff_stress = model.calculate_first_piola_kirchoff_stress(&deformation_gradient);
+            assert!((EPSILON*model.get_shear_modulus()/first_piola_kirchoff_stress[0][1] - 1.0).abs() < EPSILON)
+        }
+        crate::constitutive::hyperelastic::test::test_hyperelastic_constitutive_model_constructed!($hyperelastic_constitutive_model_constructed);
+    }
+}
+pub(crate) use test_hyperelastic_constitutive_model;
+macro_rules! test_hyperelastic_constitutive_model_constructed
+{
+    ($hyperelastic_constitutive_model_constructed: expr) =>
     {
         const EPSILON: Scalar = 5e-2;
         use crate::
@@ -12,8 +52,7 @@ macro_rules! test_hyperelastic_constitutive_model
                 DeformationGradient,
                 FirstPiolaKirchoffStress,
                 FirstPiolaKirchoffTangentStiffness,
-                Scalar,
-                hyperelastic::HyperelasticConstitutiveModel
+                Scalar
             },
             math::
             {
@@ -31,7 +70,7 @@ macro_rules! test_hyperelastic_constitutive_model
         };
         fn calculate_cauchy_tangent_stiffness_from_finite_difference_of_cauchy_stress(is_deformed: bool) -> CauchyTangentStiffness
         {
-            let model = get_hyperelastic_constitutive_model();
+            let model = $hyperelastic_constitutive_model_constructed;
             let mut cauchy_tangent_stiffness = CauchyTangentStiffness::zero();
             for k in 0..3
             {
@@ -72,7 +111,7 @@ macro_rules! test_hyperelastic_constitutive_model
         }
         fn calculate_first_piola_kirchoff_stress_from_finite_difference_of_helmholtz_free_energy_density(is_deformed: bool) -> FirstPiolaKirchoffStress
         {
-            let model = get_hyperelastic_constitutive_model();
+            let model = $hyperelastic_constitutive_model_constructed;
             let mut first_piola_kirchoff_stress = FirstPiolaKirchoffStress::zero();
             for i in 0..3
             {
@@ -107,7 +146,7 @@ macro_rules! test_hyperelastic_constitutive_model
         }
         fn calculate_first_piola_kirchoff_tangent_stiffness_from_finite_difference_of_first_piola_kirchoff_stress(is_deformed: bool) -> FirstPiolaKirchoffTangentStiffness
         {
-            let model = get_hyperelastic_constitutive_model();
+            let model = $hyperelastic_constitutive_model_constructed;
             let mut first_piola_kirchoff_tangent_stiffness = FirstPiolaKirchoffTangentStiffness::zero();
             for k in 0..3
             {
@@ -146,37 +185,6 @@ macro_rules! test_hyperelastic_constitutive_model
             }
             first_piola_kirchoff_tangent_stiffness
         }
-        fn get_hyperelastic_constitutive_model<'a>() -> $hyperelastic_constitutive_model<'a>
-        {
-            $hyperelastic_constitutive_model::new($constitutive_model_parameters)
-        }
-        #[test]
-        fn get_bulk_modulus()
-        {
-            assert_eq!(&$constitutive_model_parameters[0], get_hyperelastic_constitutive_model().get_bulk_modulus())
-        }
-        #[test]
-        fn get_shear_modulus()
-        {
-            assert_eq!( get_hyperelastic_constitutive_model().get_shear_modulus(), &$constitutive_model_parameters[1])
-        }
-        #[test]
-        fn bulk_modulus()
-        {
-            let model = get_hyperelastic_constitutive_model();
-            let deformation_gradient = DeformationGradient::identity() * (1.0 + EPSILON).powf(1.0/3.0);
-            let first_piola_kirchoff_stress = model.calculate_first_piola_kirchoff_stress(&deformation_gradient);
-            assert!((3.0*EPSILON*model.get_bulk_modulus()/first_piola_kirchoff_stress.trace() - 1.0).abs() < EPSILON)
-        }
-        #[test]
-        fn shear_modulus()
-        {
-            let model = get_hyperelastic_constitutive_model();
-            let mut deformation_gradient = DeformationGradient::identity();
-            deformation_gradient[0][1] = EPSILON;
-            let first_piola_kirchoff_stress = model.calculate_first_piola_kirchoff_stress(&deformation_gradient);
-            assert!((EPSILON*model.get_shear_modulus()/first_piola_kirchoff_stress[0][1] - 1.0).abs() < EPSILON)
-        }
         mod cauchy_stress
         {
             use super::*;
@@ -186,7 +194,7 @@ macro_rules! test_hyperelastic_constitutive_model
                 #[test]
                 fn finite_difference()
                 {
-                    get_hyperelastic_constitutive_model().calculate_cauchy_tangent_stiffness(&get_deformation_gradient()).iter()
+                    $hyperelastic_constitutive_model_constructed.calculate_cauchy_tangent_stiffness(&get_deformation_gradient()).iter()
                     .zip(calculate_cauchy_tangent_stiffness_from_finite_difference_of_cauchy_stress(true).iter())
                     .for_each(|(cauchy_tangent_stiffness_i, fd_cauchy_tangent_stiffness_i)|
                         cauchy_tangent_stiffness_i.iter()
@@ -207,7 +215,7 @@ macro_rules! test_hyperelastic_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    let model = get_hyperelastic_constitutive_model();
+                    let model = $hyperelastic_constitutive_model_constructed;
                     model.calculate_cauchy_stress(&get_deformation_gradient()).iter()
                     .zip((
                         get_rotation_current_configuration().transpose() *
@@ -225,7 +233,7 @@ macro_rules! test_hyperelastic_constitutive_model
                 #[test]
                 fn symmetry()
                 {
-                    let model = get_hyperelastic_constitutive_model();
+                    let model = $hyperelastic_constitutive_model_constructed;
                     let cauchy_stress = model.calculate_cauchy_stress(&get_deformation_gradient());
                     for i in 0..3
                     {
@@ -245,7 +253,7 @@ macro_rules! test_hyperelastic_constitutive_model
                 #[test]
                 fn finite_difference()
                 {
-                    get_hyperelastic_constitutive_model().calculate_cauchy_tangent_stiffness(&DeformationGradient::identity()).iter()
+                    $hyperelastic_constitutive_model_constructed.calculate_cauchy_tangent_stiffness(&DeformationGradient::identity()).iter()
                     .zip(calculate_cauchy_tangent_stiffness_from_finite_difference_of_cauchy_stress(false).iter())
                     .for_each(|(cauchy_tangent_stiffness_i, fd_cauchy_tangent_stiffness_i)|
                         cauchy_tangent_stiffness_i.iter()
@@ -269,7 +277,7 @@ macro_rules! test_hyperelastic_constitutive_model
                 #[test]
                 fn zero()
                 {
-                    get_hyperelastic_constitutive_model().calculate_cauchy_stress(&DeformationGradient::identity()).iter()
+                    $hyperelastic_constitutive_model_constructed.calculate_cauchy_stress(&DeformationGradient::identity()).iter()
                     .for_each(|cauchy_stress_i|
                         cauchy_stress_i.iter()
                         .for_each(|cauchy_stress_ij|
@@ -288,7 +296,7 @@ macro_rules! test_hyperelastic_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    let model = get_hyperelastic_constitutive_model();
+                    let model = $hyperelastic_constitutive_model_constructed;
                     model.calculate_cauchy_tangent_stiffness(&get_deformation_gradient()).iter()
                     .zip((
                         model.calculate_cauchy_tangent_stiffness(&get_deformation_gradient_rotated())
@@ -318,7 +326,7 @@ macro_rules! test_hyperelastic_constitutive_model
                 #[test]
                 fn symmetry()
                 {
-                    let model = get_hyperelastic_constitutive_model();
+                    let model = $hyperelastic_constitutive_model_constructed;
                     let cauchy_tangent_stiffness = model.calculate_cauchy_tangent_stiffness(&get_deformation_gradient());
                     for i in 0..3
                     {
@@ -344,7 +352,7 @@ macro_rules! test_hyperelastic_constitutive_model
                 #[test]
                 fn symmetry()
                 {
-                    let model = get_hyperelastic_constitutive_model();
+                    let model = $hyperelastic_constitutive_model_constructed;
                     let cauchy_tangent_stiffness = model.calculate_cauchy_tangent_stiffness(&DeformationGradient::identity());
                     for i in 0..3
                     {
@@ -372,7 +380,7 @@ macro_rules! test_hyperelastic_constitutive_model
                 #[test]
                 fn finite_difference()
                 {
-                    get_hyperelastic_constitutive_model().calculate_first_piola_kirchoff_stress(&get_deformation_gradient()).iter()
+                    $hyperelastic_constitutive_model_constructed.calculate_first_piola_kirchoff_stress(&get_deformation_gradient()).iter()
                     .zip(calculate_first_piola_kirchoff_stress_from_finite_difference_of_helmholtz_free_energy_density(true).iter())
                     .for_each(|(first_piola_kirchoff_stress_i, fd_first_piola_kirchoff_stress_i)|
                         first_piola_kirchoff_stress_i.iter()
@@ -385,7 +393,7 @@ macro_rules! test_hyperelastic_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    let model = get_hyperelastic_constitutive_model();
+                    let model = $hyperelastic_constitutive_model_constructed;
                     assert_eq_within_tols(
                         &model.calculate_helmholtz_free_energy_density(&get_deformation_gradient()),
                         &model.calculate_helmholtz_free_energy_density(&get_deformation_gradient_rotated())
@@ -394,7 +402,7 @@ macro_rules! test_hyperelastic_constitutive_model
                 #[test]
                 fn positive()
                 {
-                    assert!(get_hyperelastic_constitutive_model().calculate_helmholtz_free_energy_density(&get_deformation_gradient()) > 0.0)
+                    assert!($hyperelastic_constitutive_model_constructed.calculate_helmholtz_free_energy_density(&get_deformation_gradient()) > 0.0)
                 }
             }
             mod undeformed
@@ -414,7 +422,7 @@ macro_rules! test_hyperelastic_constitutive_model
                 #[test]
                 fn zero()
                 {
-                    assert_eq!(get_hyperelastic_constitutive_model().calculate_helmholtz_free_energy_density(&DeformationGradient::identity()), 0.0)
+                    assert_eq!($hyperelastic_constitutive_model_constructed.calculate_helmholtz_free_energy_density(&DeformationGradient::identity()), 0.0)
                 }
             }
         }
@@ -427,7 +435,7 @@ macro_rules! test_hyperelastic_constitutive_model
                 #[test]
                 fn finite_difference()
                 {
-                    get_hyperelastic_constitutive_model().calculate_first_piola_kirchoff_tangent_stiffness(&get_deformation_gradient()).iter()
+                    $hyperelastic_constitutive_model_constructed.calculate_first_piola_kirchoff_tangent_stiffness(&get_deformation_gradient()).iter()
                     .zip(calculate_first_piola_kirchoff_tangent_stiffness_from_finite_difference_of_first_piola_kirchoff_stress(true).iter())
                     .for_each(|(first_piola_kirchoff_tangent_stiffness_i, fd_first_piola_kirchoff_tangent_stiffness_i)|
                         first_piola_kirchoff_tangent_stiffness_i.iter()
@@ -448,7 +456,7 @@ macro_rules! test_hyperelastic_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    let model = get_hyperelastic_constitutive_model();
+                    let model = $hyperelastic_constitutive_model_constructed;
                     model.calculate_first_piola_kirchoff_stress(&get_deformation_gradient()).iter()
                     .zip((
                         get_rotation_current_configuration().transpose() *
@@ -470,7 +478,7 @@ macro_rules! test_hyperelastic_constitutive_model
                 #[test]
                 fn finite_difference()
                 {
-                    get_hyperelastic_constitutive_model().calculate_first_piola_kirchoff_tangent_stiffness(&DeformationGradient::identity()).iter()
+                    $hyperelastic_constitutive_model_constructed.calculate_first_piola_kirchoff_tangent_stiffness(&DeformationGradient::identity()).iter()
                     .zip(calculate_first_piola_kirchoff_tangent_stiffness_from_finite_difference_of_first_piola_kirchoff_stress(false).iter())
                     .for_each(|(first_piola_kirchoff_tangent_stiffness_i, fd_first_piola_kirchoff_tangent_stiffness_i)|
                         first_piola_kirchoff_tangent_stiffness_i.iter()
@@ -494,7 +502,7 @@ macro_rules! test_hyperelastic_constitutive_model
                 #[test]
                 fn zero()
                 {
-                    get_hyperelastic_constitutive_model().calculate_first_piola_kirchoff_stress(&DeformationGradient::identity()).iter()
+                    $hyperelastic_constitutive_model_constructed.calculate_first_piola_kirchoff_stress(&DeformationGradient::identity()).iter()
                     .for_each(|first_piola_kirchoff_stress_i|
                         first_piola_kirchoff_stress_i.iter()
                         .for_each(|first_piola_kirchoff_stress_ij|
@@ -513,7 +521,7 @@ macro_rules! test_hyperelastic_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    let model = get_hyperelastic_constitutive_model();
+                    let model = $hyperelastic_constitutive_model_constructed;
                     model.calculate_first_piola_kirchoff_tangent_stiffness(&get_deformation_gradient()).iter()
                     .zip((
                         model.calculate_first_piola_kirchoff_tangent_stiffness(&get_deformation_gradient_rotated())
@@ -543,7 +551,7 @@ macro_rules! test_hyperelastic_constitutive_model
                 #[test]
                 fn symmetry()
                 {
-                    let model = get_hyperelastic_constitutive_model();
+                    let model = $hyperelastic_constitutive_model_constructed;
                     let first_piola_kirchoff_tangent_stiffness = model.calculate_first_piola_kirchoff_tangent_stiffness(&get_deformation_gradient());
                     for i in 0..3
                     {
@@ -569,7 +577,7 @@ macro_rules! test_hyperelastic_constitutive_model
                 #[test]
                 fn symmetry()
                 {
-                    let model = get_hyperelastic_constitutive_model();
+                    let model = $hyperelastic_constitutive_model_constructed;
                     let first_piola_kirchoff_tangent_stiffness = model.calculate_first_piola_kirchoff_tangent_stiffness(&DeformationGradient::identity());
                     for i in 0..3
                     {
@@ -593,4 +601,4 @@ macro_rules! test_hyperelastic_constitutive_model
         }
     }
 }
-pub(crate) use test_hyperelastic_constitutive_model;
+pub(crate) use test_hyperelastic_constitutive_model_constructed;

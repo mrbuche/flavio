@@ -7,7 +7,8 @@ use super::YeohModel;
 
 test_hyperelastic_constitutive_model!(
     YeohModel,
-    YEOHPARAMETERS
+    YEOHPARAMETERS,
+    YeohModel::new(YEOHPARAMETERS)
 );
 
 #[test]

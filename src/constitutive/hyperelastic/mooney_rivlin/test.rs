@@ -7,7 +7,8 @@ use super::MooneyRivlinModel;
 
 test_hyperelastic_constitutive_model!(
     MooneyRivlinModel,
-    MOONEYRIVLINPARAMETERS
+    MOONEYRIVLINPARAMETERS,
+    MooneyRivlinModel::new(MOONEYRIVLINPARAMETERS)
 );
 
 #[test]

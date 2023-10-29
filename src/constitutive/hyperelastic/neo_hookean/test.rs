@@ -7,5 +7,6 @@ use super::NeoHookeanModel;
 
 test_hyperelastic_constitutive_model!(
     NeoHookeanModel,
-    NEOHOOKEANPARAMETERS
+    NEOHOOKEANPARAMETERS,
+    NeoHookeanModel::new(NEOHOOKEANPARAMETERS)
 );
