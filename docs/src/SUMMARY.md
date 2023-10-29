@@ -14,6 +14,7 @@
         - [Mooney-Rivlin model](constitutive/hyperelastic/mooney-rivlin.md)
         - [Neo-Hookean model](constitutive/hyperelastic/neo-hookean.md)
         - [Yeoh model](constitutive/hyperelastic/yeoh.md)
+    - [Multiplicative decomposition](constitutive/multiplicative_decomposition.md)
 
 -----------
 
