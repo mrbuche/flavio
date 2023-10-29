@@ -53,6 +53,38 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
     }
 }
 
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const M: usize, const N: usize, const O: usize> Into<TensorRank4<D, M, N, O, 2>> for TensorRank4<D, I, J, K, 0>
+{
+    fn into(self) -> TensorRank4<D, M, N, O, 2>
+    {
+        self.iter().map(|self_i|
+            self_i.iter().map(|self_ij|
+                self_ij.iter().map(|self_ijk|
+                    self_ijk.iter().map(|self_ijkl|
+                        *self_ijkl
+                    ).collect()
+                ).collect()
+            ).collect()
+        ).collect()
+    }
+}
+
+impl<const D: usize, const J: usize, const L: usize> Into<TensorRank4<D, 2, J, 2, L>> for TensorRank4<D, 1, J, 1, L>
+{
+    fn into(self) -> TensorRank4<D, 2, J, 2, L>
+    {
+        self.iter().map(|self_i|
+            self_i.iter().map(|self_ij|
+                self_ij.iter().map(|self_ijk|
+                    self_ijk.iter().map(|self_ijkl|
+                        *self_ijkl
+                    ).collect()
+                ).collect()
+            ).collect()
+        ).collect()
+    }
+}
+
 impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize, const M: usize, const N: usize, const O: usize, const P: usize> Convert<TensorRank4<D, M, N, O, P>> for TensorRank4<D, I, J, K, L>
 {
     fn convert(&self) -> TensorRank4<D, M, N, O, P>

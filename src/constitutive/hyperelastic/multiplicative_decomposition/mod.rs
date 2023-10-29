@@ -39,13 +39,13 @@ where
     fn calculate_cauchy_stress(&self, deformation_gradient: &DeformationGradient) -> CauchyStress
     {
         let deformation_gradient_2 = self.calculate_deformation_gradient_2(deformation_gradient);
-        self.get_constitutive_model_1().calculate_cauchy_stress(&(deformation_gradient*deformation_gradient_2.inverse()).convert())/deformation_gradient_2.determinant()
+        self.get_constitutive_model_1().calculate_cauchy_stress(&(deformation_gradient * deformation_gradient_2.inverse()).into())/deformation_gradient_2.determinant()
     }
     fn calculate_cauchy_tangent_stiffness(&self, deformation_gradient: &DeformationGradient) -> CauchyTangentStiffness
     {
         let deformation_gradient_2 = self.calculate_deformation_gradient_2(deformation_gradient);
         let deformation_gradient_2_inverse = deformation_gradient_2.inverse();
-        self.get_constitutive_model_1().calculate_cauchy_tangent_stiffness(&(deformation_gradient*deformation_gradient_2_inverse).convert()).convert()*(deformation_gradient_2.inverse_transpose()/deformation_gradient_2.determinant())
+        <CauchyTangentStiffness as Into<CauchyTangentStiffness1>>::into(self.get_constitutive_model_1().calculate_cauchy_tangent_stiffness(&(deformation_gradient * deformation_gradient_2_inverse).into())) * (deformation_gradient_2.inverse_transpose()/deformation_gradient_2.determinant())
     }
     fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar
     {
@@ -97,18 +97,19 @@ where
 {
     fn calculate_objective(&self, deformation_gradient: &DeformationGradient, deformation_gradient_2: &DeformationGradient2) -> Scalar
     {
-        self.get_constitutive_model_1().calculate_helmholtz_free_energy_density(&(deformation_gradient*deformation_gradient_2.inverse()).convert()) + self.get_constitutive_model_2().calculate_helmholtz_free_energy_density(&deformation_gradient_2.convert())
+        self.get_constitutive_model_1().calculate_helmholtz_free_energy_density(&(deformation_gradient * deformation_gradient_2.inverse()).into()) + self.get_constitutive_model_2().calculate_helmholtz_free_energy_density(&deformation_gradient_2.convert())
     }
     fn calculate_residual(&self, deformation_gradient: &DeformationGradient, deformation_gradient_2: &DeformationGradient2) -> FirstPiolaKirchoffStress2
     {
-        let deformation_gradient_1 = deformation_gradient*deformation_gradient_2.inverse();
-        self.get_constitutive_model_2().calculate_first_piola_kirchoff_stress(&deformation_gradient_2.convert()).convert() - deformation_gradient_1.transpose()*self.get_constitutive_model_1().calculate_first_piola_kirchoff_stress(&deformation_gradient_1.convert()).convert()*deformation_gradient_2.inverse_transpose()
+        let deformation_gradient_1 = deformation_gradient * deformation_gradient_2.inverse();
+        <FirstPiolaKirchoffStress as Into<FirstPiolaKirchoffStress2>>::into(self.get_constitutive_model_2().calculate_first_piola_kirchoff_stress(&deformation_gradient_2.convert())) - deformation_gradient_1.transpose() * <FirstPiolaKirchoffStress as Into<FirstPiolaKirchoffStress1>>::into(self.get_constitutive_model_1().calculate_first_piola_kirchoff_stress(&deformation_gradient_1.into()).into()) * deformation_gradient_2.inverse_transpose()
     }
     fn calculate_residual_tangent(&self, deformation_gradient: &DeformationGradient, deformation_gradient_2: &DeformationGradient2) -> FirstPiolaKirchoffTangentStiffness2
     {
-        let deformation_gradient_1 = deformation_gradient*deformation_gradient_2.inverse();
+        let deformation_gradient_1 = deformation_gradient * deformation_gradient_2.inverse();
+        let deformation_gradient_1_convert = deformation_gradient_1.convert();
         let deformation_gradient_2_inverse_transpose = deformation_gradient_2.inverse_transpose();
-        let first_piola_kirchoff_stress_1 = self.get_constitutive_model_1().calculate_first_piola_kirchoff_stress(&deformation_gradient_1.convert()).convert();
-        self.get_constitutive_model_2().calculate_first_piola_kirchoff_tangent_stiffness(&deformation_gradient_2.convert()).convert() + self.get_constitutive_model_1().calculate_first_piola_kirchoff_tangent_stiffness(&deformation_gradient_1.convert()).convert().contract_all_indices_with_first_indices_of(&deformation_gradient_1, &deformation_gradient_2_inverse_transpose, &deformation_gradient_1, &deformation_gradient_2_inverse_transpose) + FirstPiolaKirchoffTangentStiffness2::dyad_il_kj(&deformation_gradient_2_inverse_transpose, &(deformation_gradient_1.transpose()*&first_piola_kirchoff_stress_1*&deformation_gradient_2_inverse_transpose)) + FirstPiolaKirchoffTangentStiffness2::dyad_il_kj(&(deformation_gradient_1.transpose()*&first_piola_kirchoff_stress_1*&deformation_gradient_2_inverse_transpose), &deformation_gradient_2_inverse_transpose)
+        let first_piola_kirchoff_stress_1: FirstPiolaKirchoffStress1 = self.get_constitutive_model_1().calculate_first_piola_kirchoff_stress(&deformation_gradient_1_convert).into();
+        <FirstPiolaKirchoffTangentStiffness as Into<FirstPiolaKirchoffTangentStiffness2>>::into(self.get_constitutive_model_2().calculate_first_piola_kirchoff_tangent_stiffness(&deformation_gradient_2.convert())) + <FirstPiolaKirchoffTangentStiffness as Into<FirstPiolaKirchoffTangentStiffness1>>::into(self.get_constitutive_model_1().calculate_first_piola_kirchoff_tangent_stiffness(&deformation_gradient_1_convert).into()).contract_all_indices_with_first_indices_of(&deformation_gradient_1, &deformation_gradient_2_inverse_transpose, &deformation_gradient_1, &deformation_gradient_2_inverse_transpose) + FirstPiolaKirchoffTangentStiffness2::dyad_il_kj(&deformation_gradient_2_inverse_transpose, &(deformation_gradient_1.transpose() * &first_piola_kirchoff_stress_1 * &deformation_gradient_2_inverse_transpose)) + FirstPiolaKirchoffTangentStiffness2::dyad_il_kj(&(deformation_gradient_1.transpose() * &first_piola_kirchoff_stress_1 * &deformation_gradient_2_inverse_transpose), &deformation_gradient_2_inverse_transpose)
     }
 }

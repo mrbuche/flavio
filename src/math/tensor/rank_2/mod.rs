@@ -50,6 +50,54 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2<D, I, J>
     }
 }
 
+impl<const D: usize, const I: usize> Into<TensorRank2<D, I, 0>> for TensorRank2<D, I, 2>
+{
+    fn into(self) -> TensorRank2<D, I, 0>
+    {
+        self.iter().map(|self_i|
+            self_i.iter().map(|self_ij|
+                *self_ij
+            ).collect()
+        ).collect()
+    }
+}
+
+impl<const D: usize, const I: usize> Into<TensorRank2<D, I, 2>> for TensorRank2<D, I, 0>
+{
+    fn into(self) -> TensorRank2<D, I, 2>
+    {
+        self.iter().map(|self_i|
+            self_i.iter().map(|self_ij|
+                *self_ij
+            ).collect()
+        ).collect()
+    }
+}
+
+impl<const D: usize, const J: usize> Into<TensorRank2<D, 1, J>> for TensorRank2<D, 2, J>
+{
+    fn into(self) -> TensorRank2<D, 1, J>
+    {
+        self.iter().map(|self_i|
+            self_i.iter().map(|self_ij|
+                *self_ij
+            ).collect()
+        ).collect()
+    }
+}
+
+impl<const D: usize, const J: usize> Into<TensorRank2<D, 2, J>> for TensorRank2<D, 1, J>
+{
+    fn into(self) -> TensorRank2<D, 2, J>
+    {
+        self.iter().map(|self_i|
+            self_i.iter().map(|self_ij|
+                *self_ij
+            ).collect()
+        ).collect()
+    }
+}
+
 impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> Convert<TensorRank2<D, K, L>> for TensorRank2<D, I, J>
 {
     fn convert(&self) -> TensorRank2<D, K, L>
