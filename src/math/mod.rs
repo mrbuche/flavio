@@ -34,6 +34,7 @@ pub use tensor::
         TensorRank4Trait,
         ContractAllIndicesWithFirstIndicesOf,
         ContractFirstThirdFourthIndicesWithFirstIndicesOf,
-        ContractSecondIndexWithFirstIndexOf
+        ContractSecondIndexWithFirstIndexOf,
+        ContractThirdFourthIndicesWithFirstSecondIndicesOf
     }
 };
