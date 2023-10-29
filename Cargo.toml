@@ -12,11 +12,9 @@ repository = "https://github.com/mrbuche/flavio"
 version = "0.2.3"
 
 [features]
-32 = []
-64 = []
 constitutive = ['mechanics']
 math = []
 mechanics = ['math']
 
 [package.metadata.docs.rs]
-features = ["constitutive", "64"]
+features = ["constitutive"]

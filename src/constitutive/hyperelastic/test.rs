@@ -205,7 +205,7 @@ macro_rules! test_hyperelastic_constitutive_model_constructed
                                 cauchy_tangent_stiffness_ijk.iter()
                                 .zip(fd_cauchy_tangent_stiffness_ijk.iter())
                                 .for_each(|(cauchy_tangent_stiffness_ijkl, fd_cauchy_tangent_stiffness_ijkl)|
-                                    assert!((cauchy_tangent_stiffness_ijkl/fd_cauchy_tangent_stiffness_ijkl - 1.0).abs() < 9.0 * EPSILON)
+                                    assert!((cauchy_tangent_stiffness_ijkl/fd_cauchy_tangent_stiffness_ijkl - 1.0).abs() < EPSILON)
                                 )
                             )
                         )
@@ -265,7 +265,7 @@ macro_rules! test_hyperelastic_constitutive_model_constructed
                                 .zip(fd_cauchy_tangent_stiffness_ijk.iter())
                                 .for_each(|(cauchy_tangent_stiffness_ijkl, fd_cauchy_tangent_stiffness_ijkl)|
                                     assert!(
-                                        (cauchy_tangent_stiffness_ijkl/fd_cauchy_tangent_stiffness_ijkl - 1.0).abs() < 3.0 * EPSILON ||
+                                        (cauchy_tangent_stiffness_ijkl/fd_cauchy_tangent_stiffness_ijkl - 1.0).abs() < EPSILON ||
                                         fd_cauchy_tangent_stiffness_ijkl.abs() < EPSILON
                                     )
                                 )
@@ -385,7 +385,7 @@ macro_rules! test_hyperelastic_constitutive_model_constructed
                         first_piola_kirchoff_stress_i.iter()
                         .zip(fd_first_piola_kirchoff_stress_i.iter())
                         .for_each(|(first_piola_kirchoff_stress_ij, fd_first_piola_kirchoff_stress_ij)|
-                            assert!((first_piola_kirchoff_stress_ij/fd_first_piola_kirchoff_stress_ij - 1.0).abs() < 3.0 * EPSILON)
+                            assert!((first_piola_kirchoff_stress_ij/fd_first_piola_kirchoff_stress_ij - 1.0).abs() < EPSILON)
                         )
                     )
                 }
@@ -446,7 +446,7 @@ macro_rules! test_hyperelastic_constitutive_model_constructed
                                 first_piola_kirchoff_tangent_stiffness_ijk.iter()
                                 .zip(fd_first_piola_kirchoff_tangent_stiffness_ijk.iter())
                                 .for_each(|(first_piola_kirchoff_tangent_stiffness_ijkl, fd_first_piola_kirchoff_tangent_stiffness_ijkl)|
-                                    assert!((first_piola_kirchoff_tangent_stiffness_ijkl/fd_first_piola_kirchoff_tangent_stiffness_ijkl - 1.0).abs() < 9.0 * EPSILON)
+                                    assert!((first_piola_kirchoff_tangent_stiffness_ijkl/fd_first_piola_kirchoff_tangent_stiffness_ijkl - 1.0).abs() < EPSILON)
                                 )
                             )
                         )
@@ -490,7 +490,7 @@ macro_rules! test_hyperelastic_constitutive_model_constructed
                                 .zip(fd_first_piola_kirchoff_tangent_stiffness_ijk.iter())
                                 .for_each(|(first_piola_kirchoff_tangent_stiffness_ijkl, fd_first_piola_kirchoff_tangent_stiffness_ijkl)|
                                     assert!(
-                                        (first_piola_kirchoff_tangent_stiffness_ijkl/fd_first_piola_kirchoff_tangent_stiffness_ijkl - 1.0).abs() < 3.0 * EPSILON ||
+                                        (first_piola_kirchoff_tangent_stiffness_ijkl/fd_first_piola_kirchoff_tangent_stiffness_ijkl - 1.0).abs() < EPSILON ||
                                         fd_first_piola_kirchoff_tangent_stiffness_ijkl.abs() < EPSILON
                                     )
                                 )
