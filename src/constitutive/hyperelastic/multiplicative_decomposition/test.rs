@@ -19,17 +19,6 @@ use crate::
 };
 use super::*;
 
-mod dual
-{
-    use super::*;
-    test_hyperelastic_constitutive_model_constructed!(
-        CompositeHyperelasticConstitutiveModelMultiplicativeDecomposition::construct(
-            NeoHookeanModel::new(NEOHOOKEANPARAMETERS),
-            NeoHookeanModel::new(NEOHOOKEANPARAMETERS)
-        )
-    );
-}
-
 #[test]
 fn dont_forget_to_test_mandel_stress_too()
 {
@@ -41,3 +30,22 @@ fn also_consider_the_combo_methods_returning_tuples()
 {
     todo!()
 }
+
+#[test]
+fn todo()
+{
+    todo!(
+        "Test objective, residual, etc. over finite difference, objectivity, etc. before moving on to full tests below."
+    )
+}
+
+// mod dual
+// {
+//     use super::*;
+//     test_hyperelastic_constitutive_model_constructed!(
+//         CompositeHyperelasticConstitutiveModelMultiplicativeDecomposition::construct(
+//             NeoHookeanModel::new(NEOHOOKEANPARAMETERS),
+//             NeoHookeanModel::new(NEOHOOKEANPARAMETERS)
+//         )
+//     );
+// }
