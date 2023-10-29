@@ -17,6 +17,7 @@ use std::ops::
 
 use super::
 {
+    Convert,
     rank_0::TensorRank0,
     rank_1::
     {
@@ -49,6 +50,22 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
     pub fn zero() -> Self
     {
         Self(std::array::from_fn(|_| TensorRank3::zero()))
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize, const M: usize, const N: usize, const O: usize, const P: usize> Convert<TensorRank4<D, M, N, O, P>> for TensorRank4<D, I, J, K, L>
+{
+    fn convert(&self) -> TensorRank4<D, M, N, O, P>
+    {
+        self.iter().map(|self_i|
+            self_i.iter().map(|self_ij|
+                self_ij.iter().map(|self_ijk|
+                    self_ijk.iter().map(|self_ijkl|
+                        *self_ijkl
+                    ).collect()
+                ).collect()
+            ).collect()
+        ).collect()
     }
 }
 
@@ -151,14 +168,14 @@ impl<const I: usize, const J: usize, const K: usize, const L: usize> TensorRank4
 
 pub trait ContractAllIndicesWithFirstIndicesOf<TIM, TJN, TKO, TLP>
 {
-    type OutputContractAllIndicesWithFirstIndicesOf;
-    fn contract_all_indices_with_first_indices_of(&self, tensor_rank_2_a: TIM, tensor_rank_2_b: TJN, tensor_rank_2_c: TKO, tensor_rank_2_d: TLP) -> Self::OutputContractAllIndicesWithFirstIndicesOf;
+    type Output;
+    fn contract_all_indices_with_first_indices_of(&self, tensor_rank_2_a: TIM, tensor_rank_2_b: TJN, tensor_rank_2_c: TKO, tensor_rank_2_d: TLP) -> Self::Output;
 }
 
 impl<const I: usize, const J: usize, const K: usize, const L: usize, const M: usize, const N: usize, const O: usize, const P: usize> ContractAllIndicesWithFirstIndicesOf<&TensorRank2<3, I, M>, &TensorRank2<3, J, N>, &TensorRank2<3, K, O>, &TensorRank2<3, L, P>> for TensorRank4<3, I, J, K, L>
 {
-    type OutputContractAllIndicesWithFirstIndicesOf = TensorRank4<3, M, N, O, P>;
-    fn contract_all_indices_with_first_indices_of(&self, tensor_rank_2_a: &TensorRank2<3, I, M>, tensor_rank_2_b: &TensorRank2<3, J, N>, tensor_rank_2_c: &TensorRank2<3, K, O>, tensor_rank_2_d: &TensorRank2<3, L, P>) -> Self::OutputContractAllIndicesWithFirstIndicesOf
+    type Output = TensorRank4<3, M, N, O, P>;
+    fn contract_all_indices_with_first_indices_of(&self, tensor_rank_2_a: &TensorRank2<3, I, M>, tensor_rank_2_b: &TensorRank2<3, J, N>, tensor_rank_2_c: &TensorRank2<3, K, O>, tensor_rank_2_d: &TensorRank2<3, L, P>) -> Self::Output
     {
         let mut output = TensorRank4::zero();
         self.iter().zip(tensor_rank_2_a.iter()).for_each(|(self_m, tensor_rank_2_a_m)|
@@ -184,14 +201,14 @@ impl<const I: usize, const J: usize, const K: usize, const L: usize, const M: us
 
 pub trait ContractFirstThirdFourthIndicesWithFirstIndicesOf<TIM, TKO, TLP>
 {
-    type OutputContractFirstThirdFourthIndicesWithFirstIndicesOf;
-    fn contract_first_third_fourth_indices_with_first_indices_of(&self, tensor_rank_2_a: TIM, tensor_rank_2_c: TKO, tensor_rank_2_d: TLP) -> Self::OutputContractFirstThirdFourthIndicesWithFirstIndicesOf;
+    type Output;
+    fn contract_first_third_fourth_indices_with_first_indices_of(&self, tensor_rank_2_a: TIM, tensor_rank_2_c: TKO, tensor_rank_2_d: TLP) -> Self::Output;
 }
 
 impl<const I: usize, const J: usize, const K: usize, const L: usize, const M: usize, const O: usize, const P: usize> ContractFirstThirdFourthIndicesWithFirstIndicesOf<&TensorRank2<3, I, M>, &TensorRank2<3, K, O>, &TensorRank2<3, L, P>> for TensorRank4<3, I, J, K, L>
 {
-    type OutputContractFirstThirdFourthIndicesWithFirstIndicesOf = TensorRank4<3, M, J, O, P>;
-    fn contract_first_third_fourth_indices_with_first_indices_of(&self, tensor_rank_2_a: &TensorRank2<3, I, M>, tensor_rank_2_b: &TensorRank2<3, K, O>, tensor_rank_2_c: &TensorRank2<3, L, P>) -> Self::OutputContractFirstThirdFourthIndicesWithFirstIndicesOf
+    type Output = TensorRank4<3, M, J, O, P>;
+    fn contract_first_third_fourth_indices_with_first_indices_of(&self, tensor_rank_2_a: &TensorRank2<3, I, M>, tensor_rank_2_b: &TensorRank2<3, K, O>, tensor_rank_2_c: &TensorRank2<3, L, P>) -> Self::Output
     {
         let mut output = TensorRank4::zero();
         self.iter().zip(tensor_rank_2_a.iter()).for_each(|(self_q, tensor_rank_2_a_q)|
@@ -215,14 +232,14 @@ impl<const I: usize, const J: usize, const K: usize, const L: usize, const M: us
 
 pub trait ContractSecondIndexWithFirstIndexOf<TJN>
 {
-    type OutputContractSecondIndexWithFirstIndexOf;
-    fn contract_second_index_with_first_index_of(&self, tensor_rank_2: TJN) -> Self::OutputContractSecondIndexWithFirstIndexOf;
+    type Output;
+    fn contract_second_index_with_first_index_of(&self, tensor_rank_2: TJN) -> Self::Output;
 }
 
 impl<const I: usize, const J: usize, const K: usize, const L: usize, const N: usize> ContractSecondIndexWithFirstIndexOf<&TensorRank2<3, J, N>> for TensorRank4<3, I, J, K, L>
 {
-    type OutputContractSecondIndexWithFirstIndexOf = TensorRank4<3, I, N, K, L>;
-    fn contract_second_index_with_first_index_of(&self, tensor_rank_2: &TensorRank2<3, J, N>) -> Self::OutputContractSecondIndexWithFirstIndexOf
+    type Output = TensorRank4<3, I, N, K, L>;
+    fn contract_second_index_with_first_index_of(&self, tensor_rank_2: &TensorRank2<3, J, N>) -> Self::Output
     {
         let mut output = TensorRank4::zero();
         output.iter_mut().zip(self.iter()).for_each(|(output_i, self_i)|
@@ -238,14 +255,14 @@ impl<const I: usize, const J: usize, const K: usize, const L: usize, const N: us
 
 pub trait ContractThirdFourthIndicesWithFirstSecondIndicesOf<TKL>
 {
-    type OutputContractThirdFourthIndicesWithFirstSecondIndicesOf;
-    fn contract_third_fourth_indices_with_first_second_indices_of(&self, tensor_rank_2: TKL) -> Self::OutputContractThirdFourthIndicesWithFirstSecondIndicesOf;
+    type Output;
+    fn contract_third_fourth_indices_with_first_second_indices_of(&self, tensor_rank_2: TKL) -> Self::Output;
 }
 
 impl<const I: usize, const J: usize, const K: usize, const L: usize> ContractThirdFourthIndicesWithFirstSecondIndicesOf<&TensorRank2<3, K, L>> for TensorRank4<3, I, J, K, L>
 {
-    type OutputContractThirdFourthIndicesWithFirstSecondIndicesOf = TensorRank2<3, I, J>;
-    fn contract_third_fourth_indices_with_first_second_indices_of(&self, tensor_rank_2: &TensorRank2<3, K, L>) -> Self::OutputContractThirdFourthIndicesWithFirstSecondIndicesOf
+    type Output = TensorRank2<3, I, J>;
+    fn contract_third_fourth_indices_with_first_second_indices_of(&self, tensor_rank_2: &TensorRank2<3, K, L>) -> Self::Output
     {
         self.iter().map(|self_i|
             self_i.iter().map(|self_ij|
