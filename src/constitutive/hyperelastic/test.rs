@@ -42,17 +42,16 @@ macro_rules! test_hyperelastic_constitutive_model_constructed
 {
     ($hyperelastic_constitutive_model_constructed: expr) =>
     {
-        const EPSILON: Scalar = 5e-2;
         use crate::
         {
+            EPSILON,
             constitutive::
             {
                 CauchyTangentStiffness,
                 ConstitutiveModel,
                 DeformationGradient,
                 FirstPiolaKirchoffStress,
-                FirstPiolaKirchoffTangentStiffness,
-                Scalar
+                FirstPiolaKirchoffTangentStiffness
             },
             math::
             {

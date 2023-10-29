@@ -16,8 +16,11 @@ where
 {
     fn calculate_deformation_gradient_2(&self, deformation_gradient: &DeformationGradient) -> DeformationGradient2
     {
-        let step_size = 0.999;
+        #[cfg(feature = "32")]
+        let tolerance = 1e-4;
+        #[cfg(feature = "64")]
         let tolerance = 1e-8;
+        let step_size = 0.999;
         let mut deformation_gradient_2 = DeformationGradient2::identity();
         let mut residual = self.calculate_residual(deformation_gradient, &deformation_gradient_2);
         let mut residual_norm = residual.norm();
