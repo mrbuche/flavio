@@ -16,7 +16,18 @@ where
 {
     fn calculate_deformation_gradient_2(&self, deformation_gradient: &DeformationGradient) -> DeformationGradient2
     {
-        todo!()
+        let step_size = 0.999;
+        let tolerance = 1e-8;
+        let mut deformation_gradient_2 = DeformationGradient2::identity();
+        let mut residual = self.calculate_residual(deformation_gradient, &deformation_gradient_2);
+        let mut residual_norm = residual.norm();
+        while residual_norm > tolerance
+        {
+            residual = self.calculate_residual(deformation_gradient, &deformation_gradient_2);
+            residual_norm = residual.norm();
+            deformation_gradient_2 -= self.calculate_residual_tangent(deformation_gradient, &deformation_gradient_2).inverse().contract_third_fourth_indices_with_first_second_indices_of(&residual) * step_size;
+        }
+        deformation_gradient_2
     }
 }
 
@@ -35,7 +46,8 @@ where
     }
     fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar
     {
-        todo!()
+        let deformation_gradient_2 = self.calculate_deformation_gradient_2(deformation_gradient);
+        self.calculate_objective(deformation_gradient, &deformation_gradient_2)
     }
     fn new(_parameters: ConstitutiveModelParameters<'a>) -> Self
     {

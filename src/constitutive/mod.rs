@@ -17,6 +17,7 @@ use crate::
     math::
     {
         ContractSecondIndexWithFirstIndexOf,
+        ContractThirdFourthIndicesWithFirstSecondIndicesOf,
         TensorRank2Trait,
         TensorRank4Trait
     },
@@ -80,10 +81,11 @@ where
     C1: ConstitutiveModel<'a>,
     C2: ConstitutiveModel<'a>
 {
-    // fn calculate_mandel_stress(&self, deformation_gradient_1: &DeformationGradient1) -> MandelStress
-    // {
-    //     deformation_gradient_1.transpose()*self.get_constitutive_model_1().calculate_first_piola_kirchoff_stress(&deformation_gradient_1.convert_to_deformation_gradient()).convert::<1, 2>()
-    // }
+    fn calculate_mandel_stress(&self, deformation_gradient_1: &DeformationGradient1) -> MandelStress
+    {
+        // deformation_gradient_1.transpose()*self.get_constitutive_model_1().calculate_first_piola_kirchoff_stress(&deformation_gradient_1.convert_to_deformation_gradient()).convert::<1, 2>()
+        todo!()
+    }
     fn calculate_objective(&self, deformation_gradient: &DeformationGradient, deformation_gradient_2: &DeformationGradient2) -> Scalar;
     fn calculate_residual(&self, deformation_gradient: &DeformationGradient, deformation_gradient_2: &DeformationGradient2) -> FirstPiolaKirchoffStress2;
     fn calculate_residual_tangent(&self, deformation_gradient: &DeformationGradient, deformation_gradient_2: &DeformationGradient2) -> FirstPiolaKirchoffTangentStiffness2;
