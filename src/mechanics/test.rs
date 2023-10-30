@@ -2,7 +2,9 @@ use crate::math::TensorRank2Trait;
 use super::
 {
     DeformationGradient,
+    DeformationGradient2,
     RotationCurrentConfiguration,
+    RotationIntermediateConfiguration,
     RotationReferenceConfiguration,
     Scalar
 };
@@ -16,9 +18,23 @@ pub fn get_deformation_gradient() -> DeformationGradient
     ])
 }
 
+pub fn get_deformation_gradient_2() -> DeformationGradient2
+{
+    DeformationGradient2::new([
+        [0.97902607, 0.09463390, 0.48164011],
+        [0.19335510, 0.89379463, 0.49423509],
+        [0.02648444, 0.28479496, 0.34719272]
+    ])
+}
+
 pub fn get_deformation_gradient_rotated() -> DeformationGradient
 {
     get_rotation_current_configuration() * get_deformation_gradient() * get_rotation_reference_configuration().transpose()
+}
+
+pub fn get_deformation_gradient_2_rotated() -> DeformationGradient2
+{
+    get_rotation_intermediate_configuration() * get_deformation_gradient_2() * get_rotation_reference_configuration().transpose()
 }
 
 pub fn get_rotation_current_configuration() -> RotationCurrentConfiguration
@@ -31,6 +47,11 @@ pub fn get_rotation_current_configuration() -> RotationCurrentConfiguration
         [0.125*sqrt_2 + 0.75, -0.125*sqrt_6 + 0.25*sqrt_3, -0.25*sqrt_2],
         [-0.125*sqrt_6 + 0.25*sqrt_3, 0.25 + 0.375*sqrt_2, 0.25*sqrt_6]
     ])
+}
+
+pub fn get_rotation_intermediate_configuration() -> RotationIntermediateConfiguration
+{
+    todo!()
 }
 
 pub fn get_rotation_reference_configuration() -> RotationReferenceConfiguration

@@ -23,5 +23,6 @@ pub type FirstPiolaKirchoffTangentStiffness2 = TensorRank4<3, 2, 0, 2, 0>;
 pub type LeftCauchyGreenDeformation = TensorRank2<3, 1, 1>;
 pub type MandelStress = TensorRank2<3, 2, 2>;
 pub type RotationCurrentConfiguration = TensorRank2<3, 1, 1>;
+pub type RotationIntermediateConfiguration = TensorRank2<3, 2, 2>;
 pub type RotationReferenceConfiguration = TensorRank2<3, 0, 0>;
 pub type Scalar = TensorRank0;

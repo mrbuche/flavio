@@ -30,7 +30,7 @@ mod dual
     );
 }
 
-mod mized
+mod mixed
 {
     use super::*;
     test_hyperelastic_constitutive_model_constructed!(
