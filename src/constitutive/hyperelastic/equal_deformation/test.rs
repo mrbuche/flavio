@@ -36,7 +36,7 @@ mod mixed
     test_hyperelastic_constitutive_model_constructed!(
         CompositeHyperelasticConstitutiveModelEqualDeformation::construct(
             GentModel::new(GENTPARAMETERS),
-            YeohModel::new(YEOHPARAMETERS)
+            MooneyRivlinModel::new(MOONEYRIVLINPARAMETERS)
         )
     );
 }

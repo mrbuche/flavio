@@ -22,36 +22,12 @@ use crate::
         get_deformation_gradient_2,
         get_deformation_gradient_rotated,
         get_deformation_gradient_2_rotated,
-        get_rotation_current_configuration,
         get_rotation_intermediate_configuration,
         get_rotation_reference_configuration
     },
     test::assert_eq_within_tols
 };
 use super::*;
-
-#[test]
-fn dont_forget_to_test_mandel_stress_too()
-{
-    todo!()
-}
-
-#[test]
-fn also_consider_the_combo_methods_returning_tuples()
-{
-    todo!()
-}
-
-// mod dual
-// {
-//     use super::*;
-//     test_hyperelastic_constitutive_model_constructed!(
-//         CompositeHyperelasticConstitutiveModelMultiplicativeDecomposition::construct(
-//             NeoHookeanModel::new(NEOHOOKEANPARAMETERS),
-//             NeoHookeanModel::new(NEOHOOKEANPARAMETERS)
-//         )
-//     );
-// }
 
 fn get_composite_constitutive_model<'a>() -> CompositeHyperelasticConstitutiveModelMultiplicativeDecomposition<GentModel<'a>, YeohModel<'a>>
 {
@@ -167,6 +143,108 @@ fn calculate_first_piola_kirchoff_tangent_stiffness_from_finite_difference_of_fi
         }
     }
     residual_tangent
+}
+
+macro_rules! test_composite_hyperelastic_constitutive_model_multiplicative_decomposition
+{
+    ($composite_hyperelastic_constitutive_model_multiplicative_decomposition_constructed: expr) =>
+    {
+        test_hyperelastic_constitutive_model_constructed!(
+            $composite_hyperelastic_constitutive_model_multiplicative_decomposition_constructed
+        );
+        #[test]
+        fn helmholtz_free_energy_density_minimized_by_deformation_gradient_2()
+        {
+            let model = $composite_hyperelastic_constitutive_model_multiplicative_decomposition_constructed;
+            let helmholtz_free_energy_density = model.calculate_helmholtz_free_energy_density(&get_deformation_gradient());
+            assert_eq!(
+                helmholtz_free_energy_density,
+                model.calculate_objective(
+                    &get_deformation_gradient(),
+                    &model.calculate_deformation_gradient_2(
+                        &get_deformation_gradient()
+                    )
+                )
+            );
+            let mut perturbed_deformation_gradient_2: DeformationGradient2;
+            let mut perturbed_helmholtz_free_energy_density: Scalar;
+            for i in 0..3
+            {
+                for j in 0..3
+                {
+                    perturbed_deformation_gradient_2 = model.calculate_deformation_gradient_2(
+                        &get_deformation_gradient()
+                    );
+                    perturbed_deformation_gradient_2[i][j] += EPSILON;
+                    perturbed_helmholtz_free_energy_density = model.calculate_objective(
+                        &get_deformation_gradient(),
+                        &perturbed_deformation_gradient_2
+                    );
+                    assert!(helmholtz_free_energy_density < perturbed_helmholtz_free_energy_density);
+                    perturbed_deformation_gradient_2[i][j] -= 2.0 * EPSILON;
+                    perturbed_helmholtz_free_energy_density = model.calculate_objective(
+                        &get_deformation_gradient(),
+                        &perturbed_deformation_gradient_2
+                    );
+                    assert!(helmholtz_free_energy_density < perturbed_helmholtz_free_energy_density);
+                }
+            }
+        }
+    }
+}
+
+mod dual
+{
+    use super::*;
+    test_composite_hyperelastic_constitutive_model_multiplicative_decomposition!
+    (
+        CompositeHyperelasticConstitutiveModelMultiplicativeDecomposition::construct(
+            NeoHookeanModel::new(NEOHOOKEANPARAMETERS),
+            NeoHookeanModel::new(NEOHOOKEANPARAMETERS)
+        )
+    );
+}
+
+mod mixed
+{
+    use super::*;
+    test_composite_hyperelastic_constitutive_model_multiplicative_decomposition!
+    (
+        CompositeHyperelasticConstitutiveModelMultiplicativeDecomposition::construct(
+            GentModel::new(GENTPARAMETERS),
+            MooneyRivlinModel::new(MOONEYRIVLINPARAMETERS)
+        )
+    );
+}
+
+mod nested
+{
+    use super::*;
+    test_composite_hyperelastic_constitutive_model_multiplicative_decomposition!
+    (
+        CompositeHyperelasticConstitutiveModelMultiplicativeDecomposition::construct(
+            CompositeHyperelasticConstitutiveModelMultiplicativeDecomposition::construct(
+                GentModel::new(GENTPARAMETERS),
+                YeohModel::new(YEOHPARAMETERS)
+            ),
+            CompositeHyperelasticConstitutiveModelMultiplicativeDecomposition::construct(
+                MooneyRivlinModel::new(MOONEYRIVLINPARAMETERS),
+                NeoHookeanModel::new(NEOHOOKEANPARAMETERS)
+            )
+        )
+    );
+}
+
+#[test]
+fn dont_forget_to_test_mandel_stress_too()
+{
+    todo!()
+}
+
+#[test]
+fn also_consider_the_combo_methods_returning_tuples()
+{
+    todo!()
 }
 
 mod objective

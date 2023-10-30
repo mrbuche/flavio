@@ -26,6 +26,10 @@ where
             residual = self.calculate_residual(deformation_gradient, &deformation_gradient_2);
             residual_norm = residual.norm();
             deformation_gradient_2 -= self.calculate_residual_tangent(deformation_gradient, &deformation_gradient_2).inverse().contract_third_fourth_indices_with_first_second_indices_of(&residual) * step_size;
+            if deformation_gradient_2.determinant() < crate::REL_TOL
+            {
+                panic!()
+            }
         }
         deformation_gradient_2
     }
