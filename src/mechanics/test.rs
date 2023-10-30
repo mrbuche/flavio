@@ -51,7 +51,11 @@ pub fn get_rotation_current_configuration() -> RotationCurrentConfiguration
 
 pub fn get_rotation_intermediate_configuration() -> RotationIntermediateConfiguration
 {
-    todo!()
+    RotationIntermediateConfiguration::new([
+        [ 0.36,  0.48, -0.80],
+        [-0.80,  0.60,  0.00],
+        [ 0.48,  0.64,  0.60]
+    ])
 }
 
 pub fn get_rotation_reference_configuration() -> RotationReferenceConfiguration
