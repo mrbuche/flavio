@@ -1,6 +1,8 @@
 #[cfg(test)]
 mod test;
 
+use crate::REL_TOL;
+
 use super::*;
 
 pub struct CompositeHyperelasticConstitutiveModelMultiplicativeDecomposition<C1, C2>
@@ -16,17 +18,16 @@ where
 {
     fn calculate_deformation_gradient_2(&self, deformation_gradient: &DeformationGradient) -> DeformationGradient2
     {
-        let tolerance = 1e-8;
         let step_size = 0.999;
         let mut deformation_gradient_2 = DeformationGradient2::identity();
         let mut residual = self.calculate_residual(deformation_gradient, &deformation_gradient_2);
         let mut residual_norm = residual.norm();
-        while residual_norm > tolerance
+        while residual_norm > REL_TOL
         {
             residual = self.calculate_residual(deformation_gradient, &deformation_gradient_2);
             residual_norm = residual.norm();
             deformation_gradient_2 -= self.calculate_residual_tangent(deformation_gradient, &deformation_gradient_2).inverse().contract_third_fourth_indices_with_first_second_indices_of(&residual) * step_size;
-            if deformation_gradient_2.determinant() < crate::REL_TOL
+            if deformation_gradient_2.determinant() < REL_TOL
             {
                 panic!()
             }
@@ -42,14 +43,13 @@ where
 {
     fn calculate_cauchy_stress(&self, deformation_gradient: &DeformationGradient) -> CauchyStress
     {
-        let deformation_gradient_2 = self.calculate_deformation_gradient_2(deformation_gradient);
-        self.get_constitutive_model_1().calculate_cauchy_stress(&(deformation_gradient * deformation_gradient_2.inverse()).into())/deformation_gradient_2.determinant()
+        let (deformation_gradient_2_inverse, deformation_gradient_2_determinant) = self.calculate_deformation_gradient_2(deformation_gradient).inverse_and_determinant();
+        self.get_constitutive_model_1().calculate_cauchy_stress(&(deformation_gradient * deformation_gradient_2_inverse).into())/deformation_gradient_2_determinant
     }
     fn calculate_cauchy_tangent_stiffness(&self, deformation_gradient: &DeformationGradient) -> CauchyTangentStiffness
     {
-        let deformation_gradient_2 = self.calculate_deformation_gradient_2(deformation_gradient);
-        let deformation_gradient_2_inverse = deformation_gradient_2.inverse();
-        <CauchyTangentStiffness as Into<CauchyTangentStiffness1>>::into(self.get_constitutive_model_1().calculate_cauchy_tangent_stiffness(&(deformation_gradient * deformation_gradient_2_inverse).into())) * (deformation_gradient_2.inverse_transpose()/deformation_gradient_2.determinant())
+        let (deformation_gradient_2_inverse_transpose, deformation_gradient_2_determinant) = self.calculate_deformation_gradient_2(deformation_gradient).inverse_transpose_and_determinant();
+        <CauchyTangentStiffness as Into<CauchyTangentStiffness1>>::into(self.get_constitutive_model_1().calculate_cauchy_tangent_stiffness(&(deformation_gradient * deformation_gradient_2_inverse_transpose.transpose()).into())) * (deformation_gradient_2_inverse_transpose / deformation_gradient_2_determinant)
     }
     fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar
     {

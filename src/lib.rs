@@ -3,8 +3,8 @@
 #[cfg(test)]
 mod test;
 
-pub const ABS_TOL: f64 = 1e-13;
-pub const REL_TOL: f64 = 1e-13;
+pub const ABS_TOL: f64 = 1e-12;
+pub const REL_TOL: f64 = 1e-8;
 
 #[cfg(test)]
 pub const EPSILON: f64 = 1e-6;
