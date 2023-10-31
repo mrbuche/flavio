@@ -1,8 +1,6 @@
 #[cfg(test)]
 mod test;
 
-use crate::REL_TOL;
-
 use super::*;
 
 pub struct CompositeHyperelasticConstitutiveModelMultiplicativeDecomposition<C1, C2>
@@ -18,16 +16,15 @@ where
 {
     fn calculate_deformation_gradient_2(&self, deformation_gradient: &DeformationGradient) -> DeformationGradient2
     {
-        let step_size = 0.999;
         let mut deformation_gradient_2 = DeformationGradient2::identity();
         let mut residual = self.calculate_residual(deformation_gradient, &deformation_gradient_2);
         let mut residual_norm = residual.norm();
-        while residual_norm > REL_TOL
+        while residual_norm > 1e-3
         {
             residual = self.calculate_residual(deformation_gradient, &deformation_gradient_2);
             residual_norm = residual.norm();
-            deformation_gradient_2 -= self.calculate_residual_tangent(deformation_gradient, &deformation_gradient_2).inverse().contract_third_fourth_indices_with_first_second_indices_of(&residual) * step_size;
-            if deformation_gradient_2.determinant() < REL_TOL
+            deformation_gradient_2 -= self.calculate_residual_tangent(deformation_gradient, &deformation_gradient_2).inverse().contract_third_fourth_indices_with_first_second_indices_of(&residual) * 0.999;
+            if deformation_gradient_2.determinant() < crate::REL_TOL
             {
                 panic!()
             }

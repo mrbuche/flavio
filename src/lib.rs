@@ -4,10 +4,10 @@
 mod test;
 
 pub const ABS_TOL: f64 = 1e-12;
-pub const REL_TOL: f64 = 1e-8;
+pub const REL_TOL: f64 = 1e-12;
 
 #[cfg(test)]
-pub const EPSILON: f64 = 1e-6;
+pub const EPSILON: f64 = 1e-4;
 
 #[cfg(feature = "constitutive")]
 pub mod constitutive;

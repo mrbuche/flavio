@@ -16,7 +16,7 @@ The Helmholtz free energy density.
     a\_1(\\mathbf{F}\_1) + a\_2(\\mathbf{F}\_2)
 \\end{equation}
 
-The Cauchy stress.
+The Cauchy stress (equal Kirchoff stresses).
 
 \\begin{equation}
     \\boldsymbol{\\sigma}(\\mathbf{F},\\mathbf{F}\_2) =
