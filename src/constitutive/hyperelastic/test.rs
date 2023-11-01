@@ -1,9 +1,3 @@
-#[test]
-fn dont_forget_to_implement_and_test_hyperelastic_applied_1pk_stress_solver()
-{
-    todo!()
-}
-
 macro_rules! test_hyperelastic_constitutive_model
 {
     ($hyperelastic_constitutive_model: ident, $hyperelastic_constitutive_model_parameters: expr, $hyperelastic_constitutive_model_constructed: expr) =>

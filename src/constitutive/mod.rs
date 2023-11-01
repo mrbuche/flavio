@@ -16,9 +16,7 @@ use crate::
 {
     math::
     {
-        ContractAllIndicesWithFirstIndicesOf,
         ContractSecondIndexWithFirstIndexOf,
-        ContractThirdFourthIndicesWithFirstSecondIndicesOf,
         Convert,
         TensorRank2Trait,
         TensorRank4Trait
@@ -27,15 +25,12 @@ use crate::
     {
         CauchyStress,
         CauchyTangentStiffness,
-        CauchyTangentStiffness1,
         DeformationGradient,
         DeformationGradient1,
         DeformationGradient2,
         FirstPiolaKirchoffStress,
-        FirstPiolaKirchoffStress1,
         FirstPiolaKirchoffStress2,
         FirstPiolaKirchoffTangentStiffness,
-        FirstPiolaKirchoffTangentStiffness1,
         FirstPiolaKirchoffTangentStiffness2,
         LeftCauchyGreenDeformation,
         MandelStress,
