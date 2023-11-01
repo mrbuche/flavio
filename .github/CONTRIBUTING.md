@@ -1,6 +1,6 @@
 # Contributing
 
-These are guidelines for contributing to flavio. Contributors can open issues or create pull requests.
+Contributors can open issues or create pull requests.
 
 ## Issues
 
