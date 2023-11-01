@@ -23,7 +23,7 @@ mod dual
 {
     use super::*;
     test_hyperelastic_constitutive_model_constructed!(
-        CompositeHyperelasticConstitutiveModelEqualDeformation::construct(
+        CompositeHyperelasticConstitutiveModelAdditiveDecomposition::construct(
             NeoHookeanModel::new(NEOHOOKEANPARAMETERS),
             NeoHookeanModel::new(NEOHOOKEANPARAMETERS)
         )
@@ -34,7 +34,7 @@ mod mixed
 {
     use super::*;
     test_hyperelastic_constitutive_model_constructed!(
-        CompositeHyperelasticConstitutiveModelEqualDeformation::construct(
+        CompositeHyperelasticConstitutiveModelAdditiveDecomposition::construct(
             GentModel::new(GENTPARAMETERS),
             MooneyRivlinModel::new(MOONEYRIVLINPARAMETERS)
         )
@@ -45,12 +45,12 @@ mod nested
 {
     use super::*;
     test_hyperelastic_constitutive_model_constructed!(
-        CompositeHyperelasticConstitutiveModelEqualDeformation::construct(
-            CompositeHyperelasticConstitutiveModelEqualDeformation::construct(
+        CompositeHyperelasticConstitutiveModelAdditiveDecomposition::construct(
+            CompositeHyperelasticConstitutiveModelAdditiveDecomposition::construct(
                 GentModel::new(GENTPARAMETERS),
                 YeohModel::new(YEOHPARAMETERS)
             ),
-            CompositeHyperelasticConstitutiveModelEqualDeformation::construct(
+            CompositeHyperelasticConstitutiveModelAdditiveDecomposition::construct(
                 MooneyRivlinModel::new(MOONEYRIVLINPARAMETERS),
                 NeoHookeanModel::new(NEOHOOKEANPARAMETERS)
             )
@@ -61,7 +61,7 @@ mod nested
 #[test]
 fn additive_cauchy_stress()
 {
-    CompositeHyperelasticConstitutiveModelEqualDeformation::construct(
+    CompositeHyperelasticConstitutiveModelAdditiveDecomposition::construct(
         GentModel::new(GENTPARAMETERS),
         MooneyRivlinModel::new(MOONEYRIVLINPARAMETERS)
     ).calculate_cauchy_stress(&get_deformation_gradient()).iter()
@@ -82,7 +82,7 @@ fn additive_cauchy_stress()
 #[test]
 fn additive_cauchy_tangent_stiffness()
 {
-    CompositeHyperelasticConstitutiveModelEqualDeformation::construct(
+    CompositeHyperelasticConstitutiveModelAdditiveDecomposition::construct(
         GentModel::new(GENTPARAMETERS),
         MooneyRivlinModel::new(MOONEYRIVLINPARAMETERS)
     ).calculate_cauchy_tangent_stiffness(&get_deformation_gradient()).iter()
@@ -116,7 +116,7 @@ fn additive_cauchy_tangent_stiffness()
 fn additive_helmholtz_free_energy_density()
 {
     assert_eq!(
-        CompositeHyperelasticConstitutiveModelEqualDeformation::construct(
+        CompositeHyperelasticConstitutiveModelAdditiveDecomposition::construct(
             GentModel::new(GENTPARAMETERS),
             MooneyRivlinModel::new(MOONEYRIVLINPARAMETERS)
         ).calculate_helmholtz_free_energy_density(&get_deformation_gradient()),
