@@ -8,7 +8,8 @@ use super::
     TensorRank4Trait,
     ContractAllIndicesWithFirstIndicesOf,
     ContractFirstThirdFourthIndicesWithFirstIndicesOf,
-    ContractSecondIndexWithFirstIndexOf
+    ContractSecondIndexWithFirstIndexOf,
+    ContractThirdFourthIndicesWithFirstSecondIndicesOf
 };
 
 fn get_array() -> [[[[TensorRank0; 3]; 3]; 3]; 3]
@@ -344,6 +345,15 @@ fn get_tensor_rank_4_contract_second_index_with_first_index_of_tensor_rank_2() -
     ]]])
 }
 
+fn get_tensor_rank_4_contract_third_fourth_indices_with_first_second_indices_of_tensor_rank_2() -> TensorRank2<3, 1, 1>
+{
+    TensorRank2::new([
+        [128.0, 97.0,  77.0],
+        [113.0, 92.0,  99.0],
+        [138.0, 77.0, 122.0]
+    ])
+}
+
 fn get_tensor_rank_2() -> TensorRank2<3, 1, 1>
 {
     TensorRank2::new([
@@ -593,6 +603,22 @@ fn contract_second_index_with_first_index_of()
             )
         )
     );
+}
+
+#[test]
+fn contract_third_fourth_indices_with_first_second_indices_of()
+{
+    (get_tensor_rank_4().contract_third_fourth_indices_with_first_second_indices_of(
+        &get_tensor_rank_2()
+    )).iter()
+    .zip(get_tensor_rank_4_contract_third_fourth_indices_with_first_second_indices_of_tensor_rank_2().iter())
+    .for_each(|(tensor_rank_4_i, res_tensor_rank_4_i)|
+        tensor_rank_4_i.iter()
+        .zip(res_tensor_rank_4_i.iter())
+        .for_each(|(tensor_rank_4_ij, res_tensor_rank_4_ij)|
+            assert_eq!(tensor_rank_4_ij, res_tensor_rank_4_ij)
+        )
+    )
 }
 
 #[test]

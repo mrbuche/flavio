@@ -52,7 +52,7 @@ impl<'a> ConstitutiveModel<'a> for MooneyRivlinModel<'a>
     }
 }
 
-impl<'a> HyperelasticConstitutiveModel<'a> for MooneyRivlinModel<'a>
+impl<'a> HyperelasticConstitutiveModel for MooneyRivlinModel<'a>
 {
     fn get_bulk_modulus(&self) -> &Scalar
     {

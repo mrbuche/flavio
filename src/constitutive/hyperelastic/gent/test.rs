@@ -7,7 +7,8 @@ use super::GentModel;
 
 test_hyperelastic_constitutive_model!(
     GentModel,
-    GENTPARAMETERS
+    GENTPARAMETERS,
+    GentModel::new(GENTPARAMETERS)
 );
 
 #[test]

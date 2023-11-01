@@ -14,30 +14,18 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v4
-      - name: cargo clippy math 32
-        run: cargo clippy --release --features math,32 -- -D warnings
-      - name: cargo clippy math 64
-        run: cargo clippy --release --features math,64 -- -D warnings
-      - name: cargo clippy mechanics 32
-        run: cargo clippy --release --features mechanics,32 -- -D warnings
-      - name: cargo clippy mechanics 64
-        run: cargo clippy --release --features mechanics,64 -- -D warnings
-      - name: cargo clippy constitutive 32
-        run: cargo clippy --release --features constitutive,32 -- -D warnings
-      - name: cargo clippy constitutive 64
-        run: cargo clippy --release --features constitutive,64 -- -D warnings
-      - name: cargo test math 32
-        run: cargo test --release --features math,32
-      - name: cargo test math 64
-        run: cargo test --release --features math,64
-      - name: cargo test mechanics 32
-        run: cargo test --release --features mechanics,32
-      - name: cargo test mechanics 64
-        run: cargo test --release --features mechanics,64
-      - name: cargo test constitutive 32
-        run: cargo test --release --features constitutive,32
-      - name: cargo test constitutive 64
-        run: cargo test --release --features constitutive,64
+      - name: cargo clippy math
+        run: cargo clippy --release --features math -- -D warnings
+      - name: cargo clippy mechanics
+        run: cargo clippy --release --features mechanics -- -D warnings
+      - name: cargo clippy constitutive
+        run: cargo clippy --release --features constitutive -- -D warnings
+      - name: cargo test math
+        run: cargo test --release --features math
+      - name: cargo test mechanics
+        run: cargo test --release --features mechanics
+      - name: cargo test constitutive
+        run: cargo test --release --features constitutive
   mdbook:
     strategy:
       fail-fast: false

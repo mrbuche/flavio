@@ -3,23 +3,11 @@
 #[cfg(test)]
 mod test;
 
-#[cfg(feature = "32")]
-type Float = f32;
+pub const ABS_TOL: f64 = 1e-12;
+pub const REL_TOL: f64 = 1e-12;
 
-#[cfg(feature = "64")]
-type Float = f64;
-
-#[cfg(feature = "32")]
-pub const ABS_TOL: Float = 1e-4;
-
-#[cfg(feature = "64")]
-pub const ABS_TOL: Float = 1e-13;
-
-#[cfg(feature = "32")]
-pub const REL_TOL: Float = 1e-4;
-
-#[cfg(feature = "64")]
-pub const REL_TOL: Float = 1e-13;
+#[cfg(test)]
+pub const EPSILON: f64 = 1e-4;
 
 #[cfg(feature = "constitutive")]
 pub mod constitutive;
