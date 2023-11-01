@@ -2,7 +2,6 @@
 mod test;
 
 pub mod equal_deformation;
-pub mod multiplicative_decomposition;
 
 pub mod gent;
 pub mod mooney_rivlin;
