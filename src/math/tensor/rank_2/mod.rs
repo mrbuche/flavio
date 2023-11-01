@@ -50,6 +50,7 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2<D, I, J>
     }
 }
 
+#[allow(clippy::map_clone)]
 impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> Convert<TensorRank2<D, K, L>> for TensorRank2<D, I, J>
 {
     fn convert(&self) -> TensorRank2<D, K, L>
