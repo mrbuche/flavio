@@ -1,7 +1,6 @@
 # Constitutive models
 
 - [Hyperelastic models](constitutive/hyperelastic.md)
-- [Multiplicative decomposition](constitutive/multiplicative_decomposition.md)
 
 The first Piola-Kirchoff tangent stiffness is calculated from the Cauchy tangent stiffness as
 
