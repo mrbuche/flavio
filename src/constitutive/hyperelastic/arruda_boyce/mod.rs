@@ -28,7 +28,8 @@ impl<'a> ConstitutiveModel<'a> for ArrudaBoyceModel<'a>
         let jacobian = deformation_gradient.determinant();
         let (deviatoric_isochoric_left_cauchy_green_deformation, isochoric_left_cauchy_green_deformation_trace) = (self.calculate_left_cauchy_green_deformation(deformation_gradient)/jacobian.powf(2.0/3.0)).deviatoric_and_trace();
         let gamma = (isochoric_left_cauchy_green_deformation_trace/3.0/self.get_number_of_links()).sqrt();
-        deviatoric_isochoric_left_cauchy_green_deformation*(self.get_shear_modulus()*inverse_langevin(gamma)/gamma/3.0/jacobian) + LeftCauchyGreenDeformation::identity()*self.get_bulk_modulus()*0.5*(jacobian - 1.0/jacobian)
+        let gamma_0 = (1.0/self.get_number_of_links()).sqrt();
+        deviatoric_isochoric_left_cauchy_green_deformation*(self.get_shear_modulus()*inverse_langevin(gamma)/inverse_langevin(gamma_0)*gamma_0/gamma/jacobian) + LeftCauchyGreenDeformation::identity()*self.get_bulk_modulus()*0.5*(jacobian - 1.0/jacobian)
     }
     fn calculate_cauchy_tangent_stiffness(&self, deformation_gradient: &DeformationGradient) -> CauchyTangentStiffness
     {
@@ -38,8 +39,9 @@ impl<'a> ConstitutiveModel<'a> for ArrudaBoyceModel<'a>
         let deviatoric_left_cauchy_green_deformation = left_cauchy_green_deformation.deviatoric();
         let (deviatoric_isochoric_left_cauchy_green_deformation, isochoric_left_cauchy_green_deformation_trace) = (left_cauchy_green_deformation/jacobian.powf(2.0/3.0)).deviatoric_and_trace();
         let gamma = (isochoric_left_cauchy_green_deformation_trace/3.0/self.get_number_of_links()).sqrt();
+        let gamma_0 = (1.0/self.get_number_of_links()).sqrt();
         let eta = inverse_langevin(gamma);
-        let scaled_shear_modulus = self.get_shear_modulus()*eta/gamma/3.0/jacobian.powf(5.0/3.0);
+        let scaled_shear_modulus = gamma_0/inverse_langevin(gamma_0)*self.get_shear_modulus()*eta/gamma/jacobian.powf(5.0/3.0);
         let scaled_deviatoric_isochoric_left_cauchy_green_deformation = deviatoric_left_cauchy_green_deformation*scaled_shear_modulus;
         let term = CauchyTangentStiffness::dyad_ij_kl(&scaled_deviatoric_isochoric_left_cauchy_green_deformation, &(deviatoric_isochoric_left_cauchy_green_deformation * &inverse_transpose_deformation_gradient*((1.0/eta/langevin_derivative(eta) - 1.0/gamma)/3.0/self.get_number_of_links()/gamma)));
         (CauchyTangentStiffness::dyad_ik_jl(&identity, deformation_gradient) + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &identity) - CauchyTangentStiffness::dyad_ij_kl(&identity, deformation_gradient)*(2.0/3.0))*scaled_shear_modulus + CauchyTangentStiffness::dyad_ij_kl(&(identity*(0.5*self.get_bulk_modulus()*(jacobian + 1.0/jacobian)) - scaled_deviatoric_isochoric_left_cauchy_green_deformation*(5.0/3.0)), &inverse_transpose_deformation_gradient) + term
@@ -52,7 +54,7 @@ impl<'a> ConstitutiveModel<'a> for ArrudaBoyceModel<'a>
         let eta = inverse_langevin(gamma);
         let gamma_0 = (1.0/self.get_number_of_links()).sqrt();
         let eta_0 = inverse_langevin(gamma_0);
-        self.get_shear_modulus() * self.get_number_of_links() * (gamma * eta - gamma_0 * eta_0 - (eta_0*eta.sinh()/(eta*eta_0.sinh())).ln()) + 0.5*self.get_bulk_modulus()*(0.5*(jacobian.powi(2) - 1.0) - jacobian.ln())
+        3.0*gamma_0/eta_0*self.get_shear_modulus()*self.get_number_of_links()*(gamma*eta - gamma_0*eta_0 - (eta_0*eta.sinh()/(eta*eta_0.sinh())).ln()) + 0.5*self.get_bulk_modulus()*(0.5*(jacobian.powi(2) - 1.0) - jacobian.ln())
 
     }
     fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
