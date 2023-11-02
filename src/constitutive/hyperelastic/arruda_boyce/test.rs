@@ -12,19 +12,10 @@ test_hyperelastic_constitutive_model!(
 );
 
 #[test]
-fn get_number_density()
-{
-    assert_eq!(
-        &ARRUDABOYCEPARAMETERS[2],
-        ArrudaBoyceModel::new(ARRUDABOYCEPARAMETERS).get_number_density()
-    )
-}
-
-#[test]
 fn get_number_of_links()
 {
     assert_eq!(
-        &ARRUDABOYCEPARAMETERS[3],
+        &ARRUDABOYCEPARAMETERS[2],
         ArrudaBoyceModel::new(ARRUDABOYCEPARAMETERS).get_number_of_links()
     )
 }

@@ -1,5 +1,7 @@
+mod special;
 mod tensor;
 
+pub use special::inverse_langevin;
 pub use tensor::
 {
     Convert,

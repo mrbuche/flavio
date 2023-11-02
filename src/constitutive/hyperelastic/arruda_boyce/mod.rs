@@ -10,13 +10,9 @@ pub struct ArrudaBoyceModel<'a>
 
 impl<'a> ArrudaBoyceModel<'a>
 {
-    fn get_number_density(&self) -> &Scalar
-    {
-        &self.parameters[2]
-    }
     fn get_number_of_links(&self) -> &Scalar
     {
-        &self.parameters[3]
+        &self.parameters[2]
     }
 }
 
