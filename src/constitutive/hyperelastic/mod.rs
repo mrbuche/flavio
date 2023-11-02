@@ -3,6 +3,7 @@ mod test;
 
 pub mod additive_decomposition;
 
+pub mod arruda_boyce;
 pub mod gent;
 pub mod mooney_rivlin;
 pub mod neo_hookean;

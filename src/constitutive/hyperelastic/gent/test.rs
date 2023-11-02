@@ -14,5 +14,8 @@ test_hyperelastic_constitutive_model!(
 #[test]
 fn get_extensibility()
 {
-    assert_eq!(&GENTPARAMETERS[2], GentModel::new(GENTPARAMETERS).get_extensibility())
+    assert_eq!(
+        &GENTPARAMETERS[2],
+        GentModel::new(GENTPARAMETERS).get_extensibility()
+    )
 }
