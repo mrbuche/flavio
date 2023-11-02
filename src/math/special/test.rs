@@ -4,12 +4,7 @@ mod inverse_langevin
 {
     use super::inverse_langevin;
     #[test]
-    fn large()
-    {
-        todo!()
-    }
-    #[test]
-    fn medium()
+    fn range()
     {
         todo!()
     }
