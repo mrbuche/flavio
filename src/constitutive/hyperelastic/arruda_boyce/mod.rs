@@ -14,6 +14,10 @@ impl<'a> ArrudaBoyceModel<'a>
     {
         &self.parameters[2]
     }
+    fn get_number_of_links(&self) -> &Scalar
+    {
+        &self.parameters[3]
+    }
 }
 
 impl<'a> ConstitutiveModel<'a> for ArrudaBoyceModel<'a>
