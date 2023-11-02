@@ -1,5 +1,12 @@
+mod special;
 mod tensor;
 
+pub use special::
+{
+    langevin,
+    langevin_derivative,
+    inverse_langevin
+};
 pub use tensor::
 {
     Convert,
