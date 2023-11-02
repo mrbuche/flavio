@@ -1,7 +1,11 @@
 #[cfg(test)]
 mod test;
 
-use crate::math::inverse_langevin;
+use crate::math::
+{
+    langevin_derivative,
+    inverse_langevin
+};
 use super::*;
 
 pub struct ArrudaBoyceModel<'a>
@@ -31,13 +35,14 @@ impl<'a> ConstitutiveModel<'a> for ArrudaBoyceModel<'a>
         let identity = CauchyStress::identity();
         let (inverse_transpose_deformation_gradient, jacobian) = deformation_gradient.inverse_transpose_and_determinant();
         let left_cauchy_green_deformation = self.calculate_left_cauchy_green_deformation(deformation_gradient);
+        let deviatoric_left_cauchy_green_deformation = left_cauchy_green_deformation.deviatoric();
         let (deviatoric_isochoric_left_cauchy_green_deformation, isochoric_left_cauchy_green_deformation_trace) = (left_cauchy_green_deformation/jacobian.powf(2.0/3.0)).deviatoric_and_trace();
         let gamma = (isochoric_left_cauchy_green_deformation_trace/3.0/self.get_number_of_links()).sqrt();
         let eta = inverse_langevin(gamma);
         let scaled_shear_modulus = self.get_shear_modulus()*eta/gamma/3.0/jacobian.powf(5.0/3.0);
-        (CauchyTangentStiffness::dyad_ik_jl(&identity, deformation_gradient) + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &identity) - CauchyTangentStiffness::dyad_ij_kl(&identity, deformation_gradient)*(2.0/3.0))*scaled_shear_modulus + CauchyTangentStiffness::dyad_ij_kl(&(identity*(0.5*self.get_bulk_modulus()*(jacobian + 1.0/jacobian)) - deviatoric_isochoric_left_cauchy_green_deformation*(scaled_shear_modulus*5.0/3.0)), &inverse_transpose_deformation_gradient)
-        //
-        // need term from d/dF (eta/gamma)
+        let scaled_deviatoric_isochoric_left_cauchy_green_deformation = deviatoric_left_cauchy_green_deformation*scaled_shear_modulus;
+        let term = CauchyTangentStiffness::dyad_ij_kl(&scaled_deviatoric_isochoric_left_cauchy_green_deformation, &(deviatoric_isochoric_left_cauchy_green_deformation * &inverse_transpose_deformation_gradient*((1.0/eta/langevin_derivative(eta) - 1.0/gamma)/3.0/self.get_number_of_links()/gamma)));
+        (CauchyTangentStiffness::dyad_ik_jl(&identity, deformation_gradient) + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &identity) - CauchyTangentStiffness::dyad_ij_kl(&identity, deformation_gradient)*(2.0/3.0))*scaled_shear_modulus + CauchyTangentStiffness::dyad_ij_kl(&(identity*(0.5*self.get_bulk_modulus()*(jacobian + 1.0/jacobian)) - scaled_deviatoric_isochoric_left_cauchy_green_deformation*(5.0/3.0)), &inverse_transpose_deformation_gradient) + term
     }
     fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar
     {
