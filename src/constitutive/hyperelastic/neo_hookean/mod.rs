@@ -3,15 +3,17 @@ mod test;
 
 use super::*;
 
-/// The Neo-Hookean model hyperelastic constitutive model.
+/// The Neo-Hookean hyperelastic constitutive model.
 /// 
-/// Parameters:
+/// **Parameters**
 /// - The bulk modulus $`\kappa`$.
 /// - The shear modulus $`\mu`$.
 ///
-/// State variables:
-///
+/// **External variables**
 /// - The deformation gradient $`\mathbf{F}`$.
+///
+/// **Internal variables**
+/// - None.
 pub struct NeoHookeanModel<'a>
 {
     parameters: ConstitutiveModelParameters<'a>

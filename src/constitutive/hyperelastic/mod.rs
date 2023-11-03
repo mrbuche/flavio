@@ -1,13 +1,21 @@
 #[cfg(test)]
 mod test;
 
-pub mod additive_decomposition;
+mod additive_decomposition;
+mod arruda_boyce;
+mod gent;
+mod mooney_rivlin;
+mod neo_hookean;
+mod yeoh;
 
-pub mod arruda_boyce;
-pub mod gent;
-pub mod mooney_rivlin;
-pub mod neo_hookean;
-pub mod yeoh;
+pub use self::
+{
+    arruda_boyce::ArrudaBoyceModel,
+    gent::GentModel,
+    mooney_rivlin::MooneyRivlinModel,
+    neo_hookean::NeoHookeanModel,
+    yeoh::YeohModel
+};
 
 use super::*;
 

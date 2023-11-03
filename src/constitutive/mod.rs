@@ -1,17 +1,8 @@
 #[cfg(test)]
 pub mod test;
 
-mod hyperelastic;
-
-pub use hyperelastic::
-{
-    HyperelasticConstitutiveModel,
-    arruda_boyce::ArrudaBoyceModel,
-    gent::GentModel,
-    mooney_rivlin::MooneyRivlinModel,
-    neo_hookean::NeoHookeanModel,
-    yeoh::YeohModel
-};
+/// Hyperelastic constitutive models.
+pub mod hyperelastic;
 
 use crate::
 {
@@ -73,7 +64,9 @@ pub trait ConstitutiveModel<'a>
     /// Calculates and returns the tangent stiffness associated with the first Piola-Kirchoff stress.
     ///
     /// ```math
-    /// \mathbf{P} = \frac{\partial a}{\partial\mathbf{F}}
+    /// \mathbf{P} =
+    /// \frac{\partial a}{\partial\mathbf{F}} =
+    /// J\boldsymbol{\sigma}\cdot\mathbf{F}^{-T}
     /// ```
     fn calculate_first_piola_kirchoff_stress(&self, deformation_gradient: &DeformationGradient) -> FirstPiolaKirchoffStress
     {
@@ -82,13 +75,9 @@ pub trait ConstitutiveModel<'a>
     /// Calculates and returns the tangent stiffness associated with the first Piola-Kirchoff stress.
     ///
     /// ```math
-    /// \boldsymbol{\mathcal{C}} = \frac{\partial\mathbf{P}}{\partial\mathbf{F}}
-    /// ```
-    ///
-    /// This tangent stiffness is related to that associated with the Cauchy stress by
-    ///
-    /// ```math
-    /// \mathcal{C}_{iJkL} = J \mathcal{T}_{iskL} F_{sJ}^{-T} + P_{iJ} F_{kL}^{-T} - P_{iL} F_{kJ}^{-T}
+    /// \mathcal{C}_{iJkL} =
+    /// \frac{\partial P_{iJ}}{\partial F_{kL}} = 
+    /// J \mathcal{T}_{iskL} F_{sJ}^{-T} + P_{iJ} F_{kL}^{-T} - P_{iL} F_{kJ}^{-T}
     /// ```
     fn calculate_first_piola_kirchoff_tangent_stiffness(&self, deformation_gradient: &DeformationGradient) -> FirstPiolaKirchoffTangentStiffness
     {
@@ -102,6 +91,7 @@ pub trait ConstitutiveModel<'a>
     /// a = a(\mathbf{F})
     /// ```
     fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar;
+    /// Creates and returns a new constitutive model.
     fn new(parameters: ConstitutiveModelParameters<'a>) -> Self;
 }
 
