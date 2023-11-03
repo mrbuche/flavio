@@ -43,8 +43,23 @@ pub type ConstitutiveModelParameters<'a> = &'a [Scalar];
 
 pub trait ConstitutiveModel<'a>
 {
+    /// Calculates and returns the Cauchy stress.
+    ///
+    /// ```math
+    /// \boldsymbol{\sigma} = \frac{1}{J}\frac{\partial a}{\partial\mathbf{F}}\cdot\mathbf{F}^T
+    /// ```
     fn calculate_cauchy_stress(&self, deformation_gradient: &DeformationGradient) -> CauchyStress;
+    /// Calculates and returns the tangent stiffness associated with the Cauchy stress.
+    ///
+    /// ```math
+    /// \boldsymbol{\mathcal{T}} = \frac{\partial\boldsymbol{\sigma}}{\partial\mathbf{F}}
+    /// ```
     fn calculate_cauchy_tangent_stiffness(&self, deformation_gradient: &DeformationGradient) -> CauchyTangentStiffness;
+    /// Calculates and returns the left Cauchy-Green deformation.
+    ///
+    /// ```math
+    /// \mathbf{B} = \mathbf{F}\cdot\mathbf{F}^T
+    /// ```
     fn calculate_left_cauchy_green_deformation(&self, deformation_gradient: &DeformationGradient) -> LeftCauchyGreenDeformation
     {
         deformation_gradient.iter()
@@ -55,16 +70,37 @@ pub trait ConstitutiveModel<'a>
             ).collect()
         ).collect()
     }
+    /// Calculates and returns the tangent stiffness associated with the first Piola-Kirchoff stress.
+    ///
+    /// ```math
+    /// \mathbf{P} = \frac{\partial a}{\partial\mathbf{F}}
+    /// ```
     fn calculate_first_piola_kirchoff_stress(&self, deformation_gradient: &DeformationGradient) -> FirstPiolaKirchoffStress
     {
         self.calculate_cauchy_stress(deformation_gradient)*deformation_gradient.inverse_transpose()*deformation_gradient.determinant()
     }
+    /// Calculates and returns the tangent stiffness associated with the first Piola-Kirchoff stress.
+    ///
+    /// ```math
+    /// \boldsymbol{\mathcal{C}} = \frac{\partial\mathbf{P}}{\partial\mathbf{F}}
+    /// ```
+    ///
+    /// This tangent stiffness is related to that associated with the Cauchy stress by
+    ///
+    /// ```math
+    /// \mathcal{C}_{iJkL} = J \mathcal{T}_{iskL} F_{sJ}^{-T} + P_{iJ} F_{kL}^{-T} - P_{iL} F_{kJ}^{-T}
+    /// ```
     fn calculate_first_piola_kirchoff_tangent_stiffness(&self, deformation_gradient: &DeformationGradient) -> FirstPiolaKirchoffTangentStiffness
     {
         let deformation_gradient_inverse_transpose = deformation_gradient.inverse_transpose();
         let first_piola_kirchoff_stress = self.calculate_first_piola_kirchoff_stress(deformation_gradient);
         self.calculate_cauchy_tangent_stiffness(deformation_gradient).contract_second_index_with_first_index_of(&deformation_gradient_inverse_transpose)*deformation_gradient.determinant() + FirstPiolaKirchoffTangentStiffness::dyad_ij_kl(&first_piola_kirchoff_stress, &deformation_gradient_inverse_transpose) - FirstPiolaKirchoffTangentStiffness::dyad_il_kj(&first_piola_kirchoff_stress, &deformation_gradient_inverse_transpose)
     }
+    /// Calculates and returns the Helmholtz free energy density.
+    ///
+    /// ```math
+    /// a = a(\mathbf{F})
+    /// ```
     fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar;
     fn new(parameters: ConstitutiveModelParameters<'a>) -> Self;
 }
