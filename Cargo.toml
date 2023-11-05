@@ -9,7 +9,7 @@ keywords = ["flavio", "mrbuche"]
 license = "BSD-3-Clause"
 name = "flavio"
 repository = "https://github.com/mrbuche/flavio"
-version = "0.2.4"
+version = "0.2.5"
 
 [features]
 constitutive = ['mechanics']
@@ -20,5 +20,5 @@ mechanics = ['math']
 features = ["constitutive"]
 rustdoc-args = [
     "--html-in-header",
-    ".cargo/registry/src/github.com-1ecc6299db9ec823/katex-doc-0.1.0/katex.html",
+    "docs/katex.html",
 ]
