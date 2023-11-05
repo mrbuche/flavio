@@ -23,14 +23,17 @@ pub struct GentModel<'a>
     parameters: ConstitutiveModelParameters<'a>
 }
 
+/// Base implementation of the Gent hyperelastic constitutive model.
 impl<'a> GentModel<'a>
 {
-    fn get_extensibility(&self) -> &Scalar
+    /// Returns the extensibility.
+    pub fn get_extensibility(&self) -> &Scalar
     {
         &self.parameters[2]
     }
 }
 
+/// Constitutive model implementation of the Gent hyperelastic constitutive model.
 impl<'a> ConstitutiveModel<'a> for GentModel<'a>
 {
     /// Calculates and returns the Cauchy stress.
@@ -93,6 +96,7 @@ impl<'a> ConstitutiveModel<'a> for GentModel<'a>
     }
 }
 
+/// Hyperelastic constitutive model implementation of the Gent hyperelastic constitutive model.
 impl<'a> HyperelasticConstitutiveModel for GentModel<'a>
 {
     fn get_bulk_modulus(&self) -> &Scalar

@@ -31,14 +31,17 @@ pub struct ArrudaBoyceModel<'a>
     parameters: ConstitutiveModelParameters<'a>
 }
 
+/// Base implementation of the Arruda-Boyce hyperelastic constitutive model.
 impl<'a> ArrudaBoyceModel<'a>
 {
-    fn get_number_of_links(&self) -> &Scalar
+    /// Returns the number of links.
+    pub fn get_number_of_links(&self) -> &Scalar
     {
         &self.parameters[2]
     }
 }
 
+/// Constitutive model implementation of the Arruda-Boyce hyperelastic constitutive model.
 impl<'a> ConstitutiveModel<'a> for ArrudaBoyceModel<'a>
 {
     /// Calculates and returns the Cauchy stress.
@@ -99,6 +102,7 @@ impl<'a> ConstitutiveModel<'a> for ArrudaBoyceModel<'a>
     }
 }
 
+/// Hyperelastic constitutive model implementation of the Arruda-Boyce hyperelastic constitutive model.
 impl<'a> HyperelasticConstitutiveModel for ArrudaBoyceModel<'a>
 {
     fn get_bulk_modulus(&self) -> &Scalar

@@ -23,18 +23,22 @@ pub struct YeohModel<'a>
     parameters: ConstitutiveModelParameters<'a>
 }
 
+/// Base implementation of the Yeoh hyperelastic constitutive model.
 impl<'a> YeohModel<'a>
 {
-    fn get_moduli(&self) -> &[Scalar]
+    /// Returns an array of the moduli.
+    pub fn get_moduli(&self) -> &[Scalar]
     {
         &self.parameters[1..]
     }
-    fn get_extra_moduli(&self) -> &[Scalar]
+    /// Returns an array of the extra moduli.
+    pub fn get_extra_moduli(&self) -> &[Scalar]
     {
         &self.parameters[2..]
     }
 }
 
+/// Constitutive model implementation of the Yeoh hyperelastic constitutive model.
 impl<'a> ConstitutiveModel<'a> for YeohModel<'a>
 {
     /// Calculates and returns the Cauchy stress.
@@ -85,6 +89,7 @@ impl<'a> ConstitutiveModel<'a> for YeohModel<'a>
     }
 }
 
+/// Hyperelastic constitutive model implementation of the Yeoh hyperelastic constitutive model.
 impl<'a> HyperelasticConstitutiveModel for YeohModel<'a>
 {
     fn get_bulk_modulus(&self) -> &Scalar

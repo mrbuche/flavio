@@ -19,6 +19,7 @@ pub struct NeoHookeanModel<'a>
     parameters: ConstitutiveModelParameters<'a>
 }
 
+/// Constitutive model implementation of the Neo-Hookean hyperelastic constitutive model.
 impl<'a> ConstitutiveModel<'a> for NeoHookeanModel<'a>
 {
     /// Calculates and returns the Cauchy stress.
@@ -62,6 +63,7 @@ impl<'a> ConstitutiveModel<'a> for NeoHookeanModel<'a>
     }
 }
 
+/// Hyperelastic constitutive model implementation of the Neo-Hookean hyperelastic constitutive model.
 impl<'a> HyperelasticConstitutiveModel for NeoHookeanModel<'a>
 {
     fn get_bulk_modulus(&self) -> &Scalar

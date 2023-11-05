@@ -30,8 +30,10 @@ use crate::
     }
 };
 
+/// Array of constitutive model parameters.
 pub type ConstitutiveModelParameters<'a> = &'a [Scalar];
 
+/// Required methods for constitutive models.
 pub trait ConstitutiveModel<'a>
 {
     /// Calculates and returns the Cauchy stress.
@@ -91,28 +93,17 @@ pub trait ConstitutiveModel<'a>
     /// a = a(\mathbf{F})
     /// ```
     fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar;
-    /// Creates and returns a new constitutive model.
+    /// Constructs and returns a new constitutive model.
     fn new(parameters: ConstitutiveModelParameters<'a>) -> Self;
 }
 
+/// Required methods for composite constitutive models.
 pub trait CompositeConstitutiveModel<C1, C2>
 {
+    /// Constructs and returns a new composite constitutive model.
     fn construct(constitutive_model_1: C1, constitutive_model_2: C2) -> Self;
+    /// Returns a reference to the first constitutive model.
     fn get_constitutive_model_1(&self) -> &C1;
+    /// Returns a reference to the second constitutive model.
     fn get_constitutive_model_2(&self) -> &C2;
-}
-
-pub trait CompositeConstitutiveModelMultiplicativeDecomposition<'a, C1, C2>:
-    CompositeConstitutiveModel<C1, C2>
-where
-    C1: ConstitutiveModel<'a>,
-    C2: ConstitutiveModel<'a>
-{
-    fn calculate_mandel_stress(&self, deformation_gradient_1: &DeformationGradient1) -> MandelStress
-    {
-        deformation_gradient_1.transpose()*self.get_constitutive_model_1().calculate_first_piola_kirchoff_stress(&deformation_gradient_1.convert()).convert()
-    }
-    fn calculate_objective(&self, deformation_gradient: &DeformationGradient, deformation_gradient_2: &DeformationGradient2) -> Scalar;
-    fn calculate_residual(&self, deformation_gradient: &DeformationGradient, deformation_gradient_2: &DeformationGradient2) -> FirstPiolaKirchoffStress2;
-    fn calculate_residual_tangent(&self, deformation_gradient: &DeformationGradient, deformation_gradient_2: &DeformationGradient2) -> FirstPiolaKirchoffTangentStiffness2;
 }

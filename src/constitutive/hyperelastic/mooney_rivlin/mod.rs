@@ -23,14 +23,17 @@ pub struct MooneyRivlinModel<'a>
     parameters: ConstitutiveModelParameters<'a>
 }
 
+/// Base implementation of the Mooney-Rivlin hyperelastic constitutive model.
 impl<'a> MooneyRivlinModel<'a>
 {
-    fn get_extra_modulus(&self) -> &Scalar
+    /// Returns the extra modulus.
+    pub fn get_extra_modulus(&self) -> &Scalar
     {
         &self.parameters[2]
     }
 }
 
+/// Constitutive model implementation of the Mooney-Rivlin hyperelastic constitutive model.
 impl<'a> ConstitutiveModel<'a> for MooneyRivlinModel<'a>
 {
     /// Calculates and returns the Cauchy stress.
@@ -81,6 +84,7 @@ impl<'a> ConstitutiveModel<'a> for MooneyRivlinModel<'a>
     }
 }
 
+/// Hyperelastic constitutive model implementation of the Mooney-Rivlin hyperelastic constitutive model.
 impl<'a> HyperelasticConstitutiveModel for MooneyRivlinModel<'a>
 {
     fn get_bulk_modulus(&self) -> &Scalar
