@@ -2,11 +2,14 @@ use crate::
 {
     constitutive::
     {
-        GentModel,
-        MooneyRivlinModel,
-        NeoHookeanModel,
-        YeohModel,
-        hyperelastic::test::test_hyperelastic_constitutive_model_constructed,
+        hyperelastic::
+        {
+            GentModel,
+            MooneyRivlinModel,
+            NeoHookeanModel,
+            YeohModel,
+            test::test_hyperelastic_constitutive_model_constructed,
+        },
         test::
         {
             GENTPARAMETERS,

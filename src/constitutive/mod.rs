@@ -9,7 +9,6 @@ use crate::
     math::
     {
         ContractSecondIndexWithFirstIndexOf,
-        Convert,
         TensorRank2Trait,
         TensorRank4Trait
     },
@@ -18,14 +17,9 @@ use crate::
         CauchyStress,
         CauchyTangentStiffness,
         DeformationGradient,
-        DeformationGradient1,
-        DeformationGradient2,
         FirstPiolaKirchoffStress,
-        FirstPiolaKirchoffStress2,
         FirstPiolaKirchoffTangentStiffness,
-        FirstPiolaKirchoffTangentStiffness2,
         LeftCauchyGreenDeformation,
-        MandelStress,
         Scalar
     }
 };

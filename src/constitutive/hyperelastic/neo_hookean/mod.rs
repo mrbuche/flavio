@@ -25,7 +25,7 @@ impl<'a> ConstitutiveModel<'a> for NeoHookeanModel<'a>
     /// Calculates and returns the Cauchy stress.
     ///
     /// ```math
-    /// \boldsymbol{\sigma} = \frac{\mu}{J}\,{\mathbf{B}^*}' + \frac{\kappa}{2}\left(J - \frac{1}{J}\right)\mathbf{1}
+    /// \boldsymbol{\sigma}(\mathbf{F}) = \frac{\mu}{J}\,{\mathbf{B}^*}' + \frac{\kappa}{2}\left(J - \frac{1}{J}\right)\mathbf{1}
     /// ```
     fn calculate_cauchy_stress(&self, deformation_gradient: &DeformationGradient) -> CauchyStress
     {
@@ -35,7 +35,7 @@ impl<'a> ConstitutiveModel<'a> for NeoHookeanModel<'a>
     /// Calculates and returns the tangent stiffness associated with the Cauchy stress.
     ///
     /// ```math
-    /// \mathcal{T}_{ijkL} = \frac{\mu}{J^{5/3}}\left(\delta_{ik}F_{jL} + \delta_{jk}F_{iL} - \frac{2}{3}\,\delta_{ij}F_{kL}- \frac{5}{3} \, B_{ij}'F_{kL}^{-T} \right) + \frac{\kappa}{2} \left(J + \frac{1}{J}\right)\delta_{ij}F_{kL}^{-T}
+    /// \mathcal{T}_{ijkL}(\mathbf{F}) = \frac{\mu}{J^{5/3}}\left(\delta_{ik}F_{jL} + \delta_{jk}F_{iL} - \frac{2}{3}\,\delta_{ij}F_{kL}- \frac{5}{3} \, B_{ij}'F_{kL}^{-T} \right) + \frac{\kappa}{2} \left(J + \frac{1}{J}\right)\delta_{ij}F_{kL}^{-T}
     /// ```
     fn calculate_cauchy_tangent_stiffness(&self, deformation_gradient: &DeformationGradient) -> CauchyTangentStiffness
     {
@@ -47,7 +47,7 @@ impl<'a> ConstitutiveModel<'a> for NeoHookeanModel<'a>
     /// Calculates and returns the Helmholtz free energy density.
     ///
     /// ```math
-    /// a = \frac{\mu}{2}\left[\mathrm{tr}(\mathbf{B}^*) - 3\right] + \frac{\kappa}{2}\left[\frac{1}{2}\left(J^2 - 1\right) - \ln J\right]
+    /// a(\mathbf{F}) = \frac{\mu}{2}\left[\mathrm{tr}(\mathbf{B}^*) - 3\right] + \frac{\kappa}{2}\left[\frac{1}{2}\left(J^2 - 1\right) - \ln J\right]
     /// ```
     fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar
     {

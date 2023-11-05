@@ -1,7 +1,7 @@
 #[cfg(feature = "constitutive")]
 mod public
 {
-    use flavio::constitutive::
+    use flavio::constitutive::hyperelastic::
     {
         ArrudaBoyceModel,
         GentModel,
