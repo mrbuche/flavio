@@ -10,7 +10,6 @@ mod yeoh;
 
 pub use self::
 {
-    additive_decomposition::CompositeHyperelasticConstitutiveModelAdditiveDecomposition,
     arruda_boyce::ArrudaBoyceModel,
     gent::GentModel,
     mooney_rivlin::MooneyRivlinModel,
@@ -26,4 +25,11 @@ pub trait HyperelasticConstitutiveModel
     fn get_bulk_modulus(&self) -> &Scalar;
     /// Returns the shear modulus.
     fn get_shear_modulus(&self) -> &Scalar;
+}
+
+/// A composite hyperelastic constitutive model.
+pub struct CompositeHyperelasticConstitutiveModel<C1, C2>
+{
+    hyperelastic_constitutive_model_1: C1,
+    hyperelastic_constitutive_model_2: C2
 }
