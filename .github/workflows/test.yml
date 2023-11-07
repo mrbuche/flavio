@@ -14,18 +14,22 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v4
-      - name: cargo clippy math
+      - name: lint math
         run: cargo clippy --release --features math -- -D warnings
-      - name: cargo clippy mechanics
+      - name: lint mechanics
         run: cargo clippy --release --features mechanics -- -D warnings
-      - name: cargo clippy constitutive
+      - name: lint constitutive
         run: cargo clippy --release --features constitutive -- -D warnings
-      - name: cargo test math
+      - name: lint fem
+        run: cargo clippy --release --features fem -- -D warnings
+      - name: test math
         run: cargo test --release --features math
-      - name: cargo test mechanics
+      - name: test mechanics
         run: cargo test --release --features mechanics
-      - name: cargo test constitutive
+      - name: test constitutive
         run: cargo test --release --features constitutive
+      - name: test fem
+        run: cargo test --release --features fem
   mdbook:
     strategy:
       fail-fast: false

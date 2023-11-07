@@ -9,7 +9,7 @@ use crate::
     },
     math::
     {
-        // ContractFirstSecondIndicesWithFirstIndicesOf,
+        ContractSecondFourthIndicesWithFirstIndicesOf,
         TensorRank0ListTrait,
         TensorRank1ListTrait,
         TensorRank2Trait

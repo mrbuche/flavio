@@ -78,6 +78,7 @@ pub type Stiffness = TensorRank2<3, 1, 1>;
 
 /// A list of stiffnesses.
 pub type Stiffnesses<const W: usize> = TensorRank2List<3, 1, 1, W>;
+// this needs to be a 2D list
 
 /// A vector.
 pub type Vector<const I: usize> = TensorRank1<3, I>;

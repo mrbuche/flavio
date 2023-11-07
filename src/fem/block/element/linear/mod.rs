@@ -1,6 +1,8 @@
 pub mod tetrahedron;
 
 use super::*;
+// does the compiler elide loops over one integration point?
+// if not, will you have to implement for <1> for each linear element type?
 
 pub trait LinearFiniteElement<'a, C, const G: usize, const N: usize>: FiniteElement<'a, C, G, N>
 where

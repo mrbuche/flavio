@@ -2,6 +2,8 @@ use crate::test::assert_eq_within_tols;
 use super::
 {
     TensorRank0,
+    TensorRank1,
+    TensorRank1Trait,
     TensorRank2,
     TensorRank2Trait,
     TensorRank4,
@@ -9,6 +11,7 @@ use super::
     ContractAllIndicesWithFirstIndicesOf,
     ContractFirstThirdFourthIndicesWithFirstIndicesOf,
     ContractSecondIndexWithFirstIndexOf,
+    ContractSecondFourthIndicesWithFirstIndicesOf,
     ContractThirdFourthIndicesWithFirstSecondIndicesOf
 };
 
@@ -354,6 +357,25 @@ fn get_tensor_rank_4_contract_third_fourth_indices_with_first_second_indices_of_
     ])
 }
 
+fn get_tensor_rank_4_contract_second_fourth_indices_with_first_indices_of_tensors_rank_1() -> TensorRank2<3, 1, 1>
+{
+    TensorRank2::new([
+        [206.0, 196.0, 151.0],
+        [196.0, 195.0, 198.0],
+        [201.0, 148.0, 246.0]
+    ])
+}
+
+fn get_tensor_rank_1() -> TensorRank1<3, 1>
+{
+    TensorRank1::new([1.0, 2.0, 3.0])
+}
+
+fn get_other_tensor_rank_1() -> TensorRank1<3, 1>
+{
+    TensorRank1::new([4.0, 5.0, 6.0])
+}
+
 fn get_tensor_rank_2() -> TensorRank2<3, 1, 1>
 {
     TensorRank2::new([
@@ -603,6 +625,22 @@ fn contract_second_index_with_first_index_of()
             )
         )
     );
+}
+
+#[test]
+fn contract_second_fourth_indices_with_first_indices_of()
+{
+    (get_tensor_rank_4().contract_second_fourth_indices_with_first_indices_of(
+        &get_tensor_rank_1(), &get_other_tensor_rank_1()
+    )).iter()
+    .zip(get_tensor_rank_4_contract_second_fourth_indices_with_first_indices_of_tensors_rank_1().iter())
+    .for_each(|(tensor_rank_4_i, res_tensor_rank_4_i)|
+        tensor_rank_4_i.iter()
+        .zip(res_tensor_rank_4_i.iter())
+        .for_each(|(tensor_rank_4_ij, res_tensor_rank_4_ij)|
+            assert_eq!(tensor_rank_4_ij, res_tensor_rank_4_ij)
+        )
+    )
 }
 
 #[test]

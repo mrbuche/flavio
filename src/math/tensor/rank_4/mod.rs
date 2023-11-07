@@ -251,6 +251,27 @@ impl<const I: usize, const J: usize, const K: usize, const L: usize, const N: us
     }
 }
 
+pub trait ContractSecondFourthIndicesWithFirstIndicesOf<TJ, TL>
+{
+    type Output;
+    fn contract_second_fourth_indices_with_first_indices_of(&self, object_a: TJ, object_b: TL) -> Self::Output;
+}
+
+impl<const I: usize, const J: usize, const K: usize, const L: usize> ContractSecondFourthIndicesWithFirstIndicesOf<&TensorRank1<3, J>, &TensorRank1<3, L>> for TensorRank4<3, I, J, K, L>
+{
+    type Output = TensorRank2<3, I, K>;
+    fn contract_second_fourth_indices_with_first_indices_of(&self, tensor_rank_1_a: &TensorRank1<3, J>, tensor_rank_1_b: &TensorRank1<3, L>) -> Self::Output
+    {
+        self.iter().map(|self_i|
+            self_i.iter().zip(tensor_rank_1_a.iter()).map(|(self_ij, tensor_rank_1_a_j)|
+                self_ij.iter().map(|self_ijk|
+                    self_ijk * (tensor_rank_1_b * tensor_rank_1_a_j)
+                ).collect()
+            ).sum()
+        ).collect()
+    }
+}
+
 pub trait ContractThirdFourthIndicesWithFirstSecondIndicesOf<TKL>
 {
     type Output;
@@ -296,6 +317,20 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
     fn index_mut(&mut self, index: usize) -> &mut Self::Output
     {
         &mut self.0[index]
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> std::iter::Sum for TensorRank4<D, I, J, K, L>
+{
+    fn sum<Ii>(iter: Ii) -> Self
+    where
+        Ii: Iterator<Item = Self>
+    {
+        let mut output = TensorRank4::zero();
+        iter.for_each(|item|
+            output += item
+        );
+        output
     }
 }
 
