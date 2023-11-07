@@ -20,10 +20,10 @@ pub type CauchyStress = TensorRank2<3, 1, 1>;
 pub type CauchyTangentStiffness = TensorRank4<3, 1, 1, 1, 0>;
 
 /// A coordinate in the current configuration.
-pub type CurrentCoordinate = TensorRank1<3, 0>;
+pub type CurrentCoordinate = TensorRank1<3, 1>;
 
 /// A list of coordinates in the current configuration.
-pub type CurrentCoordinates<const W: usize> = TensorRank1List<3, 0, W>;
+pub type CurrentCoordinates<const W: usize> = TensorRank1List<3, 1, W>;
 
 /// The deformation gradient $`\mathbf{F}`$.
 pub type DeformationGradient = TensorRank2<3, 1, 0>;
@@ -78,3 +78,9 @@ pub type Stiffness = TensorRank2<3, 1, 1>;
 
 /// A list of stiffnesses.
 pub type Stiffnesses<const W: usize> = TensorRank2List<3, 1, 1, W>;
+
+/// A vector.
+pub type Vector<const I: usize> = TensorRank1<3, I>;
+
+/// A list of vectors.
+pub type Vectors<const I: usize, const W: usize> = TensorRank1List<3, I, W>;

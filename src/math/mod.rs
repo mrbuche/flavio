@@ -9,7 +9,11 @@ pub use tensor::
     rank_0::
     {
         TensorRank0,
-        list::TensorRank0List
+        list::
+        {
+            TensorRank0List,
+            TensorRank0ListTrait
+        }
     },
     rank_1::
     {
@@ -39,6 +43,7 @@ pub use tensor::
     rank_4::
     {
         ContractAllIndicesWithFirstIndicesOf,
+        // ContractFirstSecondIndicesWithFirstIndicesOf,
         ContractFirstThirdFourthIndicesWithFirstIndicesOf,
         ContractSecondIndexWithFirstIndexOf,
         ContractThirdFourthIndicesWithFirstSecondIndicesOf,
