@@ -31,9 +31,11 @@ use super::
     rank_3::TensorRank3
 };
 
+pub mod list;
+
 /// A *d*-dimensional tensor of rank 4.
 ///
-/// `D` is the dimension, `I`, `J`, `K`, `L` are the configurations
+/// `D` is the dimension, `I`, `J`, `K`, `L` are the configurations.
 pub struct TensorRank4<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize>
 (
     [TensorRank3<D, J, K, L>; D]

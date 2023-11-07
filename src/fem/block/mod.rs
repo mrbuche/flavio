@@ -16,6 +16,7 @@ use crate::
         Forces,
         ReferenceCoordinates,
         Scalar,
+        Scalars,
         Stiffnesses
     }
 };

@@ -4,11 +4,13 @@ pub mod test;
 use crate::math::
 {
     TensorRank0,
+    TensorRank0List,
     TensorRank1,
     TensorRank1List,
     TensorRank2,
     TensorRank2List,
-    TensorRank4
+    TensorRank4,
+    TensorRank4List
 };
 
 /// The Cauchy stress $`\boldsymbol{\sigma}`$.
@@ -21,28 +23,31 @@ pub type CauchyTangentStiffness = TensorRank4<3, 1, 1, 1, 0>;
 pub type CurrentCoordinate = TensorRank1<3, 0>;
 
 /// A list of coordinates in the current configuration.
-pub type CurrentCoordinates<const L: usize> = TensorRank1List<3, 0, L>;
+pub type CurrentCoordinates<const W: usize> = TensorRank1List<3, 0, W>;
 
 /// The deformation gradient $`\mathbf{F}`$.
 pub type DeformationGradient = TensorRank2<3, 1, 0>;
 
 /// A list of deformation gradients.
-pub type DeformationGradients<const L: usize> = TensorRank2List<3, 1, 0, L>;
+pub type DeformationGradients<const W: usize> = TensorRank2List<3, 1, 0, W>;
 
 /// The first Piola-Kirchoff stress $`\mathbf{P}`$.
 pub type FirstPiolaKirchoffStress = TensorRank2<3, 1, 0>;
 
 /// A list of first Piola-Kirchoff stresses.
-pub type FirstPiolaKirchoffStresses<const L: usize> = TensorRank2List<3, 1, 0, L>;
+pub type FirstPiolaKirchoffStresses<const W: usize> = TensorRank2List<3, 1, 0, W>;
 
 /// The tangent stiffness associated with the first Piola-Kirchoff stress $`\boldsymbol{\mathcal{C}}`$.
 pub type FirstPiolaKirchoffTangentStiffness = TensorRank4<3, 1, 0, 1, 0>;
+
+/// A list of first Piola-Kirchoff tangent stiffnesses.
+pub type FirstPiolaKirchoffTangentStiffnesses<const W: usize> = TensorRank4List<3, 1, 0, 1, 0, W>;
 
 /// A force.
 pub type Force = TensorRank1<3, 1>;
 
 /// A list of forces.
-pub type Forces<const L: usize> = TensorRank1List<3, 1, L>;
+pub type Forces<const W: usize> = TensorRank1List<3, 1, W>;
 
 /// The left Cauchy-Green deformation $`\mathbf{B}`$.
 pub type LeftCauchyGreenDeformation = TensorRank2<3, 1, 1>;
@@ -51,7 +56,7 @@ pub type LeftCauchyGreenDeformation = TensorRank2<3, 1, 1>;
 pub type ReferenceCoordinate = TensorRank1<3, 0>;
 
 /// A list of coordinates in the reference configuration.
-pub type ReferenceCoordinates<const L: usize> = TensorRank1List<3, 0, L>;
+pub type ReferenceCoordinates<const W: usize> = TensorRank1List<3, 0, W>;
 
 /// The right Cauchy-Green deformation $`\mathbf{C}`$.
 pub type RightCauchyGreenDeformation = TensorRank2<3, 0, 0>;
@@ -62,11 +67,14 @@ pub type RotationCurrentConfiguration = TensorRank2<3, 1, 1>;
 /// The rotation of the reference configuration $`\mathbf{Q}_0`$.
 pub type RotationReferenceConfiguration = TensorRank2<3, 0, 0>;
 
-/// An arbitrary scalar.
+/// A scalar.
 pub type Scalar = TensorRank0;
+
+/// A list of scalars.
+pub type Scalars<const W: usize> = TensorRank0List<W>;
 
 /// A stiffness resulting from a force.
 pub type Stiffness = TensorRank2<3, 1, 1>;
 
 /// A list of stiffnesses.
-pub type Stiffnesses<const L: usize> = TensorRank2List<3, 1, 1, L>;
+pub type Stiffnesses<const W: usize> = TensorRank2List<3, 1, 1, W>;

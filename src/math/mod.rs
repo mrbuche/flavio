@@ -6,7 +6,11 @@ mod tensor;
 pub use tensor::
 {
     Convert,
-    rank_0::TensorRank0,
+    rank_0::
+    {
+        TensorRank0,
+        list::TensorRank0List
+    },
     rank_1::
     {
         TensorRank1,
@@ -39,6 +43,7 @@ pub use tensor::
         ContractSecondIndexWithFirstIndexOf,
         ContractThirdFourthIndicesWithFirstSecondIndicesOf,
         TensorRank4,
-        TensorRank4Trait
+        TensorRank4Trait,
+        list::TensorRank4List
     }
 };
