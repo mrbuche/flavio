@@ -17,6 +17,10 @@ pub const EPSILON: f64 = 1e-6;
 /// Constitutive model library.
 pub mod constitutive;
 
+#[cfg(feature = "fem")]
+/// Finite element library.
+pub mod fem;
+
 #[cfg(feature = "math")]
 /// Mathematics library.
 pub mod math;
