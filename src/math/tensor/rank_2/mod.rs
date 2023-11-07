@@ -29,21 +29,32 @@ use super::
     }
 };
 
+/// A *d*-dimensional tensor of rank 2.
+///
+/// `D` is the dimension, `I`, `J` are the configurations.
 pub struct TensorRank2<const D: usize, const I: usize, const J: usize>
 (
     [TensorRank1<D, J>; D]
 );
 
+/// Inherent implementation of [`TensorRank2`].
 impl<const D: usize, const I: usize, const J: usize> TensorRank2<D, I, J>
 {
+    /// Returns an iterator.
+    ///
+    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
     pub fn iter(&self) -> impl Iterator<Item = &TensorRank1<D, J>>
     {
         self.0.iter()
     }
+    /// Returns an iterator that allows modifying each value.
+    ///
+    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
     pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut TensorRank1<D, J>>
     {
         self.0.iter_mut()
     }
+    /// Returns the rank-2 zero tensor.
     pub fn zero() -> Self
     {
         Self(std::array::from_fn(|_| TensorRank1::zero()))
@@ -63,6 +74,7 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
     }
 }
 
+/// Required methods for rank-2 tensors.
 pub trait TensorRank2Trait<const D: usize, const I: usize, const J: usize>
 where
     Self: FromIterator<TensorRank1<D, J>>

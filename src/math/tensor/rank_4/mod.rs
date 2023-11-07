@@ -31,27 +31,39 @@ use super::
     rank_3::TensorRank3
 };
 
+/// A *d*-dimensional tensor of rank 4.
+///
+/// `D` is the dimension, `I`, `J`, `K`, `L` are the configurations
 pub struct TensorRank4<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize>
 (
     [TensorRank3<D, J, K, L>; D]
 );
 
+/// Inherent implementation of [`TensorRank4`].
 impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> TensorRank4<D, I, J, K, L>
 {
+    /// Returns an iterator.
+    ///
+    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
     pub fn iter(&self) -> impl Iterator<Item=&TensorRank3<D, J, K, L>>
     {
         self.0.iter()
     }
+    /// Returns an iterator that allows modifying each value.
+    ///
+    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
     pub fn iter_mut(&mut self) -> impl Iterator<Item=&mut TensorRank3<D, J, K, L>>
     {
         self.0.iter_mut()
     }
+    /// Returns the rank-4 zero tensor.
     pub fn zero() -> Self
     {
         Self(std::array::from_fn(|_| TensorRank3::zero()))
     }
 }
 
+/// Required methods for rank-4 tensors.
 pub trait TensorRank4Trait<const D: usize, TIJ, TIK, TIL, TJL, TJK, TKJ, TKL>
 {
     type OutputAsTensorRank2;
@@ -60,6 +72,7 @@ pub trait TensorRank4Trait<const D: usize, TIJ, TIK, TIL, TJL, TJK, TKJ, TKL>
     fn dyad_ik_jl(tensor_rank_2_a: TIK, tensor_rank_2_b: TJL) -> Self;
     fn dyad_il_jk(tensor_rank_2_a: TIL, tensor_rank_2_b: TJK) -> Self;
     fn dyad_il_kj(tensor_rank_2_a: TIL, tensor_rank_2_b: TKJ) -> Self;
+    /// Returns a rank-4 tensor given an array.
     fn new(array: [[[[TensorRank0; D]; D]; D]; D]) -> Self;
     fn inverse(self) -> Self;
 }

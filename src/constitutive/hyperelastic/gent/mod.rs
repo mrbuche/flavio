@@ -23,7 +23,7 @@ pub struct GentModel<'a>
     parameters: ConstitutiveModelParameters<'a>
 }
 
-/// Base implementation of the Gent hyperelastic constitutive model.
+/// Inherent implementation of the Gent hyperelastic constitutive model.
 impl<'a> GentModel<'a>
 {
     /// Returns the extensibility.

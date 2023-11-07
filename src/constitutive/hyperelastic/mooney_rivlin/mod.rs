@@ -23,7 +23,7 @@ pub struct MooneyRivlinModel<'a>
     parameters: ConstitutiveModelParameters<'a>
 }
 
-/// Base implementation of the Mooney-Rivlin hyperelastic constitutive model.
+/// Inherent implementation of the Mooney-Rivlin hyperelastic constitutive model.
 impl<'a> MooneyRivlinModel<'a>
 {
     /// Returns the extra modulus.

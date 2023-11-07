@@ -29,6 +29,9 @@ use super::
     TensorRank1Trait
 };
 
+/// A list of *d*-dimensional tensors of rank 1.
+///
+/// `D` is the dimension, `I` is the configuration, `L` is the list length.
 pub struct TensorRank1List<const D: usize, const I: usize, const L: usize>
 (
     [TensorRank1<D, I>; L]
@@ -36,22 +39,32 @@ pub struct TensorRank1List<const D: usize, const I: usize, const L: usize>
 
 impl<const D: usize, const I: usize, const L: usize> TensorRank1List<D, I, L>
 {
+    /// Returns an iterator.
+    ///
+    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
     pub fn iter(&self) -> impl Iterator<Item = &TensorRank1<D, I>>
     {
         self.0.iter()
     }
+    /// Returns an iterator that allows modifying each value.
+    ///
+    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
     pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut TensorRank1<D, I>>
     {
         self.0.iter_mut()
     }
 }
 
+/// Required methods for rank-1 tensor lists.
 pub trait TensorRank1ListTrait<const D: usize, const L: usize>
 {
+    /// Returns a list of rank-1 tensors given an array.
     fn new(array: [[TensorRank0; D]; L]) -> Self;
+    /// Returns a list of rank-1 zero tensors.
     fn zero() -> Self;
 }
 
+/// Implementation of [`TensorRank1ListTrait`] for [`TensorRank1List`].
 impl<const D: usize, const I: usize, const L: usize> TensorRank1ListTrait<D, L> for TensorRank1List<D, I, L>
 {
     fn new(array: [[TensorRank0; D]; L]) -> Self

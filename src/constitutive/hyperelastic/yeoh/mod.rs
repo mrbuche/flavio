@@ -23,7 +23,7 @@ pub struct YeohModel<'a>
     parameters: ConstitutiveModelParameters<'a>
 }
 
-/// Base implementation of the Yeoh hyperelastic constitutive model.
+/// Inherent implementation of the Yeoh hyperelastic constitutive model.
 impl<'a> YeohModel<'a>
 {
     /// Returns an array of the moduli.

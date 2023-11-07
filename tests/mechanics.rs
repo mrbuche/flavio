@@ -6,11 +6,10 @@ mod public
         CauchyStress,
         CauchyTangentStiffness,
         DeformationGradient,
-        DeformationGradient1,
-        DeformationGradient2,
         FirstPiolaKirchoffStress,
         FirstPiolaKirchoffTangentStiffness,
         LeftCauchyGreenDeformation,
+        RightCauchyGreenDeformation,
         Scalar
     };
     #[test]
@@ -29,16 +28,6 @@ mod public
         let _: DeformationGradient;
     }
     #[test]
-    fn deformation_gradient_1()
-    {
-        let _: DeformationGradient1;
-    }
-    #[test]
-    fn deformation_gradient_2()
-    {
-        let _: DeformationGradient2;
-    }
-    #[test]
     fn first_piola_kirchoff_stress()
     {
         let _: FirstPiolaKirchoffStress;
@@ -52,6 +41,11 @@ mod public
     fn left_cauchy_green_deformation()
     {
         let _: LeftCauchyGreenDeformation;
+    }
+    #[test]
+    fn right_cauchy_green_deformation()
+    {
+        let _: RightCauchyGreenDeformation;
     }
     #[test]
     fn scalar()
