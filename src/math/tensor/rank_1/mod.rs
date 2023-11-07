@@ -49,7 +49,7 @@ impl<const D: usize, const I: usize> TensorRank1<D, I>
     }
 }
 
-/// Trait to be implemented for rank-1 tensors.
+/// Required methods for rank-1 tensors.
 pub trait TensorRank1Trait<const D: usize>
 {
     /// Returns a rank-1 tensor given an array.

@@ -8,21 +8,32 @@ use crate::math::
     TensorRank4
 };
 
+/// The Cauchy stress $`\boldsymbol{\sigma}`$.
 pub type CauchyStress = TensorRank2<3, 1, 1>;
+
+/// The tangent stiffness associated with the Cauchy stress $`\boldsymbol{\mathcal{T}}`$.
 pub type CauchyTangentStiffness = TensorRank4<3, 1, 1, 1, 0>;
-pub type CauchyTangentStiffness1 = TensorRank4<3, 1, 1, 1, 2>;
+
+/// The deformation gradient $`\mathbf{F}`$.
 pub type DeformationGradient = TensorRank2<3, 1, 0>;
-pub type DeformationGradient1 = TensorRank2<3, 1, 2>;
-pub type DeformationGradient2 = TensorRank2<3, 2, 0>;
+
+/// The first Piola-Kirchoff stress $`\mathbf{P}`$.
 pub type FirstPiolaKirchoffStress = TensorRank2<3, 1, 0>;
-pub type FirstPiolaKirchoffStress1 = TensorRank2<3, 1, 2>;
-pub type FirstPiolaKirchoffStress2 = TensorRank2<3, 2, 0>;
+
+/// The tangent stiffness associated with the first Piola-Kirchoff stress $`\boldsymbol{\mathcal{C}}`$.
 pub type FirstPiolaKirchoffTangentStiffness = TensorRank4<3, 1, 0, 1, 0>;
-pub type FirstPiolaKirchoffTangentStiffness1 = TensorRank4<3, 1, 2, 1, 2>;
-pub type FirstPiolaKirchoffTangentStiffness2 = TensorRank4<3, 2, 0, 2, 0>;
+
+/// The left Cauchy-Green deformation $`\mathbf{B}`$.
 pub type LeftCauchyGreenDeformation = TensorRank2<3, 1, 1>;
-pub type MandelStress = TensorRank2<3, 2, 2>;
+
+/// The right Cauchy-Green deformation $`\mathbf{C}`$.
+pub type RightCauchyGreenDeformation = TensorRank2<3, 0, 0>;
+
+/// The rotation of the current configuration $`\mathbf{Q}`$.
 pub type RotationCurrentConfiguration = TensorRank2<3, 1, 1>;
-pub type RotationIntermediateConfiguration = TensorRank2<3, 2, 2>;
+
+/// The rotation of the reference configuration $`\mathbf{Q}_0`$.
 pub type RotationReferenceConfiguration = TensorRank2<3, 0, 0>;
+
+/// An arbitrary scalar.
 pub type Scalar = TensorRank0;

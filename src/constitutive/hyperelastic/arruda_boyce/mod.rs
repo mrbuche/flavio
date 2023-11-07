@@ -31,7 +31,7 @@ pub struct ArrudaBoyceModel<'a>
     parameters: ConstitutiveModelParameters<'a>
 }
 
-/// Base implementation of the Arruda-Boyce hyperelastic constitutive model.
+/// Inherent implementation of the Arruda-Boyce hyperelastic constitutive model.
 impl<'a> ArrudaBoyceModel<'a>
 {
     /// Returns the number of links.

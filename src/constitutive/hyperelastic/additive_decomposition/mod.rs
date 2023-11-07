@@ -3,14 +3,7 @@ mod test;
 
 use super::*;
 
-/// A composite hyperelastic constitutive model constructed using the additive decomposition.
-pub struct CompositeHyperelasticConstitutiveModelAdditiveDecomposition<C1, C2>
-{
-    hyperelastic_constitutive_model_1: C1,
-    hyperelastic_constitutive_model_2: C2
-}
-
-impl<'a, C1, C2> ConstitutiveModel<'a> for CompositeHyperelasticConstitutiveModelAdditiveDecomposition<C1, C2>
+impl<'a, C1, C2> ConstitutiveModel<'a> for CompositeHyperelasticConstitutiveModel<C1, C2>
 where
     C1: ConstitutiveModel<'a>,
     C2: ConstitutiveModel<'a>
@@ -50,7 +43,7 @@ where
 }
 
 /// Hyperelastic constitutive model implementation of a composite hyperelastic constitutive model constructed using the additive decomposition.
-impl<C1, C2> HyperelasticConstitutiveModel for CompositeHyperelasticConstitutiveModelAdditiveDecomposition<C1, C2>
+impl<C1, C2> HyperelasticConstitutiveModel for CompositeHyperelasticConstitutiveModel<C1, C2>
 {
     fn get_bulk_modulus(&self) -> &Scalar
     {
@@ -63,7 +56,7 @@ impl<C1, C2> HyperelasticConstitutiveModel for CompositeHyperelasticConstitutive
 }
 
 /// Composite constitutive model implementation of a composite hyperelastic constitutive model constructed using the additive decomposition.
-impl<C1, C2> CompositeConstitutiveModel<C1, C2> for CompositeHyperelasticConstitutiveModelAdditiveDecomposition<C1, C2>
+impl<C1, C2> CompositeConstitutiveModel<C1, C2> for CompositeHyperelasticConstitutiveModel<C1, C2>
 {
     fn construct(hyperelastic_constitutive_model_1: C1, hyperelastic_constitutive_model_2: C2) -> Self
     {

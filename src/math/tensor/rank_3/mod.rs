@@ -26,32 +26,46 @@ use super::
     rank_2::TensorRank2
 };
 
+/// A *d*-dimensional tensor of rank 3.
+///
+/// `D` is the dimension, `I`, `J`, `K` are the configurations
 pub struct TensorRank3<const D: usize, const I: usize, const J: usize, const K: usize>
 (
     [TensorRank2<D, J, K>; D]
 );
 
+/// Inherent implementation of [`TensorRank3`].
 impl<const D: usize, const I: usize, const J: usize, const K: usize> TensorRank3<D, I, J, K>
 {
+    /// Returns an iterator.
+    ///
+    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
     pub fn iter(&self) -> impl Iterator<Item=&TensorRank2<D, J, K>>
     {
         self.0.iter()
     }
+    /// Returns an iterator that allows modifying each value.
+    ///
+    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
     pub fn iter_mut(&mut self) -> impl Iterator<Item=&mut TensorRank2<D, J, K>>
     {
         self.0.iter_mut()
     }
+    /// Returns the rank-3 zero tensor.
     pub fn zero() -> Self
     {
         Self(std::array::from_fn(|_| TensorRank2::zero()))
     }
 }
 
+/// Required methods for rank-3 tensors.
 pub trait TensorRank3Trait<const D: usize>
 {
+    /// Returns a rank-3 tensor given an array.
     fn new(array: [[[TensorRank0; D]; D]; D]) -> Self;
 }
 
+/// Implementation of [`TensorRank3Trait`] for [`TensorRank3`].
 impl<const D: usize, const I: usize, const J: usize, const K: usize> TensorRank3Trait<D> for TensorRank3<D, I, J, K>
 {
     fn new(array: [[[TensorRank0; D]; D]; D]) -> Self
