@@ -30,6 +30,7 @@ use super::
         list::TensorRank1List
     }
 };
+use list_2d::TensorRank2List2D;
 
 /// A *d*-dimensional tensor of rank 2.
 ///
@@ -1169,6 +1170,32 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> Mul<&Tensor
     {
         tensor_rank_1_list.iter().map(|tensor_rank_1|
             self * tensor_rank_1
+        ).collect()
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize> Mul<TensorRank2List2D<D, J, K, W>> for TensorRank2<D, I, J>
+{
+    type Output = TensorRank2List2D<D, I, K, W>;
+    fn mul(self, tensor_rank_2_list_2d: TensorRank2List2D<D, J, K, W>) -> Self::Output
+    {
+        tensor_rank_2_list_2d.iter().map(|tensor_rank_2_list_2d_entry|
+            tensor_rank_2_list_2d_entry.iter().map(|tensor_rank_2|
+                &self * tensor_rank_2
+            ).collect()
+        ).collect()
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize> Mul<TensorRank2List2D<D, J, K, W>> for &TensorRank2<D, I, J>
+{
+    type Output = TensorRank2List2D<D, I, K, W>;
+    fn mul(self, tensor_rank_2_list_2d: TensorRank2List2D<D, J, K, W>) -> Self::Output
+    {
+        tensor_rank_2_list_2d.iter().map(|tensor_rank_2_list_2d_entry|
+            tensor_rank_2_list_2d_entry.iter().map(|tensor_rank_2|
+                self * tensor_rank_2
+            ).collect()
         ).collect()
     }
 }

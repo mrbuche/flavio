@@ -4,12 +4,14 @@ mod test;
 use std::ops::
 {
     Index,
-    IndexMut
+    IndexMut,
+    Mul
 };
 
 use super::
 {
     TensorRank0,
+    TensorRank2,
     list::
     {
         TensorRank2List,
@@ -94,5 +96,31 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> IndexMut<us
     fn index_mut(&mut self, index: usize) -> &mut Self::Output
     {
         &mut self.0[index]
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize> Mul<TensorRank2<D, J, K>> for TensorRank2List2D<D, I, J, W>
+{
+    type Output = TensorRank2List2D<D, I, K, W>;
+    fn mul(self, tensor_rank_2: TensorRank2<D, J, K>) -> Self::Output
+    {
+        self.iter().map(|self_entry|
+            self_entry.iter().map(|self_tensor_rank_2|
+                self_tensor_rank_2 * &tensor_rank_2
+            ).collect()
+        ).collect()
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize> Mul<&TensorRank2<D, J, K>> for TensorRank2List2D<D, I, J, W>
+{
+    type Output = TensorRank2List2D<D, I, K, W>;
+    fn mul(self, tensor_rank_2: &TensorRank2<D, J, K>) -> Self::Output
+    {
+        self.iter().map(|self_entry|
+            self_entry.iter().map(|self_tensor_rank_2|
+                self_tensor_rank_2 * tensor_rank_2
+            ).collect()
+        ).collect()
     }
 }
