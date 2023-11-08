@@ -1,3 +1,6 @@
+#[cfg(test)]
+mod test;
+
 pub mod linear;
 
 use super::*;

@@ -6,7 +6,7 @@ use super::*;
 const G: usize = 1;
 const N: usize = 4;
 
-pub struct LinearTetrahedron<'a, C, const G: usize>
+pub struct LinearTetrahedron<'a, C>
 where
     C: ConstitutiveModel<'a>
 {
@@ -15,7 +15,7 @@ where
     phantom_a: std::marker::PhantomData<*const &'a C>
 }
 
-impl<'a, C> LinearFiniteElement<'a, C, G, N> for LinearTetrahedron<'a, C, G>
+impl<'a, C> LinearFiniteElement<'a, C, G, N> for LinearTetrahedron<'a, C>
 where
     C: ConstitutiveModel<'a>
 {
@@ -34,7 +34,7 @@ where
     }
 }
 
-impl<'a, C> FiniteElement<'a, C, G, N> for LinearTetrahedron<'a, C, G>
+impl<'a, C> FiniteElement<'a, C, G, N> for LinearTetrahedron<'a, C>
 where
     C: ConstitutiveModel<'a>
 {
