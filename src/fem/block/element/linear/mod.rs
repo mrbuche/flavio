@@ -2,9 +2,10 @@ pub mod tetrahedron;
 
 use super::*;
 
-pub trait LinearFiniteElement<'a, C, const G: usize, const N: usize>: FiniteElement<'a, C, G, N>
+pub trait LinearFiniteElement<'a, C, const G: usize, const N: usize>
 where
-    C: ConstitutiveModel<'a>
+    C: ConstitutiveModel<'a>,
+    Self: FiniteElement<'a, C, G, N>
 {
     fn calculate_deformation_gradient(&self, current_nodal_coordinates: &CurrentNodalCoordinates<N>) -> DeformationGradient
     {
