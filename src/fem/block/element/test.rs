@@ -21,7 +21,17 @@ macro_rules! test_finite_element
                     YEOHPARAMETERS
                 }
             },
-            fem::block::element::test::test_finite_element_for_constitutive_model
+            fem::block::element::test::test_finite_element_for_constitutive_model,
+            math::Convert,
+            mechanics::test::
+            {
+                get_deformation_gradient,
+                get_rotation_current_configuration,
+                get_rotation_reference_configuration,
+                get_translation_current_configuration,
+                get_translation_reference_configuration
+            },
+            test::assert_eq_within_tols
         };
         mod gent
         {
@@ -31,12 +41,12 @@ macro_rules! test_finite_element
         mod mooney_rivlin
         {
             use super::*;
-            test_finite_element_for_constitutive_model!($element, MooneyRivlinModel, NEOHOOKEANPARAMETERS);
+            test_finite_element_for_constitutive_model!($element, MooneyRivlinModel, MOONEYRIVLINPARAMETERS);
         }
         mod neo_hookean
         {
             use super::*;
-            test_finite_element_for_constitutive_model!($element, NeoHookeanModel, MOONEYRIVLINPARAMETERS);
+            test_finite_element_for_constitutive_model!($element, NeoHookeanModel, NEOHOOKEANPARAMETERS);
         }
         mod yeoh
         {
@@ -50,11 +60,42 @@ macro_rules! test_finite_element_for_constitutive_model
 {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
     {
+        fn get_current_coordinates() -> CurrentNodalCoordinates<N>
+        {
+            get_reference_coordinates().iter()
+            .map(|reference_coordinate|
+                get_deformation_gradient() * reference_coordinate
+            ).collect()
+        }
+        fn get_current_coordinates_transformed() -> CurrentNodalCoordinates<N>
+        {
+            get_current_coordinates().iter()
+            .map(|current_coordinate|
+                get_rotation_current_configuration() * current_coordinate
+                + get_translation_current_configuration()
+            ).collect()
+        }
         fn get_element<'a>() -> $element<'a, $constitutive_model<'a>>
         {
             $element::new(
                 $constitutive_model_parameters,
-                get_element_standard_reference_coordinates()
+                get_reference_coordinates()
+            )
+        }
+        fn get_reference_coordinates_transformed() -> ReferenceNodalCoordinates<N>
+        {
+            get_reference_coordinates().iter()
+            .map(|reference_coordinate|
+                get_rotation_reference_configuration() * reference_coordinate
+                + get_translation_reference_configuration()
+            ).collect()
+        }
+        fn get_element_transformed<'a>() -> $element<'a, $constitutive_model<'a>>
+        {
+            $element::<$constitutive_model>::new
+            (
+                $constitutive_model_parameters,
+                get_reference_coordinates_transformed()
             )
         }
         #[test]
@@ -76,12 +117,26 @@ macro_rules! test_finite_element_for_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    todo!()
+                    assert_eq_within_tols(
+                        &get_element()
+                        .calculate_helmholtz_free_energy(
+                            &get_current_coordinates()
+                        ),
+                        &get_element_transformed()
+                        .calculate_helmholtz_free_energy(
+                            &get_current_coordinates_transformed()
+                        )
+                    )
                 }
                 #[test]
                 fn positive()
                 {
-                    todo!()
+                    assert!(
+                        get_element()
+                        .calculate_helmholtz_free_energy(
+                            &get_current_coordinates()
+                        ) > 0.0
+                    )
                 }
             }
             mod undeformed
@@ -95,12 +150,29 @@ macro_rules! test_finite_element_for_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    todo!()
+                    assert_eq_within_tols(
+                        &get_element()
+                        .calculate_helmholtz_free_energy(
+                            &get_reference_coordinates()
+                            .convert()
+                        ),
+                        &get_element_transformed()
+                        .calculate_helmholtz_free_energy(
+                            &get_reference_coordinates_transformed()
+                            .convert()
+                        )
+                    )
                 }
                 #[test]
                 fn zero()
                 {
-                    todo!()
+                    assert_eq!(
+                        get_element()
+                        .calculate_helmholtz_free_energy(
+                            &get_reference_coordinates()
+                            .convert()
+                        ), 0.0
+                    )
                 }
             }
         }

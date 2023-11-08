@@ -23,6 +23,7 @@ pub struct TensorRank4List<const D: usize, const I: usize, const J: usize, const
     [TensorRank4<D, I, J, K, L>; W]
 );
 
+/// Inherent implementation of [`TensorRank4List`].
 impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize, const W: usize> TensorRank4List<D, I, J, K, L, W>
 {
     /// Returns an iterator.

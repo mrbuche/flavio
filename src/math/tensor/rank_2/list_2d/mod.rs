@@ -25,6 +25,7 @@ pub struct TensorRank2List2D<const D: usize, const I: usize, const J: usize, con
     [TensorRank2List<D, I, J, W>; W]
 );
 
+/// Inherent implementation of [`TensorRank2List2D`].
 impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2List2D<D, I, J, W>
 {
     /// Returns an iterator.

@@ -1,9 +1,15 @@
-use crate::math::TensorRank2Trait;
+use crate::math::
+{
+    TensorRank1Trait,
+    TensorRank2Trait
+};
 use super::
 {
+    CurrentCoordinate,
     DeformationGradient,
     RotationCurrentConfiguration,
     RotationReferenceConfiguration,
+    ReferenceCoordinate,
     Scalar
 };
 
@@ -43,4 +49,14 @@ pub fn get_rotation_reference_configuration() -> RotationReferenceConfiguration
         [0.125*sqrt_6 + 0.25*sqrt_2, -0.125*sqrt_6 + 0.25*sqrt_2, -0.75],
         [-0.125*sqrt_2 + 0.25*sqrt_6, 0.125*sqrt_2 + 0.25*sqrt_6, 0.25*sqrt_3]
     ])
+}
+
+pub fn get_translation_current_configuration() -> CurrentCoordinate
+{
+    CurrentCoordinate::new([1.1, 2.2, 3.3])
+}
+
+pub fn get_translation_reference_configuration() -> ReferenceCoordinate
+{
+    ReferenceCoordinate::new([4.4, 5.5, 6.6])
 }

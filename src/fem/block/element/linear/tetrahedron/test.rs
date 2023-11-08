@@ -8,7 +8,7 @@ use crate::fem::block::element::
 };
 use super::*;
 
-fn get_element_standard_reference_coordinates() -> ReferenceNodalCoordinates<N>
+fn get_reference_coordinates() -> ReferenceNodalCoordinates<N>
 {
     ReferenceNodalCoordinates::new([
         [0.0, 0.0, 0.0],
