@@ -4,6 +4,7 @@ macro_rules! test_finite_element
     {
         use crate::
         {
+            EPSILON,
             constitutive::
             {
                 hyperelastic::
@@ -82,6 +83,30 @@ macro_rules! test_finite_element_for_constitutive_model
                 get_reference_coordinates()
             )
         }
+        fn get_fd_helmholtz_free_energy(is_deformed: bool) -> NodalForces<N>
+        {
+            let element = get_element();
+            let mut finite_difference = 0.0;
+            (0..N).map(|node|
+                (0..3).map(|index|{
+                    let mut nodal_coordinates = 
+                    if is_deformed
+                    {
+                        get_current_coordinates()
+                    }
+                    else
+                    {
+                        get_reference_coordinates()
+                        .convert()
+                    };
+                    nodal_coordinates[node][index] += 0.5 * EPSILON;
+                    finite_difference = element.calculate_helmholtz_free_energy(&nodal_coordinates);
+                    nodal_coordinates[node][index] -= EPSILON;
+                    finite_difference -= element.calculate_helmholtz_free_energy(&nodal_coordinates);
+                    finite_difference/EPSILON
+                }).collect()
+            ).collect()
+        }
         fn get_reference_coordinates_transformed() -> ReferenceNodalCoordinates<N>
         {
             get_reference_coordinates().iter()
@@ -112,7 +137,19 @@ macro_rules! test_finite_element_for_constitutive_model
                 #[test]
                 fn finite_difference()
                 {
-                    todo!()
+                    get_element().calculate_nodal_forces(
+                        &get_current_coordinates()
+                    ).iter()
+                    .zip(get_fd_helmholtz_free_energy(
+                        true
+                    ).iter())
+                    .for_each(|(nodal_force_i, fd_nodal_force_i)|
+                        nodal_force_i.iter()
+                        .zip(fd_nodal_force_i.iter())
+                        .for_each(|(nodal_force_ij, fd_nodal_force_ij)|
+                            assert!((nodal_force_ij/fd_nodal_force_ij - 1.0).abs() < EPSILON)
+                        )
+                    )
                 }
                 #[test]
                 fn objectivity()
@@ -145,7 +182,20 @@ macro_rules! test_finite_element_for_constitutive_model
                 #[test]
                 fn finite_difference()
                 {
-                    todo!()
+                    get_element().calculate_nodal_forces(
+                        &get_reference_coordinates()
+                        .convert()
+                    ).iter()
+                    .zip(get_fd_helmholtz_free_energy(
+                        false
+                    ).iter())
+                    .for_each(|(nodal_force_i, fd_nodal_force_i)|
+                        nodal_force_i.iter()
+                        .zip(fd_nodal_force_i.iter())
+                        .for_each(|(nodal_force_ij, fd_nodal_force_ij)|
+                            assert!(fd_nodal_force_ij.abs() < EPSILON)
+                        )
+                    )
                 }
                 #[test]
                 fn objectivity()
@@ -190,7 +240,21 @@ macro_rules! test_finite_element_for_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    todo!()
+                    get_element().calculate_nodal_forces(
+                        &get_current_coordinates()
+                    ).iter().zip((
+                        get_rotation_current_configuration().transpose() *
+                        get_element().calculate_nodal_forces(
+                            &get_current_coordinates_transformed()
+                        )
+                    ).iter()
+                    ).for_each(|(nodal_force, res_nodal_force)|
+                        nodal_force.iter()
+                        .zip(res_nodal_force.iter())
+                        .for_each(|(nodal_force_i, res_nodal_force_i)|
+                            assert_eq_within_tols(nodal_force_i, res_nodal_force_i)
+                        )
+                    )
                 }
             }
             mod undeformed
@@ -204,12 +268,28 @@ macro_rules! test_finite_element_for_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    todo!()
+                    get_element().calculate_nodal_forces(
+                        &get_reference_coordinates_transformed()
+                        .convert()
+                    ).iter()
+                    .for_each(|nodal_force|
+                        nodal_force.iter()
+                        .for_each(|nodal_force_i|
+                        assert_eq_within_tols(nodal_force_i, &0.0)
+                        )
+                    )
                 }
                 #[test]
                 fn zero()
                 {
-                    todo!()
+                    get_element().calculate_nodal_forces(
+                        &get_reference_coordinates()
+                        .convert()
+                    ).iter().for_each(|nodal_force|
+                        nodal_force.iter().for_each(|nodal_force_i|
+                            assert_eq_within_tols(nodal_force_i, &0.0)
+                        )
+                    )
                 }
             }
         }
