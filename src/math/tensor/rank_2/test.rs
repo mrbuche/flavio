@@ -150,12 +150,6 @@ fn get_other_tensor_rank_2_mul_tensor_rank_2_dim_4() -> TensorRank2<4, 1, 1>
 }
 
 #[test]
-fn mul_tensor_rank_1_list_tests()
-{
-    todo!()
-}
-
-#[test]
 fn add_tensor_rank_2_to_self()
 {
     (get_tensor_rank_2_dim_4() + get_other_tensor_rank_2_dim_4()).iter()
@@ -1071,6 +1065,30 @@ fn mul_tensor_rank_2_ref_to_self_ref()
             assert_eq!(tensor_rank_2_ij, res_tensor_rank_2_ij)
         )
     );
+}
+
+#[test]
+fn mul_tensor_rank_1_list_to_self()
+{
+    todo!()
+}
+
+#[test]
+fn mul_tensor_rank_1_list_to_self_ref()
+{
+    todo!()
+}
+
+#[test]
+fn mul_tensor_rank_1_list_ref_to_self()
+{
+    todo!()
+}
+
+#[test]
+fn mul_tensor_rank_1_list_ref_to_self_ref()
+{
+    todo!()
 }
 
 #[test]

@@ -33,6 +33,11 @@ pub use tensor::
         {
             TensorRank2List,
             TensorRank2ListTrait
+        },
+        list_2d::
+        {
+            TensorRank2List2D,
+            TensorRank2List2DTrait
         }
     },
     rank_3::

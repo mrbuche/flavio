@@ -2,6 +2,7 @@
 mod test;
 
 pub mod list;
+pub mod list_2d;
 
 use std::cmp::Ordering;
 use std::ops::

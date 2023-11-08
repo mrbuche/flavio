@@ -9,6 +9,7 @@ use crate::math::
     TensorRank1List,
     TensorRank2,
     TensorRank2List,
+    TensorRank2List2D,
     TensorRank4,
     TensorRank4List
 };
@@ -77,8 +78,7 @@ pub type Scalars<const W: usize> = TensorRank0List<W>;
 pub type Stiffness = TensorRank2<3, 1, 1>;
 
 /// A list of stiffnesses.
-pub type Stiffnesses<const W: usize> = TensorRank2List<3, 1, 1, W>;
-// this needs to be a 2D list
+pub type Stiffnesses<const W: usize> = TensorRank2List2D<3, 1, 1, W>;
 
 /// A vector.
 pub type Vector<const I: usize> = TensorRank1<3, I>;

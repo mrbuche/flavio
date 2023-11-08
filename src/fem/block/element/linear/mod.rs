@@ -48,24 +48,23 @@ where
     }
     fn calculate_nodal_stiffnesses_linear_element(&self, current_nodal_coordinates: &CurrentNodalCoordinates<N>) -> NodalStiffnesses<N>
     {
-        // let deformation_gradient = self.calculate_deformation_gradient(current_nodal_coordinates);
-        // self.get_gradient_vectors().iter()
-        // .map(|gradient_vector_a|
-        //     self.get_gradient_vectors().iter()
-        //     .map(|gradient_vector_b|
-        //         self.get_constitutive_models().iter()
-        //         .zip(self.get_integration_weights().iter())
-        //         .map(|(constitutive_model, integration_weight)|
-        //             constitutive_model.calculate_first_piola_kirchoff_tangent_stiffness(
-        //                 &deformation_gradient
-        //             ) * integration_weight
-        //         ).sum::<FirstPiolaKirchoffTangentStiffness>()
-        //         .contract_second_fourth_indices_with_first_indices_of(
-        //             gradient_vector_a, gradient_vector_b
-        //         )
-        //     ).collect()
-        // ).collect()
-        todo!()
+        let deformation_gradient = self.calculate_deformation_gradient(current_nodal_coordinates);
+        self.get_gradient_vectors().iter()
+        .map(|gradient_vector_a|
+            self.get_gradient_vectors().iter()
+            .map(|gradient_vector_b|
+                self.get_constitutive_models().iter()
+                .zip(self.get_integration_weights().iter())
+                .map(|(constitutive_model, integration_weight)|
+                    constitutive_model.calculate_first_piola_kirchoff_tangent_stiffness(
+                        &deformation_gradient
+                    ) * integration_weight
+                ).sum::<FirstPiolaKirchoffTangentStiffness>()
+                .contract_second_fourth_indices_with_first_indices_of(
+                    gradient_vector_a, gradient_vector_b
+                )
+            ).collect()
+        ).collect()
     }
     fn calculate_standard_gradient_operator() -> StandardGradientOperator<N>;
     fn get_gradient_vectors(&self) -> &GradientVectors<N>;
