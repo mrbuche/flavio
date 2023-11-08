@@ -1,3 +1,6 @@
+#[cfg(test)]
+mod test;
+
 use super::*;
 //
 // for get_integration_weights():

@@ -15,43 +15,16 @@ where
     C: ConstitutiveModel<'a>
 {
     fn calculate_deformation_gradients(&self, _current_nodal_coordinates: &CurrentNodalCoordinates<N>) -> DeformationGradients<G>;
-    fn calculate_first_piola_kirchoff_stresses(&self, deformation_gradients: &DeformationGradients<G>) -> FirstPiolaKirchoffStresses<G>
-    {
-        self.get_constitutive_models().iter()
-        .zip(deformation_gradients.iter())
-        .map(|(constitutive_model, deformation_gradient)|
-            constitutive_model.calculate_first_piola_kirchoff_stress(
-                deformation_gradient
-            )
-        ).collect()
-    }
-    fn calculate_first_piola_kirchoff_tangent_stiffnesses(&self, deformation_gradients: &DeformationGradients<G>) -> FirstPiolaKirchoffTangentStiffnesses<G>
-    {
-        self.get_constitutive_models().iter()
-        .zip(deformation_gradients.iter())
-        .map(|(constitutive_model, deformation_gradient)|
-            constitutive_model.calculate_first_piola_kirchoff_tangent_stiffness(
-                deformation_gradient
-            )
-        ).collect()
-    }
     fn calculate_helmholtz_free_energy(&self, current_nodal_coordinates: &CurrentNodalCoordinates<N>) -> Scalar
     {
-        self.calculate_helmholtz_free_energy_densities(
-            &self.calculate_deformation_gradients(
-                current_nodal_coordinates
-            )
-        ) * self.get_integration_weights()
-    }
-    fn calculate_helmholtz_free_energy_densities(&self, deformation_gradients: &DeformationGradients<G>) -> Scalars<G>
-    {
-        self.get_constitutive_models().iter()
-        .zip(deformation_gradients.iter())
-        .map(|(constitutive_model, deformation_gradient)|
+        self.calculate_deformation_gradients(current_nodal_coordinates).iter()
+        .zip(self.get_constitutive_models().iter()
+            .zip(self.get_integration_weights().iter())
+        ).map(|(deformation_gradient, (constitutive_model, integration_weight))|
             constitutive_model.calculate_helmholtz_free_energy_density(
                 deformation_gradient
-            )
-        ).collect()
+            ) * integration_weight
+        ).sum()
     }
     fn calculate_nodal_forces(&self, current_nodal_coordinates: &CurrentNodalCoordinates<N>) -> NodalForces<N>;
     fn calculate_nodal_stiffnesses(&self, current_nodal_coordinates: &CurrentNodalCoordinates<N>) -> NodalStiffnesses<N>;
