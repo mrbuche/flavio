@@ -4,8 +4,10 @@ use super::
     TensorRank0,
     TensorRank1,
     TensorRank1Trait,
+    TensorRank1List,
+    super::rank_1::list::TensorRank1ListTrait,
     TensorRank2,
-    TensorRank2Trait
+    TensorRank2Trait,
 };
 
 fn get_array_dim_2() -> [[TensorRank0; 2]; 2]
@@ -146,6 +148,20 @@ fn get_other_tensor_rank_2_mul_tensor_rank_2_dim_4() -> TensorRank2<4, 1, 1>
         [37.0, 32.0, 13.0, 29.0],
         [41.0, 42.0,  9.0, 37.0],
         [51.0, 52.0, 11.0, 45.0]
+    ])
+}
+
+fn get_tensor_rank_1_list() -> TensorRank1List<3, 1, 8>
+{
+    TensorRank1List::new([
+        [5.0, 0.0, 0.0],
+        [5.0, 5.0, 6.0],
+        [3.0, 1.0, 4.0],
+        [3.0, 4.0, 2.0],
+        [1.0, 0.0, 3.0],
+        [1.0, 3.0, 1.0],
+        [1.0, 6.0, 0.0],
+        [1.0, 1.0, 1.0]
     ])
 }
 
@@ -1070,25 +1086,57 @@ fn mul_tensor_rank_2_ref_to_self_ref()
 #[test]
 fn mul_tensor_rank_1_list_to_self()
 {
-    todo!()
-}
-
-#[test]
-fn mul_tensor_rank_1_list_to_self_ref()
-{
-    todo!()
+    (get_tensor_rank_2_dim_3() * get_tensor_rank_1_list()).iter()
+    .zip(get_tensor_rank_1_list().iter())
+    .for_each(|(res_tensor_rank_1, tensor_rank_1)|
+        res_tensor_rank_1.iter()
+        .zip((get_tensor_rank_2_dim_3() * tensor_rank_1).iter())
+            .for_each(|(res_tensor_rank_1_i, tensor_rank_1_i)|
+                assert_eq!(res_tensor_rank_1_i, tensor_rank_1_i)
+        )
+    )
 }
 
 #[test]
 fn mul_tensor_rank_1_list_ref_to_self()
 {
-    todo!()
+    (get_tensor_rank_2_dim_3() * &get_tensor_rank_1_list()).iter()
+    .zip(get_tensor_rank_1_list().iter())
+    .for_each(|(res_tensor_rank_1, tensor_rank_1)|
+        res_tensor_rank_1.iter()
+        .zip((get_tensor_rank_2_dim_3() * tensor_rank_1).iter())
+            .for_each(|(res_tensor_rank_1_i, tensor_rank_1_i)|
+                assert_eq!(res_tensor_rank_1_i, tensor_rank_1_i)
+        )
+    )
+}
+
+#[test]
+fn mul_tensor_rank_1_list_to_self_ref()
+{
+    (&get_tensor_rank_2_dim_3() * get_tensor_rank_1_list()).iter()
+    .zip(get_tensor_rank_1_list().iter())
+    .for_each(|(res_tensor_rank_1, tensor_rank_1)|
+        res_tensor_rank_1.iter()
+        .zip((get_tensor_rank_2_dim_3() * tensor_rank_1).iter())
+            .for_each(|(res_tensor_rank_1_i, tensor_rank_1_i)|
+                assert_eq!(res_tensor_rank_1_i, tensor_rank_1_i)
+        )
+    )
 }
 
 #[test]
 fn mul_tensor_rank_1_list_ref_to_self_ref()
 {
-    todo!()
+    (&get_tensor_rank_2_dim_3() * &get_tensor_rank_1_list()).iter()
+    .zip(get_tensor_rank_1_list().iter())
+    .for_each(|(res_tensor_rank_1, tensor_rank_1)|
+        res_tensor_rank_1.iter()
+        .zip((get_tensor_rank_2_dim_3() * tensor_rank_1).iter())
+            .for_each(|(res_tensor_rank_1_i, tensor_rank_1_i)|
+                assert_eq!(res_tensor_rank_1_i, tensor_rank_1_i)
+        )
+    )
 }
 
 #[test]
