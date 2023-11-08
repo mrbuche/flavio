@@ -2,16 +2,6 @@
 mod test;
 
 use super::*;
-//
-// for get_integration_weights():
-//
-// these are the same for each element in the block
-// so should not store them as a field
-// this is perhaps not the most efficient way to get them
-// but will work for now in terms of reducing memory stored for each element
-//
-// if integration_points are used in parametric space
-// should do something similar
 
 const NUMBER_OF_NODES: usize = 4;
 
