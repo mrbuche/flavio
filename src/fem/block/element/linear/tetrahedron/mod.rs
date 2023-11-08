@@ -47,10 +47,6 @@ impl<'a, C, const G: usize> FiniteElement<'a, C, G, NUMBER_OF_NODES> for LinearT
 where
     C: ConstitutiveModel<'a>
 {
-    fn calculate_deformation_gradients(&self, _current_nodal_coordinates: &CurrentNodalCoordinates<NUMBER_OF_NODES>) -> DeformationGradients<G>
-    {
-        panic!()
-    }
     fn calculate_helmholtz_free_energy(&self, current_nodal_coordinates: &CurrentNodalCoordinates<NUMBER_OF_NODES>) -> Scalar
     {
         self.calculate_helmholtz_free_energy_linear_element(current_nodal_coordinates)

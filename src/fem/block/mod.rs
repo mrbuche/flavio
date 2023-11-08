@@ -18,7 +18,6 @@ use crate::
     {
         CurrentCoordinates,
         DeformationGradient,
-        DeformationGradients,
         FirstPiolaKirchoffStress,
         FirstPiolaKirchoffTangentStiffness,
         Forces,
