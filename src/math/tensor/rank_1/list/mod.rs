@@ -72,6 +72,12 @@ pub trait TensorRank1ListTrait<const D: usize, const W: usize>
 {
     /// Returns a list of rank-1 tensors given an array.
     fn new(array: [[TensorRank0; D]; W]) -> Self;
+    /// ???
+    fn dot(&self, tensor_rank_1_list: &Self) -> TensorRank0;
+    /// ???
+    fn dot_self(&self) -> TensorRank0;
+    /// Returns the sum of the rank-1 tensor norms.
+    fn norm(&self) -> TensorRank0;
     /// Returns a list of rank-1 zero tensors.
     fn zero() -> Self;
 }
@@ -84,6 +90,32 @@ impl<const D: usize, const I: usize, const W: usize> TensorRank1ListTrait<D, W> 
         array.iter().map(|array_i|
             TensorRank1::new(*array_i)
         ).collect()
+    }
+    fn dot(&self, tensor_rank_1_list: &Self) -> TensorRank0
+    {
+        self.iter()
+        .zip(tensor_rank_1_list.iter())
+        .map(|(entry, tensor_rank_1)|
+            entry.iter()
+            .zip(tensor_rank_1.iter())
+            .map(|(entry_i, tensor_rank_1_i)|
+                entry_i * tensor_rank_1_i
+            ).sum::<TensorRank0>()
+        ).sum::<TensorRank0>()
+    }
+    fn dot_self(&self) -> TensorRank0
+    {
+        self.iter()
+        .map(|tensor_rank_1|
+            tensor_rank_1.iter()
+            .map(|tensor_rank_1_i|
+                tensor_rank_1_i * tensor_rank_1_i
+            ).sum::<TensorRank0>()
+        ).sum::<TensorRank0>()
+    }
+    fn norm(&self) -> TensorRank0
+    {
+        self.dot_self().sqrt()
     }
     fn zero() -> Self
     {
