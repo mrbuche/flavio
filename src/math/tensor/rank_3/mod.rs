@@ -28,7 +28,7 @@ use super::
 
 /// A *d*-dimensional tensor of rank 3.
 ///
-/// `D` is the dimension, `I`, `J`, `K` are the configurations
+/// `D` is the dimension, `I`, `J`, `K` are the configurations.
 pub struct TensorRank3<const D: usize, const I: usize, const J: usize, const K: usize>
 (
     [TensorRank2<D, J, K>; D]

@@ -17,13 +17,14 @@ use super::
 
 /// A list of *d*-dimensional tensors of rank 2.
 ///
-/// `D` is the dimension, `I`, `J` are the configurations `L` is the list length.
-pub struct TensorRank2List<const D: usize, const I: usize, const J: usize, const L: usize>
+/// `D` is the dimension, `I`, `J` are the configurations `W` is the list length.
+pub struct TensorRank2List<const D: usize, const I: usize, const J: usize, const W: usize>
 (
-    [TensorRank2<D, I, J>; L]
+    [TensorRank2<D, I, J>; W]
 );
 
-impl<const D: usize, const I: usize, const J: usize, const L: usize> TensorRank2List<D, I, J, L>
+/// Inherent implementation of [`TensorRank2List`].
+impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2List<D, I, J, W>
 {
     /// Returns an iterator.
     ///
@@ -42,18 +43,18 @@ impl<const D: usize, const I: usize, const J: usize, const L: usize> TensorRank2
 }
 
 /// Required methods for rank-2 tensor lists.
-pub trait TensorRank2ListTrait<const D: usize, const L: usize>
+pub trait TensorRank2ListTrait<const D: usize, const W: usize>
 {
     /// Returns a list of rank-2 tensors given an array.
-    fn new(array: [[[TensorRank0; D]; D]; L]) -> Self;
+    fn new(array: [[[TensorRank0; D]; D]; W]) -> Self;
     /// Returns a list of rank-2 zero tensors.
     fn zero() -> Self;
 }
 
 /// Implementation of [`TensorRank2ListTrait`] for [`TensorRank2List`].
-impl<const D: usize, const I: usize, const J: usize, const L: usize> TensorRank2ListTrait<D, L> for TensorRank2List<D, I, J, L>
+impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2ListTrait<D, W> for TensorRank2List<D, I, J, W>
 {
-    fn new(array: [[[TensorRank0; D]; D]; L]) -> Self
+    fn new(array: [[[TensorRank0; D]; D]; W]) -> Self
     {
         array.iter().map(|array_i|
             array_i.iter().map(|array_ij|
@@ -67,7 +68,7 @@ impl<const D: usize, const I: usize, const J: usize, const L: usize> TensorRank2
     }
 }
 
-impl<const D: usize, const I: usize, const J: usize, const L: usize> FromIterator<TensorRank2<D, I, J>> for TensorRank2List<D, I, J, L>
+impl<const D: usize, const I: usize, const J: usize, const W: usize> FromIterator<TensorRank2<D, I, J>> for TensorRank2List<D, I, J, W>
 {
     fn from_iter<Ii: IntoIterator<Item=TensorRank2<D, I, J>>>(into_iterator: Ii) -> Self
     {
@@ -79,7 +80,7 @@ impl<const D: usize, const I: usize, const J: usize, const L: usize> FromIterato
     }
 }
 
-impl<const D: usize, const I: usize, const J: usize, const L: usize> Index<usize> for TensorRank2List<D, I, J, L>
+impl<const D: usize, const I: usize, const J: usize, const W: usize> Index<usize> for TensorRank2List<D, I, J, W>
 {
     type Output = TensorRank2<D, I, J>;
     fn index(&self, index: usize) -> &Self::Output
@@ -88,7 +89,7 @@ impl<const D: usize, const I: usize, const J: usize, const L: usize> Index<usize
     }
 }
 
-impl<const D: usize, const I: usize, const J: usize, const L: usize> IndexMut<usize> for TensorRank2List<D, I, J, L>
+impl<const D: usize, const I: usize, const J: usize, const W: usize> IndexMut<usize> for TensorRank2List<D, I, J, W>
 {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output
     {
