@@ -25,7 +25,11 @@ macro_rules! test_finite_element
                     }
                 },
                 fem::block::element::test::test_finite_element_with_constitutive_model,
-                math::Convert,
+                math::
+                {
+                    Convert,
+                    TensorRank2
+                },
                 mechanics::test::
                 {
                     get_deformation_gradient,
@@ -232,13 +236,11 @@ macro_rules! test_finite_element_with_constitutive_model
                     assert_eq_within_tols(
                         &get_element()
                         .calculate_helmholtz_free_energy(
-                            &get_reference_coordinates()
-                            .convert()
+                            &get_reference_coordinates().convert()
                         ),
                         &get_element_transformed()
                         .calculate_helmholtz_free_energy(
-                            &get_reference_coordinates_transformed()
-                            .convert()
+                            &get_reference_coordinates_transformed().convert()
                         )
                     )
                 }
@@ -248,8 +250,7 @@ macro_rules! test_finite_element_with_constitutive_model
                     assert_eq!(
                         get_element()
                         .calculate_helmholtz_free_energy(
-                            &get_reference_coordinates()
-                            .convert()
+                            &get_reference_coordinates().convert()
                         ), 0.0
                     )
                 }
@@ -317,8 +318,7 @@ macro_rules! test_finite_element_with_constitutive_model
                 fn finite_difference()
                 {
                     get_element().calculate_nodal_stiffnesses(
-                        &get_reference_coordinates()
-                        .convert()
+                        &get_reference_coordinates().convert()
                     ).iter()
                     .zip(get_fd_nodal_forces(
                         false
@@ -335,7 +335,7 @@ macro_rules! test_finite_element_with_constitutive_model
                                 .for_each(|(nodal_stiffness_ab_ij, fd_nodal_stiffness_ab_ij)|
                                     assert!(
                                         (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < EPSILON ||
-                                        fd_nodal_stiffness_ab_ij.abs() < EPSILON
+                                        (nodal_stiffness_ab_ij.abs() < EPSILON && fd_nodal_stiffness_ab_ij.abs() < EPSILON)
                                     )
                                 )
                             )
@@ -346,8 +346,7 @@ macro_rules! test_finite_element_with_constitutive_model
                 fn objectivity()
                 {
                     get_element_transformed().calculate_nodal_forces(
-                        &get_reference_coordinates_transformed()
-                        .convert()
+                        &get_reference_coordinates_transformed().convert()
                     ).iter()
                     .for_each(|nodal_force|
                         nodal_force.iter()
@@ -362,8 +361,7 @@ macro_rules! test_finite_element_with_constitutive_model
                 fn zero()
                 {
                     get_element().calculate_nodal_forces(
-                        &get_reference_coordinates()
-                        .convert()
+                        &get_reference_coordinates().convert()
                     ).iter().for_each(|nodal_force|
                         nodal_force.iter().for_each(|nodal_force_i|
                             assert_eq_within_tols(
@@ -454,13 +452,14 @@ macro_rules! test_finite_element_with_constitutive_model
                 #[test]
                 fn objectivity()
                 {
+                    let converted: TensorRank2<3, 1, 1> = get_rotation_reference_configuration().convert();
                     get_element().calculate_nodal_stiffnesses(
-                        &get_current_coordinates()
+                        &get_reference_coordinates().convert()
                     ).iter().zip((
-                        get_rotation_current_configuration().transpose() *
+                        converted.transpose() *
                         get_element_transformed().calculate_nodal_stiffnesses(
-                            &get_current_coordinates_transformed()
-                        ) * get_rotation_current_configuration()
+                            &get_reference_coordinates_transformed().convert()
+                        ) * converted
                     ).iter())
                     .for_each(|(nodal_stiffness_a, res_nodal_stiffness_a)|
                         nodal_stiffness_a.iter()
@@ -484,8 +483,7 @@ macro_rules! test_finite_element_with_constitutive_model
                 fn symmetry()
                 {
                     let nodal_stiffness = get_element().calculate_nodal_stiffnesses(
-                        &get_reference_coordinates()
-                        .convert()
+                        &get_reference_coordinates().convert()
                     );
                     nodal_stiffness.iter()
                     .enumerate()

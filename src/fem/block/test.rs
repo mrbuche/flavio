@@ -25,10 +25,13 @@ macro_rules! test_finite_element_block
                     }
                 },
                 fem::block::test::test_finite_element_block_with_constitutive_model,
-                math::Convert,
+                math::
+                {
+                    Convert,
+                    TensorRank2
+                },
                 mechanics::test::
                 {
-                    get_deformation_gradient,
                     get_rotation_current_configuration,
                     get_rotation_reference_configuration,
                     get_translation_current_configuration,
@@ -120,6 +123,44 @@ macro_rules! test_finite_element_block_with_constitutive_model
                     finite_difference -= block.calculate_helmholtz_free_energy();
                     finite_difference/EPSILON
                 }).collect()
+            ).collect()
+        }
+        fn get_fd_nodal_forces(is_deformed: bool) -> NodalStiffnesses<D>
+        {
+            let mut block = get_block();
+            let mut finite_difference = 0.0;
+            (0..D).map(|node_a|
+                (0..D).map(|node_b|
+                    (0..3).map(|i|
+                        (0..3).map(|j|{
+                            let mut nodal_coordinates = 
+                            if is_deformed
+                            {
+                                get_current_coordinates_block()
+                            }
+                            else
+                            {
+                                get_reference_coordinates_block().convert()
+                            };
+                            nodal_coordinates[node_a][i] += 0.5 * EPSILON;
+                            block.set_current_nodal_coordinates(nodal_coordinates);
+                            finite_difference = block.calculate_nodal_forces()[node_b][j];
+                            let mut nodal_coordinates = 
+                            if is_deformed
+                            {
+                                get_current_coordinates_block()
+                            }
+                            else
+                            {
+                                get_reference_coordinates_block().convert()
+                            };
+                            nodal_coordinates[node_a][i] -= 0.5 * EPSILON;
+                            block.set_current_nodal_coordinates(nodal_coordinates);
+                            finite_difference -= block.calculate_nodal_forces()[node_b][j];
+                            finite_difference/EPSILON
+                        }).collect()
+                    ).collect()
+                ).collect()
             ).collect()
         }
         fn get_reference_coordinates_transformed_block() -> ReferenceNodalCoordinates<D>
@@ -240,12 +281,56 @@ macro_rules! test_finite_element_block_with_constitutive_model
                 #[test]
                 fn finite_difference()
                 {
-                    todo!()
+                    let mut block = get_block();
+                    block.set_current_nodal_coordinates(
+                        get_current_coordinates_block()
+                    );
+                    block.calculate_nodal_stiffnesses().iter()
+                    .zip(get_fd_nodal_forces(true).iter())
+                    .for_each(|(nodal_stiffness_a, fd_nodal_stiffness_a)|
+                        nodal_stiffness_a.iter()
+                        .zip(fd_nodal_stiffness_a.iter())
+                        .for_each(|(nodal_stiffness_ab, fd_nodal_stiffness_ab)|
+                            nodal_stiffness_ab.iter()
+                            .zip(fd_nodal_stiffness_ab.iter())
+                            .for_each(|(nodal_stiffness_ab_i, fd_nodal_stiffness_ab_i)|
+                                nodal_stiffness_ab_i.iter()
+                                .zip(fd_nodal_stiffness_ab_i.iter())
+                                .for_each(|(nodal_stiffness_ab_ij, fd_nodal_stiffness_ab_ij)|
+                                    assert!(
+                                        (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < EPSILON ||
+                                        (nodal_stiffness_ab_ij.abs() < EPSILON && fd_nodal_stiffness_ab_ij.abs() < EPSILON)
+                                    )
+                                )
+                            )
+                        )
+                    )
                 }
                 #[test]
                 fn objectivity()
                 {
-                    todo!()
+                    let mut block_1 = get_block();
+                    let mut block_2 = get_block_transformed();
+                    block_1.set_current_nodal_coordinates(
+                        get_current_coordinates_block()
+                    );
+                    block_2.set_current_nodal_coordinates(
+                        get_current_coordinates_transformed_block()
+                    );
+                    block_1.calculate_nodal_forces().iter()
+                    .zip((
+                        get_rotation_current_configuration().transpose() *
+                        block_2.calculate_nodal_forces()
+                    ).iter()
+                    ).for_each(|(nodal_force, res_nodal_force)|
+                        nodal_force.iter()
+                        .zip(res_nodal_force.iter())
+                        .for_each(|(nodal_force_i, res_nodal_force_i)|
+                            assert_eq_within_tols(
+                                nodal_force_i, res_nodal_force_i
+                            )
+                        )
+                    )
                 }
             }
             mod undeformed
@@ -254,17 +339,100 @@ macro_rules! test_finite_element_block_with_constitutive_model
                 #[test]
                 fn finite_difference()
                 {
-                    todo!()
+                    let mut block = get_block();
+                    block.calculate_nodal_stiffnesses().iter()
+                    .zip(get_fd_nodal_forces(false).iter())
+                    .for_each(|(nodal_stiffness_a, fd_nodal_stiffness_a)|
+                        nodal_stiffness_a.iter()
+                        .zip(fd_nodal_stiffness_a.iter())
+                        .for_each(|(nodal_stiffness_ab, fd_nodal_stiffness_ab)|
+                            nodal_stiffness_ab.iter()
+                            .zip(fd_nodal_stiffness_ab.iter())
+                            .for_each(|(nodal_stiffness_ab_i, fd_nodal_stiffness_ab_i)|
+                                nodal_stiffness_ab_i.iter()
+                                .zip(fd_nodal_stiffness_ab_i.iter())
+                                .for_each(|(nodal_stiffness_ab_ij, fd_nodal_stiffness_ab_ij)|
+                                    assert!(
+                                        (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < EPSILON ||
+                                        (nodal_stiffness_ab_ij.abs() < EPSILON && fd_nodal_stiffness_ab_ij.abs() < EPSILON)
+                                    )
+                                )
+                            )
+                        )
+                    );
+                    block.set_current_nodal_coordinates(
+                        get_reference_coordinates_block().convert()
+                    );
+                    block.calculate_nodal_stiffnesses().iter()
+                    .zip(get_fd_nodal_forces(false).iter())
+                    .for_each(|(nodal_stiffness_a, fd_nodal_stiffness_a)|
+                        nodal_stiffness_a.iter()
+                        .zip(fd_nodal_stiffness_a.iter())
+                        .for_each(|(nodal_stiffness_ab, fd_nodal_stiffness_ab)|
+                            nodal_stiffness_ab.iter()
+                            .zip(fd_nodal_stiffness_ab.iter())
+                            .for_each(|(nodal_stiffness_ab_i, fd_nodal_stiffness_ab_i)|
+                                nodal_stiffness_ab_i.iter()
+                                .zip(fd_nodal_stiffness_ab_i.iter())
+                                .for_each(|(nodal_stiffness_ab_ij, fd_nodal_stiffness_ab_ij)|
+                                    assert!(
+                                        (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < EPSILON ||
+                                        (nodal_stiffness_ab_ij.abs() < EPSILON && fd_nodal_stiffness_ab_ij.abs() < EPSILON)
+                                    )
+                                )
+                            )
+                        )
+                    );
                 }
                 #[test]
                 fn objectivity()
                 {
-                    todo!()
+                    let mut block = get_block_transformed();
+                    block.calculate_nodal_forces().iter()
+                    .for_each(|nodal_force|
+                        nodal_force.iter()
+                        .for_each(|nodal_force_i|
+                            assert_eq_within_tols(
+                                nodal_force_i, &0.0
+                            )
+                        )
+                    );
+                    block.set_current_nodal_coordinates(
+                        get_reference_coordinates_transformed_block().convert()
+                    );
+                    block.calculate_nodal_forces().iter()
+                    .for_each(|nodal_force|
+                        nodal_force.iter()
+                        .for_each(|nodal_force_i|
+                            assert_eq_within_tols(
+                                nodal_force_i, &0.0
+                            )
+                        )
+                    );
                 }
                 #[test]
                 fn zero()
                 {
-                    todo!()
+                    let mut block = get_block();
+                    block.calculate_nodal_forces().iter()
+                    .for_each(|nodal_force|
+                        nodal_force.iter().for_each(|nodal_force_i|
+                            assert_eq_within_tols(
+                                nodal_force_i, &0.0
+                            )
+                        )
+                    );
+                    block.set_current_nodal_coordinates(
+                        get_reference_coordinates_block().convert()
+                    );
+                    block.calculate_nodal_forces().iter()
+                    .for_each(|nodal_force|
+                        nodal_force.iter().for_each(|nodal_force_i|
+                            assert_eq_within_tols(
+                                nodal_force_i, &0.0
+                            )
+                        )
+                    );
                 }
             }
         }
@@ -275,28 +443,215 @@ macro_rules! test_finite_element_block_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn symmetry()
-                {
-                    todo!()
-                }
-                #[test]
                 fn objectivity()
                 {
-                    todo!()
+                    let mut block_1 = get_block();
+                    let mut block_2 = get_block_transformed();
+                    block_1.set_current_nodal_coordinates(
+                        get_current_coordinates_block()
+                    );
+                    block_2.set_current_nodal_coordinates(
+                        get_current_coordinates_transformed_block()
+                    );
+                    block_1.calculate_nodal_stiffnesses().iter()
+                    .zip((
+                        get_rotation_current_configuration().transpose() *
+                        block_2.calculate_nodal_stiffnesses()
+                        * get_rotation_current_configuration()
+                    ).iter())
+                    .for_each(|(nodal_stiffness_a, res_nodal_stiffness_a)|
+                        nodal_stiffness_a.iter()
+                        .zip(res_nodal_stiffness_a.iter())
+                        .for_each(|(nodal_stiffness_ab, res_nodal_stiffness_ab)|
+                            nodal_stiffness_ab.iter()
+                            .zip(res_nodal_stiffness_ab.iter())
+                            .for_each(|(nodal_stiffness_ab_i, res_nodal_stiffness_ab_i)|
+                                nodal_stiffness_ab_i.iter()
+                                .zip(res_nodal_stiffness_ab_i.iter())
+                                .for_each(|(nodal_stiffness_ab_ij, res_nodal_stiffness_ab_ij)|
+                                    assert_eq_within_tols(
+                                        nodal_stiffness_ab_ij, res_nodal_stiffness_ab_ij
+                                    )
+                                )
+                            )
+                        )
+                    )
+                }
+                #[test]
+                fn symmetry()
+                {
+                    let mut block = get_block();
+                    block.set_current_nodal_coordinates(
+                        get_current_coordinates_block()
+                    );
+                    let nodal_stiffness = block.calculate_nodal_stiffnesses();
+                    nodal_stiffness.iter()
+                    .enumerate()
+                    .for_each(|(a, nodal_stiffness_a)|
+                        nodal_stiffness_a.iter()
+                        .enumerate()
+                        .for_each(|(b, nodal_stiffness_ab)|
+                            nodal_stiffness_ab.iter()
+                            .enumerate()
+                            .zip(nodal_stiffness_ab.transpose().iter())
+                            .for_each(|((i, nodal_stiffness_ab_i), nodal_stiffness_ab_j)|
+                                nodal_stiffness_ab_i.iter()
+                                .enumerate()
+                                .zip(nodal_stiffness_ab_j.iter())
+                                .for_each(|((j, nodal_stiffness_ab_ij), nodal_stiffness_ab_ji)|
+                                    if a == b
+                                    {
+                                        assert_eq_within_tols(
+                                            nodal_stiffness_ab_ij,
+                                            &nodal_stiffness_ab_ji
+                                        )
+                                    }
+                                    else if i == j
+                                    {
+                                        assert_eq_within_tols(
+                                            nodal_stiffness_ab_ij, &nodal_stiffness[b][a][i][j]
+                                        )
+                                    }
+                                )
+                            )
+                        )
+                    )
                 }
             }
             mod undeformed
             {
                 use super::*;
                 #[test]
-                fn symmetry()
-                {
-                    todo!()
-                }
-                #[test]
                 fn objectivity()
                 {
-                    todo!()
+                    let converted: TensorRank2<3, 1, 1> = get_rotation_reference_configuration().convert();
+                    let mut block_1 = get_block();
+                    let mut block_2 = get_block_transformed();
+                    block_1.calculate_nodal_stiffnesses().iter()
+                    .zip((
+                        converted.transpose() *
+                        block_2.calculate_nodal_stiffnesses()
+                        * converted
+                    ).iter())
+                    .for_each(|(nodal_stiffness_a, res_nodal_stiffness_a)|
+                        nodal_stiffness_a.iter()
+                        .zip(res_nodal_stiffness_a.iter())
+                        .for_each(|(nodal_stiffness_ab, res_nodal_stiffness_ab)|
+                            nodal_stiffness_ab.iter()
+                            .zip(res_nodal_stiffness_ab.iter())
+                            .for_each(|(nodal_stiffness_ab_i, res_nodal_stiffness_ab_i)|
+                                nodal_stiffness_ab_i.iter()
+                                .zip(res_nodal_stiffness_ab_i.iter())
+                                .for_each(|(nodal_stiffness_ab_ij, res_nodal_stiffness_ab_ij)|
+                                    assert_eq_within_tols(
+                                        nodal_stiffness_ab_ij, res_nodal_stiffness_ab_ij
+                                    )
+                                )
+                            )
+                        )
+                    );
+                    let converted: TensorRank2<3, 1, 1> = get_rotation_reference_configuration().convert();
+                    block_1.set_current_nodal_coordinates(
+                        get_reference_coordinates_block().convert()
+                    );
+                    block_2.set_current_nodal_coordinates(
+                        get_reference_coordinates_transformed_block().convert()
+                    );
+                    block_1.calculate_nodal_stiffnesses().iter()
+                    .zip((
+                        converted.transpose() *
+                        block_2.calculate_nodal_stiffnesses()
+                        * converted
+                    ).iter())
+                    .for_each(|(nodal_stiffness_a, res_nodal_stiffness_a)|
+                        nodal_stiffness_a.iter()
+                        .zip(res_nodal_stiffness_a.iter())
+                        .for_each(|(nodal_stiffness_ab, res_nodal_stiffness_ab)|
+                            nodal_stiffness_ab.iter()
+                            .zip(res_nodal_stiffness_ab.iter())
+                            .for_each(|(nodal_stiffness_ab_i, res_nodal_stiffness_ab_i)|
+                                nodal_stiffness_ab_i.iter()
+                                .zip(res_nodal_stiffness_ab_i.iter())
+                                .for_each(|(nodal_stiffness_ab_ij, res_nodal_stiffness_ab_ij)|
+                                    assert_eq_within_tols(
+                                        nodal_stiffness_ab_ij, res_nodal_stiffness_ab_ij
+                                    )
+                                )
+                            )
+                        )
+                    );
+                }
+                #[test]
+                fn symmetry()
+                {
+                    let mut block = get_block();
+                    let nodal_stiffness = block.calculate_nodal_stiffnesses();
+                    nodal_stiffness.iter()
+                    .enumerate()
+                    .for_each(|(a, nodal_stiffness_a)|
+                        nodal_stiffness_a.iter()
+                        .enumerate()
+                        .for_each(|(b, nodal_stiffness_ab)|
+                            nodal_stiffness_ab.iter()
+                            .enumerate()
+                            .zip(nodal_stiffness_ab.transpose().iter())
+                            .for_each(|((i, nodal_stiffness_ab_i), nodal_stiffness_ab_j)|
+                                nodal_stiffness_ab_i.iter()
+                                .enumerate()
+                                .zip(nodal_stiffness_ab_j.iter())
+                                .for_each(|((j, nodal_stiffness_ab_ij), nodal_stiffness_ab_ji)|
+                                    if a == b
+                                    {
+                                        assert_eq_within_tols(
+                                            nodal_stiffness_ab_ij,
+                                            &nodal_stiffness_ab_ji
+                                        )
+                                    }
+                                    else if i == j
+                                    {
+                                        assert_eq_within_tols(
+                                            nodal_stiffness_ab_ij, &nodal_stiffness[b][a][i][j]
+                                        )
+                                    }
+                                )
+                            )
+                        )
+                    );
+                    block.set_current_nodal_coordinates(
+                        get_reference_coordinates_block().convert()
+                    );
+                    let nodal_stiffness = block.calculate_nodal_stiffnesses();
+                    nodal_stiffness.iter()
+                    .enumerate()
+                    .for_each(|(a, nodal_stiffness_a)|
+                        nodal_stiffness_a.iter()
+                        .enumerate()
+                        .for_each(|(b, nodal_stiffness_ab)|
+                            nodal_stiffness_ab.iter()
+                            .enumerate()
+                            .zip(nodal_stiffness_ab.transpose().iter())
+                            .for_each(|((i, nodal_stiffness_ab_i), nodal_stiffness_ab_j)|
+                                nodal_stiffness_ab_i.iter()
+                                .enumerate()
+                                .zip(nodal_stiffness_ab_j.iter())
+                                .for_each(|((j, nodal_stiffness_ab_ij), nodal_stiffness_ab_ji)|
+                                    if a == b
+                                    {
+                                        assert_eq_within_tols(
+                                            nodal_stiffness_ab_ij,
+                                            &nodal_stiffness_ab_ji
+                                        )
+                                    }
+                                    else if i == j
+                                    {
+                                        assert_eq_within_tols(
+                                            nodal_stiffness_ab_ij, &nodal_stiffness[b][a][i][j]
+                                        )
+                                    }
+                                )
+                            )
+                        )
+                    );
                 }
             }
         }
