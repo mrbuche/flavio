@@ -5,6 +5,8 @@ pub mod element;
 
 use crate::
 {
+    ABS_TOL,
+    REL_TOL,
     constitutive::
     {
         ConstitutiveModel,
@@ -67,6 +69,7 @@ where
     fn get_elements(&self) -> &[F; E];
     fn new(constitutive_model_parameters: ConstitutiveModelParameters<'a>, connectivity: Connectivity<E, N>, reference_nodal_coordinates: ReferenceNodalCoordinates<D>) -> Self;
     fn set_current_nodal_coordinates(&mut self, current_nodal_coordinates: CurrentNodalCoordinates<D>);
+    fn solve_using_gradient_descent(&mut self);
 }
 
 impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
@@ -164,5 +167,36 @@ where
     fn set_current_nodal_coordinates(&mut self, current_nodal_coordinates: CurrentNodalCoordinates<D>)
     {
         self.current_nodal_coordinates = current_nodal_coordinates;
+    }
+    fn solve_using_gradient_descent(&mut self)
+    {
+        //
+        // need to be able to apply displacements
+        // would be cool if you could make them Lagrange multiplier effects rather than hard constraints
+        // would help with keeping iterators enclosed
+        // and maybe solving since won't have to ramp up displacements or anything
+        //
+        let mut step_size = REL_TOL;
+        let mut coordinates = self.get_current_nodal_coordinates() * 1.0;
+        let mut nodal_forces = self.calculate_nodal_forces();
+        let mut residual = nodal_forces.norm();
+        let mut coordinates_old: CurrentNodalCoordinates<D>;
+        let mut nodal_forces_old: NodalForces<D>;
+        let mut nodal_forces_diff: NodalForces<D>;
+        while residual > ABS_TOL
+        {
+            coordinates_old = &coordinates * 1.0;
+            nodal_forces_old = &nodal_forces * 1.0;
+            self.set_current_nodal_coordinates(
+                nodal_forces * (-step_size) + coordinates
+            );
+            coordinates = self.get_current_nodal_coordinates() * 1.0;
+            nodal_forces = self.calculate_nodal_forces();
+            nodal_forces_diff = nodal_forces_old - &nodal_forces;
+            step_size = (
+                (coordinates_old - &coordinates).dot(&nodal_forces_diff)
+            ).abs() / nodal_forces_diff.dot_self();
+            residual = nodal_forces.norm();
+        }
     }
 }
