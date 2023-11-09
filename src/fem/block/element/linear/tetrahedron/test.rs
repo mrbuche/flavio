@@ -20,9 +20,3 @@ fn get_reference_coordinates() -> ReferenceNodalCoordinates<N>
 
 test_finite_element!(LinearTetrahedron);
 test_linear_finite_element!(LinearTetrahedron);
-
-#[test]
-fn specific_tests_for_linear_tets()
-{
-    todo!()
-}

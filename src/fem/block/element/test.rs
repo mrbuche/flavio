@@ -2,62 +2,66 @@ macro_rules! test_finite_element
 {
     ($element: ident) =>
     {
-        use crate::
+        mod finite_element
         {
-            EPSILON,
-            constitutive::
+            use crate::
             {
-                hyperelastic::
+                EPSILON,
+                constitutive::
                 {
-                    GentModel,
-                    MooneyRivlinModel,
-                    NeoHookeanModel,
-                    YeohModel,
+                    hyperelastic::
+                    {
+                        GentModel,
+                        MooneyRivlinModel,
+                        NeoHookeanModel,
+                        YeohModel,
+                    },
+                    test::
+                    {
+                        GENTPARAMETERS,
+                        MOONEYRIVLINPARAMETERS,
+                        NEOHOOKEANPARAMETERS,
+                        YEOHPARAMETERS
+                    }
                 },
-                test::
+                fem::block::element::test::test_finite_element_with_constitutive_model,
+                math::Convert,
+                mechanics::test::
                 {
-                    GENTPARAMETERS,
-                    MOONEYRIVLINPARAMETERS,
-                    NEOHOOKEANPARAMETERS,
-                    YEOHPARAMETERS
-                }
-            },
-            fem::block::element::test::test_finite_element_for_constitutive_model,
-            math::Convert,
-            mechanics::test::
+                    get_deformation_gradient,
+                    get_rotation_current_configuration,
+                    get_rotation_reference_configuration,
+                    get_translation_current_configuration,
+                    get_translation_reference_configuration
+                },
+                test::assert_eq_within_tols
+            };
+            use super::*;
+            pub mod gent
             {
-                get_deformation_gradient,
-                get_rotation_current_configuration,
-                get_rotation_reference_configuration,
-                get_translation_current_configuration,
-                get_translation_reference_configuration
-            },
-            test::assert_eq_within_tols
-        };
-        mod gent
-        {
-            use super::*;
-            test_finite_element_for_constitutive_model!($element, GentModel, GENTPARAMETERS);
-        }
-        mod mooney_rivlin
-        {
-            use super::*;
-            test_finite_element_for_constitutive_model!($element, MooneyRivlinModel, MOONEYRIVLINPARAMETERS);
-        }
-        mod neo_hookean
-        {
-            use super::*;
-            test_finite_element_for_constitutive_model!($element, NeoHookeanModel, NEOHOOKEANPARAMETERS);
-        }
-        mod yeoh
-        {
-            use super::*;
-            test_finite_element_for_constitutive_model!($element, YeohModel, YEOHPARAMETERS);
+                use super::*;
+                test_finite_element_with_constitutive_model!($element, GentModel, GENTPARAMETERS);
+            }
+            pub mod mooney_rivlin
+            {
+                use super::*;
+                test_finite_element_with_constitutive_model!($element, MooneyRivlinModel, MOONEYRIVLINPARAMETERS);
+            }
+            pub mod neo_hookean
+            {
+                use super::*;
+                test_finite_element_with_constitutive_model!($element, NeoHookeanModel, NEOHOOKEANPARAMETERS);
+            }
+            pub mod yeoh
+            {
+                use super::*;
+                test_finite_element_with_constitutive_model!($element, YeohModel, YEOHPARAMETERS);
+            }
         }
     }
 }
 pub(crate) use test_finite_element;
-macro_rules! test_finite_element_for_constitutive_model
+macro_rules! test_finite_element_with_constitutive_model
 {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
     {
@@ -81,6 +85,14 @@ macro_rules! test_finite_element_for_constitutive_model
             $element::new(
                 $constitutive_model_parameters,
                 get_reference_coordinates()
+            )
+        }
+        fn get_element_transformed<'a>() -> $element<'a, $constitutive_model<'a>>
+        {
+            $element::<$constitutive_model>::new
+            (
+                $constitutive_model_parameters,
+                get_reference_coordinates_transformed()
             )
         }
         fn get_fd_helmholtz_free_energy(is_deformed: bool) -> NodalForces<N>
@@ -142,14 +154,6 @@ macro_rules! test_finite_element_for_constitutive_model
                 get_rotation_reference_configuration() * reference_coordinate
                 + get_translation_reference_configuration()
             ).collect()
-        }
-        fn get_element_transformed<'a>() -> $element<'a, $constitutive_model<'a>>
-        {
-            $element::<$constitutive_model>::new
-            (
-                $constitutive_model_parameters,
-                get_reference_coordinates_transformed()
-            )
         }
         #[test]
         fn integration_weights_sum_to_one()
@@ -293,7 +297,7 @@ macro_rules! test_finite_element_for_constitutive_model
                         &get_current_coordinates()
                     ).iter().zip((
                         get_rotation_current_configuration().transpose() *
-                        get_element().calculate_nodal_forces(
+                        get_element_transformed().calculate_nodal_forces(
                             &get_current_coordinates_transformed()
                         )
                     ).iter()
@@ -343,7 +347,7 @@ macro_rules! test_finite_element_for_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    get_element().calculate_nodal_forces(
+                    get_element_transformed().calculate_nodal_forces(
                         &get_reference_coordinates_transformed()
                         .convert()
                     ).iter()
@@ -385,7 +389,7 @@ macro_rules! test_finite_element_for_constitutive_model
                         &get_current_coordinates()
                     ).iter().zip((
                         get_rotation_current_configuration().transpose() *
-                        get_element().calculate_nodal_stiffnesses(
+                        get_element_transformed().calculate_nodal_stiffnesses(
                             &get_current_coordinates_transformed()
                         ) * get_rotation_current_configuration()
                     ).iter())
@@ -456,7 +460,7 @@ macro_rules! test_finite_element_for_constitutive_model
                         &get_current_coordinates()
                     ).iter().zip((
                         get_rotation_current_configuration().transpose() *
-                        get_element().calculate_nodal_stiffnesses(
+                        get_element_transformed().calculate_nodal_stiffnesses(
                             &get_current_coordinates_transformed()
                         ) * get_rotation_current_configuration()
                     ).iter())
@@ -521,4 +525,4 @@ macro_rules! test_finite_element_for_constitutive_model
         }
     }
 }
-pub(crate) use test_finite_element_for_constitutive_model;
+pub(crate) use test_finite_element_with_constitutive_model;
