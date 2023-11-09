@@ -57,15 +57,12 @@ impl<const D: usize, const I: usize, const W: usize> TensorRank1List<D, I, W>
     }
 }
 
-#[allow(clippy::map_clone)]
 impl<const D: usize, const I: usize, const J: usize, const W: usize> Convert<TensorRank1List<D, J, W>> for TensorRank1List<D, I, W>
 {
     fn convert(&self) -> TensorRank1List<D, J, W>
     {
         self.iter().map(|self_entry|
-            self_entry.iter().map(|self_i|
-                *self_i
-            ).collect()
+            self_entry.iter().copied().collect()
         ).collect()
     }
 }

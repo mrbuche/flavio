@@ -108,8 +108,7 @@ macro_rules! test_finite_element_with_constitutive_model
                     }
                     else
                     {
-                        get_reference_coordinates()
-                        .convert()
+                        get_reference_coordinates().convert()
                     };
                     nodal_coordinates[node][i] += 0.5 * EPSILON;
                     finite_difference = element.calculate_helmholtz_free_energy(&nodal_coordinates);
@@ -134,8 +133,7 @@ macro_rules! test_finite_element_with_constitutive_model
                             }
                             else
                             {
-                                get_reference_coordinates()
-                                .convert()
+                                get_reference_coordinates().convert()
                             };
                             nodal_coordinates[node_a][i] += 0.5 * EPSILON;
                             finite_difference = element.calculate_nodal_forces(&nodal_coordinates)[node_b][j];
