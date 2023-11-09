@@ -55,7 +55,7 @@ pub trait TensorRank2List2DTrait<const D: usize, const W: usize>
     fn zero() -> Self;
 }
 
-/// Implementation of [`TensorRank2ListTrait2D`] for [`TensorRank2List2D`].
+/// Implementation of [`TensorRank2List2DTrait`] for [`TensorRank2List2D`].
 impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2List2DTrait<D, W> for TensorRank2List2D<D, I, J, W>
 {
     fn new(array: [[[[TensorRank0; D]; D]; W]; W]) -> Self

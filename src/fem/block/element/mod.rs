@@ -5,12 +5,8 @@ pub mod linear;
 
 use super::*;
 
-type CurrentNodalCoordinates<const N: usize> = CurrentCoordinates<N>;
 type GradientVectors<const N: usize> = Vectors<0, N>;
 type IntegrationWeights<const G: usize> = Scalars<G>;
-type NodalForces<const N: usize> = Forces<N>;
-type NodalStiffnesses<const N: usize> = Stiffnesses<N>;
-type ReferenceNodalCoordinates<const N: usize> = ReferenceCoordinates<N>;
 type StandardGradientOperator<const N: usize> = Vectors<9, N>;
 
 pub trait FiniteElement<'a, C, const G: usize, const N: usize>
