@@ -53,7 +53,7 @@ where
     phantom_a: std::marker::PhantomData<*const &'a C>
 }
 
-pub trait FiniteElementBlockTraits<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
+pub trait FiniteElementBlockTrait<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
 where
     C: ConstitutiveModel<'a>,
     F: FiniteElement<'a, C, G, N>
@@ -70,7 +70,7 @@ where
 }
 
 impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
-    FiniteElementBlockTraits<'a, C, D, E, F, G, N>
+    FiniteElementBlockTrait<'a, C, D, E, F, G, N>
     for FiniteElementBlock<'a, C, D, E, F, G, N>
 where
     C: ConstitutiveModel<'a>,
