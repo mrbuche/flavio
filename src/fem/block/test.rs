@@ -230,7 +230,41 @@ macro_rules! test_finite_element_block_with_constitutive_model
                 #[test]
                 fn minimized()
                 {
-                    todo!()
+                    let mut block = get_block();
+                    block.set_current_nodal_coordinates(
+                        get_current_coordinates_block()
+                    );
+                    let nodal_forces = block.calculate_nodal_forces();
+                    let minimum = block.calculate_helmholtz_free_energy()
+                        - nodal_forces.dot(
+                        &get_current_coordinates_block()
+                    );
+                    let mut perturbed_coordinates = get_current_coordinates_block();
+                    (0..D).for_each(|node|
+                        (0..3).for_each(|i|{
+                            perturbed_coordinates = get_current_coordinates_block();
+                            perturbed_coordinates[node][i] += 0.5 * EPSILON;
+                            block.set_current_nodal_coordinates(
+                                &perturbed_coordinates * 1.0
+                            );
+                            assert!(
+                                block.calculate_helmholtz_free_energy()
+                                - nodal_forces.dot(
+                                    &perturbed_coordinates
+                                ) > minimum
+                            );
+                            perturbed_coordinates[node][i] -= EPSILON;
+                            block.set_current_nodal_coordinates(
+                                &perturbed_coordinates * 1.0
+                            );
+                            assert!(
+                                block.calculate_helmholtz_free_energy()
+                                - nodal_forces.dot(
+                                    &perturbed_coordinates
+                                ) > minimum
+                            );
+                        })
+                    )
                 }
                 #[test]
                 fn objectivity()
