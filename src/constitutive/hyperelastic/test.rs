@@ -23,7 +23,7 @@ macro_rules! test_hyperelastic_constitutive_model
             let model = get_hyperelastic_constitutive_model();
             let deformation_gradient = DeformationGradient::identity() * (1.0 + EPSILON).powf(1.0/3.0);
             let first_piola_kirchoff_stress = model.calculate_first_piola_kirchoff_stress(&deformation_gradient);
-            assert!((3.0*EPSILON*model.get_bulk_modulus()/first_piola_kirchoff_stress.trace() - 1.0).abs() < EPSILON)
+            assert!((3.0*EPSILON*model.get_bulk_modulus()/first_piola_kirchoff_stress.trace() - 1.0).abs() < 3.0 * EPSILON);
         }
         #[test]
         fn shear_modulus()

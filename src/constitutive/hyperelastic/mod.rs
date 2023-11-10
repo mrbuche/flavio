@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod test;
 
+mod almansi_hamel;
 mod additive_decomposition;
 mod arruda_boyce;
 mod gent;
@@ -10,6 +11,7 @@ mod yeoh;
 
 pub use self::
 {
+    almansi_hamel::AlmansiHamelModel,
     arruda_boyce::ArrudaBoyceModel,
     gent::GentModel,
     mooney_rivlin::MooneyRivlinModel,
