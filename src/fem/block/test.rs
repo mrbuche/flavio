@@ -11,6 +11,8 @@ macro_rules! test_finite_element_block
                 {
                     hyperelastic::
                     {
+                        AlmansiHamelModel,
+                        ArrudaBoyceModel,
                         GentModel,
                         MooneyRivlinModel,
                         NeoHookeanModel,
@@ -18,6 +20,8 @@ macro_rules! test_finite_element_block
                     },
                     test::
                     {
+                        ALMANSIHAMELPARAMETERS,
+                        ARRUDABOYCEPARAMETERS,
                         GENTPARAMETERS,
                         MOONEYRIVLINPARAMETERS,
                         NEOHOOKEANPARAMETERS,
@@ -40,6 +44,16 @@ macro_rules! test_finite_element_block
                 test::assert_eq_within_tols
             };
             use super::*;
+            pub mod almansi_hamel
+            {
+                use super::*;
+                test_finite_element_block_with_constitutive_model!($element, AlmansiHamelModel, ALMANSIHAMELPARAMETERS);
+            }
+            pub mod arruda_boyce
+            {
+                use super::*;
+                test_finite_element_block_with_constitutive_model!($element, ArrudaBoyceModel, ARRUDABOYCEPARAMETERS);
+            }
             pub mod gent
             {
                 use super::*;
