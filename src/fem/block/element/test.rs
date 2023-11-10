@@ -188,6 +188,11 @@ macro_rules! test_finite_element_with_constitutive_model
                     )
                 }
                 #[test]
+                fn minimized()
+                {
+                    todo!()
+                }
+                #[test]
                 fn objectivity()
                 {
                     assert_eq_within_tols(
@@ -228,6 +233,32 @@ macro_rules! test_finite_element_with_constitutive_model
                                 fd_nodal_force_i.abs() < EPSILON
                             )
                         )
+                    )
+                }
+                #[test]
+                fn minimized()
+                {
+                    let element = get_element();
+                    let minimum = element.calculate_helmholtz_free_energy(
+                        &get_reference_coordinates().convert()
+                    );
+                    let mut perturbed_coordinates = get_reference_coordinates();
+                    (0..N).for_each(|node|
+                        (0..3).for_each(|i|{
+                            perturbed_coordinates = get_reference_coordinates();
+                            perturbed_coordinates[node][i] += 0.5 * EPSILON;
+                            assert!(
+                                element.calculate_helmholtz_free_energy(
+                                    &perturbed_coordinates.convert()
+                                ) > minimum
+                            );
+                            perturbed_coordinates[node][i] -= EPSILON;
+                            assert!(
+                                element.calculate_helmholtz_free_energy(
+                                    &perturbed_coordinates.convert()
+                                ) > minimum
+                            );
+                        })
                     )
                 }
                 #[test]
