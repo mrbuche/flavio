@@ -43,11 +43,6 @@ macro_rules! test_finite_element
                 test::assert_eq_within_tols
             };
             use super::*;
-            // pub mod almansi_hamel
-            // {
-            //     use super::*;
-            //     test_finite_element_with_constitutive_model!($element, AlmansiHamelModel, ALMANSIHAMELPARAMETERS);
-            // }
             pub mod arruda_boyce
             {
                 use super::*;
