@@ -41,7 +41,7 @@ impl<'a> ConstitutiveModel<'a> for AlmansiHamelModel<'a>
     /// Calculates and returns the tangent stiffness associated with the Cauchy stress.
     ///
     /// ```math
-    /// \mathcal{T}_{ijkL}(\mathbf{F}) = ?
+    /// \mathcal{T}_{ijkL}(\mathbf{F}) = \frac{\mu}{J}\left[B_{jk}^{-1}F_{iL}^{-T} + B_{ik}^{-1}F_{jL}^{-T} - \frac{2}{3}\,\delta_{ij}B_{km}^{-1}F_{mL}^{-T} - \left(\delta_{ij} - B_{ij}^{-1}\right)'F_{kL}^{-T}\right] + \frac{\kappa}{J}\left[\delta_{ij}B_{km}^{-1}F_{mL}^{-T} - \frac{1}{2}\,\mathrm{tr}\left(\mathbf{1} - \mathbf{B}^{-1}\right)\delta_{ij}F_{kL}^{-T}\right]
     /// ```
     fn calculate_cauchy_tangent_stiffness(&self, deformation_gradient: &DeformationGradient) -> CauchyTangentStiffness
     {
