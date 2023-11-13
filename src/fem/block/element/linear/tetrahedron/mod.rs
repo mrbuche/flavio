@@ -8,7 +8,7 @@ const N: usize = 4;
 
 pub struct LinearTetrahedron<'a, C>
 where
-    C: ConstitutiveModel<'a>
+    C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel
 {
     constitutive_models: [C; G],
     gradient_vectors: GradientVectors<N>,
@@ -17,7 +17,7 @@ where
 
 impl<'a, C> LinearFiniteElement<'a, C, G, N> for LinearTetrahedron<'a, C>
 where
-    C: ConstitutiveModel<'a>
+    C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel
 {
     fn calculate_standard_gradient_operator() -> StandardGradientOperator<N>
     {
@@ -36,7 +36,7 @@ where
 
 impl<'a, C> FiniteElement<'a, C, G, N> for LinearTetrahedron<'a, C>
 where
-    C: ConstitutiveModel<'a>
+    C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel
 {
     fn calculate_helmholtz_free_energy(&self, current_nodal_coordinates: &CurrentNodalCoordinates<N>) -> Scalar
     {
