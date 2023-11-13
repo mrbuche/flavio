@@ -1,7 +1,7 @@
 #[cfg(test)]
 pub mod test;
 
-/// Hyperelastic constitutive models.
+pub mod elastic;
 pub mod hyperelastic;
 
 use crate::
@@ -60,9 +60,7 @@ pub trait ConstitutiveModel<'a>
     /// Calculates and returns the tangent stiffness associated with the first Piola-Kirchoff stress.
     ///
     /// ```math
-    /// \mathbf{P} =
-    /// \frac{\partial a}{\partial\mathbf{F}} =
-    /// J\boldsymbol{\sigma}\cdot\mathbf{F}^{-T}
+    /// \mathbf{P} = \frac{\partial a}{\partial\mathbf{F}} = J\boldsymbol{\sigma}\cdot\mathbf{F}^{-T}
     /// ```
     fn calculate_first_piola_kirchoff_stress(&self, deformation_gradient: &DeformationGradient) -> FirstPiolaKirchoffStress
     {
@@ -71,9 +69,7 @@ pub trait ConstitutiveModel<'a>
     /// Calculates and returns the tangent stiffness associated with the first Piola-Kirchoff stress.
     ///
     /// ```math
-    /// \mathcal{C}_{iJkL} =
-    /// \frac{\partial P_{iJ}}{\partial F_{kL}} = 
-    /// J \mathcal{T}_{iskL} F_{sJ}^{-T} + P_{iJ} F_{kL}^{-T} - P_{iL} F_{kJ}^{-T}
+    /// \mathcal{C}_{iJkL} = \frac{\partial P_{iJ}}{\partial F_{kL}} = J \mathcal{T}_{iskL} F_{sJ}^{-T} + P_{iJ} F_{kL}^{-T} - P_{iL} F_{kJ}^{-T}
     /// ```
     fn calculate_first_piola_kirchoff_tangent_stiffness(&self, deformation_gradient: &DeformationGradient) -> FirstPiolaKirchoffTangentStiffness
     {
@@ -81,12 +77,6 @@ pub trait ConstitutiveModel<'a>
         let first_piola_kirchoff_stress = self.calculate_first_piola_kirchoff_stress(deformation_gradient);
         self.calculate_cauchy_tangent_stiffness(deformation_gradient).contract_second_index_with_first_index_of(&deformation_gradient_inverse_transpose)*deformation_gradient.determinant() + FirstPiolaKirchoffTangentStiffness::dyad_ij_kl(&first_piola_kirchoff_stress, &deformation_gradient_inverse_transpose) - FirstPiolaKirchoffTangentStiffness::dyad_il_kj(&first_piola_kirchoff_stress, &deformation_gradient_inverse_transpose)
     }
-    /// Calculates and returns the Helmholtz free energy density.
-    ///
-    /// ```math
-    /// a = a(\mathbf{F})
-    /// ```
-    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar;
     /// Constructs and returns a new constitutive model.
     fn new(parameters: ConstitutiveModelParameters<'a>) -> Self;
 }

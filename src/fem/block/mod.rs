@@ -8,7 +8,8 @@ use crate::
     constitutive::
     {
         ConstitutiveModel,
-        ConstitutiveModelParameters
+        ConstitutiveModelParameters,
+        hyperelastic::HyperelasticConstitutiveModel
     },
     math::
     {
@@ -44,7 +45,7 @@ type ReferenceNodalCoordinates<const D: usize> = ReferenceCoordinates<D>;
 
 pub struct FiniteElementBlock<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
 where
-    C: ConstitutiveModel<'a>,
+    C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel,
     F: FiniteElement<'a, C, G, N>
 {
     connectivity: Connectivity<E, N>,
@@ -55,7 +56,7 @@ where
 
 pub trait FiniteElementBlockTrait<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
 where
-    C: ConstitutiveModel<'a>,
+    C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel,
     F: FiniteElement<'a, C, G, N>
 {
     fn calculate_current_nodal_coordinates_element(&self, element_connectivity: &[usize; N]) -> CurrentNodalCoordinates<N>;
@@ -73,7 +74,7 @@ impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
     FiniteElementBlockTrait<'a, C, D, E, F, G, N>
     for FiniteElementBlock<'a, C, D, E, F, G, N>
 where
-    C: ConstitutiveModel<'a>,
+    C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel,
     F: FiniteElement<'a, C, G, N>
 {
     fn calculate_current_nodal_coordinates_element(&self, element_connectivity: &[usize; N]) -> CurrentNodalCoordinates<N>

@@ -11,7 +11,7 @@ type StandardGradientOperator<const N: usize> = Vectors<9, N>;
 
 pub trait FiniteElement<'a, C, const G: usize, const N: usize>
 where
-    C: ConstitutiveModel<'a>
+    C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel
 {
     fn calculate_helmholtz_free_energy(&self, current_nodal_coordinates: &CurrentNodalCoordinates<N>) -> Scalar;
     fn calculate_nodal_forces(&self, current_nodal_coordinates: &CurrentNodalCoordinates<N>) -> NodalForces<N>;

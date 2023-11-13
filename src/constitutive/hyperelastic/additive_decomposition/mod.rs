@@ -26,15 +26,6 @@ where
     {
         self.get_constitutive_model_1().calculate_cauchy_tangent_stiffness(deformation_gradient) + self.get_constitutive_model_2().calculate_cauchy_tangent_stiffness(deformation_gradient)
     }
-    /// Calculates and returns the Helmholtz free energy density.
-    ///
-    /// ```math
-    /// a(\mathbf{F}) = a_1(\mathbf{F}) + a_2(\mathbf{F})
-    /// ```
-    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar
-    {
-        self.get_constitutive_model_1().calculate_helmholtz_free_energy_density(deformation_gradient) + self.get_constitutive_model_2().calculate_helmholtz_free_energy_density(deformation_gradient)
-    }
     /// Dummy method that will panic, use [CompositeConstitutiveModel::construct()] instead.
     fn new(_parameters: ConstitutiveModelParameters<'a>) -> Self
     {
@@ -44,7 +35,19 @@ where
 
 /// Hyperelastic constitutive model implementation of a composite hyperelastic constitutive model constructed using the additive decomposition.
 impl<C1, C2> HyperelasticConstitutiveModel for CompositeHyperelasticConstitutiveModel<C1, C2>
+where
+    C1: HyperelasticConstitutiveModel,
+    C2: HyperelasticConstitutiveModel
 {
+    /// Calculates and returns the Helmholtz free energy density.
+    ///
+    /// ```math
+    /// a(\mathbf{F}) = a_1(\mathbf{F}) + a_2(\mathbf{F})
+    /// ```
+    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar
+    {
+        self.get_constitutive_model_1().calculate_helmholtz_free_energy_density(deformation_gradient) + self.get_constitutive_model_2().calculate_helmholtz_free_energy_density(deformation_gradient)
+    }
     fn get_bulk_modulus(&self) -> &Scalar
     {
         panic!()

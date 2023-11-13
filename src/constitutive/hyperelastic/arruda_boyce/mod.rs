@@ -77,6 +77,18 @@ impl<'a> ConstitutiveModel<'a> for ArrudaBoyceModel<'a>
         let term = CauchyTangentStiffness::dyad_ij_kl(&scaled_deviatoric_isochoric_left_cauchy_green_deformation, &(deviatoric_isochoric_left_cauchy_green_deformation * &inverse_transpose_deformation_gradient*((1.0/eta/langevin_derivative(eta) - 1.0/gamma)/3.0/self.get_number_of_links()/gamma)));
         (CauchyTangentStiffness::dyad_ik_jl(&identity, deformation_gradient) + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &identity) - CauchyTangentStiffness::dyad_ij_kl(&identity, deformation_gradient)*(2.0/3.0))*scaled_shear_modulus + CauchyTangentStiffness::dyad_ij_kl(&(identity*(0.5*self.get_bulk_modulus()*(jacobian + 1.0/jacobian)) - scaled_deviatoric_isochoric_left_cauchy_green_deformation*(5.0/3.0)), &inverse_transpose_deformation_gradient) + term
     }
+    fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
+    {
+        Self
+        {
+            parameters
+        }
+    }
+}
+
+/// Hyperelastic constitutive model implementation of the Arruda-Boyce hyperelastic constitutive model.
+impl<'a> HyperelasticConstitutiveModel for ArrudaBoyceModel<'a>
+{
     /// Calculates and returns the Helmholtz free energy density.
     ///
     /// ```math
@@ -93,18 +105,6 @@ impl<'a> ConstitutiveModel<'a> for ArrudaBoyceModel<'a>
         3.0*gamma_0/eta_0*self.get_shear_modulus()*self.get_number_of_links()*(gamma*eta - gamma_0*eta_0 - (eta_0*eta.sinh()/(eta*eta_0.sinh())).ln()) + 0.5*self.get_bulk_modulus()*(0.5*(jacobian.powi(2) - 1.0) - jacobian.ln())
 
     }
-    fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
-    {
-        Self
-        {
-            parameters
-        }
-    }
-}
-
-/// Hyperelastic constitutive model implementation of the Arruda-Boyce hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel for ArrudaBoyceModel<'a>
-{
     fn get_bulk_modulus(&self) -> &Scalar
     {
         &self.parameters[0]
