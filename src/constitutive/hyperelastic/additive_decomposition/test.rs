@@ -1,5 +1,6 @@
 use crate::
 {
+    EPSILON,
     constitutive::
     {
         hyperelastic::
@@ -18,7 +19,12 @@ use crate::
             YEOHPARAMETERS
         }
     },
-    mechanics::test::get_deformation_gradient
+    mechanics::test::
+    {
+        get_deformation_gradient,
+        get_deformation_gradient_rotated,
+    },
+    test::assert_eq_within_tols
 };
 use super::*;
 

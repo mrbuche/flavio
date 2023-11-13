@@ -72,6 +72,18 @@ impl<'a> ConstitutiveModel<'a> for GentModel<'a>
         let prefactor = self.get_shear_modulus()*self.get_extensibility()/jacobian/denominator;
         (CauchyTangentStiffness::dyad_ik_jl(&identity, deformation_gradient) + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &identity) - CauchyTangentStiffness::dyad_ij_kl(&identity, deformation_gradient)*(2.0/3.0) + CauchyTangentStiffness::dyad_ij_kl(&deviatoric_isochoric_left_cauchy_green_deformation, deformation_gradient)*(2.0/denominator))*(prefactor/jacobian.powf(2.0/3.0)) + CauchyTangentStiffness::dyad_ij_kl(&(identity*(0.5*self.get_bulk_modulus()*(jacobian + 1.0/jacobian)) - deviatoric_isochoric_left_cauchy_green_deformation*prefactor*((5.0 + 2.0*isochoric_left_cauchy_green_deformation_trace/denominator)/3.0)), &inverse_transpose_deformation_gradient)
     }
+    fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
+    {
+        Self
+        {
+            parameters
+        }
+    }
+}
+
+/// Hyperelastic constitutive model implementation of the Gent hyperelastic constitutive model.
+impl<'a> HyperelasticConstitutiveModel for GentModel<'a>
+{
     /// Calculates and returns the Helmholtz free energy density.
     ///
     /// ```math
@@ -87,18 +99,6 @@ impl<'a> ConstitutiveModel<'a> for GentModel<'a>
         }
         0.5*(-self.get_shear_modulus()*self.get_extensibility()*(1.0 - factor).ln() + self.get_bulk_modulus()*(0.5*(jacobian.powi(2) - 1.0) - jacobian.ln()))
     }
-    fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
-    {
-        Self
-        {
-            parameters
-        }
-    }
-}
-
-/// Hyperelastic constitutive model implementation of the Gent hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel for GentModel<'a>
-{
     fn get_bulk_modulus(&self) -> &Scalar
     {
         &self.parameters[0]

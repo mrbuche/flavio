@@ -64,17 +64,6 @@ impl<'a> ConstitutiveModel<'a> for MooneyRivlinModel<'a>
         let term_2 = CauchyTangentStiffness::dyad_ij_kl(&identity, &((deviatoric_inverse_isochoric_left_cauchy_green_deformation * 2.0/3.0) * &inverse_transpose_deformation_gradient));
         (CauchyTangentStiffness::dyad_ik_jl(&identity, deformation_gradient) + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &identity) - CauchyTangentStiffness::dyad_ij_kl(&identity, deformation_gradient)*(2.0/3.0))*scaled_delta_shear_modulus + CauchyTangentStiffness::dyad_ij_kl(&(identity*(0.5*self.get_bulk_modulus()*(jacobian + 1.0/jacobian)) - self.calculate_left_cauchy_green_deformation(deformation_gradient).deviatoric()*(scaled_delta_shear_modulus*5.0/3.0)), &inverse_transpose_deformation_gradient) - (term_1 + term_2 - term_3)*self.get_extra_modulus()/jacobian
     }
-    /// Calculates and returns the Helmholtz free energy density.
-    ///
-    /// ```math
-    /// a(\mathbf{F}) = \frac{\mu - \mu_m}{2}\left[\mathrm{tr}(\mathbf{B}^* ) - 3\right] + \frac{\mu_m}{2}\left[I_2(\mathbf{B}^*) - 3\right] + \frac{\kappa}{2}\left[\frac{1}{2}\left(J^2 - 1\right) - \ln J\right]
-    /// ```
-    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar
-    {
-        let jacobian = deformation_gradient.determinant();
-        let isochoric_left_cauchy_green_deformation = self.calculate_left_cauchy_green_deformation(deformation_gradient)/jacobian.powf(2.0/3.0);
-        0.5*((self.get_shear_modulus() - self.get_extra_modulus())*(isochoric_left_cauchy_green_deformation.trace() - 3.0) + self.get_extra_modulus()*(isochoric_left_cauchy_green_deformation.second_invariant() - 3.0) + self.get_bulk_modulus()*(0.5*(jacobian.powi(2) - 1.0) - jacobian.ln()))
-    }
     fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
     {
         Self
@@ -87,6 +76,17 @@ impl<'a> ConstitutiveModel<'a> for MooneyRivlinModel<'a>
 /// Hyperelastic constitutive model implementation of the Mooney-Rivlin hyperelastic constitutive model.
 impl<'a> HyperelasticConstitutiveModel for MooneyRivlinModel<'a>
 {
+    /// Calculates and returns the Helmholtz free energy density.
+    ///
+    /// ```math
+    /// a(\mathbf{F}) = \frac{\mu - \mu_m}{2}\left[\mathrm{tr}(\mathbf{B}^* ) - 3\right] + \frac{\mu_m}{2}\left[I_2(\mathbf{B}^*) - 3\right] + \frac{\kappa}{2}\left[\frac{1}{2}\left(J^2 - 1\right) - \ln J\right]
+    /// ```
+    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar
+    {
+        let jacobian = deformation_gradient.determinant();
+        let isochoric_left_cauchy_green_deformation = self.calculate_left_cauchy_green_deformation(deformation_gradient)/jacobian.powf(2.0/3.0);
+        0.5*((self.get_shear_modulus() - self.get_extra_modulus())*(isochoric_left_cauchy_green_deformation.trace() - 3.0) + self.get_extra_modulus()*(isochoric_left_cauchy_green_deformation.second_invariant() - 3.0) + self.get_bulk_modulus()*(0.5*(jacobian.powi(2) - 1.0) - jacobian.ln()))
+    }
     fn get_bulk_modulus(&self) -> &Scalar
     {
         &self.parameters[0]
