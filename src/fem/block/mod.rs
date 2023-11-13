@@ -171,12 +171,6 @@ where
     }
     fn solve_using_gradient_descent(&mut self)
     {
-        //
-        // need to be able to apply displacements
-        // would be cool if you could make them Lagrange multiplier effects rather than hard constraints
-        // would help with keeping iterators enclosed
-        // and maybe solving since won't have to ramp up displacements or anything
-        //
         let mut step_size = REL_TOL;
         let mut coordinates = self.get_current_nodal_coordinates() * 1.0;
         let mut nodal_forces = self.calculate_nodal_forces();
