@@ -42,11 +42,6 @@ macro_rules! test_finite_element_block
                 test::assert_eq_within_tols
             };
             use super::*;
-            // pub mod almansi_hamel
-            // {
-            //     use super::*;
-            //     test_finite_element_block_with_constitutive_model!($element, AlmansiHamelModel, ALMANSIHAMELPARAMETERS);
-            // }
             pub mod arruda_boyce
             {
                 use super::*;
@@ -98,7 +93,8 @@ macro_rules! test_finite_element_block_with_constitutive_model
         }
         fn get_current_coordinates_transformed_block() -> CurrentNodalCoordinates<D>
         {
-            get_current_coordinates_block().iter().map(|current_coordinate|
+            get_current_coordinates_block().iter()
+            .map(|current_coordinate|
                 (get_rotation_current_configuration() * current_coordinate)
                 + get_translation_current_configuration()
             ).collect()
@@ -177,7 +173,8 @@ macro_rules! test_finite_element_block_with_constitutive_model
         }
         fn get_reference_coordinates_transformed_block() -> ReferenceNodalCoordinates<D>
         {
-            get_reference_coordinates_block().iter().map(|reference_coordinate|
+            get_reference_coordinates_block().iter()
+            .map(|reference_coordinate|
                 (get_rotation_reference_configuration() * reference_coordinate)
                 + get_translation_reference_configuration()
             ).collect()
@@ -205,6 +202,45 @@ macro_rules! test_finite_element_block_with_constitutive_model
                                 (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON
                             )
                         )
+                    )
+                }
+                #[test]
+                fn minimized()
+                {
+                    let mut block = get_block();
+                    block.set_current_nodal_coordinates(
+                        get_current_coordinates_block()
+                    );
+                    let nodal_forces = block.calculate_nodal_forces();
+                    let minimum = block.calculate_helmholtz_free_energy()
+                        - nodal_forces.dot(
+                        &get_current_coordinates_block()
+                    );
+                    let mut perturbed_coordinates = get_current_coordinates_block();
+                    (0..D).for_each(|node|
+                        (0..3).for_each(|i|{
+                            perturbed_coordinates = get_current_coordinates_block();
+                            perturbed_coordinates[node][i] += 0.5 * EPSILON;
+                            block.set_current_nodal_coordinates(
+                                &perturbed_coordinates * 1.0
+                            );
+                            assert!(
+                                block.calculate_helmholtz_free_energy()
+                                - nodal_forces.dot(
+                                    &perturbed_coordinates
+                                ) > minimum
+                            );
+                            perturbed_coordinates[node][i] -= EPSILON;
+                            block.set_current_nodal_coordinates(
+                                &perturbed_coordinates * 1.0
+                            );
+                            assert!(
+                                block.calculate_helmholtz_free_energy()
+                                - nodal_forces.dot(
+                                    &perturbed_coordinates
+                                ) > minimum
+                            );
+                        })
                     )
                 }
                 #[test]
@@ -250,6 +286,32 @@ macro_rules! test_finite_element_block_with_constitutive_model
                                 fd_nodal_force_i.abs() < EPSILON
                             )
                         )
+                    )
+                }
+                #[test]
+                fn minimized()
+                {
+                    let mut block = get_block();
+                    let minimum = block.calculate_helmholtz_free_energy();
+                    let mut perturbed_coordinates = get_reference_coordinates_block();
+                    (0..D).for_each(|node|
+                        (0..3).for_each(|i|{
+                            perturbed_coordinates = get_reference_coordinates_block();
+                            perturbed_coordinates[node][i] += 0.5 * EPSILON;
+                            block.set_current_nodal_coordinates(
+                                perturbed_coordinates.convert()
+                            );
+                            assert!(
+                                block.calculate_helmholtz_free_energy() > minimum
+                            );
+                            perturbed_coordinates[node][i] -= EPSILON;
+                            block.set_current_nodal_coordinates(
+                                perturbed_coordinates.convert()
+                            );
+                            assert!(
+                                block.calculate_helmholtz_free_energy() > minimum
+                            );
+                        })
                     )
                 }
                 #[test]

@@ -43,11 +43,6 @@ macro_rules! test_finite_element
                 test::assert_eq_within_tols
             };
             use super::*;
-            // pub mod almansi_hamel
-            // {
-            //     use super::*;
-            //     test_finite_element_with_constitutive_model!($element, AlmansiHamelModel, ALMANSIHAMELPARAMETERS);
-            // }
             pub mod arruda_boyce
             {
                 use super::*;
@@ -200,6 +195,41 @@ macro_rules! test_finite_element_with_constitutive_model
                     )
                 }
                 #[test]
+                fn minimized()
+                {
+                    let element = get_element();
+                    let nodal_forces = element.calculate_nodal_forces(
+                        &get_current_coordinates()
+                    );
+                    let minimum = element.calculate_helmholtz_free_energy(
+                        &get_current_coordinates()
+                    ) - nodal_forces.dot(
+                        &get_current_coordinates()
+                    );
+                    let mut perturbed_coordinates = get_current_coordinates();
+                    (0..N).for_each(|node|
+                        (0..3).for_each(|i|{
+                            perturbed_coordinates = get_current_coordinates();
+                            perturbed_coordinates[node][i] += 0.5 * EPSILON;
+                            assert!(
+                                element.calculate_helmholtz_free_energy(
+                                    &perturbed_coordinates
+                                ) - nodal_forces.dot(
+                                    &perturbed_coordinates
+                                ) > minimum
+                            );
+                            perturbed_coordinates[node][i] -= EPSILON;
+                            assert!(
+                                element.calculate_helmholtz_free_energy(
+                                    &perturbed_coordinates
+                                ) - nodal_forces.dot(
+                                    &perturbed_coordinates
+                                ) > minimum
+                            );
+                        })
+                    )
+                }
+                #[test]
                 fn objectivity()
                 {
                     assert_eq_within_tols(
@@ -240,6 +270,32 @@ macro_rules! test_finite_element_with_constitutive_model
                                 fd_nodal_force_i.abs() < EPSILON
                             )
                         )
+                    )
+                }
+                #[test]
+                fn minimized()
+                {
+                    let element = get_element();
+                    let minimum = element.calculate_helmholtz_free_energy(
+                        &get_reference_coordinates().convert()
+                    );
+                    let mut perturbed_coordinates = get_reference_coordinates();
+                    (0..N).for_each(|node|
+                        (0..3).for_each(|i|{
+                            perturbed_coordinates = get_reference_coordinates();
+                            perturbed_coordinates[node][i] += 0.5 * EPSILON;
+                            assert!(
+                                element.calculate_helmholtz_free_energy(
+                                    &perturbed_coordinates.convert()
+                                ) > minimum
+                            );
+                            perturbed_coordinates[node][i] -= EPSILON;
+                            assert!(
+                                element.calculate_helmholtz_free_energy(
+                                    &perturbed_coordinates.convert()
+                                ) > minimum
+                            );
+                        })
                     )
                 }
                 #[test]

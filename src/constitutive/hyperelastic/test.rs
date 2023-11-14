@@ -79,6 +79,41 @@ macro_rules! test_hyperelastic_constitutive_model_constructed
                         )
                     }
                     #[test]
+                    fn minimized()
+                    {
+                        let model = $hyperelastic_constitutive_model_constructed;
+                        let first_piola_kirchoff_stress = model.calculate_first_piola_kirchoff_stress(
+                            &get_deformation_gradient()
+                        );
+                        let minimum = model.calculate_helmholtz_free_energy_density(
+                            &get_deformation_gradient()
+                        ) - first_piola_kirchoff_stress.full_contraction(
+                            &get_deformation_gradient()
+                        );
+                        let mut perturbed_deformation_gradient = get_deformation_gradient();
+                        (0..3).for_each(|i|
+                            (0..3).for_each(|j|{
+                                perturbed_deformation_gradient = get_deformation_gradient();
+                                perturbed_deformation_gradient[i][j] += 0.5 * EPSILON;
+                                assert!(
+                                    model.calculate_helmholtz_free_energy_density(
+                                        &perturbed_deformation_gradient
+                                    ) - first_piola_kirchoff_stress.full_contraction(
+                                        &perturbed_deformation_gradient
+                                    ) > minimum
+                                );
+                                perturbed_deformation_gradient[i][j] -= EPSILON;
+                                assert!(
+                                    model.calculate_helmholtz_free_energy_density(
+                                        &perturbed_deformation_gradient
+                                    ) - first_piola_kirchoff_stress.full_contraction(
+                                        &perturbed_deformation_gradient
+                                    ) > minimum
+                                );
+                            })
+                        )
+                    }
+                    #[test]
                     fn objectivity()
                     {
                         let model = $hyperelastic_constitutive_model_constructed;
@@ -105,6 +140,32 @@ macro_rules! test_hyperelastic_constitutive_model_constructed
                             .for_each(|fd_first_piola_kirchoff_stress_ij|
                                 assert!(fd_first_piola_kirchoff_stress_ij.abs() < EPSILON)
                             )
+                        )
+                    }
+                    #[test]
+                    fn minimized()
+                    {
+                        let model = $hyperelastic_constitutive_model_constructed;
+                        let minimum = model.calculate_helmholtz_free_energy_density(
+                            &DeformationGradient::identity()
+                        );
+                        let mut perturbed_deformation_gradient = DeformationGradient::identity();
+                        (0..3).for_each(|i|
+                            (0..3).for_each(|j|{
+                                perturbed_deformation_gradient = DeformationGradient::identity();
+                                perturbed_deformation_gradient[i][j] += 0.5 * EPSILON;
+                                assert!(
+                                    model.calculate_helmholtz_free_energy_density(
+                                        &perturbed_deformation_gradient
+                                    ) > minimum
+                                );
+                                perturbed_deformation_gradient[i][j] -= EPSILON;
+                                assert!(
+                                    model.calculate_helmholtz_free_energy_density(
+                                        &perturbed_deformation_gradient
+                                    ) > minimum
+                                );
+                            })
                         )
                     }
                     #[test]
