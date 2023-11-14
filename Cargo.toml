@@ -9,7 +9,7 @@ keywords = ["flavio", "mrbuche"]
 license = "BSD-3-Clause"
 name = "flavio"
 repository = "https://github.com/mrbuche/flavio"
-version = "0.3.2"
+version = "0.3.1"
 
 [features]
 constitutive = ['mechanics']
