@@ -37,7 +37,8 @@ use list_2d::TensorRank2List2D;
 /// `D` is the dimension, `I`, `J` are the configurations.
 pub struct TensorRank2<const D: usize, const I: usize, const J: usize>
 (
-    [TensorRank1<D, J>; D]
+    /// An array of rank-1 tensors.
+    pub [TensorRank1<D, J>; D]
 );
 
 /// Inherent implementation of [`TensorRank2`].

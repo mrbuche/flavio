@@ -32,10 +32,11 @@ use super::
 
 /// A list of *d*-dimensional tensors of rank 1.
 ///
-/// `D` is the dimension, `I` is the configuration, `L` is the list length.
+/// `D` is the dimension, `I` is the configuration, `W` is the list length.
 pub struct TensorRank1List<const D: usize, const I: usize, const W: usize>
 (
-    [TensorRank1<D, I>; W]
+    /// An array of rank-1 tensors.
+    pub [TensorRank1<D, I>; W]
 );
 
 /// Inherent implementation of [`TensorRank1List`].
@@ -72,9 +73,9 @@ pub trait TensorRank1ListTrait<const D: usize, const W: usize>
 {
     /// Returns a list of rank-1 tensors given an array.
     fn new(array: [[TensorRank0; D]; W]) -> Self;
-    /// ???
+    /// Returns the sum of the dot product of each rank-1 tensor in each list.
     fn dot(&self, tensor_rank_1_list: &Self) -> TensorRank0;
-    /// ???
+    /// Returns the sum of the dot product of each rank-1 tensor with itself.
     fn dot_self(&self) -> TensorRank0;
     /// Returns the sum of the rank-1 tensor norms.
     fn norm(&self) -> TensorRank0;
