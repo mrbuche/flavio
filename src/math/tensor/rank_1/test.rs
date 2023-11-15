@@ -90,6 +90,16 @@ fn add_assign_tensor_rank_1_ref()
 }
 
 #[test]
+fn as_array()
+{
+    get_tensor_rank_1().as_array().iter()
+    .zip(get_array().iter())
+    .for_each(|(tensor_rank_1_as_array_i, array_i)|
+        assert_eq!(tensor_rank_1_as_array_i, array_i)
+    );
+}
+
+#[test]
 fn div_tensor_rank_0_to_self()
 {
     (get_tensor_rank_1() / 3.3).iter()

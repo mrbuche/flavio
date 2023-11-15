@@ -37,8 +37,7 @@ use list_2d::TensorRank2List2D;
 /// `D` is the dimension, `I`, `J` are the configurations.
 pub struct TensorRank2<const D: usize, const I: usize, const J: usize>
 (
-    /// An array of rank-1 tensors.
-    pub [TensorRank1<D, J>; D]
+    [TensorRank1<D, J>; D]
 );
 
 /// Inherent implementation of [`TensorRank2`].
@@ -83,6 +82,7 @@ where
         + IndexMut<usize, Output = TensorRank1<D, J>>
         + Sized
 {
+    fn as_array(&self) -> [[TensorRank0; D]; D];
     fn determinant(&self) -> TensorRank0;
     fn deviatoric(&self) -> Self;
     fn deviatoric_and_trace(&self) -> (Self, TensorRank0);
@@ -241,6 +241,16 @@ where
 
 impl<const I: usize, const J: usize> TensorRank2Trait<2, I, J> for TensorRank2<2, I, J>
 {
+    fn as_array(&self) -> [[TensorRank0; 2]; 2]
+    {
+        let mut array = [[0.0; 2]; 2];
+        array.iter_mut()
+        .zip(self.iter())
+        .for_each(|(entry, tensor_rank_1)|
+            *entry = tensor_rank_1.as_array()
+        );
+        array
+    }
     fn determinant(&self) -> TensorRank0
     {
         self[0][0] * self[1][1] - self[0][1] * self[1][0]
@@ -325,6 +335,16 @@ impl<const I: usize, const J: usize> TensorRank2Trait<2, I, J> for TensorRank2<2
 
 impl<const I: usize, const J: usize> TensorRank2Trait<3, I, J> for TensorRank2<3, I, J>
 {
+    fn as_array(&self) -> [[TensorRank0; 3]; 3]
+    {
+        let mut array = [[0.0; 3]; 3];
+        array.iter_mut()
+        .zip(self.iter())
+        .for_each(|(entry, tensor_rank_1)|
+            *entry = tensor_rank_1.as_array()
+        );
+        array
+    }
     fn determinant(&self) -> TensorRank0
     {
         let c_00 = self[1][1] * self[2][2] - self[1][2] * self[2][1];
@@ -476,6 +496,16 @@ impl<const I: usize, const J: usize> TensorRank2Trait<3, I, J> for TensorRank2<3
 
 impl<const I: usize, const J: usize> TensorRank2Trait<4, I, J> for TensorRank2<4, I, J>
 {
+    fn as_array(&self) -> [[TensorRank0; 4]; 4]
+    {
+        let mut array = [[0.0; 4]; 4];
+        array.iter_mut()
+        .zip(self.iter())
+        .for_each(|(entry, tensor_rank_1)|
+            *entry = tensor_rank_1.as_array()
+        );
+        array
+    }
     fn determinant(&self) -> TensorRank0
     {
         let s0 = self[0][0] * self[1][1] - self[0][1] * self[1][0];
@@ -708,6 +738,16 @@ impl<const I: usize, const J: usize> TensorRank2Trait<4, I, J> for TensorRank2<4
 
 impl<const I: usize, const J: usize> TensorRank2Trait<9, I, J> for TensorRank2<9, I, J>
 {
+    fn as_array(&self) -> [[TensorRank0; 9]; 9]
+    {
+        let mut array = [[0.0; 9]; 9];
+        array.iter_mut()
+        .zip(self.iter())
+        .for_each(|(entry, tensor_rank_1)|
+            *entry = tensor_rank_1.as_array()
+        );
+        array
+    }
     fn determinant(&self) -> TensorRank0
     {
         let (tensor_l, tensor_u) = self.lu_decomposition();

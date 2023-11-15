@@ -31,8 +31,7 @@ use super::
 /// `D` is the dimension, `I`, `J`, `K` are the configurations.
 pub struct TensorRank3<const D: usize, const I: usize, const J: usize, const K: usize>
 (
-    /// An array of rank-2 tensors.
-    pub [TensorRank2<D, J, K>; D]
+    [TensorRank2<D, J, K>; D]
 );
 
 /// Inherent implementation of [`TensorRank3`].
