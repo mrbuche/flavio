@@ -24,8 +24,7 @@ use super::
 /// `D` is the dimension, `I`, `J` are the configurations `W` is the list length.
 pub struct TensorRank2List2D<const D: usize, const I: usize, const J: usize, const W: usize>
 (
-    /// An array of rank-2 tensors.
-    pub [TensorRank2List<D, I, J, W>; W]
+    [TensorRank2List<D, I, J, W>; W]
 );
 
 /// Inherent implementation of [`TensorRank2List2D`].

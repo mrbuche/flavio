@@ -284,6 +284,62 @@ fn add_assign_tensor_rank_2_ref()
 }
 
 #[test]
+fn as_array_dim_2()
+{
+    get_tensor_rank_2_dim_2().as_array().iter()
+    .zip(get_array_dim_2().iter())
+    .for_each(|(tensor_rank_2_as_array_i, array_i)|
+        tensor_rank_2_as_array_i.iter()
+        .zip(array_i.iter())
+        .for_each(|(tensor_rank_2_as_array_ij, array_ij)|
+            assert_eq!(tensor_rank_2_as_array_ij, array_ij)
+        )
+    );
+}
+
+#[test]
+fn as_array_dim_3()
+{
+    get_tensor_rank_2_dim_3().as_array().iter()
+    .zip(get_array_dim_3().iter())
+    .for_each(|(tensor_rank_2_as_array_i, array_i)|
+        tensor_rank_2_as_array_i.iter()
+        .zip(array_i.iter())
+        .for_each(|(tensor_rank_2_as_array_ij, array_ij)|
+            assert_eq!(tensor_rank_2_as_array_ij, array_ij)
+        )
+    );
+}
+
+#[test]
+fn as_array_dim_4()
+{
+    get_tensor_rank_2_dim_4().as_array().iter()
+    .zip(get_array_dim_4().iter())
+    .for_each(|(tensor_rank_2_as_array_i, array_i)|
+        tensor_rank_2_as_array_i.iter()
+        .zip(array_i.iter())
+        .for_each(|(tensor_rank_2_as_array_ij, array_ij)|
+            assert_eq!(tensor_rank_2_as_array_ij, array_ij)
+        )
+    );
+}
+
+#[test]
+fn as_array_dim_9()
+{
+    get_tensor_rank_2_dim_9().as_array().iter()
+    .zip(get_array_dim_9().iter())
+    .for_each(|(tensor_rank_2_as_array_i, array_i)|
+        tensor_rank_2_as_array_i.iter()
+        .zip(array_i.iter())
+        .for_each(|(tensor_rank_2_as_array_ij, array_ij)|
+            assert_eq!(tensor_rank_2_as_array_ij, array_ij)
+        )
+    );
+}
+
+#[test]
 fn div_tensor_rank_0_to_self()
 {
     (get_tensor_rank_2_dim_4() / 3.3).iter()

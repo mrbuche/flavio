@@ -20,8 +20,7 @@ use super::
 /// `D` is the dimension, `I`, `J`, `K`, `L` are the configurations, `W` is the list length.
 pub struct TensorRank4List<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize, const W: usize>
 (
-    /// An array of rank-4 tensors.
-    pub [TensorRank4<D, I, J, K, L>; W]
+    [TensorRank4<D, I, J, K, L>; W]
 );
 
 /// Inherent implementation of [`TensorRank4List`].

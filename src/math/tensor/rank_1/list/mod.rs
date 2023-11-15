@@ -35,8 +35,7 @@ use super::
 /// `D` is the dimension, `I` is the configuration, `W` is the list length.
 pub struct TensorRank1List<const D: usize, const I: usize, const W: usize>
 (
-    /// An array of rank-1 tensors.
-    pub [TensorRank1<D, I>; W]
+    [TensorRank1<D, I>; W]
 );
 
 /// Inherent implementation of [`TensorRank1List`].
@@ -71,6 +70,8 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> Convert<Ten
 /// Required methods for rank-1 tensor lists.
 pub trait TensorRank1ListTrait<const D: usize, const W: usize>
 {
+    /// Returns the list of rank-1 tensors as an array.
+    fn as_array(&self) -> [[TensorRank0; D]; W];
     /// Returns a list of rank-1 tensors given an array.
     fn new(array: [[TensorRank0; D]; W]) -> Self;
     /// Returns the sum of the dot product of each rank-1 tensor in each list.
@@ -86,6 +87,16 @@ pub trait TensorRank1ListTrait<const D: usize, const W: usize>
 /// Implementation of [`TensorRank1ListTrait`] for [`TensorRank1List`].
 impl<const D: usize, const I: usize, const W: usize> TensorRank1ListTrait<D, W> for TensorRank1List<D, I, W>
 {
+    fn as_array(&self) -> [[TensorRank0; D]; W]
+    {
+        let mut array = [[0.0; D]; W];
+        array.iter_mut()
+        .zip(self.iter())
+        .for_each(|(entry, tensor_rank_1)|
+            *entry = tensor_rank_1.as_array()
+        );
+        array
+    }
     fn new(array: [[TensorRank0; D]; W]) -> Self
     {
         array.iter().map(|array_i|
