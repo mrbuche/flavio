@@ -27,7 +27,8 @@ use super::
 /// `D` is the dimension, `I` is the configuration.
 pub struct TensorRank1<const D: usize, const I: usize>
 (
-    [TensorRank0; D]
+    /// An array of rank-0 tensors.
+    pub [TensorRank0; D]
 );
 
 /// Inherent implementation of [`TensorRank1`].

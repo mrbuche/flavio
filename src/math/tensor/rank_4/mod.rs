@@ -38,7 +38,8 @@ pub mod list;
 /// `D` is the dimension, `I`, `J`, `K`, `L` are the configurations.
 pub struct TensorRank4<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize>
 (
-    [TensorRank3<D, J, K, L>; D]
+    /// An array of rank-3 tensors.
+    pub [TensorRank3<D, J, K, L>; D]
 );
 
 /// Inherent implementation of [`TensorRank4`].
