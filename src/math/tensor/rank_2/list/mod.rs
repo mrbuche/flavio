@@ -45,6 +45,8 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2
 /// Required methods for rank-2 tensor lists.
 pub trait TensorRank2ListTrait<const D: usize, const W: usize>
 {
+    /// Returns the rank-2 tensor list as an array.
+    fn as_array(&self) -> [[[TensorRank0; D]; D]; W];
     /// Returns a list of rank-2 tensors given an array.
     fn new(array: [[[TensorRank0; D]; D]; W]) -> Self;
     /// Returns a list of rank-2 zero tensors.
@@ -54,6 +56,20 @@ pub trait TensorRank2ListTrait<const D: usize, const W: usize>
 /// Implementation of [`TensorRank2ListTrait`] for [`TensorRank2List`].
 impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2ListTrait<D, W> for TensorRank2List<D, I, J, W>
 {
+    fn as_array(&self) -> [[[TensorRank0; D]; D]; W]
+    {
+        let mut array = [[[0.0; D]; D]; W];
+        array.iter_mut()
+        .zip(self.iter())
+        .for_each(|(entry_rank_2, tensor_rank_2)|
+            entry_rank_2.iter_mut()
+            .zip(tensor_rank_2.iter())
+            .for_each(|(entry_rank_1, tensor_rank_1)|
+                *entry_rank_1 = tensor_rank_1.as_array()
+            )
+        );
+        array
+    }
     fn new(array: [[[TensorRank0; D]; D]; W]) -> Self
     {
         array.iter().map(|array_i|

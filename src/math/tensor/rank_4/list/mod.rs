@@ -50,6 +50,8 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
 /// Required methods for rank-4 tensor lists.
 pub trait TensorRank4ListTrait<const D: usize, const W: usize>
 {
+    /// Returns the rank-4 tensor list as an array.
+    fn as_array(&self) -> [[[[[TensorRank0; D]; D]; D]; D]; W];
     /// Returns a list of rank-4 tensors given an array.
     fn new(array: [[[[[TensorRank0; D]; D]; D]; D]; W]) -> Self;
     /// Returns a list of rank-4 zero tensors.
@@ -59,6 +61,16 @@ pub trait TensorRank4ListTrait<const D: usize, const W: usize>
 /// Implementation of [`TensorRank4ListTrait`] for [`TensorRank4List`].
 impl<const I: usize, const J: usize, const K: usize, const L: usize, const W: usize> TensorRank4ListTrait<3, W> for TensorRank4List<3, I, J, K, L, W>
 {
+    fn as_array(&self) -> [[[[[TensorRank0; 3]; 3]; 3]; 3]; W]
+    {
+        let mut array = [[[[[0.0; 3]; 3]; 3]; 3]; W];
+        array.iter_mut()
+        .zip(self.iter())
+        .for_each(|(entry_rank_4, tensor_rank_4)|
+            *entry_rank_4 = tensor_rank_4.as_array()
+        );
+        array
+    }
     fn new(array: [[[[[TensorRank0; 3]; 3]; 3]; 3]; W]) -> Self
     {
         array.iter().map(|array_i|

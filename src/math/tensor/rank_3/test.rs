@@ -205,6 +205,24 @@ fn add_assign_tensor_rank_3_ref()
 }
 
 #[test]
+fn as_array()
+{
+    get_tensor_rank_3().as_array().iter()
+    .zip(get_array().iter())
+    .for_each(|(tensor_rank_3_as_array_i, array_i)|
+        tensor_rank_3_as_array_i.iter()
+        .zip(array_i.iter())
+        .for_each(|(tensor_rank_3_as_array_ij, array_ij)|
+            tensor_rank_3_as_array_ij.iter()
+            .zip(array_ij.iter())
+            .for_each(|(tensor_rank_3_as_array_ijk, array_ijk)|
+                assert_eq!(tensor_rank_3_as_array_ijk, array_ijk)
+            )
+        )
+    );
+}
+
+#[test]
 fn div_tensor_rank_0_to_self()
 {
     (get_tensor_rank_3() / 3.3).iter()

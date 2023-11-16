@@ -89,6 +89,32 @@ fn get_tensor_rank_4_list() -> TensorRank4List<3, 1, 1, 1, 1, 2>
 }
 
 #[test]
+fn as_array()
+{
+    get_tensor_rank_4_list().as_array().iter()
+    .zip(get_array().iter())
+    .for_each(|(tensor_rank_4_entry, array_entry)|
+        tensor_rank_4_entry.iter()
+        .zip(array_entry.iter())
+        .for_each(|(tensor_rank_4_entry_i, array_entry_i)|
+            tensor_rank_4_entry_i.iter()
+            .zip(array_entry_i.iter())
+            .for_each(|(tensor_rank_4_entry_ij, array_entry_ij)|
+                tensor_rank_4_entry_ij.iter()
+                .zip(array_entry_ij.iter())
+                .for_each(|(tensor_rank_4_entry_ijk, array_entry_ijk)|
+                    tensor_rank_4_entry_ijk.iter()
+                    .zip(array_entry_ijk.iter())
+                    .for_each(|(tensor_rank_4_entry_ijkl, array_entry_ijkl)|
+                        assert_eq!(tensor_rank_4_entry_ijkl, array_entry_ijkl)
+                    )
+                )
+            )
+        )
+    );
+}
+
+#[test]
 fn from_iter()
 {
     let into_iterator = get_tensor_rank_4_list().0.into_iter();
