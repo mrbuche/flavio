@@ -48,6 +48,24 @@ fn get_tensor_rank_2_list() -> TensorRank2List<3, 1, 1, 8>
 }
 
 #[test]
+fn as_array()
+{
+    get_tensor_rank_2_list().as_array().iter()
+    .zip(get_array().iter())
+    .for_each(|(tensor_rank_2_entry, array_entry)|
+        tensor_rank_2_entry.iter()
+        .zip(array_entry.iter())
+        .for_each(|(tensor_rank_2_entry_i, array_entry_i)|
+            tensor_rank_2_entry_i.iter()
+            .zip(array_entry_i.iter())
+            .for_each(|(tensor_rank_2_entry_ij, array_entry_ij)|
+                assert_eq!(tensor_rank_2_entry_ij, array_entry_ij)
+            )
+        )
+    );
+}
+
+#[test]
 fn from_iter()
 {
     let into_iterator = get_tensor_rank_2_list().0.into_iter();
