@@ -1,6 +1,6 @@
 # f l a v i o
 
-[![stable](https://img.shields.io/badge/docs-stable-e57300)](https://docs.rs/crate/flavio)
+[![stable](https://img.shields.io/badge/docs-stable-e57300)](https://docs.rs/flavio)
 [![dev](https://img.shields.io/badge/docs-dev-e57300)](https://mrbuche.github.io/flavio/dev)
 [![DOI](https://img.shields.io/badge/DOI-10.5281/zenodo.10010823-e57300)](https://doi.org/10.5281/zenodo.10010823)
 
