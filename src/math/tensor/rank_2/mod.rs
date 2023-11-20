@@ -79,26 +79,41 @@ pub trait TensorRank2Trait<const D: usize, const I: usize, const J: usize>
 where
     Self: Sized
 {
+    /// Returns the determinant of the rank-2 tensor.
     fn determinant(&self) -> TensorRank0;
+    /// Returns the deviatoric component of the rank-2 tensor.
     fn deviatoric(&self) -> Self;
+    /// Returns the deviatoric component and trace of the rank-2 tensor.
     fn deviatoric_and_trace(&self) -> (Self, TensorRank0);
+    /// Returns a rank-2 tensor constructed from a dyad of the given vectors.
     fn dyad(vector_a: &TensorRank1<D, I>, vector_b: &TensorRank1<D, J>) -> Self;
+    /// Returns the full contraction with another rank-2 tensor.
     fn full_contraction(&self, tensor_rank_2: &Self) -> TensorRank0;
     /// Returns the rank-2 identity tensor.
     fn identity() -> Self;
+    /// Returns the inverse of the rank-2 tensor.
     fn inverse(&self) -> TensorRank2<D, J, I>;
+    /// Returns the inverse and determinant of the rank-2 tensor.
     fn inverse_and_determinant(&self) -> (TensorRank2<D, J, I>, TensorRank0);
+    /// Returns the inverse transpose of the rank-2 tensor.
     fn inverse_transpose(&self) -> Self;
+    /// Returns the inverse transpose and determinant of the rank-2 tensor.
     fn inverse_transpose_and_determinant(&self) -> (Self, TensorRank0);
+    /// Returns the LU decomposition of the rank-2 tensor.
     fn lu_decomposition(&self) -> (TensorRank2<D, I, 88>, TensorRank2<D, 88, J>);
+    /// Returns the inverse of the LU decomposition of the rank-2 tensor.
     fn lu_decomposition_inverse(&self) -> (TensorRank2<D, 88, I>, TensorRank2<D, J, 88>);
     /// Returns a rank-2 tensor given an array.
     fn new(array: [[TensorRank0; D]; D]) -> Self;
     /// Returns the rank-2 tensor norm.
     fn norm(&self) -> TensorRank0;
+    /// Returns the second invariant of the rank-2 tensor.
     fn second_invariant(&self) -> TensorRank0;
+    /// Returns the trace of the rank-2 tensor squared.
     fn squared_trace(&self) -> TensorRank0;
+    /// Returns the trace of the rank-2 tensor.
     fn trace(&self) -> TensorRank0;
+    /// Returns the transpose of the rank-2 tensor.
     fn transpose(&self) -> TensorRank2<D, J, I>;
     /// Returns the rank-2 zero tensor.
     fn zero() -> Self;
