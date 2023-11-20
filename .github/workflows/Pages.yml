@@ -24,7 +24,7 @@ jobs:
           mkdir -p _site/dev/
           cargo doc --release --features fem
           cp -r target/doc/* _site/dev/
-          mv _site/dev/flavio/ _site/dev/
+          mv _site/dev/flavio/* _site/dev/
   Deploy:
     if: github.event_name != 'pull_request'
     environment:
