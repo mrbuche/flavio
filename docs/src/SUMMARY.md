@@ -1,3 +1,0 @@
-# Summary
-
-[Home](home.md)

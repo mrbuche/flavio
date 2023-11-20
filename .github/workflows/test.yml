@@ -30,16 +30,3 @@ jobs:
         run: cargo test --release --features constitutive
       - name: test fem
         run: cargo test --release --features fem
-  mdbook:
-    strategy:
-      fail-fast: false
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout
-        uses: actions/checkout@v4
-      - name: install mdbook
-        run: cargo install mdbook
-      - name: install mdbook-katex
-        run: cargo install mdbook-katex
-      - name: mdbook build
-        run: cd docs/ && mdbook build
