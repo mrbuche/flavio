@@ -23,7 +23,6 @@ jobs:
         run: |
           mkdir -p _site/
           cargo rustdoc --release --features fem -- --html-in-header .github/katex.html
-          grep -rl "flavio/index.html" target/ | xargs sed -i 's@flavio/index.html@latest/index.html@'
           cp -r target/doc/* _site/
       - name: Upload
         uses: actions/upload-pages-artifact@v2
