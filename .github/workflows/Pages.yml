@@ -25,6 +25,8 @@ jobs:
           cargo doc --release --features fem
           cp -r target/doc/* _site/dev/
           mv _site/dev/flavio/* _site/dev/
+      - name: Upload
+        uses: actions/upload-pages-artifact@v2
   Deploy:
     if: github.event_name != 'pull_request'
     environment:
