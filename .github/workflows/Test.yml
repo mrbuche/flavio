@@ -1,11 +1,11 @@
-name: test
+name: Test
 on:
   pull_request:
     branches: [ main ]
 env:
   CARGO_TERM_COLOR: always
 jobs:
-  cargo:
+  Cargo:
     strategy:
       fail-fast: false
       matrix:
@@ -14,32 +14,19 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v4
-      - name: lint math
+      - name: Lint math
         run: cargo clippy --release --features math -- -D warnings
-      - name: lint mechanics
+      - name: Lint mechanics
         run: cargo clippy --release --features mechanics -- -D warnings
-      - name: lint constitutive
+      - name: Lint constitutive
         run: cargo clippy --release --features constitutive -- -D warnings
-      - name: lint fem
+      - name: Lint fem
         run: cargo clippy --release --features fem -- -D warnings
-      - name: test math
+      - name: Test math
         run: cargo test --release --features math
-      - name: test mechanics
+      - name: Test mechanics
         run: cargo test --release --features mechanics
-      - name: test constitutive
+      - name: Test constitutive
         run: cargo test --release --features constitutive
-      - name: test fem
+      - name: Test fem
         run: cargo test --release --features fem
-  mdbook:
-    strategy:
-      fail-fast: false
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout
-        uses: actions/checkout@v4
-      - name: install mdbook
-        run: cargo install mdbook
-      - name: install mdbook-katex
-        run: cargo install mdbook-katex
-      - name: mdbook build
-        run: cd docs/ && mdbook build
