@@ -3,7 +3,7 @@ use super::
 {
     TensorRank0,
     TensorRank1,
-    TensorRank1Trait,
+    super::rank_1::TensorRank1Trait,
     TensorRank2,
     TensorRank2Trait,
     TensorRank4,

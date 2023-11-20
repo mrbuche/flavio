@@ -70,12 +70,12 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> Convert<Ten
 /// Required methods for rank-1 tensor lists.
 pub trait TensorRank1ListTrait<const D: usize, const W: usize>
 {
+    /// Returns the sum of the dot product of each rank-1 tensor in each list.
+    fn dot(&self, tensor_rank_1_list: &Self) -> TensorRank0;
+    /// Returns the sum of the dot product of each rank-1 tensor with itself.
+    fn dot_self(&self) -> TensorRank0;
     /// Returns a list of rank-1 tensors given an array.
     fn new(array: [[TensorRank0; D]; W]) -> Self;
-    /// Returns the 
-    fn dot(&self, tensor_rank_1_list: &Self) -> TensorRank0;
-    /// ???
-    fn dot_self(&self) -> TensorRank0;
     /// Returns the sum of the rank-1 tensor norms.
     fn norm(&self) -> TensorRank0;
     /// Returns a list of rank-1 zero tensors.

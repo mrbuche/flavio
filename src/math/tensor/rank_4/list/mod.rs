@@ -57,9 +57,9 @@ pub trait TensorRank4ListTrait<const D: usize, const W: usize>
 }
 
 /// Implementation of [`TensorRank4ListTrait`] for [`TensorRank4List`].
-impl<const I: usize, const J: usize, const K: usize, const L: usize, const W: usize> TensorRank4ListTrait<3, W> for TensorRank4List<3, I, J, K, L, W>
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize, const W: usize> TensorRank4ListTrait<D, W> for TensorRank4List<D, I, J, K, L, W>
 {
-    fn new(array: [[[[[TensorRank0; 3]; 3]; 3]; 3]; W]) -> Self
+    fn new(array: [[[[[TensorRank0; D]; D]; D]; D]; W]) -> Self
     {
         array.iter().map(|array_i|
             TensorRank4::new(*array_i)
