@@ -10,9 +10,8 @@ use std::ops::
 use super::
 {
     TensorRank0,
-    TensorRank1,
-    TensorRank1Trait,
-    TensorRank2
+    TensorRank2,
+    TensorRank2Trait
 };
 
 /// A list of *d*-dimensional tensors of rank 2.
@@ -57,9 +56,7 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2
     fn new(array: [[[TensorRank0; D]; D]; W]) -> Self
     {
         array.iter().map(|array_i|
-            array_i.iter().map(|array_ij|
-                TensorRank1::new(*array_ij)
-            ).collect()
+            TensorRank2::new(*array_i)
         ).collect()
     }
     fn zero() -> Self

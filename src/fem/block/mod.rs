@@ -71,6 +71,7 @@ where
     fn new(constitutive_model_parameters: ConstitutiveModelParameters<'a>, connectivity: Connectivity<E, N>, reference_nodal_coordinates: ReferenceNodalCoordinates<D>) -> Self;
     fn set_current_nodal_coordinates(&mut self, current_nodal_coordinates: CurrentNodalCoordinates<D>);
     fn solve_using_gradient_descent(&mut self);
+    fn solve_using_newtons_method(&mut self);
 }
 
 impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
@@ -193,5 +194,11 @@ where
             ).abs() / nodal_forces_diff.dot_self();
             residual = nodal_forces.norm();
         }
+    }
+    fn solve_using_newtons_method(&mut self)
+    {
+        let mut nodal_stiffnesses = self.calculate_nodal_stiffnesses();
+        // nodal_stiffnesses.inverse();
+        todo!()
     }
 }
