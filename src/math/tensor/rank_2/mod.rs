@@ -123,6 +123,16 @@ where
 
 impl<const D: usize, const I: usize, const J: usize> TensorRank2Trait<D, I, J> for TensorRank2<D, I, J>
 {
+    fn as_array(&self) -> [[TensorRank0; D]; D]
+    {
+        let mut array = [[0.0; D]; D];
+        array.iter_mut()
+        .zip(self.iter())
+        .for_each(|(entry, tensor_rank_1)|
+            *entry = tensor_rank_1.as_array()
+        );
+        array
+    }
     fn determinant(&self) -> TensorRank0
     {
         if D == 2

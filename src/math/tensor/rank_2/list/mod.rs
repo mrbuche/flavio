@@ -61,11 +61,7 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2
         array.iter_mut()
         .zip(self.iter())
         .for_each(|(entry_rank_2, tensor_rank_2)|
-            entry_rank_2.iter_mut()
-            .zip(tensor_rank_2.iter())
-            .for_each(|(entry_rank_1, tensor_rank_1)|
-                *entry_rank_1 = tensor_rank_1.as_array()
-            )
+            *entry_rank_2 = tensor_rank_2.as_array()
         );
         array
     }
