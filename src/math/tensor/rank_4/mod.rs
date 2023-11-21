@@ -68,34 +68,20 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
 /// Required methods for rank-4 tensors.
 pub trait TensorRank4Trait<const D: usize, TIJ, TIK, TIL, TJL, TJK, TKJ, TKL>
 {
-    type OutputAsTensorRank2;
-    fn as_tensor_rank_2(&self) -> Self::OutputAsTensorRank2;
+    /// ???
     fn dyad_ij_kl(tensor_rank_2_a: TIJ, tensor_rank_2_b: TKL) -> Self;
+    /// ???
     fn dyad_ik_jl(tensor_rank_2_a: TIK, tensor_rank_2_b: TJL) -> Self;
+    /// ???
     fn dyad_il_jk(tensor_rank_2_a: TIL, tensor_rank_2_b: TJK) -> Self;
+    /// ???
     fn dyad_il_kj(tensor_rank_2_a: TIL, tensor_rank_2_b: TKJ) -> Self;
     /// Returns a rank-4 tensor given an array.
     fn new(array: [[[[TensorRank0; D]; D]; D]; D]) -> Self;
-    fn inverse(self) -> Self;
 }
 
 impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> TensorRank4Trait<D, &TensorRank2<D, I, J>, &TensorRank2<D, I, K>, &TensorRank2<D, I, L>, &TensorRank2<D, J, L>, &TensorRank2<D, J, K>, &TensorRank2<D, K, J>, &TensorRank2<D, K, L>> for TensorRank4<D, I, J, K, L>
 {
-    type OutputAsTensorRank2 = TensorRank2<9, 9, 9>;
-    fn as_tensor_rank_2(&self) -> Self::OutputAsTensorRank2
-    {
-        let mut tensor_rank_2 = TensorRank2::zero();
-        self.iter().enumerate().for_each(|(i, self_i)|
-            self_i.iter().enumerate().for_each(|(j, self_ij)|
-                self_ij.iter().enumerate().for_each(|(k, self_ijk)|
-                    self_ijk.iter().enumerate().for_each(|(l, self_ijkl)|
-                        tensor_rank_2[D * i + j][D * k + l] = *self_ijkl
-                    )
-                )
-            )
-        );
-        tensor_rank_2
-    }
     fn dyad_ij_kl(tensor_rank_2_a: &TensorRank2<D, I, J>, tensor_rank_2_b: &TensorRank2<D, K, L>) -> Self
     {
         tensor_rank_2_a.iter().map(|tensor_rank_2_a_i|
@@ -134,14 +120,38 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
             TensorRank3::new(*array_i)
         ).collect()
     }
-    fn inverse(mut self) -> Self
+}
+
+pub trait TensorRank4Inverse
+{
+    fn as_tensor_rank_2<const DD: usize, const M: usize, const N: usize>(&self) -> TensorRank2<DD, M, N>;
+    fn inverse<const DD: usize>(self) -> Self;
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> TensorRank4Inverse for TensorRank4<D, I, J, K, L>
+{
+    fn as_tensor_rank_2<const DD: usize, const M: usize, const N: usize>(&self) -> TensorRank2<DD, M, N>
     {
-        let mut tensor_rank_2 = Self::OutputAsTensorRank2::zero();
+        let mut tensor_rank_2 = TensorRank2::zero();
         self.iter().enumerate().for_each(|(i, self_i)|
             self_i.iter().enumerate().for_each(|(j, self_ij)|
                 self_ij.iter().enumerate().for_each(|(k, self_ijk)|
                     self_ijk.iter().enumerate().for_each(|(l, self_ijkl)|
-                        tensor_rank_2[D * i + j][D * k + l] = *self_ijkl
+                        tensor_rank_2[D*i + j][D*k + l] = *self_ijkl
+                    )
+                )
+            )
+        );
+        tensor_rank_2
+    }
+    fn inverse<const DD: usize>(mut self) -> Self
+    {
+        let mut tensor_rank_2 = TensorRank2::<DD, 88, 88>::zero();
+        self.iter().enumerate().for_each(|(i, self_i)|
+            self_i.iter().enumerate().for_each(|(j, self_ij)|
+                self_ij.iter().enumerate().for_each(|(k, self_ijk)|
+                    self_ijk.iter().enumerate().for_each(|(l, self_ijkl)|
+                        tensor_rank_2[D*i + j][D*k + l] = *self_ijkl
                     )
                 )
             )
@@ -151,7 +161,7 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
             tensor_rank_4_i.iter_mut().enumerate().for_each(|(j, tensor_rank_4_ij)|
                 tensor_rank_4_ij.iter_mut().enumerate().for_each(|(k, tensor_rank_4_ijk)|
                     tensor_rank_4_ijk.iter_mut().enumerate().for_each(|(l, tensor_rank_4_ijkl)|
-                        *tensor_rank_4_ijkl = tensor_rank_2_inverse[D * i + j][D * k + l]
+                        *tensor_rank_4_ijkl = tensor_rank_2_inverse[D*i + j][D*k + l]
                     )
                 )
             )

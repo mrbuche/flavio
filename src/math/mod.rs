@@ -53,6 +53,7 @@ pub use tensor::
         ContractSecondFourthIndicesWithFirstIndicesOf,
         ContractThirdFourthIndicesWithFirstSecondIndicesOf,
         TensorRank4,
+        TensorRank4Inverse,
         TensorRank4Trait,
         list::TensorRank4List
     }
