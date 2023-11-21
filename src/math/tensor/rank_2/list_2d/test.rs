@@ -64,6 +64,28 @@ fn get_tensor_rank_2_list_2d_mul_tensor_rank_2() -> TensorRank2List2D<3, 1, 1, 2
 }
 
 #[test]
+fn as_array()
+{
+    get_tensor_rank_2_list_2d().as_array().iter()
+    .zip(get_array().iter())
+    .for_each(|(tensor_rank_2_list_2d_entry, array_entry)|
+        tensor_rank_2_list_2d_entry.iter()
+        .zip(array_entry.iter())
+        .for_each(|(tensor_rank_2, array)|
+            tensor_rank_2.iter()
+            .zip(array.iter())
+            .for_each(|(tensor_rank_2_i, array_i)|
+                tensor_rank_2_i.iter()
+                .zip(array_i.iter())
+                .for_each(|(tensor_rank_2_ij, array_ij)|
+                    assert_eq!(tensor_rank_2_ij, array_ij)
+                )
+            )
+        )
+    );
+}
+
+#[test]
 fn from_iter()
 {
     let into_iterator = get_tensor_rank_2_list_2d().0.into_iter();

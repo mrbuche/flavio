@@ -152,6 +152,20 @@ fn add_assign_tensor_rank_1_list_ref()
 }
 
 #[test]
+fn as_array()
+{
+    get_tensor_rank_1_list().as_array().iter()
+    .zip(get_array().iter())
+    .for_each(|(tensor_rank_1_as_array_entry, array_entry)|
+        tensor_rank_1_as_array_entry.iter()
+        .zip(array_entry.iter())
+        .for_each(|(tensor_rank_1_as_array_entry_i, array_entry_i)|
+            assert_eq!(tensor_rank_1_as_array_entry_i, array_entry_i)
+        )
+    );
+}
+
+#[test]
 fn div_tensor_rank_0_to_self()
 {
     (get_tensor_rank_1_list() / 3.3).iter()

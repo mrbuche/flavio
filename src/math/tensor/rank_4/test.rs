@@ -557,6 +557,28 @@ fn add_assign_tensor_rank_4_ref()
 }
 
 #[test]
+fn as_array()
+{
+    get_tensor_rank_4().as_array().iter()
+    .zip(get_array().iter())
+    .for_each(|(get_tensor_rank_4_as_array_i, array_i)|
+        get_tensor_rank_4_as_array_i.iter()
+        .zip(array_i.iter())
+        .for_each(|(get_tensor_rank_4_as_array_ij, array_ij)|
+            get_tensor_rank_4_as_array_ij.iter()
+            .zip(array_ij.iter())
+            .for_each(|(get_tensor_rank_4_as_array_ijk, array_ijk)|
+                get_tensor_rank_4_as_array_ijk.iter()
+                .zip(array_ijk.iter())
+                .for_each(|(get_tensor_rank_4_as_array_ijkl, array_ijkl)|
+                    assert_eq!(get_tensor_rank_4_as_array_ijkl, array_ijkl)
+                )
+            )
+        )
+    );
+}
+
+#[test]
 fn contract_all_indices_with_first_indices_of()
 {
     (get_tensor_rank_4().contract_all_indices_with_first_indices_of(

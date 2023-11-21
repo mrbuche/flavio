@@ -11,6 +11,7 @@ use std::ops::
 use super::
 {
     TensorRank0,
+    TensorRank1Trait,
     TensorRank2,
     list::
     {
@@ -49,6 +50,8 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2
 /// Required methods for 2D rank-2 tensor lists.
 pub trait TensorRank2List2DTrait<const D: usize, const W: usize>
 {
+    /// Returns the 2D rank-2 tensor list as an array.
+    fn as_array(&self) -> [[[[TensorRank0; D]; D]; W]; W];
     /// Returns a list of rank-2 tensors given an array.
     fn new(array: [[[[TensorRank0; D]; D]; W]; W]) -> Self;
     /// Returns a list of rank-2 zero tensors.
@@ -58,6 +61,24 @@ pub trait TensorRank2List2DTrait<const D: usize, const W: usize>
 /// Implementation of [`TensorRank2List2DTrait`] for [`TensorRank2List2D`].
 impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2List2DTrait<D, W> for TensorRank2List2D<D, I, J, W>
 {
+    fn as_array(&self) -> [[[[TensorRank0; D]; D]; W]; W]
+    {
+        let mut array = [[[[0.0; D]; D]; W]; W];
+        array.iter_mut()
+        .zip(self.iter())
+        .for_each(|(entry, array_entry)|
+            entry.iter_mut()
+            .zip(array_entry.iter())
+            .for_each(|(entry_rank_2, tensor_rank_2)|
+                entry_rank_2.iter_mut()
+                .zip(tensor_rank_2.iter())
+                .for_each(|(entry_rank_1, tensor_rank_1)|
+                    *entry_rank_1 = tensor_rank_1.as_array()
+                )
+            )
+        );
+        array
+    }
     fn new(array: [[[[TensorRank0; D]; D]; W]; W]) -> Self
     {
         array.iter().map(|array_i|

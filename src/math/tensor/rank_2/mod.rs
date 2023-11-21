@@ -79,6 +79,8 @@ pub trait TensorRank2Trait<const D: usize, const I: usize, const J: usize>
 where
     Self: Sized
 {
+    /// Returns the rank-2 tensor as an array.
+    fn as_array(&self) -> [[TensorRank0; D]; D];
     /// Returns the determinant of the rank-2 tensor.
     fn determinant(&self) -> TensorRank0;
     /// Returns the deviatoric component of the rank-2 tensor.

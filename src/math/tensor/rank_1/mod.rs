@@ -52,6 +52,8 @@ impl<const D: usize, const I: usize> TensorRank1<D, I>
 /// Required methods for rank-1 tensors.
 pub trait TensorRank1Trait<const D: usize>
 {
+    /// Returns the rank-1 tensor as an array.
+    fn as_array(&self) -> [TensorRank0; D];
     /// Returns a rank-1 tensor given an array.
     fn new(array: [TensorRank0; D]) -> Self;
     /// Returns the rank-1 tensor norm.
@@ -69,6 +71,10 @@ pub trait TensorRank1Trait<const D: usize>
 /// Implementation of [`TensorRank1Trait`] for [`TensorRank1`].
 impl<const D: usize, const I: usize> TensorRank1Trait<D> for TensorRank1<D, I>
 {
+    fn as_array(&self) -> [TensorRank0; D]
+    {
+        self.0
+    }
     fn new(array: [TensorRank0; D]) -> Self
     {
         array.into_iter().collect()

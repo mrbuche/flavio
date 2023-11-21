@@ -28,7 +28,7 @@ use super::
     {
         TensorRank3,
         TensorRank3Trait
-    },
+    }
 };
 
 pub mod list;
@@ -68,6 +68,8 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
 /// Required methods for rank-4 tensors.
 pub trait TensorRank4Trait<const D: usize, TIJ, TIK, TIL, TJL, TJK, TKJ, TKL>
 {
+    /// Returns the rank-4 tensor as an array.
+    fn as_array(&self) -> [[[[TensorRank0; D]; D]; D]; D];
     /// ???
     fn dyad_ij_kl(tensor_rank_2_a: TIJ, tensor_rank_2_b: TKL) -> Self;
     /// ???
@@ -82,6 +84,16 @@ pub trait TensorRank4Trait<const D: usize, TIJ, TIK, TIL, TJL, TJK, TKJ, TKL>
 
 impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> TensorRank4Trait<D, &TensorRank2<D, I, J>, &TensorRank2<D, I, K>, &TensorRank2<D, I, L>, &TensorRank2<D, J, L>, &TensorRank2<D, J, K>, &TensorRank2<D, K, J>, &TensorRank2<D, K, L>> for TensorRank4<D, I, J, K, L>
 {
+    fn as_array(&self) -> [[[[TensorRank0; D]; D]; D]; D]
+    {
+        let mut array = [[[[0.0; D]; D]; D]; D];
+        array.iter_mut()
+        .zip(self.iter())
+        .for_each(|(entry_rank_3, tensor_rank_3)|
+            *entry_rank_3 = tensor_rank_3.as_array()
+        );
+        array
+    }
     fn dyad_ij_kl(tensor_rank_2_a: &TensorRank2<D, I, J>, tensor_rank_2_b: &TensorRank2<D, K, L>) -> Self
     {
         tensor_rank_2_a.iter().map(|tensor_rank_2_a_i|
