@@ -1,5 +1,5 @@
 [package]
-authors = ["Michael Robert Buche"]
+authors = ["Michael Robert Buche <dev@mrbuche.com>"]
 categories = ["mathematics", "science"]
 description = "flavio welcomes you"
 documentation = "https://docs.rs/crate/flavio"

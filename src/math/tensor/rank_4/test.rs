@@ -3,10 +3,11 @@ use super::
 {
     TensorRank0,
     TensorRank1,
-    TensorRank1Trait,
+    super::rank_1::TensorRank1Trait,
     TensorRank2,
     TensorRank2Trait,
     TensorRank4,
+    TensorRank4Inverse,
     TensorRank4Trait,
     ContractAllIndicesWithFirstIndicesOf,
     ContractFirstThirdFourthIndicesWithFirstIndicesOf,
@@ -430,7 +431,7 @@ fn get_tensor_rank_4_as_tensor_rank_2() -> TensorRank2<9, 1, 1>
 #[test]
 fn as_tensor_rank_2()
 {
-    get_tensor_rank_4().as_tensor_rank_2().iter()
+    get_tensor_rank_4().as_tensor_rank_2::<9, 88, 88>().iter()
     .zip(get_tensor_rank_4_as_tensor_rank_2().iter())
     .for_each(|(as_tensor_rank_2_i, tensor_rank_2_i)|
         as_tensor_rank_2_i.iter()
@@ -896,7 +897,10 @@ fn from_iter()
 #[test]
 fn inverse()
 {
-    (get_tensor_rank_4().as_tensor_rank_2() * get_tensor_rank_4().inverse().as_tensor_rank_2()).iter()
+    (
+        get_tensor_rank_4().as_tensor_rank_2::<9, 88, 88>() *
+        get_tensor_rank_4().inverse::<9>().as_tensor_rank_2::<9, 88, 88>()
+    ).iter()
     .enumerate()
     .for_each(|(i, tensor_rank_2_i)|
         tensor_rank_2_i.iter()
