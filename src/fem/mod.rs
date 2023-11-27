@@ -92,6 +92,13 @@ where
     // so the solver top-level stuff can stay here?
     //
     // so now the model needs to own the coordinates, since blocks will also share some
+    // call the block routines (not elements) since blocks could have different constitutive models (some simpler than others)
+    // but remember:
+    //     nodes are not owned by blocks
+    //     ELEMENTS ARE OWNED BY BLOCKS
+    //
+    // so then the connectivity (list of nodes for each element) is owned by each block
+    // and can stay in Block along with the list of elements (those two things really define a block)
     //
     fn calculate_nodal_forces(&self) -> NodalForces<D>;
     fn get_block(&self) -> &B;
@@ -148,13 +155,14 @@ where
     }
     fn solve_using_gradient_descent(&mut self)
     {
-        let mut step_size = REL_TOL;
-        let mut coordinates = self.get_current_nodal_coordinates() * 1.0;
-        let mut nodal_forces = self.calculate_nodal_forces();
-        let mut residual = nodal_forces.norm();
-        let mut coordinates_old: CurrentNodalCoordinates<D>;
-        let mut nodal_forces_old: NodalForces<D>;
-        let mut nodal_forces_diff: NodalForces<D>;
+        todo!()
+        // let mut step_size = REL_TOL;
+        // let mut coordinates = self.get_current_nodal_coordinates() * 1.0;
+        // let mut nodal_forces = self.calculate_nodal_forces();
+        // let mut residual = nodal_forces.norm();
+        // let mut coordinates_old: CurrentNodalCoordinates<D>;
+        // let mut nodal_forces_old: NodalForces<D>;
+        // let mut nodal_forces_diff: NodalForces<D>;
         // while residual > ABS_TOL
         // {
         //     coordinates_old = &coordinates * 1.0;
