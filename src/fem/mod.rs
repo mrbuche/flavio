@@ -1,6 +1,3 @@
-#[cfg(test)]
-mod test;
-
 mod block;
 
 pub use block::
