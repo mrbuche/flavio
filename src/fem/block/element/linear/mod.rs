@@ -7,7 +7,7 @@ use super::*;
 
 pub trait LinearFiniteElement<'a, C, const G: usize, const N: usize>
 where
-    C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel,
+    C: ConstitutiveModel<'a>,
     Self: FiniteElement<'a, C, G, N>
 {
     fn calculate_deformation_gradient(&self, current_nodal_coordinates: &CurrentNodalCoordinates<N>) -> DeformationGradient
@@ -22,17 +22,6 @@ where
     {
         let standard_gradient_operator = Self::calculate_standard_gradient_operator();
         (reference_nodal_coordinates * &standard_gradient_operator).inverse_transpose() * standard_gradient_operator
-    }
-    fn calculate_helmholtz_free_energy_linear_element(&self, current_nodal_coordinates: &CurrentNodalCoordinates<N>) -> Scalar
-    {
-        let deformation_gradient = self.calculate_deformation_gradient(current_nodal_coordinates);
-        self.get_constitutive_models().iter()
-        .zip(self.get_integration_weights().iter())
-        .map(|(constitutive_model, integration_weight)|
-            constitutive_model.calculate_helmholtz_free_energy_density(
-                &deformation_gradient
-            ) * integration_weight
-        ).sum()
     }
     fn calculate_nodal_forces_linear_element(&self, current_nodal_coordinates: &CurrentNodalCoordinates<N>) -> NodalForces<N>
     {
@@ -70,4 +59,22 @@ where
     }
     fn calculate_standard_gradient_operator() -> StandardGradientOperator<N>;
     fn get_gradient_vectors(&self) -> &GradientVectors<N>;
+}
+
+pub trait HyperelasticLinearFiniteElement<'a, C, const G: usize, const N: usize>
+where
+    C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel,
+    Self: FiniteElement<'a, C, G, N> + LinearFiniteElement<'a, C, G, N>
+{
+    fn calculate_helmholtz_free_energy_linear_element(&self, current_nodal_coordinates: &CurrentNodalCoordinates<N>) -> Scalar
+    {
+        let deformation_gradient = self.calculate_deformation_gradient(current_nodal_coordinates);
+        self.get_constitutive_models().iter()
+        .zip(self.get_integration_weights().iter())
+        .map(|(constitutive_model, integration_weight)|
+            constitutive_model.calculate_helmholtz_free_energy_density(
+                &deformation_gradient
+            ) * integration_weight
+        ).sum()
+    }
 }

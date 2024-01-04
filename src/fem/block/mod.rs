@@ -3,47 +3,15 @@ mod test;
 
 pub mod element;
 
-use crate::
+use super::*;
+use self::element::
 {
-    constitutive::
-    {
-        ConstitutiveModel,
-        ConstitutiveModelParameters,
-        hyperelastic::HyperelasticConstitutiveModel
-    },
-    math::
-    {
-        ContractSecondFourthIndicesWithFirstIndicesOf,
-        Convert,
-        TensorRank0ListTrait,
-        TensorRank1ListTrait,
-        TensorRank2Trait,
-        TensorRank2List2DTrait
-    },
-    mechanics::
-    {
-        CurrentCoordinates,
-        DeformationGradient,
-        FirstPiolaKirchoffStress,
-        FirstPiolaKirchoffTangentStiffness,
-        Forces,
-        ReferenceCoordinates,
-        Scalar,
-        Scalars,
-        Stiffnesses,
-        Vectors
-    }
+    FiniteElement,
+    HyperelasticFiniteElement
 };
-use self::element::FiniteElement;
 use std::array::from_fn;
 
-type Connectivity<const E: usize, const N: usize> = [[usize; N]; E];
-type CurrentNodalCoordinates<const D: usize> = CurrentCoordinates<D>;
-type NodalForces<const D: usize> = Forces<D>;
-type NodalStiffnesses<const D: usize> = Stiffnesses<D>;
-type ReferenceNodalCoordinates<const D: usize> = ReferenceCoordinates<D>;
-
-pub struct FiniteElementBlock<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
+pub struct Block<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
 where
     C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel,
     F: FiniteElement<'a, C, G, N>
@@ -54,13 +22,12 @@ where
     phantom_a: std::marker::PhantomData<*const &'a C>
 }
 
-pub trait FiniteElementBlockTrait<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
+pub trait FiniteElementBlock<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
 where
     C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel,
     F: FiniteElement<'a, C, G, N>
 {
     fn calculate_current_nodal_coordinates_element(&self, element_connectivity: &[usize; N]) -> CurrentNodalCoordinates<N>;
-    fn calculate_helmholtz_free_energy(&self) -> Scalar;
     fn calculate_nodal_forces(&self) -> NodalForces<D>;
     fn calculate_nodal_stiffnesses(&self) -> NodalStiffnesses<D>;
     fn get_current_nodal_coordinates(&self) -> &CurrentNodalCoordinates<D>;
@@ -70,9 +37,18 @@ where
     fn set_current_nodal_coordinates(&mut self, current_nodal_coordinates: CurrentNodalCoordinates<D>);
 }
 
+pub trait HyperelasticFiniteElementBlock<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
+where
+    C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel,
+    F: FiniteElement<'a, C, G, N> + HyperelasticFiniteElement<'a, C, G, N>,
+    Self: FiniteElementBlock<'a, C, D, E, F, G, N>
+{
+    fn calculate_helmholtz_free_energy(&self) -> Scalar;
+}
+
 impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
-    FiniteElementBlockTrait<'a, C, D, E, F, G, N>
-    for FiniteElementBlock<'a, C, D, E, F, G, N>
+    FiniteElementBlock<'a, C, D, E, F, G, N>
+    for Block<'a, C, D, E, F, G, N>
 where
     C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel,
     F: FiniteElement<'a, C, G, N>
@@ -84,16 +60,6 @@ where
             current_nodal_coordinates[*node]
             .iter().copied().collect()
         ).collect()
-    }
-    fn calculate_helmholtz_free_energy(&self) -> Scalar
-    {
-        self.get_elements().iter()
-        .zip(self.get_connectivity().iter())
-        .map(|(element, element_connectivity)|
-            element.calculate_helmholtz_free_energy(
-                &self.calculate_current_nodal_coordinates_element(element_connectivity)
-            )
-        ).sum()
     }
     fn calculate_nodal_forces(&self) -> NodalForces<D>
     {
@@ -165,5 +131,25 @@ where
     fn set_current_nodal_coordinates(&mut self, current_nodal_coordinates: CurrentNodalCoordinates<D>)
     {
         self.current_nodal_coordinates = current_nodal_coordinates;
+    }
+}
+
+impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
+    HyperelasticFiniteElementBlock<'a, C, D, E, F, G, N>
+    for Block<'a, C, D, E, F, G, N>
+where
+    C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel,
+    F: FiniteElement<'a, C, G, N> + HyperelasticFiniteElement<'a, C, G, N>,
+    Self: FiniteElementBlock<'a, C, D, E, F, G, N>
+{
+    fn calculate_helmholtz_free_energy(&self) -> Scalar
+    {
+        self.get_elements().iter()
+        .zip(self.get_connectivity().iter())
+        .map(|(element, element_connectivity)|
+            element.calculate_helmholtz_free_energy(
+                &self.calculate_current_nodal_coordinates_element(element_connectivity)
+            )
+        ).sum()
     }
 }

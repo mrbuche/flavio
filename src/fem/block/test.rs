@@ -75,17 +75,17 @@ macro_rules! test_finite_element_block_with_constitutive_model
 {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
     {
-        fn get_block<'a>() -> FiniteElementBlock<'a, $constitutive_model<'a>, D, E, $element<'a, $constitutive_model<'a>>, G, N>
+        fn get_block<'a>() -> Block<'a, $constitutive_model<'a>, D, E, $element<'a, $constitutive_model<'a>>, G, N>
         {
-            FiniteElementBlock::new(
+            Block::new(
                 $constitutive_model_parameters,
                 get_connectivity(),
                 get_reference_coordinates_block()
             )
         }
-        fn get_block_transformed<'a>() -> FiniteElementBlock<'a, $constitutive_model<'a>, D, E, $element<'a, $constitutive_model<'a>>, G, N>
+        fn get_block_transformed<'a>() -> Block<'a, $constitutive_model<'a>, D, E, $element<'a, $constitutive_model<'a>>, G, N>
         {
-            FiniteElementBlock::new(
+            Block::new(
                 $constitutive_model_parameters,
                 get_connectivity(),
                 get_reference_coordinates_transformed_block()
