@@ -1,14 +1,23 @@
 #[cfg(feature = "constitutive")]
 mod public
 {
-    use flavio::constitutive::hyperelastic::
+    use flavio::constitutive::
     {
-        ArrudaBoyceModel,
-        GentModel,
-        MooneyRivlinModel,
-        NeoHookeanModel,
-        YeohModel
+        elastic::AlmansiHamelModel,
+        hyperelastic::
+        {
+            ArrudaBoyceModel,
+            GentModel,
+            MooneyRivlinModel,
+            NeoHookeanModel,
+            YeohModel
+        }
     };
+    #[test]
+    fn almansi_hamel()
+    {
+        let _: AlmansiHamelModel;
+    }
     #[test]
     fn arruda_boyce_model()
     {
