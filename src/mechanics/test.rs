@@ -60,3 +60,16 @@ pub fn get_translation_reference_configuration() -> ReferenceCoordinate
 {
     ReferenceCoordinate::new([4.4, 5.5, 6.6])
 }
+
+#[test]
+fn size()
+{
+    assert_eq!(
+        std::mem::size_of::<Scalar>(),
+        std::mem::size_of::<f64>()
+    );
+    assert_eq!(
+        std::mem::size_of::<DeformationGradient>(),
+        std::mem::size_of::<[[f64; 3]; 3]>()
+    );
+}

@@ -220,6 +220,15 @@ fn new()
 }
 
 #[test]
+fn size()
+{
+    assert_eq!(
+        std::mem::size_of::<TensorRank2List2D::<3, 1, 1, 8>>(),
+        std::mem::size_of::<[[TensorRank2::<3, 1, 1>; 8]; 8]>()
+    )
+}
+
+#[test]
 fn zero()
 {
     TensorRank2List2D::<3, 1, 1, 8>::zero().iter()

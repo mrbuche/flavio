@@ -729,6 +729,16 @@ macro_rules! test_finite_element_block_with_constitutive_model
                 }
             }
         }
+        #[test]
+        fn size()
+        {
+            assert_eq!(
+                std::mem::size_of::<Block<$constitutive_model, D, E, $element::<$constitutive_model>, G, N>>(),
+                std::mem::size_of::<Connectivity<E, N>>()
+                + std::mem::size_of::<CurrentNodalCoordinates<D>>()
+                + E * std::mem::size_of::<$element::<$constitutive_model>>()
+            )
+        }
     }
 }
 pub(crate) use test_finite_element_block_with_constitutive_model;
