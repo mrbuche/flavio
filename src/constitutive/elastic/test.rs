@@ -33,6 +33,14 @@ macro_rules! test_elastic_constitutive_model
             let first_piola_kirchoff_stress = model.calculate_first_piola_kirchoff_stress(&deformation_gradient);
             assert!((EPSILON*model.get_shear_modulus()/first_piola_kirchoff_stress[0][1] - 1.0).abs() < EPSILON)
         }
+        #[test]
+        fn size()
+        {
+            assert_eq!(
+                std::mem::size_of::<$elastic_constitutive_model>(),
+                std::mem::size_of::<crate::constitutive::ConstitutiveModelParameters>()
+            )
+        }
         crate::constitutive::elastic::test::test_elastic_constitutive_model_constructed!($elastic_constitutive_model_constructed);
     }
 }
