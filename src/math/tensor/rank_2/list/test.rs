@@ -1,6 +1,7 @@
 use super::
 {
     TensorRank0,
+    TensorRank2,
     TensorRank2List,
     TensorRank2ListTrait
 };
@@ -137,6 +138,15 @@ fn new()
             )
         )
     );
+}
+
+#[test]
+fn size()
+{
+    assert_eq!(
+        std::mem::size_of::<TensorRank2List::<3, 1, 1, 8>>(),
+        std::mem::size_of::<[TensorRank2::<3, 1, 1>; 8]>()
+    )
 }
 
 #[test]

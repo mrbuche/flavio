@@ -1334,6 +1334,15 @@ fn norm_dim_9()
 }
 
 #[test]
+fn size()
+{
+    assert_eq!(
+        std::mem::size_of::<TensorRank2::<3, 1, 1>>(),
+        std::mem::size_of::<[TensorRank1::<3, 1>; 3]>()
+    )
+}
+
+#[test]
 fn second_invariant()
 {
     assert_eq!(get_tensor_rank_2_dim_4().second_invariant(), 16.0);

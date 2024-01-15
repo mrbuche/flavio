@@ -300,6 +300,15 @@ fn norm()
 }
 
 #[test]
+fn size()
+{
+    assert_eq!(
+        std::mem::size_of::<TensorRank1::<3, 1>>(),
+        std::mem::size_of::<[TensorRank0; 3]>()
+    )
+}
+
+#[test]
 fn sub_tensor_rank_1_to_self()
 {
     (get_tensor_rank_1() - get_tensor_rank_1_a()).iter()
