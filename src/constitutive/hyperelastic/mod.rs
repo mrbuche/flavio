@@ -14,6 +14,7 @@ mod arruda_boyce;
 mod gent;
 mod mooney_rivlin;
 mod neo_hookean;
+mod saint_venant_kirchoff;
 mod yeoh;
 
 pub use self::
@@ -22,6 +23,7 @@ pub use self::
     gent::GentModel,
     mooney_rivlin::MooneyRivlinModel,
     neo_hookean::NeoHookeanModel,
+    saint_venant_kirchoff::SaintVenantKirchoffModel,
     yeoh::YeohModel
 };
 use super::*;

@@ -14,6 +14,7 @@ macro_rules! test_linear_finite_element
                         GentModel,
                         MooneyRivlinModel,
                         NeoHookeanModel,
+                        SaintVenantKirchoffModel,
                         YeohModel,
                     },
                     test::
@@ -22,6 +23,7 @@ macro_rules! test_linear_finite_element
                         GENTPARAMETERS,
                         MOONEYRIVLINPARAMETERS,
                         NEOHOOKEANPARAMETERS,
+                        SAINTVENANTKIRCHOFFPARAMETERS,
                         YEOHPARAMETERS
                     }
                 },
@@ -57,6 +59,11 @@ macro_rules! test_linear_finite_element
             {
                 use super::*;
                 test_linear_finite_element_with_constitutive_model!($element, NeoHookeanModel, NEOHOOKEANPARAMETERS);
+            }
+            mod saint_venant_kirchoff
+            {
+                use super::*;
+                test_linear_finite_element_with_constitutive_model!($element, SaintVenantKirchoffModel, SAINTVENANTKIRCHOFFPARAMETERS);
             }
             mod yeoh
             {
