@@ -4,12 +4,12 @@ categories = ["mathematics", "science"]
 description = "flavio welcomes you"
 documentation = "https://docs.rs/crate/flavio"
 edition = "2021"
-homepage = "https://mrbuche.github.io/flavio"
+homepage = "https://github.com/mrbuche/flavio"
 keywords = ["flavio", "mrbuche"]
 license = "BSD-3-Clause"
 name = "flavio"
 repository = "https://github.com/mrbuche/flavio"
-version = "0.3.4"
+version = "0.3.5"
 
 [features]
 constitutive = ['mechanics']
