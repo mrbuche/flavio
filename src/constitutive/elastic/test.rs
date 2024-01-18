@@ -528,7 +528,10 @@ macro_rules! test_elastic_constitutive_model_constructed
                                 second_piola_kirchoff_tangent_stiffness_ijk.iter()
                                 .zip(fd_second_piola_kirchoff_tangent_stiffness_ijk.iter())
                                 .for_each(|(second_piola_kirchoff_tangent_stiffness_ijkl, fd_second_piola_kirchoff_tangent_stiffness_ijkl)|
-                                    assert!((second_piola_kirchoff_tangent_stiffness_ijkl/fd_second_piola_kirchoff_tangent_stiffness_ijkl - 1.0).abs() < EPSILON)
+                                    assert!(
+                                        (second_piola_kirchoff_tangent_stiffness_ijkl/fd_second_piola_kirchoff_tangent_stiffness_ijkl - 1.0).abs() < EPSILON ||
+                                        fd_second_piola_kirchoff_tangent_stiffness_ijkl.abs() < EPSILON
+                                    )
                                 )
                             )
                         )

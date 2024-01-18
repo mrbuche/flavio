@@ -46,7 +46,7 @@ pub trait ConstitutiveModel<'a>
     /// Calculates and returns the tangent stiffness associated with the Cauchy stress.
     ///
     /// ```math
-    /// \mathcal{T}_{ijkL} = \frac{\partial\sigma_{ij}}{\partial F_{kL}} = ?
+    /// \mathcal{T}_{ijkL} = \frac{\partial\sigma_{ij}}{\partial F_{kL}} = J^{-1} \mathcal{G}_{MNkL} F_{iM} F_{jN} - \sigma_{ij} F_{kL}^{-T} + \left(\delta_{jk}\sigma_{is} + \delta_{ik}\sigma_{js}\right)F_{sL}^{-T}
     /// ```
     fn calculate_cauchy_tangent_stiffness(&self, deformation_gradient: &DeformationGradient) -> CauchyTangentStiffness
     {
@@ -54,7 +54,7 @@ pub trait ConstitutiveModel<'a>
         let cauchy_stress = self.calculate_cauchy_stress(deformation_gradient);
         let identity = CauchyStress::identity();
         let some_stress = &cauchy_stress * &deformation_gradient_inverse_transpose;
-        self.calculate_second_piola_kirchoff_tangent_stiffness(deformation_gradient).contract_first_second_indices_with_second_indices_of(&deformation_gradient, &deformation_gradient)/deformation_gradient.determinant() - CauchyTangentStiffness::dyad_ij_kl(&cauchy_stress, &deformation_gradient_inverse_transpose) + CauchyTangentStiffness::dyad_il_kj(&some_stress, &identity) + CauchyTangentStiffness::dyad_ik_jl(&identity, &some_stress)
+        self.calculate_second_piola_kirchoff_tangent_stiffness(deformation_gradient).contract_first_second_indices_with_second_indices_of(deformation_gradient, deformation_gradient)/deformation_gradient.determinant() - CauchyTangentStiffness::dyad_ij_kl(&cauchy_stress, &deformation_gradient_inverse_transpose) + CauchyTangentStiffness::dyad_il_kj(&some_stress, &identity) + CauchyTangentStiffness::dyad_ik_jl(&identity, &some_stress)
     }
     /// Calculates and returns the left Cauchy-Green deformation.
     ///
@@ -119,11 +119,14 @@ pub trait ConstitutiveModel<'a>
     /// Calculates and returns the tangent stiffness associated with the second Piola-Kirchoff stress.
     ///
     /// ```math
-    /// \mathcal{G}_{IJkL} = \frac{\partial S_{IJ}}{\partial F_{kL}} = \mathcal{C}_{mJkL}F_{mI}^{-T} - S_{LJ}F_{kI}^{-T}
+    /// \mathcal{G}_{IJkL} = \frac{\partial S_{IJ}}{\partial F_{kL}} = \mathcal{C}_{mJkL}F_{mI}^{-T} - S_{LJ}F_{kI}^{-T} = J \mathcal{T}_{mnkL} F_{mI}^{-T} F_{nJ}^{-T} + S_{IJ} F_{kL}^{-T} - S_{IL} F_{kJ}^{-T} -S_{LJ} F_{kI}^{-T}
     /// ```
     fn calculate_second_piola_kirchoff_tangent_stiffness(&self, deformation_gradient: &DeformationGradient) -> SecondPiolaKirchoffTangentStiffness
     {
-        todo!()
+        let deformation_gradient_inverse_transpose = deformation_gradient.inverse_transpose();
+        let deformation_gradient_inverse = deformation_gradient_inverse_transpose.transpose();
+        let second_piola_kirchoff_stress = self.calculate_second_piola_kirchoff_stress(deformation_gradient);
+        self.calculate_cauchy_tangent_stiffness(deformation_gradient).contract_first_second_indices_with_second_indices_of(&deformation_gradient_inverse, &deformation_gradient_inverse)*deformation_gradient.determinant() + SecondPiolaKirchoffTangentStiffness::dyad_ij_kl(&second_piola_kirchoff_stress, &deformation_gradient_inverse_transpose) - SecondPiolaKirchoffTangentStiffness::dyad_il_kj(&second_piola_kirchoff_stress, &deformation_gradient_inverse_transpose) - SecondPiolaKirchoffTangentStiffness::dyad_ik_jl(&deformation_gradient_inverse, &second_piola_kirchoff_stress)
     }
     /// Constructs and returns a new constitutive model.
     fn new(parameters: ConstitutiveModelParameters<'a>) -> Self;

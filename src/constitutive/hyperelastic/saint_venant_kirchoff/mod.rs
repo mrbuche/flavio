@@ -28,7 +28,7 @@ impl<'a> ConstitutiveModel<'a> for SaintVenantKirchoffModel<'a>
     /// Calculates and returns the second Piola-Kirchoff stress.
     ///
     /// ```math
-    /// \boldsymbol{\sigma}(\mathbf{F}) = 2\mu\mathbf{E}' + \kappa\,\mathrm{tr}(\mathbf{E})\mathbf{1}
+    /// \mathbf{S}(\mathbf{F}) = 2\mu\mathbf{E}' + \kappa\,\mathrm{tr}(\mathbf{E})\mathbf{1}
     /// ```
     fn calculate_second_piola_kirchoff_stress(&self, deformation_gradient: &DeformationGradient) -> SecondPiolaKirchoffStress
     {
@@ -38,12 +38,13 @@ impl<'a> ConstitutiveModel<'a> for SaintVenantKirchoffModel<'a>
     /// Calculates and returns the tangent stiffness associated with the second Piola-Kirchoff stress.
     ///
     /// ```math
-    /// \mathcal{G}_{IJkL} = 2\mu\,\delta_{JL}F_{kI} + \left(\kappa - \frac{2}{3}\,\mu\right)\delta_{IJ}F_{kL}
+    /// \mathcal{G}_{IJkL} = \mu\,\delta_{JL}F_{kI} + \mu\,\delta_{IL}F_{kJ} + \left(\kappa - \frac{2}{3}\,\mu\right)\delta_{IJ}F_{kL}
     /// ```
     fn calculate_second_piola_kirchoff_tangent_stiffness(&self, deformation_gradient: &DeformationGradient) -> SecondPiolaKirchoffTangentStiffness
     {
         let identity = SecondPiolaKirchoffStress::identity();
-        SecondPiolaKirchoffTangentStiffness::dyad_ik_jl(&(deformation_gradient.transpose()*(2.0*self.get_shear_modulus())), &identity) + SecondPiolaKirchoffTangentStiffness::dyad_ij_kl(&(identity*(self.get_bulk_modulus() - 2.0/3.0*self.get_shear_modulus())), &deformation_gradient)
+        let scaled_deformation_gradient_transpose = deformation_gradient.transpose()*self.get_shear_modulus();
+        SecondPiolaKirchoffTangentStiffness::dyad_ik_jl(&scaled_deformation_gradient_transpose, &identity) + SecondPiolaKirchoffTangentStiffness::dyad_il_jk(&identity, &scaled_deformation_gradient_transpose) + SecondPiolaKirchoffTangentStiffness::dyad_ij_kl(&(identity*(self.get_bulk_modulus() - 2.0/3.0*self.get_shear_modulus())), deformation_gradient)
     }
     fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
     {
