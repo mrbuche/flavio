@@ -1239,3 +1239,9 @@ fn zero()
         )
     );
 }
+
+#[test]
+fn contract_first_second_indices_with_second_indices_of()
+{
+    todo!()
+}

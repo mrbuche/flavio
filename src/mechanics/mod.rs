@@ -74,6 +74,12 @@ pub type Scalar = TensorRank0;
 /// A list of scalars.
 pub type Scalars<const W: usize> = TensorRank0List<W>;
 
+/// The second Piola-Kirchoff stress $`\mathbf{S}`$.
+pub type SecondPiolaKirchoffStress = TensorRank2<3, 0, 0>;
+
+/// The tangent stiffness associated with the second Piola-Kirchoff stress $`\boldsymbol{\mathcal{?}}`$.
+pub type SecondPiolaKirchoffTangentStiffness = TensorRank4<3, 0, 0, 1, 0>;
+
 /// A stiffness resulting from a force.
 pub type Stiffness = TensorRank2<3, 1, 1>;
 

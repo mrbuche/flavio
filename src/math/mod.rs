@@ -48,6 +48,7 @@ pub use tensor::
     rank_4::
     {
         ContractAllIndicesWithFirstIndicesOf,
+        ContractFirstSecondIndicesWithSecondIndicesOf,
         ContractFirstThirdFourthIndicesWithFirstIndicesOf,
         ContractSecondIndexWithFirstIndexOf,
         ContractSecondFourthIndicesWithFirstIndicesOf,

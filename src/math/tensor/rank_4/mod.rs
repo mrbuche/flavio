@@ -309,6 +309,31 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
     }
 }
 
+pub trait ContractFirstSecondIndicesWithSecondIndicesOf<TI, TJ>
+{
+    type Output;
+    fn contract_first_second_indices_with_second_indices_of(&self, object_a: TI, object_b: TJ) -> Self::Output;
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize, const M: usize, const N: usize> ContractFirstSecondIndicesWithSecondIndicesOf<&TensorRank2<D, I, M>, &TensorRank2<D, J, N>> for TensorRank4<D, M, N, K, L>
+{
+    type Output = TensorRank4<D, I, J, K, L>;
+    fn contract_first_second_indices_with_second_indices_of(&self, tensor_rank_2_a: &TensorRank2<D, I, M>, tensor_rank_2_b: &TensorRank2<D, J, N>) -> Self::Output
+    {
+        let mut output = TensorRank4::zero();
+        output.iter_mut().zip(tensor_rank_2_a.iter()).for_each(|(output_i, tensor_rank_2_a_i)|
+            output_i.iter_mut().zip(tensor_rank_2_b.iter()).for_each(|(output_ij, tensor_rank_2_b_j)|
+                self.iter().zip(tensor_rank_2_a_i.iter()).for_each(|(self_m, tensor_rank_2_a_im)|
+                    self_m.iter().zip(tensor_rank_2_b_j.iter()).for_each(|(self_mn, tensor_rank_2_b_jn)|
+                        *output_ij += self_mn * tensor_rank_2_a_im * tensor_rank_2_b_jn
+                    )
+                )
+            )
+        );
+        output
+    }
+}
+
 impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> FromIterator<TensorRank3<D, J, K, L>> for TensorRank4<D, I, J, K, L>
 {
     fn from_iter<Ii: IntoIterator<Item=TensorRank3<D, J, K, L>>>(into_iterator: Ii) -> Self
