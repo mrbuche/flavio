@@ -9,7 +9,7 @@ use crate::math::special::
 use super::*;
 
 /// The Arruda-Boyce hyperelastic constitutive model.
-/// 
+///
 /// **Parameters**
 /// - The bulk modulus $`\kappa`$.
 /// - The shear modulus $`\mu`$.
@@ -20,7 +20,7 @@ use super::*;
 ///
 /// **Internal variables**
 /// - None.
-/// 
+///
 /// **Notes**
 /// - The nondimensional end-to-end length per link of the chains is $`\gamma=\sqrt{\mathrm{tr}(\mathbf{B}^*)/3N_b}`$.
 /// - The nondimensional force is given by the inverse Langevin function as $`\eta=\mathcal{L}^{-1}(\gamma)`$.

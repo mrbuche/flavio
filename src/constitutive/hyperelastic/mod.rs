@@ -11,6 +11,7 @@ mod test;
 
 mod additive_decomposition;
 mod arruda_boyce;
+mod fung;
 mod gent;
 mod mooney_rivlin;
 mod neo_hookean;
@@ -20,6 +21,7 @@ mod yeoh;
 pub use self::
 {
     arruda_boyce::ArrudaBoyceModel,
+    fung::FungModel,
     gent::GentModel,
     mooney_rivlin::MooneyRivlinModel,
     neo_hookean::NeoHookeanModel,

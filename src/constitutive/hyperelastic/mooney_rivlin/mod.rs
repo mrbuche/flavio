@@ -15,7 +15,7 @@ use super::*;
 ///
 /// **Internal variables**
 /// - None.
-/// 
+///
 /// **Notes**
 /// - The Mooney-Rivlin model reduces to the [Neo-Hookean model](NeoHookeanModel) when $`\mu_m\to 0`$.
 pub struct MooneyRivlinModel<'a>
