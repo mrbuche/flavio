@@ -11,6 +11,7 @@ macro_rules! test_linear_finite_element
                     hyperelastic::
                     {
                         ArrudaBoyceModel,
+                        FungModel,
                         GentModel,
                         MooneyRivlinModel,
                         NeoHookeanModel,
@@ -20,6 +21,7 @@ macro_rules! test_linear_finite_element
                     test::
                     {
                         ARRUDABOYCEPARAMETERS,
+                        FUNGPARAMETERS,
                         GENTPARAMETERS,
                         MOONEYRIVLINPARAMETERS,
                         NEOHOOKEANPARAMETERS,
@@ -44,6 +46,11 @@ macro_rules! test_linear_finite_element
             {
                 use super::*;
                 test_linear_finite_element_with_constitutive_model!($element, ArrudaBoyceModel, ARRUDABOYCEPARAMETERS);
+            }
+            mod fung
+            {
+                use super::*;
+                test_linear_finite_element_with_constitutive_model!($element, FungModel, FUNGPARAMETERS);
             }
             mod gent
             {

@@ -26,6 +26,11 @@ mod public
         let _: ArrudaBoyceModel;
     }
     #[test]
+    fn fung_model()
+    {
+        let _: FungModel;
+    }
+    #[test]
     fn gent_model()
     {
         let _: GentModel;
@@ -39,6 +44,11 @@ mod public
     fn neo_hookean_model()
     {
         let _: NeoHookeanModel;
+    }
+    #[test]
+    fn saint_venant_kirchoff_model()
+    {
+        let _: SaintVenantKirchoffModel;
     }
     #[test]
     fn yeoh_model()
