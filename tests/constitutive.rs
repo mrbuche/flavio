@@ -8,8 +8,10 @@ mod public
         {
             ArrudaBoyceModel,
             GentModel,
+            FungModel,
             MooneyRivlinModel,
             NeoHookeanModel,
+            SaintVenantKirchoffModel,
             YeohModel
         }
     };

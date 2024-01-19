@@ -4,7 +4,7 @@ mod test;
 use super::*;
 
 /// The Yeoh hyperelastic constitutive model.
-/// 
+///
 /// **Parameters**
 /// - The bulk modulus $`\kappa`$.
 /// - The shear modulus $`\mu`$.
@@ -15,7 +15,7 @@ use super::*;
 ///
 /// **Internal variables**
 /// - None.
-/// 
+///
 /// **Notes**
 /// - The Yeoh model reduces to the [Neo-Hookean model](NeoHookeanModel) when $`\mu_n\to 0`$ for $`n=2\ldots N`$.
 pub struct YeohModel<'a>
