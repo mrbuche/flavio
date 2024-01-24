@@ -1,12 +1,9 @@
 //! Hyperelastic constitutive models are completely defined by a Helmholtz free energy density function of the deformation gradient. Consequently, the tangent stiffness associated with the first Piola-Kirchoff stress is symmetric for hyperelastic constitutive models.
-//!
 //! ```math
 //! \mathcal{C}_{iJkL} = \mathcal{C}_{kLiJ}
 //! ```
-//! <picture>
-//!   <source srcset="https://mrbuche.github.io/Flavio.jl/latest/constitutive/dark.svg" media="(prefers-color-scheme: dark)">
-//!   <img src="https://mrbuche.github.io/Flavio.jl/latest/constitutive/light.svg" alt="Unable to load plot.">
-//! </picture>
+//! <picture><source srcset="https://mrbuche.github.io/Flavio.jl/latest/constitutive/dark.svg" media="(prefers-color-scheme: dark)">
+//! <img src="https://mrbuche.github.io/Flavio.jl/latest/constitutive/light.svg" alt="Unable to load plot."></picture>
 
 #[cfg(test)]
 mod test;
