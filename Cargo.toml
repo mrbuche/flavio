@@ -11,12 +11,16 @@ name = "flavio"
 repository = "https://github.com/mrbuche/flavio"
 version = "0.3.8"
 
+[dependencies]
+plotpy = { version = "0.5.1", optional = true }
+
 [features]
 constitutive = ['mechanics']
+doc = ['dep:plotpy', 'fem']
 fem = ['constitutive']
 math = []
 mechanics = ['math']
 
 [package.metadata.docs.rs]
-features = ["fem"]
+features = ["doc"]
 rustdoc-args = ["--html-in-header", ".github/katex.html"]

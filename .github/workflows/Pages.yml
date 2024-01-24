@@ -22,7 +22,7 @@ jobs:
       - name: Dev
         run: |
           mkdir -p _site/
-          cargo rustdoc --release --features fem -- --html-in-header .github/katex.html
+          cargo rustdoc --release --features doc -- --html-in-header .github/katex.html
           cp -r target/doc/* _site/
       - name: Upload
         uses: actions/upload-pages-artifact@v3

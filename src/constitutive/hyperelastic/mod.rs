@@ -1,4 +1,4 @@
-//! Hyperelastic constitutive models.
+//! ![models.svg](models.svg)
 //!
 //! Hyperelastic constitutive models are derived from and defined by a Helmholtz free energy density. As a result, the tangent stiffness associated with the first Piola-Kirchoff stress is symmetric for hyperelastic constitutive models.
 //!
