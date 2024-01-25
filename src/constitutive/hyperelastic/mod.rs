@@ -6,8 +6,6 @@
 //! ```math
 //! \mathcal{C}_{iJkL} = \mathcal{C}_{kLiJ}
 //! ```
-//! <picture><source srcset="https://mrbuche.github.io/Flavio.jl/latest/constitutive/hyperelastic/plot-models-dark.svg" media="(prefers-color-scheme: dark)">
-//! <img src="https://mrbuche.github.io/Flavio.jl/latest/constitutive/hyperelastic/plot-models-light.svg" alt=""></picture>
 
 #[cfg(test)]
 mod test;
