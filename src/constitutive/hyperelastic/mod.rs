@@ -37,7 +37,11 @@ where
     Self: ConstitutiveModel<'a, Y>
 {
     /// Calculates and returns the Helmholtz free energy density.
-    fn calculate_helmholtz_free_energy_density(&self, external_state_variables: &Y) -> Scalar;
+    ///
+    /// ```math
+    /// a = a(\mathbf{F})
+    /// ```
+    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar;
     /// Returns the bulk modulus.
     fn get_bulk_modulus(&self) -> &Scalar;
     /// Returns the shear modulus.

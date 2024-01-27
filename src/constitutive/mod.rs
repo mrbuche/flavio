@@ -29,7 +29,6 @@ use crate::
         Temperature
     }
 };
-use std::marker::PhantomData;
 
 /// Array of constitutive model parameters.
 pub type ConstitutiveModelParameters<'a> = &'a [Scalar];

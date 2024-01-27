@@ -30,9 +30,9 @@ impl<'a> ConstitutiveModel<'a, (DeformationGradient, Temperature)> for SaintVena
     }
 }
 
-impl<'a> HyperelasticConstitutiveModel<'a, (DeformationGradient, Temperature)> for SaintVenantKirchoffModel<'a>
+impl<'a> ThermohyperelasticConstitutiveModel for SaintVenantKirchoffModel<'a>
 {
-    fn calculate_helmholtz_free_energy_density(&self, (deformation_gradient, temperature): &(DeformationGradient, Temperature)) -> Scalar
+    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient, temperature: &Temperature) -> Scalar
     {
         let strain = (self.calculate_right_cauchy_green_deformation(deformation_gradient) - RightCauchyGreenDeformation::identity())*0.5;
         let strain_trace = strain.trace();
@@ -46,10 +46,6 @@ impl<'a> HyperelasticConstitutiveModel<'a, (DeformationGradient, Temperature)> f
     {
         &self.parameters[1]
     }
-}
-
-impl<'a> ThermohyperelasticConstitutiveModel<'a, (DeformationGradient, Temperature)> for SaintVenantKirchoffModel<'a>
-{
     fn get_coefficient_of_thermal_expansion(&self) -> &Scalar
     {
         &self.parameters[2]
