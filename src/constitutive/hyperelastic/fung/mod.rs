@@ -40,7 +40,7 @@ impl<'a> FungModel<'a>
 }
 
 /// Constitutive model implementation of the Fung hyperelastic constitutive model.
-impl<'a> ConstitutiveModel<'a> for FungModel<'a>
+impl<'a> ConstitutiveModel<'a, DeformationGradient> for FungModel<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -79,7 +79,7 @@ impl<'a> ConstitutiveModel<'a> for FungModel<'a>
 }
 
 /// Hyperelastic constitutive model implementation of the Fung hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel for FungModel<'a>
+impl<'a> HyperelasticConstitutiveModel<DeformationGradient> for FungModel<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

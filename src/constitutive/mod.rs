@@ -3,6 +3,7 @@ pub mod test;
 
 pub mod elastic;
 pub mod hyperelastic;
+pub mod thermohyperelastic;
 
 use crate::
 {
@@ -18,6 +19,8 @@ use crate::
         CauchyStress,
         CauchyTangentStiffness,
         DeformationGradient,
+        DeformationGradientAndTemperature,
+        ExternalStateVariables,
         FirstPiolaKirchoffStress,
         FirstPiolaKirchoffTangentStiffness,
         LeftCauchyGreenDeformation,
@@ -32,7 +35,7 @@ use crate::
 pub type ConstitutiveModelParameters<'a> = &'a [Scalar];
 
 /// Required methods for constitutive models.
-pub trait ConstitutiveModel<'a>
+pub trait ConstitutiveModel<'a, V>
 {
     /// Calculates and returns the Cauchy stress.
     ///

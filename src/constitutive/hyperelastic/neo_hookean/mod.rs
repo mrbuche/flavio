@@ -20,7 +20,7 @@ pub struct NeoHookeanModel<'a>
 }
 
 /// Constitutive model implementation of the Neo-Hookean hyperelastic constitutive model.
-impl<'a> ConstitutiveModel<'a> for NeoHookeanModel<'a>
+impl<'a> ConstitutiveModel<'a, DeformationGradient> for NeoHookeanModel<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -54,7 +54,7 @@ impl<'a> ConstitutiveModel<'a> for NeoHookeanModel<'a>
 }
 
 /// Hyperelastic constitutive model implementation of the Neo-Hookean hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel for NeoHookeanModel<'a>
+impl<'a> HyperelasticConstitutiveModel<DeformationGradient> for NeoHookeanModel<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

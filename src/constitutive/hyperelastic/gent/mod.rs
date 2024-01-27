@@ -34,7 +34,7 @@ impl<'a> GentModel<'a>
 }
 
 /// Constitutive model implementation of the Gent hyperelastic constitutive model.
-impl<'a> ConstitutiveModel<'a> for GentModel<'a>
+impl<'a> ConstitutiveModel<'a, DeformationGradient> for GentModel<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -82,7 +82,7 @@ impl<'a> ConstitutiveModel<'a> for GentModel<'a>
 }
 
 /// Hyperelastic constitutive model implementation of the Gent hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel for GentModel<'a>
+impl<'a> HyperelasticConstitutiveModel<DeformationGradient> for GentModel<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

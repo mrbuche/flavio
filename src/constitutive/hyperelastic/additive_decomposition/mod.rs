@@ -3,10 +3,10 @@ mod test;
 
 use super::*;
 
-impl<'a, C1, C2> ConstitutiveModel<'a> for CompositeHyperelasticConstitutiveModel<C1, C2>
+impl<'a, C1, C2> ConstitutiveModel<'a, DeformationGradient> for CompositeHyperelasticConstitutiveModel<C1, C2>
 where
-    C1: ConstitutiveModel<'a>,
-    C2: ConstitutiveModel<'a>
+    C1: ConstitutiveModel<'a, DeformationGradient>,
+    C2: ConstitutiveModel<'a, DeformationGradient>
 {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -34,10 +34,10 @@ where
 }
 
 /// Hyperelastic constitutive model implementation of a composite hyperelastic constitutive model constructed using the additive decomposition.
-impl<C1, C2> HyperelasticConstitutiveModel for CompositeHyperelasticConstitutiveModel<C1, C2>
+impl<C1, C2> HyperelasticConstitutiveModel<DeformationGradient> for CompositeHyperelasticConstitutiveModel<C1, C2>
 where
-    C1: HyperelasticConstitutiveModel,
-    C2: HyperelasticConstitutiveModel
+    C1: HyperelasticConstitutiveModel<DeformationGradient>,
+    C2: HyperelasticConstitutiveModel<DeformationGradient>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

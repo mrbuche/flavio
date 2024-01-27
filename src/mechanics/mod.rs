@@ -14,6 +14,20 @@ use crate::math::
     TensorRank4List
 };
 
+/// ???
+pub struct DeformationGradientAndTemperature
+(
+    DeformationGradient,
+    Temperature
+);
+
+/// ???
+pub enum ExternalStateVariables
+{
+    DeformationGradient,
+    DeformationGradientAndTemperature
+}
+
 /// The Cauchy stress $`\boldsymbol{\sigma}`$.
 pub type CauchyStress = TensorRank2<3, 1, 1>;
 
@@ -85,6 +99,9 @@ pub type Stiffness = TensorRank2<3, 1, 1>;
 
 /// A list of stiffnesses.
 pub type Stiffnesses<const W: usize> = TensorRank2List2D<3, 1, 1, W>;
+
+/// The temperature.
+pub type Temperature = TensorRank0;
 
 /// A vector.
 pub type Vector<const I: usize> = TensorRank1<3, I>;

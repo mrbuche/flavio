@@ -32,14 +32,10 @@ pub use self::
 use super::*;
 
 /// Required methods for hyperelastic constitutive models.
-pub trait HyperelasticConstitutiveModel
+pub trait HyperelasticConstitutiveModel<V>
 {
     /// Calculates and returns the Helmholtz free energy density.
-    ///
-    /// ```math
-    /// a = a(\mathbf{F})
-    /// ```
-    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar;
+    fn calculate_helmholtz_free_energy_density(&self, external_state_variables: &V) -> Scalar;
     /// Returns the bulk modulus.
     fn get_bulk_modulus(&self) -> &Scalar;
     /// Returns the shear modulus.

@@ -23,7 +23,7 @@ pub struct AlmansiHamelModel<'a>
 }
 
 /// Constitutive model implementation of the Almansi-Hamel elastic constitutive model.
-impl<'a> ConstitutiveModel<'a> for AlmansiHamelModel<'a>
+impl<'a> ConstitutiveModel<'a, DeformationGradient> for AlmansiHamelModel<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///
