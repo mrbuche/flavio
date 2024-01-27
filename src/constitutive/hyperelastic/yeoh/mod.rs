@@ -79,7 +79,7 @@ impl<'a> ConstitutiveModel<'a, DeformationGradient> for YeohModel<'a>
 }
 
 /// Hyperelastic constitutive model implementation of the Yeoh hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel<DeformationGradient> for YeohModel<'a>
+impl<'a> HyperelasticConstitutiveModel<'a, DeformationGradient> for YeohModel<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

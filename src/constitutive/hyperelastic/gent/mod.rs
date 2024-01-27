@@ -82,7 +82,7 @@ impl<'a> ConstitutiveModel<'a, DeformationGradient> for GentModel<'a>
 }
 
 /// Hyperelastic constitutive model implementation of the Gent hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel<DeformationGradient> for GentModel<'a>
+impl<'a> HyperelasticConstitutiveModel<'a, DeformationGradient> for GentModel<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

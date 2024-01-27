@@ -20,7 +20,9 @@ pub use self::
 use super::*;
 
 /// Required methods for elastic constitutive models.
-pub trait ElasticConstitutiveModel
+pub trait ElasticConstitutiveModel<'a, Y>
+where
+    Self: ConstitutiveModel<'a, Y>
 {
     /// Returns the bulk modulus.
     fn get_bulk_modulus(&self) -> &Scalar;

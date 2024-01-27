@@ -14,20 +14,6 @@ use crate::math::
     TensorRank4List
 };
 
-/// ???
-pub struct DeformationGradientAndTemperature
-(
-    DeformationGradient,
-    Temperature
-);
-
-/// ???
-pub enum ExternalStateVariables
-{
-    DeformationGradient,
-    DeformationGradientAndTemperature
-}
-
 /// The Cauchy stress $`\boldsymbol{\sigma}`$.
 pub type CauchyStress = TensorRank2<3, 1, 1>;
 

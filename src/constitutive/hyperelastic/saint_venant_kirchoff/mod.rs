@@ -56,7 +56,7 @@ impl<'a> ConstitutiveModel<'a, DeformationGradient> for SaintVenantKirchoffModel
 }
 
 /// Hyperelastic constitutive model implementation of the Saint Venant-Kirchoff hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel<DeformationGradient> for SaintVenantKirchoffModel<'a>
+impl<'a> HyperelasticConstitutiveModel<'a, DeformationGradient> for SaintVenantKirchoffModel<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

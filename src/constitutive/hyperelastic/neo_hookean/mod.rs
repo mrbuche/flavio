@@ -54,7 +54,7 @@ impl<'a> ConstitutiveModel<'a, DeformationGradient> for NeoHookeanModel<'a>
 }
 
 /// Hyperelastic constitutive model implementation of the Neo-Hookean hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel<DeformationGradient> for NeoHookeanModel<'a>
+impl<'a> HyperelasticConstitutiveModel<'a, DeformationGradient> for NeoHookeanModel<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

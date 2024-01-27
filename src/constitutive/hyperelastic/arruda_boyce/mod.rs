@@ -87,7 +87,7 @@ impl<'a> ConstitutiveModel<'a, DeformationGradient> for ArrudaBoyceModel<'a>
 }
 
 /// Hyperelastic constitutive model implementation of the Arruda-Boyce hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel<DeformationGradient> for ArrudaBoyceModel<'a>
+impl<'a> HyperelasticConstitutiveModel<'a, DeformationGradient> for ArrudaBoyceModel<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

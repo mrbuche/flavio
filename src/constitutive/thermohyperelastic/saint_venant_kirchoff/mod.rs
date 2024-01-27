@@ -8,19 +8,14 @@ pub struct SaintVenantKirchoffModel<'a>
     parameters: ConstitutiveModelParameters<'a>
 }
 
-impl<'a> ConstitutiveModel<'a, (DeformationGradient, Scalar)> for SaintVenantKirchoffModel<'a>
+impl<'a> ConstitutiveModel<'a, (DeformationGradient, Temperature)> for SaintVenantKirchoffModel<'a>
 {
-    fn calculate_second_piola_kirchoff_stress(&self, deformation_gradient: &DeformationGradient) -> SecondPiolaKirchoffStress
+    fn calculate_second_piola_kirchoff_stress(&self, (deformation_gradient, temperature): &(DeformationGradient, Temperature)) -> SecondPiolaKirchoffStress
     {
         let (deviatoric_strain, strain_trace) = ((self.calculate_right_cauchy_green_deformation(deformation_gradient) - RightCauchyGreenDeformation::identity())*0.5).deviatoric_and_trace();
-        deviatoric_strain*(2.0*self.get_shear_modulus()) + RightCauchyGreenDeformation::identity()*(self.get_bulk_modulus()*strain_trace)
+        deviatoric_strain*(2.0*self.get_shear_modulus()) + RightCauchyGreenDeformation::identity()*(self.get_bulk_modulus()*(strain_trace - 3.0*self.get_coefficient_of_thermal_expansion()*(temperature - self.get_reference_temperature())))
     }
-    // fn calculate_second_piola_kirchoff_stress(&self, (deformation_gradient, temperature): &(DeformationGradient, Scalar)) -> SecondPiolaKirchoffStress
-    // {
-    //     let (deviatoric_strain, strain_trace) = ((self.calculate_right_cauchy_green_deformation(deformation_gradient) - RightCauchyGreenDeformation::identity())*0.5).deviatoric_and_trace();
-    //     deviatoric_strain*(2.0*self.get_shear_modulus()) + RightCauchyGreenDeformation::identity()*(self.get_bulk_modulus()*(strain_trace - 3.0*self.get_coefficient_of_thermal_expansion()*(temperature - self.get_reference_temperature())))
-    // }
-    fn calculate_second_piola_kirchoff_tangent_stiffness(&self, deformation_gradient: &DeformationGradient) -> SecondPiolaKirchoffTangentStiffness
+    fn calculate_second_piola_kirchoff_tangent_stiffness(&self, (deformation_gradient, _): &(DeformationGradient, Temperature)) -> SecondPiolaKirchoffTangentStiffness
     {
         let identity = SecondPiolaKirchoffStress::identity();
         let scaled_deformation_gradient_transpose = deformation_gradient.transpose()*self.get_shear_modulus();
@@ -35,9 +30,9 @@ impl<'a> ConstitutiveModel<'a, (DeformationGradient, Scalar)> for SaintVenantKir
     }
 }
 
-impl<'a> HyperelasticConstitutiveModel<(DeformationGradient, Scalar)> for SaintVenantKirchoffModel<'a>
+impl<'a> HyperelasticConstitutiveModel<'a, (DeformationGradient, Temperature)> for SaintVenantKirchoffModel<'a>
 {
-    fn calculate_helmholtz_free_energy_density(&self, (deformation_gradient, temperature): &(DeformationGradient, Scalar)) -> Scalar
+    fn calculate_helmholtz_free_energy_density(&self, (deformation_gradient, temperature): &(DeformationGradient, Temperature)) -> Scalar
     {
         let strain = (self.calculate_right_cauchy_green_deformation(deformation_gradient) - RightCauchyGreenDeformation::identity())*0.5;
         let strain_trace = strain.trace();
@@ -53,7 +48,7 @@ impl<'a> HyperelasticConstitutiveModel<(DeformationGradient, Scalar)> for SaintV
     }
 }
 
-impl<'a> ThermohyperelasticConstitutiveModel<(DeformationGradient, Scalar)> for SaintVenantKirchoffModel<'a>
+impl<'a> ThermohyperelasticConstitutiveModel<'a, (DeformationGradient, Temperature)> for SaintVenantKirchoffModel<'a>
 {
     fn get_coefficient_of_thermal_expansion(&self) -> &Scalar
     {

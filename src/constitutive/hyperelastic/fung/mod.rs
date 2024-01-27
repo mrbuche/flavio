@@ -79,7 +79,7 @@ impl<'a> ConstitutiveModel<'a, DeformationGradient> for FungModel<'a>
 }
 
 /// Hyperelastic constitutive model implementation of the Fung hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel<DeformationGradient> for FungModel<'a>
+impl<'a> HyperelasticConstitutiveModel<'a, DeformationGradient> for FungModel<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///
