@@ -11,21 +11,22 @@ use self::element::
 };
 use std::array::from_fn;
 
-pub struct Block<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
+pub struct Block<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize, Y>
 where
-    C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel,
-    F: FiniteElement<'a, C, G, N>
+    C: ConstitutiveModel<'a, Y> + HyperelasticConstitutiveModel<'a, Y>,
+    F: FiniteElement<'a, C, G, N, Y>
 {
     connectivity: Connectivity<E, N>,
     current_nodal_coordinates: CurrentNodalCoordinates<D>,
     elements: [F; E],
-    phantom_a: std::marker::PhantomData<*const &'a C>
+    phantom_a: std::marker::PhantomData<*const &'a C>,
+    phantom_y: std::marker::PhantomData<Y>
 }
 
-pub trait FiniteElementBlock<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
+pub trait FiniteElementBlock<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize, Y>
 where
-    C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel,
-    F: FiniteElement<'a, C, G, N>
+    C: ConstitutiveModel<'a, Y> + HyperelasticConstitutiveModel<'a, Y>,
+    F: FiniteElement<'a, C, G, N, Y>
 {
     fn calculate_current_nodal_coordinates_element(&self, element_connectivity: &[usize; N]) -> CurrentNodalCoordinates<N>;
     fn calculate_nodal_forces(&self) -> NodalForces<D>;
@@ -37,21 +38,21 @@ where
     fn set_current_nodal_coordinates(&mut self, current_nodal_coordinates: CurrentNodalCoordinates<D>);
 }
 
-pub trait HyperelasticFiniteElementBlock<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
+pub trait HyperelasticFiniteElementBlock<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize, Y>
 where
-    C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel,
-    F: FiniteElement<'a, C, G, N> + HyperelasticFiniteElement<'a, C, G, N>,
-    Self: FiniteElementBlock<'a, C, D, E, F, G, N>
+    C: ConstitutiveModel<'a, Y> + HyperelasticConstitutiveModel<'a, Y>,
+    F: FiniteElement<'a, C, G, N, Y> + HyperelasticFiniteElement<'a, C, G, N, Y>,
+    Self: FiniteElementBlock<'a, C, D, E, F, G, N, Y>
 {
     fn calculate_helmholtz_free_energy(&self) -> Scalar;
 }
 
-impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
-    FiniteElementBlock<'a, C, D, E, F, G, N>
-    for Block<'a, C, D, E, F, G, N>
+impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize, Y>
+    FiniteElementBlock<'a, C, D, E, F, G, N, Y>
+    for Block<'a, C, D, E, F, G, N, Y>
 where
-    C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel,
-    F: FiniteElement<'a, C, G, N>
+    C: ConstitutiveModel<'a, Y> + HyperelasticConstitutiveModel<'a, Y>,
+    F: FiniteElement<'a, C, G, N, Y>
 {
     fn calculate_current_nodal_coordinates_element(&self, element_connectivity: &[usize; N]) -> CurrentNodalCoordinates<N>
     {
@@ -125,7 +126,8 @@ where
             connectivity,
             current_nodal_coordinates: reference_nodal_coordinates.convert(),
             elements,
-            phantom_a: std::marker::PhantomData
+            phantom_a: std::marker::PhantomData,
+            phantom_y: std::marker::PhantomData
         }
     }
     fn set_current_nodal_coordinates(&mut self, current_nodal_coordinates: CurrentNodalCoordinates<D>)
@@ -134,13 +136,13 @@ where
     }
 }
 
-impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
-    HyperelasticFiniteElementBlock<'a, C, D, E, F, G, N>
-    for Block<'a, C, D, E, F, G, N>
+impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize, Y>
+    HyperelasticFiniteElementBlock<'a, C, D, E, F, G, N, Y>
+    for Block<'a, C, D, E, F, G, N, Y>
 where
-    C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel,
-    F: FiniteElement<'a, C, G, N> + HyperelasticFiniteElement<'a, C, G, N>,
-    Self: FiniteElementBlock<'a, C, D, E, F, G, N>
+    C: ConstitutiveModel<'a, Y> + HyperelasticConstitutiveModel<'a, Y>,
+    F: FiniteElement<'a, C, G, N, Y> + HyperelasticFiniteElement<'a, C, G, N, Y>,
+    Self: FiniteElementBlock<'a, C, D, E, F, G, N, Y>
 {
     fn calculate_helmholtz_free_energy(&self) -> Scalar
     {

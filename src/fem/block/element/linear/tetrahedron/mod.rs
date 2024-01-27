@@ -6,18 +6,19 @@ use super::*;
 const G: usize = 1;
 const N: usize = 4;
 
-pub struct LinearTetrahedron<'a, C>
+pub struct LinearTetrahedron<'a, C, Y>
 where
-    C: ConstitutiveModel<'a>
+    C: ConstitutiveModel<'a, Y>
 {
     constitutive_models: [C; G],
     gradient_vectors: GradientVectors<N>,
-    phantom_a: std::marker::PhantomData<*const &'a C>
+    phantom_a: std::marker::PhantomData<*const &'a C>,
+    phantom_y: std::marker::PhantomData<Y>
 }
 
-impl<'a, C> LinearFiniteElement<'a, C, G, N> for LinearTetrahedron<'a, C>
+impl<'a, C, Y> LinearFiniteElement<'a, C, G, N, Y> for LinearTetrahedron<'a, C, Y>
 where
-    C: ConstitutiveModel<'a>
+    C: ConstitutiveModel<'a, Y>
 {
     fn calculate_standard_gradient_operator() -> StandardGradientOperator<N>
     {
@@ -34,14 +35,14 @@ where
     }
 }
 
-impl<'a, C> HyperelasticLinearFiniteElement<'a, C, G, N> for LinearTetrahedron<'a, C>
+impl<'a, C, Y> HyperelasticLinearFiniteElement<'a, C, G, N, Y> for LinearTetrahedron<'a, C, Y>
 where
-    C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel
+    C: ConstitutiveModel<'a, Y> + HyperelasticConstitutiveModel<'a, Y>
 {}
 
-impl<'a, C> FiniteElement<'a, C, G, N> for LinearTetrahedron<'a, C>
+impl<'a, C, Y> FiniteElement<'a, C, G, N, Y> for LinearTetrahedron<'a, C, Y>
 where
-    C: ConstitutiveModel<'a>
+    C: ConstitutiveModel<'a, Y>
 {
     fn calculate_nodal_forces(&self, current_nodal_coordinates: &CurrentNodalCoordinates<N>) -> NodalForces<N>
     {
@@ -65,14 +66,15 @@ where
         {
             constitutive_models: std::array::from_fn(|_| <C>::new(constitutive_model_parameters)),
             gradient_vectors: Self::calculate_gradient_vectors(&reference_nodal_coordinates),
-            phantom_a: std::marker::PhantomData
+            phantom_a: std::marker::PhantomData,
+            phantom_y: std::marker::PhantomData
         }
     }
 }
 
-impl<'a, C> HyperelasticFiniteElement<'a, C, G, N> for LinearTetrahedron<'a, C>
+impl<'a, C, Y> HyperelasticFiniteElement<'a, C, G, N, Y> for LinearTetrahedron<'a, C, Y>
 where
-    C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel
+    C: ConstitutiveModel<'a, Y> + HyperelasticConstitutiveModel<'a, Y>
 {
     fn calculate_helmholtz_free_energy(&self, current_nodal_coordinates: &CurrentNodalCoordinates<N>) -> Scalar
     {
