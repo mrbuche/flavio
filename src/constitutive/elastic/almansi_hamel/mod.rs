@@ -23,7 +23,19 @@ pub struct AlmansiHamelModel<'a>
 }
 
 /// Constitutive model implementation of the Almansi-Hamel elastic constitutive model.
-impl<'a> ConstitutiveModel<'a, DeformationGradient> for AlmansiHamelModel<'a>
+impl<'a> ConstitutiveModel<'a> for AlmansiHamelModel<'a>
+{
+    fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
+    {
+        Self
+        {
+            parameters
+        }
+    }
+}
+
+/// Elastic constitutive model implementation of the Almansi-Hamel elastic constitutive model.
+impl<'a> ElasticConstitutiveModel for AlmansiHamelModel<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -52,18 +64,6 @@ impl<'a> ConstitutiveModel<'a, DeformationGradient> for AlmansiHamelModel<'a>
         let (deviatoric_strain, strain_trace) = strain.deviatoric_and_trace();
         (CauchyTangentStiffness::dyad_il_jk(&inverse_transpose_deformation_gradient, &inverse_left_cauchy_green_deformation) + CauchyTangentStiffness::dyad_ik_jl(&inverse_left_cauchy_green_deformation, &inverse_transpose_deformation_gradient)) * (self.get_shear_modulus() / jacobian)+ CauchyTangentStiffness::dyad_ij_kl(&identity,&(inverse_left_cauchy_green_deformation * &inverse_transpose_deformation_gradient*((self.get_bulk_modulus() - self.get_shear_modulus() * 2.0 / 3.0) / jacobian))) - CauchyTangentStiffness::dyad_ij_kl(&(deviatoric_strain * (self.get_shear_modulus() / jacobian) + identity * (self.get_bulk_modulus() * strain_trace / 2.0 / jacobian)), &inverse_transpose_deformation_gradient)
     }
-    fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
-    {
-        Self
-        {
-            parameters
-        }
-    }
-}
-
-/// Elastic constitutive model implementation of the Almansi-Hamel elastic constitutive model.
-impl<'a> ElasticConstitutiveModel<'a, DeformationGradient> for AlmansiHamelModel<'a>
-{
     fn get_bulk_modulus(&self) -> &Scalar
     {
         &self.parameters[0]

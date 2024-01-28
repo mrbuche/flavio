@@ -10,31 +10,34 @@
 #[cfg(test)]
 mod test;
 
-mod additive_decomposition;
-mod arruda_boyce;
-mod fung;
-mod gent;
-mod mooney_rivlin;
+// mod additive_decomposition;
+// mod arruda_boyce;
+// mod fung;
+// mod gent;
+// mod mooney_rivlin;
 mod neo_hookean;
-mod saint_venant_kirchoff;
-mod yeoh;
+// mod saint_venant_kirchoff;
+// mod yeoh;
 
 pub use self::
 {
-    arruda_boyce::ArrudaBoyceModel,
-    fung::FungModel,
-    gent::GentModel,
-    mooney_rivlin::MooneyRivlinModel,
+    // arruda_boyce::ArrudaBoyceModel,
+    // fung::FungModel,
+    // gent::GentModel,
+    // mooney_rivlin::MooneyRivlinModel,
     neo_hookean::NeoHookeanModel,
-    saint_venant_kirchoff::SaintVenantKirchoffModel,
-    yeoh::YeohModel
+    // saint_venant_kirchoff::SaintVenantKirchoffModel,
+    // yeoh::YeohModel
 };
-use super::*;
+use super::
+{
+    *, elastic::ElasticConstitutiveModel
+};
 
 /// Required methods for hyperelastic constitutive models.
-pub trait HyperelasticConstitutiveModel<'a, Y>
+pub trait HyperelasticConstitutiveModel
 where
-    Self: ConstitutiveModel<'a, Y>
+    Self: ElasticConstitutiveModel
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///
@@ -42,10 +45,6 @@ where
     /// a = a(\mathbf{F})
     /// ```
     fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar;
-    /// Returns the bulk modulus.
-    fn get_bulk_modulus(&self) -> &Scalar;
-    /// Returns the shear modulus.
-    fn get_shear_modulus(&self) -> &Scalar;
 }
 
 /// A composite hyperelastic constitutive model.
