@@ -1,5 +1,15 @@
-#[test]
-fn test_me()
+use super::
 {
-    todo!()
-}
+    SaintVenantKirchoffModel,
+    super::test::
+    {
+        SAINTVENANTKIRCHOFFPARAMETERS,
+        test_thermohyperelastic_constitutive_model
+    }
+};
+
+test_thermohyperelastic_constitutive_model!(
+    SaintVenantKirchoffModel,
+    SAINTVENANTKIRCHOFFPARAMETERS,
+    SaintVenantKirchoffModel::new(SAINTVENANTKIRCHOFFPARAMETERS)
+);

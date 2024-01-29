@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod test;
+pub mod test;
 
 mod almansi_hamel;
 
