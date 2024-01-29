@@ -10,24 +10,24 @@
 #[cfg(test)]
 mod test;
 
-// mod additive_decomposition;
-// mod arruda_boyce;
-// mod fung;
-// mod gent;
-// mod mooney_rivlin;
+mod additive_decomposition;
+mod arruda_boyce;
+mod fung;
+mod gent;
+mod mooney_rivlin;
 mod neo_hookean;
-// mod saint_venant_kirchoff;
-// mod yeoh;
+mod saint_venant_kirchoff;
+mod yeoh;
 
 pub use self::
 {
-    // arruda_boyce::ArrudaBoyceModel,
-    // fung::FungModel,
-    // gent::GentModel,
-    // mooney_rivlin::MooneyRivlinModel,
+    arruda_boyce::ArrudaBoyceModel,
+    fung::FungModel,
+    gent::GentModel,
+    mooney_rivlin::MooneyRivlinModel,
     neo_hookean::NeoHookeanModel,
-    // saint_venant_kirchoff::SaintVenantKirchoffModel,
-    // yeoh::YeohModel
+    saint_venant_kirchoff::SaintVenantKirchoffModel,
+    yeoh::YeohModel
 };
 use super::
 {
@@ -36,8 +36,6 @@ use super::
 
 /// Required methods for hyperelastic constitutive models.
 pub trait HyperelasticConstitutiveModel
-where
-    Self: ElasticConstitutiveModel
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

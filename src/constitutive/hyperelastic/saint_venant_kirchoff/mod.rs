@@ -23,7 +23,19 @@ pub struct SaintVenantKirchoffModel<'a>
 }
 
 /// Constitutive model implementation of the Saint Venant-Kirchoff hyperelastic constitutive model.
-impl<'a> ConstitutiveModel<'a, DeformationGradient> for SaintVenantKirchoffModel<'a>
+impl<'a> ConstitutiveModel<'a> for SaintVenantKirchoffModel<'a>
+{
+    fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
+    {
+        Self
+        {
+            parameters
+        }
+    }
+}
+
+/// Elastic constitutive model implementation of the Saint Venant-Kirchoff hyperelastic constitutive model.
+impl<'a> ElasticConstitutiveModel for SaintVenantKirchoffModel<'a>
 {
     /// Calculates and returns the second Piola-Kirchoff stress.
     ///
@@ -46,17 +58,18 @@ impl<'a> ConstitutiveModel<'a, DeformationGradient> for SaintVenantKirchoffModel
         let scaled_deformation_gradient_transpose = deformation_gradient.transpose()*self.get_shear_modulus();
         SecondPiolaKirchoffTangentStiffness::dyad_ik_jl(&scaled_deformation_gradient_transpose, &identity) + SecondPiolaKirchoffTangentStiffness::dyad_il_jk(&identity, &scaled_deformation_gradient_transpose) + SecondPiolaKirchoffTangentStiffness::dyad_ij_kl(&(identity*(self.get_bulk_modulus() - 2.0/3.0*self.get_shear_modulus())), deformation_gradient)
     }
-    fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
+    fn get_bulk_modulus(&self) -> &Scalar
     {
-        Self
-        {
-            parameters
-        }
+        &self.parameters[0]
+    }
+    fn get_shear_modulus(&self) -> &Scalar
+    {
+        &self.parameters[1]
     }
 }
 
 /// Hyperelastic constitutive model implementation of the Saint Venant-Kirchoff hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel<'a, DeformationGradient> for SaintVenantKirchoffModel<'a>
+impl<'a> HyperelasticConstitutiveModel for SaintVenantKirchoffModel<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///
@@ -67,13 +80,5 @@ impl<'a> HyperelasticConstitutiveModel<'a, DeformationGradient> for SaintVenantK
     {
         let strain = (self.calculate_right_cauchy_green_deformation(deformation_gradient) - RightCauchyGreenDeformation::identity())*0.5;
         self.get_shear_modulus()*strain.squared_trace() + 0.5*(self.get_bulk_modulus() - 2.0/3.0*self.get_shear_modulus())*strain.trace().powi(2)
-    }
-    fn get_bulk_modulus(&self) -> &Scalar
-    {
-        &self.parameters[0]
-    }
-    fn get_shear_modulus(&self) -> &Scalar
-    {
-        &self.parameters[1]
     }
 }

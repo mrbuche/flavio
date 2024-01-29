@@ -40,7 +40,19 @@ impl<'a> FungModel<'a>
 }
 
 /// Constitutive model implementation of the Fung hyperelastic constitutive model.
-impl<'a> ConstitutiveModel<'a, DeformationGradient> for FungModel<'a>
+impl<'a> ConstitutiveModel<'a> for FungModel<'a>
+{
+    fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
+    {
+        Self
+        {
+            parameters
+        }
+    }
+}
+
+/// Elastic constitutive model implementation of the Fung hyperelastic constitutive model.
+impl<'a> ElasticConstitutiveModel for FungModel<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -69,17 +81,18 @@ impl<'a> ConstitutiveModel<'a, DeformationGradient> for FungModel<'a>
         let scaled_shear_modulus_0 = (self.get_shear_modulus() + self.get_extra_modulus()*(exponential - 1.0))/jacobian.powf(5.0/3.0);
         (CauchyTangentStiffness::dyad_ik_jl(&identity, deformation_gradient) + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &identity) - CauchyTangentStiffness::dyad_ij_kl(&identity, deformation_gradient)*(2.0/3.0))*scaled_shear_modulus_0 + CauchyTangentStiffness::dyad_ij_kl(&deviatoric_isochoric_left_cauchy_green_deformation, &((&deviatoric_isochoric_left_cauchy_green_deformation*&inverse_transpose_deformation_gradient)*(2.0*self.get_extra_modulus()*exponential/jacobian))) + CauchyTangentStiffness::dyad_ij_kl(&(identity*(0.5*self.get_bulk_modulus()*(jacobian + 1.0/jacobian)) - self.calculate_left_cauchy_green_deformation(deformation_gradient).deviatoric()*(scaled_shear_modulus_0*5.0/3.0)), &inverse_transpose_deformation_gradient)
     }
-    fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
+    fn get_bulk_modulus(&self) -> &Scalar
     {
-        Self
-        {
-            parameters
-        }
+        &self.parameters[0]
+    }
+    fn get_shear_modulus(&self) -> &Scalar
+    {
+        &self.parameters[1]
     }
 }
 
 /// Hyperelastic constitutive model implementation of the Fung hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel<'a, DeformationGradient> for FungModel<'a>
+impl<'a> HyperelasticConstitutiveModel for FungModel<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///
@@ -91,13 +104,5 @@ impl<'a> HyperelasticConstitutiveModel<'a, DeformationGradient> for FungModel<'a
         let jacobian = deformation_gradient.determinant();
         let scalar_term = self.calculate_left_cauchy_green_deformation(deformation_gradient).trace()/jacobian.powf(2.0/3.0) - 3.0;
         0.5*((self.get_shear_modulus() - self.get_extra_modulus())*scalar_term + self.get_extra_modulus()/self.get_exponent()*((self.get_exponent()*scalar_term).exp() - 1.0) + self.get_bulk_modulus()*(0.5*(jacobian.powi(2) - 1.0) - jacobian.ln()))
-    }
-    fn get_bulk_modulus(&self) -> &Scalar
-    {
-        &self.parameters[0]
-    }
-    fn get_shear_modulus(&self) -> &Scalar
-    {
-        &self.parameters[1]
     }
 }

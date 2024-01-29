@@ -4,7 +4,11 @@ macro_rules! test_hyperelastic_constitutive_model
     {
         use crate::constitutive::
         {
-            elastic::test::test_elastic_constitutive_model,
+            elastic::
+            {
+                ElasticConstitutiveModel,
+                test::test_elastic_constitutive_model,
+            },
             hyperelastic::
             {
                 HyperelasticConstitutiveModel,

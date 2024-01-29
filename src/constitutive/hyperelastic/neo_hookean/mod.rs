@@ -31,7 +31,7 @@ impl<'a> ConstitutiveModel<'a> for NeoHookeanModel<'a>
     }
 }
 
-/// ?
+/// Elastic constitutive model implementation of the Neo-Hookean hyperelastic constitutive model.
 impl<'a> ElasticConstitutiveModel for NeoHookeanModel<'a>
 {
     /// Calculates and returns the Cauchy stress.
