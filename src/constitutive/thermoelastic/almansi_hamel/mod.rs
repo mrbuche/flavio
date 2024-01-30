@@ -19,7 +19,7 @@ impl<'a> ConstitutiveModel<'a> for AlmansiHamelModel<'a>
     }
 }
 
-impl<'a> ThermoelasticConstitutiveModel for AlmansiHamelModel<'a>
+impl<'a> ThermoelasticConstitutiveModel<'a> for AlmansiHamelModel<'a>
 {
     fn calculate_cauchy_stress(&self, deformation_gradient: &DeformationGradient, temperature: &Temperature) -> CauchyStress
     {

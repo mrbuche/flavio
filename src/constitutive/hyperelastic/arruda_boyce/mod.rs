@@ -55,7 +55,7 @@ impl<'a> ConstitutiveModel<'a> for ArrudaBoyceModel<'a>
 
 
 /// Elastic constitutive model implementation of the Arruda-Boyce hyperelastic constitutive model.
-impl<'a> ElasticConstitutiveModel for ArrudaBoyceModel<'a>
+impl<'a> ElasticConstitutiveModel<'a> for ArrudaBoyceModel<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -101,7 +101,7 @@ impl<'a> ElasticConstitutiveModel for ArrudaBoyceModel<'a>
 }
 
 /// Hyperelastic constitutive model implementation of the Arruda-Boyce hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel for ArrudaBoyceModel<'a>
+impl<'a> HyperelasticConstitutiveModel<'a> for ArrudaBoyceModel<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

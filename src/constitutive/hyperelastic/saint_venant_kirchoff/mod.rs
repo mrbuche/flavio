@@ -35,7 +35,7 @@ impl<'a> ConstitutiveModel<'a> for SaintVenantKirchoffModel<'a>
 }
 
 /// Elastic constitutive model implementation of the Saint Venant-Kirchoff hyperelastic constitutive model.
-impl<'a> ElasticConstitutiveModel for SaintVenantKirchoffModel<'a>
+impl<'a> ElasticConstitutiveModel<'a> for SaintVenantKirchoffModel<'a>
 {
     /// Calculates and returns the second Piola-Kirchoff stress.
     ///
@@ -69,7 +69,7 @@ impl<'a> ElasticConstitutiveModel for SaintVenantKirchoffModel<'a>
 }
 
 /// Hyperelastic constitutive model implementation of the Saint Venant-Kirchoff hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel for SaintVenantKirchoffModel<'a>
+impl<'a> HyperelasticConstitutiveModel<'a> for SaintVenantKirchoffModel<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

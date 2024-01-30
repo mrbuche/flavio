@@ -15,10 +15,10 @@ where
     }
 }
 
-impl<C1, C2> ElasticConstitutiveModel for CompositeHyperelasticConstitutiveModel<C1, C2>
+impl<'a, C1, C2> ElasticConstitutiveModel<'a> for CompositeHyperelasticConstitutiveModel<C1, C2>
 where
-    C1: ElasticConstitutiveModel,
-    C2: ElasticConstitutiveModel
+    C1: ElasticConstitutiveModel<'a>,
+    C2: ElasticConstitutiveModel<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -49,10 +49,10 @@ where
 }
 
 /// Hyperelastic constitutive model implementation of a composite hyperelastic constitutive model constructed using the additive decomposition.
-impl<C1, C2> HyperelasticConstitutiveModel for CompositeHyperelasticConstitutiveModel<C1, C2>
+impl<'a, C1, C2> HyperelasticConstitutiveModel<'a> for CompositeHyperelasticConstitutiveModel<C1, C2>
 where
-    C1: HyperelasticConstitutiveModel,
-    C2: HyperelasticConstitutiveModel
+    C1: HyperelasticConstitutiveModel<'a>,
+    C2: HyperelasticConstitutiveModel<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

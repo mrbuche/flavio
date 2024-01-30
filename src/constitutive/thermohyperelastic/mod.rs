@@ -10,9 +10,9 @@ use super::
 };
 
 /// Required methods for thermohyperelastic constitutive models.
-pub trait ThermohyperelasticConstitutiveModel
+pub trait ThermohyperelasticConstitutiveModel<'a>
 where
-    Self: ThermoelasticConstitutiveModel
+    Self: ThermoelasticConstitutiveModel<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient, temperature: &Temperature) -> Scalar;

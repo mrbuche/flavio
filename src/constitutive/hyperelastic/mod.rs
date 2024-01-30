@@ -35,7 +35,9 @@ use super::
 };
 
 /// Required methods for hyperelastic constitutive models.
-pub trait HyperelasticConstitutiveModel
+pub trait HyperelasticConstitutiveModel<'a>
+where
+    Self: ElasticConstitutiveModel<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

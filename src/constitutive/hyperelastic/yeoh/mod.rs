@@ -51,7 +51,7 @@ impl<'a> ConstitutiveModel<'a> for YeohModel<'a>
 }
 
 /// Elastic constitutive model implementation of the Yeoh hyperelastic constitutive model.
-impl<'a> ElasticConstitutiveModel for YeohModel<'a>
+impl<'a> ElasticConstitutiveModel<'a> for YeohModel<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -92,7 +92,7 @@ impl<'a> ElasticConstitutiveModel for YeohModel<'a>
 }
 
 /// Hyperelastic constitutive model implementation of the Yeoh hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel for YeohModel<'a>
+impl<'a> HyperelasticConstitutiveModel<'a> for YeohModel<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

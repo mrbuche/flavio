@@ -20,7 +20,9 @@ pub use self::
 use super::*;
 
 /// Required methods for elastic constitutive models.
-pub trait ElasticConstitutiveModel
+pub trait ElasticConstitutiveModel<'a>
+where
+    Self: ConstitutiveModel<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///

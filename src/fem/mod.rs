@@ -27,6 +27,7 @@ use crate::
     {
         ConstitutiveModel,
         ConstitutiveModelParameters,
+        elastic::ElasticConstitutiveModel,
         hyperelastic::HyperelasticConstitutiveModel
     },
     math::

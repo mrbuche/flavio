@@ -46,7 +46,7 @@ impl<'a> ConstitutiveModel<'a> for MooneyRivlinModel<'a>
 }
 
 /// Elastic constitutive model implementation of the Mooney-Rivlin hyperelastic constitutive model.
-impl<'a> ElasticConstitutiveModel for MooneyRivlinModel<'a>
+impl<'a> ElasticConstitutiveModel<'a> for MooneyRivlinModel<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -87,7 +87,7 @@ impl<'a> ElasticConstitutiveModel for MooneyRivlinModel<'a>
 }
 
 /// Hyperelastic constitutive model implementation of the Mooney-Rivlin hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel for MooneyRivlinModel<'a>
+impl<'a> HyperelasticConstitutiveModel<'a> for MooneyRivlinModel<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

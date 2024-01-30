@@ -19,7 +19,7 @@ impl<'a> ConstitutiveModel<'a> for SaintVenantKirchoffModel<'a>
     }
 }
 
-impl<'a> ThermoelasticConstitutiveModel for SaintVenantKirchoffModel<'a>
+impl<'a> ThermoelasticConstitutiveModel<'a> for SaintVenantKirchoffModel<'a>
 {
     fn calculate_second_piola_kirchoff_stress(&self, deformation_gradient: &DeformationGradient, temperature: &Temperature) -> SecondPiolaKirchoffStress
     {
@@ -50,7 +50,7 @@ impl<'a> ThermoelasticConstitutiveModel for SaintVenantKirchoffModel<'a>
     }
 }
 
-impl<'a> ThermohyperelasticConstitutiveModel for SaintVenantKirchoffModel<'a>
+impl<'a> ThermohyperelasticConstitutiveModel<'a> for SaintVenantKirchoffModel<'a>
 {
     fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient, temperature: &Temperature) -> Scalar
     {

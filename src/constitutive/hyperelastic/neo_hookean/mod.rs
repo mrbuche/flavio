@@ -32,7 +32,7 @@ impl<'a> ConstitutiveModel<'a> for NeoHookeanModel<'a>
 }
 
 /// Elastic constitutive model implementation of the Neo-Hookean hyperelastic constitutive model.
-impl<'a> ElasticConstitutiveModel for NeoHookeanModel<'a>
+impl<'a> ElasticConstitutiveModel<'a> for NeoHookeanModel<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -67,7 +67,7 @@ impl<'a> ElasticConstitutiveModel for NeoHookeanModel<'a>
 }
 
 /// Hyperelastic constitutive model implementation of the Neo-Hookean hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel for NeoHookeanModel<'a>
+impl<'a> HyperelasticConstitutiveModel<'a> for NeoHookeanModel<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

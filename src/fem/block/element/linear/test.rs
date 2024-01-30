@@ -100,16 +100,16 @@ macro_rules! test_linear_finite_element_with_constitutive_model
                 + get_translation_current_configuration()
             ).collect()
         }
-        fn get_element<'a>() -> $element<'a, $constitutive_model<'a>, DeformationGradient>
+        fn get_element<'a>() -> $element<'a, $constitutive_model<'a>>
         {
             $element::new(
                 $constitutive_model_parameters,
                 get_reference_coordinates()
             )
         }
-        fn get_element_transformed<'a>() -> $element<'a, $constitutive_model<'a>, DeformationGradient>
+        fn get_element_transformed<'a>() -> $element<'a, $constitutive_model<'a>>
         {
-            $element::<$constitutive_model, DeformationGradient>::new
+            $element::<$constitutive_model>::new
             (
                 $constitutive_model_parameters,
                 get_reference_coordinates_transformed()
@@ -185,7 +185,7 @@ macro_rules! test_linear_finite_element_with_constitutive_model
             #[test]
             fn get<'a>()
             {
-                $element::<'a, $constitutive_model<'a>, DeformationGradient>::calculate_gradient_vectors(
+                $element::<'a, $constitutive_model<'a>>::calculate_gradient_vectors(
                     &get_reference_coordinates()
                 ).iter().zip((
                     get_element().get_gradient_vectors()
@@ -201,11 +201,11 @@ macro_rules! test_linear_finite_element_with_constitutive_model
             #[test]
             fn objectivity<'a>()
             {
-                $element::<'a, $constitutive_model<'a>, DeformationGradient>::calculate_gradient_vectors(
+                $element::<'a, $constitutive_model<'a>>::calculate_gradient_vectors(
                     &get_reference_coordinates()
                 ).iter().zip((
                     get_rotation_reference_configuration().transpose() *
-                    $element::<'a, $constitutive_model<'a>, DeformationGradient>::calculate_gradient_vectors(
+                    $element::<'a, $constitutive_model<'a>>::calculate_gradient_vectors(
                         &get_reference_coordinates_transformed()
                     )
                 ).iter())
@@ -225,7 +225,7 @@ macro_rules! test_linear_finite_element_with_constitutive_model
             fn partition_of_unity<'a>()
             {
                 let mut sum = [0.0_f64; 3];
-                $element::<'a, $constitutive_model<'a>, DeformationGradient>::calculate_standard_gradient_operator()
+                $element::<'a, $constitutive_model<'a>>::calculate_standard_gradient_operator()
                 .iter()
                 .for_each(|row|
                     row.iter()
@@ -245,7 +245,7 @@ macro_rules! test_linear_finite_element_with_constitutive_model
         {
             // really only for hyperelastic constitutive models (no state variables)
             assert_eq!(
-                std::mem::size_of::<$element::<$constitutive_model, DeformationGradient>>(),
+                std::mem::size_of::<$element::<$constitutive_model>>(),
                 std::mem::size_of::<$constitutive_model>()
                 + std::mem::size_of::<GradientVectors<N>>()
             )

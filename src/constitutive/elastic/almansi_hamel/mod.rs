@@ -35,7 +35,7 @@ impl<'a> ConstitutiveModel<'a> for AlmansiHamelModel<'a>
 }
 
 /// Elastic constitutive model implementation of the Almansi-Hamel elastic constitutive model.
-impl<'a> ElasticConstitutiveModel for AlmansiHamelModel<'a>
+impl<'a> ElasticConstitutiveModel<'a> for AlmansiHamelModel<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///
