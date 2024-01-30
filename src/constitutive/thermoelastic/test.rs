@@ -32,12 +32,25 @@ macro_rules! test_thermoelastic_constitutive_model
         #[test]
         fn coefficient_of_thermal_expansion()
         {
-            todo!()
+            let model = get_thermoelastic_constitutive_model();
+            let deformation_gradient = DeformationGradient::identity();
+            let temperature = model.get_reference_temperature() - EPSILON;
+            let first_piola_kirchoff_stress = model.calculate_first_piola_kirchoff_stress(&deformation_gradient, &temperature);
+            let compare = 3.0*model.get_bulk_modulus()*EPSILON;
+            assert!((first_piola_kirchoff_stress[0][0]/compare - model.get_coefficient_of_thermal_expansion()).abs() < EPSILON);
+            assert!((first_piola_kirchoff_stress[1][1]/compare - model.get_coefficient_of_thermal_expansion()).abs() < EPSILON);
+            assert!((first_piola_kirchoff_stress[2][2]/compare - model.get_coefficient_of_thermal_expansion()).abs() < EPSILON);
+            assert_eq!(first_piola_kirchoff_stress[0][1], 0.0);
+            assert_eq!(first_piola_kirchoff_stress[0][2], 0.0);
+            assert_eq!(first_piola_kirchoff_stress[1][0], 0.0);
+            assert_eq!(first_piola_kirchoff_stress[1][2], 0.0);
+            assert_eq!(first_piola_kirchoff_stress[2][0], 0.0);
+            assert_eq!(first_piola_kirchoff_stress[2][1], 0.0);
         }
         #[test]
         fn reference_temperature()
         {
-            todo!()
+            todo!("Maybe use this in deformed/undeformed to check same as elastic counterpart at reference temperature?")
         }
         #[test]
         fn size()
@@ -57,9 +70,18 @@ macro_rules! test_thermoelastic_constitutive_model_constructed
     {
         use crate::
         {
+            EPSILON,
             constitutive::
             {
                 ConstitutiveModel
+            },
+            math::
+            {
+                TensorRank2Trait
+            },
+            mechanics::
+            {
+                DeformationGradient
             }
         };
         #[test]
