@@ -48,11 +48,6 @@ macro_rules! test_thermoelastic_constitutive_model
             assert_eq!(first_piola_kirchoff_stress[2][1], 0.0);
         }
         #[test]
-        fn reference_temperature()
-        {
-            todo!("Maybe use this in deformed/undeformed to check same as elastic counterpart at reference temperature?")
-        }
-        #[test]
         fn size()
         {
             assert_eq!(

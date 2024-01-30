@@ -3,6 +3,7 @@ pub mod test;
 
 pub mod elastic;
 pub mod hyperelastic;
+pub mod thermal;
 pub mod thermoelastic;
 pub mod thermohyperelastic;
 
@@ -22,12 +23,14 @@ use crate::
         DeformationGradient,
         FirstPiolaKirchoffStress,
         FirstPiolaKirchoffTangentStiffness,
+        HeatFlux,
         LeftCauchyGreenDeformation,
         RightCauchyGreenDeformation,
         Scalar,
         SecondPiolaKirchoffStress,
         SecondPiolaKirchoffTangentStiffness,
-        Temperature
+        Temperature,
+        TemperatureGradient
     }
 };
 

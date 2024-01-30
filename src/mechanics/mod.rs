@@ -50,6 +50,9 @@ pub type Force = TensorRank1<3, 1>;
 /// A list of forces.
 pub type Forces<const W: usize> = TensorRank1List<3, 1, W>;
 
+/// The heat flux.
+pub type HeatFlux = TensorRank1<3, 1>;
+
 /// The left Cauchy-Green deformation $`\mathbf{B}`$.
 pub type LeftCauchyGreenDeformation = TensorRank2<3, 1, 1>;
 
@@ -88,6 +91,9 @@ pub type Stiffnesses<const W: usize> = TensorRank2List2D<3, 1, 1, W>;
 
 /// The temperature.
 pub type Temperature = TensorRank0;
+
+/// The temperature gradient.
+pub type TemperatureGradient = TensorRank1<3, 1>;
 
 /// A vector.
 pub type Vector<const I: usize> = TensorRank1<3, I>;

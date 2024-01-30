@@ -4,7 +4,7 @@ mod test;
 use super::*;
 
 /// The Fung hyperelastic constitutive model.
-/// 
+///
 /// **Parameters**
 /// - The bulk modulus $`\kappa`$.
 /// - The shear modulus $`\mu`$.
