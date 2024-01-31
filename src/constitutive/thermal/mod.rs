@@ -2,4 +2,18 @@
 
 pub mod conduction;
 
-use super::*;
+use crate::
+{
+    mechanics::
+    {
+        HeatFlux,
+        Scalar,
+        TemperatureGradient
+    }
+};
+
+use super::
+{
+    ConstitutiveModel,
+    ConstitutiveModelParameters
+};

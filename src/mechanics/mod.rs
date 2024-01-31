@@ -1,3 +1,5 @@
+//! Mechanics library.
+
 #[cfg(test)]
 pub mod test;
 
@@ -88,9 +90,6 @@ pub type Stiffness = TensorRank2<3, 1, 1>;
 
 /// A list of stiffnesses.
 pub type Stiffnesses<const W: usize> = TensorRank2List2D<3, 1, 1, W>;
-
-/// The temperature.
-pub type Temperature = TensorRank0;
 
 /// The temperature gradient.
 pub type TemperatureGradient = TensorRank1<3, 1>;

@@ -7,7 +7,7 @@ macro_rules! test_finite_element
             use crate::
             {
                 EPSILON,
-                constitutive::
+                constitutive::solid::
                 {
                     hyperelastic::
                     {
@@ -18,16 +18,16 @@ macro_rules! test_finite_element
                         NeoHookeanModel,
                         SaintVenantKirchoffModel,
                         YeohModel,
-                    },
-                    test::
-                    {
-                        ARRUDABOYCEPARAMETERS,
-                        FUNGPARAMETERS,
-                        GENTPARAMETERS,
-                        MOONEYRIVLINPARAMETERS,
-                        NEOHOOKEANPARAMETERS,
-                        SAINTVENANTKIRCHOFFPARAMETERS,
-                        YEOHPARAMETERS
+                        test::
+                        {
+                            ARRUDABOYCEPARAMETERS,
+                            FUNGPARAMETERS,
+                            GENTPARAMETERS,
+                            MOONEYRIVLINPARAMETERS,
+                            NEOHOOKEANPARAMETERS,
+                            SAINTVENANTKIRCHOFFPARAMETERS,
+                            YEOHPARAMETERS
+                        }
                     }
                 },
                 fem::block::element::test::test_finite_element_with_constitutive_model,

@@ -14,17 +14,13 @@ pub const REL_TOL: f64 = 1e-12;
 pub const EPSILON: f64 = 1e-6;
 
 #[cfg(feature = "constitutive")]
-/// Constitutive model library.
 pub mod constitutive;
 
 #[cfg(feature = "fem")]
-/// Finite element library.
 pub mod fem;
 
 #[cfg(feature = "math")]
-/// Mathematics library.
 pub mod math;
 
 #[cfg(feature = "mechanics")]
-/// Mechanics library.
 pub mod mechanics;

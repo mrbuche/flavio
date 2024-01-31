@@ -1,3 +1,5 @@
+//! Finite element library.
+
 mod block;
 
 pub use block::
@@ -27,8 +29,11 @@ use crate::
     {
         ConstitutiveModel,
         ConstitutiveModelParameters,
-        elastic::ElasticConstitutiveModel,
-        hyperelastic::HyperelasticConstitutiveModel
+        solid::
+        {
+            elastic::ElasticConstitutiveModel,
+            hyperelastic::HyperelasticConstitutiveModel
+        }
     },
     math::
     {
