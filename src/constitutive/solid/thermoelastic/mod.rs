@@ -1,7 +1,11 @@
+//! Thermoelastic constitutive models.
+
 #[cfg(test)]
 pub mod test;
 
 mod almansi_hamel;
+
+pub use self::almansi_hamel::AlmansiHamelModel;
 
 use super::*;
 

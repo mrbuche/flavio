@@ -1,9 +1,12 @@
+//! Thermohyperelastic constitutive models.
+
 #[cfg(test)]
 pub mod test;
 
 mod saint_venant_kirchoff;
 
 pub use self::saint_venant_kirchoff::SaintVenantKirchoffModel;
+
 use super::
 {
     *, thermoelastic::ThermoelasticConstitutiveModel
