@@ -23,6 +23,15 @@ where
         let standard_gradient_operator = Self::calculate_standard_gradient_operator();
         (reference_nodal_coordinates * &standard_gradient_operator).inverse_transpose() * standard_gradient_operator
     }
+    fn calculate_standard_gradient_operator() -> StandardGradientOperator<N>;
+    fn get_gradient_vectors(&self) -> &GradientVectors<N>;
+}
+
+pub trait ElasticLinearFiniteElement<'a, C, const G: usize, const N: usize>
+where
+    C: ElasticConstitutiveModel<'a>,
+    Self: LinearFiniteElement<'a, C, G, N>
+{
     fn calculate_nodal_forces_linear_element(&self, current_nodal_coordinates: &CurrentNodalCoordinates<N>) -> NodalForces<N>
     {
         let deformation_gradient = self.calculate_deformation_gradient(current_nodal_coordinates);
@@ -57,14 +66,12 @@ where
             ).collect()
         ).collect()
     }
-    fn calculate_standard_gradient_operator() -> StandardGradientOperator<N>;
-    fn get_gradient_vectors(&self) -> &GradientVectors<N>;
 }
 
 pub trait HyperelasticLinearFiniteElement<'a, C, const G: usize, const N: usize>
 where
-    C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel,
-    Self: FiniteElement<'a, C, G, N> + LinearFiniteElement<'a, C, G, N>
+    C: HyperelasticConstitutiveModel<'a>,
+    Self: ElasticLinearFiniteElement<'a, C, G, N>
 {
     fn calculate_helmholtz_free_energy_linear_element(&self, current_nodal_coordinates: &CurrentNodalCoordinates<N>) -> Scalar
     {

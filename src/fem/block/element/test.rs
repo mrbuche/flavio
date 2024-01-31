@@ -7,7 +7,7 @@ macro_rules! test_finite_element
             use crate::
             {
                 EPSILON,
-                constitutive::
+                constitutive::solid::
                 {
                     hyperelastic::
                     {
@@ -18,16 +18,16 @@ macro_rules! test_finite_element
                         NeoHookeanModel,
                         SaintVenantKirchoffModel,
                         YeohModel,
-                    },
-                    test::
-                    {
-                        ARRUDABOYCEPARAMETERS,
-                        FUNGPARAMETERS,
-                        GENTPARAMETERS,
-                        MOONEYRIVLINPARAMETERS,
-                        NEOHOOKEANPARAMETERS,
-                        SAINTVENANTKIRCHOFFPARAMETERS,
-                        YEOHPARAMETERS
+                        test::
+                        {
+                            ARRUDABOYCEPARAMETERS,
+                            FUNGPARAMETERS,
+                            GENTPARAMETERS,
+                            MOONEYRIVLINPARAMETERS,
+                            NEOHOOKEANPARAMETERS,
+                            SAINTVENANTKIRCHOFFPARAMETERS,
+                            YEOHPARAMETERS
+                        }
                     }
                 },
                 fem::block::element::test::test_finite_element_with_constitutive_model,
@@ -105,14 +105,14 @@ macro_rules! test_finite_element_with_constitutive_model
                 + get_translation_current_configuration()
             ).collect()
         }
-        fn get_element<'a>() -> $element<'a, $constitutive_model<'a>>
+        fn get_element<'a>() -> $element<$constitutive_model<'a>>
         {
             $element::new(
                 $constitutive_model_parameters,
                 get_reference_coordinates()
             )
         }
-        fn get_element_transformed<'a>() -> $element<'a, $constitutive_model<'a>>
+        fn get_element_transformed<'a>() -> $element<$constitutive_model<'a>>
         {
             $element::<$constitutive_model>::new
             (

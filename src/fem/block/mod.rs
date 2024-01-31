@@ -7,29 +7,32 @@ use super::*;
 use self::element::
 {
     FiniteElement,
+    ElasticFiniteElement,
     HyperelasticFiniteElement
 };
 use std::array::from_fn;
 
-pub struct Block<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
-where
-    C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel,
-    F: FiniteElement<'a, C, G, N>
+pub struct Block<const D: usize, const E: usize, F, const G: usize, const N: usize>
+{
+    connectivity: Connectivity<E, N>,
+    current_nodal_coordinates: CurrentNodalCoordinates<D>,
+    elements: [F; E]
+}
+
+pub struct _ThermalSolidBlock<const D: usize, const E: usize, F, const G: usize, const N: usize>
 {
     connectivity: Connectivity<E, N>,
     current_nodal_coordinates: CurrentNodalCoordinates<D>,
     elements: [F; E],
-    phantom_a: std::marker::PhantomData<*const &'a C>
+    nodal_temperatures: _NodalTemperatures<D>
 }
 
 pub trait FiniteElementBlock<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
 where
-    C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel,
+    C: ConstitutiveModel<'a>,
     F: FiniteElement<'a, C, G, N>
 {
     fn calculate_current_nodal_coordinates_element(&self, element_connectivity: &[usize; N]) -> CurrentNodalCoordinates<N>;
-    fn calculate_nodal_forces(&self) -> NodalForces<D>;
-    fn calculate_nodal_stiffnesses(&self) -> NodalStiffnesses<D>;
     fn get_current_nodal_coordinates(&self) -> &CurrentNodalCoordinates<D>;
     fn get_connectivity(&self) -> &Connectivity<E, N>;
     fn get_elements(&self) -> &[F; E];
@@ -37,20 +40,42 @@ where
     fn set_current_nodal_coordinates(&mut self, current_nodal_coordinates: CurrentNodalCoordinates<D>);
 }
 
+pub trait ThermalSolidFiniteElementBlock<'a, C, C1, C2, const D: usize, const E: usize, F, const G: usize, const N: usize>
+where
+    C: ThermalSolidConstitutiveModel<'a, C1, C2>,
+    C1: SolidConstitutiveModel<'a>,
+    C2: ThermalConstitutiveModel<'a>,
+    F: FiniteElement<'a, C, G, N>,
+    Self: FiniteElementBlock<'a, C, D, E, F, G, N>
+{
+    fn get_nodal_temperatures(&self) -> &_NodalTemperatures<D>;
+    fn set_nodal_temperatures(&mut self, nodal_temperatures: _NodalTemperatures<D>);
+}
+
+pub trait ElasticFiniteElementBlock<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
+where
+    C: ElasticConstitutiveModel<'a>,
+    F: ElasticFiniteElement<'a, C, G, N>,
+    Self: FiniteElementBlock<'a, C, D, E, F, G, N>
+{
+    fn calculate_nodal_forces(&self) -> NodalForces<D>;
+    fn calculate_nodal_stiffnesses(&self) -> NodalStiffnesses<D>;
+}
+
 pub trait HyperelasticFiniteElementBlock<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
 where
-    C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel,
-    F: FiniteElement<'a, C, G, N> + HyperelasticFiniteElement<'a, C, G, N>,
-    Self: FiniteElementBlock<'a, C, D, E, F, G, N>
+    C: HyperelasticConstitutiveModel<'a>,
+    F: HyperelasticFiniteElement<'a, C, G, N>,
+    Self: ElasticFiniteElementBlock<'a, C, D, E, F, G, N>
 {
     fn calculate_helmholtz_free_energy(&self) -> Scalar;
 }
 
 impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
     FiniteElementBlock<'a, C, D, E, F, G, N>
-    for Block<'a, C, D, E, F, G, N>
+    for Block<D, E, F, G, N>
 where
-    C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel,
+    C: ConstitutiveModel<'a>,
     F: FiniteElement<'a, C, G, N>
 {
     fn calculate_current_nodal_coordinates_element(&self, element_connectivity: &[usize; N]) -> CurrentNodalCoordinates<N>
@@ -61,6 +86,50 @@ where
             .iter().copied().collect()
         ).collect()
     }
+    fn get_current_nodal_coordinates(&self) -> &CurrentNodalCoordinates<D>
+    {
+        &self.current_nodal_coordinates
+    }
+    fn get_connectivity(&self) -> &Connectivity<E, N>
+    {
+        &self.connectivity
+    }
+    fn get_elements(&self) -> &[F; E]
+    {
+        &self.elements
+    }
+    fn new(constitutive_model_parameters: ConstitutiveModelParameters<'a>, connectivity: Connectivity<E, N>, reference_nodal_coordinates: ReferenceNodalCoordinates<D>) -> Self
+    {
+        let elements = from_fn(|element|
+            <F>::new(
+                constitutive_model_parameters,
+                connectivity[element].iter().map(|node|
+                    reference_nodal_coordinates[*node]
+                    .iter().copied().collect()
+                ).collect()
+            )
+        );
+        Self
+        {
+            connectivity,
+            current_nodal_coordinates: reference_nodal_coordinates.convert(),
+            elements
+        }
+    }
+    fn set_current_nodal_coordinates(&mut self, current_nodal_coordinates: CurrentNodalCoordinates<D>)
+    {
+        self.current_nodal_coordinates = current_nodal_coordinates;
+    }
+}
+
+impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
+    ElasticFiniteElementBlock<'a, C, D, E, F, G, N>
+    for Block<D, E, F, G, N>
+where
+    C: ElasticConstitutiveModel<'a>,
+    F: ElasticFiniteElement<'a, C, G, N>,
+    Self: FiniteElementBlock<'a, C, D, E, F, G, N>
+{
     fn calculate_nodal_forces(&self) -> NodalForces<D>
     {
         let mut nodal_forces = NodalForces::zero();
@@ -97,50 +166,15 @@ where
         );
         nodal_stiffnesses
     }
-    fn get_current_nodal_coordinates(&self) -> &CurrentNodalCoordinates<D>
-    {
-        &self.current_nodal_coordinates
-    }
-    fn get_connectivity(&self) -> &Connectivity<E, N>
-    {
-        &self.connectivity
-    }
-    fn get_elements(&self) -> &[F; E]
-    {
-        &self.elements
-    }
-    fn new(constitutive_model_parameters: ConstitutiveModelParameters<'a>, connectivity: Connectivity<E, N>, reference_nodal_coordinates: ReferenceNodalCoordinates<D>) -> Self
-    {
-        let elements = from_fn(|element|
-            <F>::new(
-                constitutive_model_parameters,
-                connectivity[element].iter().map(|node|
-                    reference_nodal_coordinates[*node]
-                    .iter().copied().collect()
-                ).collect()
-            )
-        );
-        Self
-        {
-            connectivity,
-            current_nodal_coordinates: reference_nodal_coordinates.convert(),
-            elements,
-            phantom_a: std::marker::PhantomData
-        }
-    }
-    fn set_current_nodal_coordinates(&mut self, current_nodal_coordinates: CurrentNodalCoordinates<D>)
-    {
-        self.current_nodal_coordinates = current_nodal_coordinates;
-    }
 }
 
 impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
     HyperelasticFiniteElementBlock<'a, C, D, E, F, G, N>
-    for Block<'a, C, D, E, F, G, N>
+    for Block<D, E, F, G, N>
 where
-    C: ConstitutiveModel<'a> + HyperelasticConstitutiveModel,
-    F: FiniteElement<'a, C, G, N> + HyperelasticFiniteElement<'a, C, G, N>,
-    Self: FiniteElementBlock<'a, C, D, E, F, G, N>
+    C: HyperelasticConstitutiveModel<'a>,
+    F: HyperelasticFiniteElement<'a, C, G, N>,
+    Self: ElasticFiniteElementBlock<'a, C, D, E, F, G, N>
 {
     fn calculate_helmholtz_free_energy(&self) -> Scalar
     {

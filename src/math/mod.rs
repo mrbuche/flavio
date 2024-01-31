@@ -1,3 +1,5 @@
+//! Mathematics library.
+
 /// Special mathematical functions.
 pub mod special;
 

@@ -1,3 +1,5 @@
+//! Finite element library.
+
 mod block;
 
 pub use block::
@@ -27,7 +29,14 @@ use crate::
     {
         ConstitutiveModel,
         ConstitutiveModelParameters,
-        hyperelastic::HyperelasticConstitutiveModel
+        multiphysics::ThermalSolidConstitutiveModel,
+        solid::
+        {
+            SolidConstitutiveModel,
+            elastic::ElasticConstitutiveModel,
+            hyperelastic::HyperelasticConstitutiveModel
+        },
+        thermal::ThermalConstitutiveModel
     },
     math::
     {
@@ -57,4 +66,5 @@ type Connectivity<const E: usize, const N: usize> = [[usize; N]; E];
 type CurrentNodalCoordinates<const D: usize> = CurrentCoordinates<D>;
 type NodalForces<const D: usize> = Forces<D>;
 type NodalStiffnesses<const D: usize> = Stiffnesses<D>;
+type _NodalTemperatures<const D: usize> = Scalars<D>;
 type ReferenceNodalCoordinates<const D: usize> = ReferenceCoordinates<D>;
