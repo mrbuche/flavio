@@ -12,15 +12,19 @@ use self::element::
 };
 use std::array::from_fn;
 
-pub struct Block<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
-where
-    C: ConstitutiveModel<'a>,
-    F: FiniteElement<'a, C, G, N>
+pub struct Block<const D: usize, const E: usize, F, const G: usize, const N: usize>
+{
+    connectivity: Connectivity<E, N>,
+    current_nodal_coordinates: CurrentNodalCoordinates<D>,
+    elements: [F; E]
+}
+
+pub struct ThermalSolidBlock<const D: usize, const E: usize, F, const G: usize, const N: usize>
 {
     connectivity: Connectivity<E, N>,
     current_nodal_coordinates: CurrentNodalCoordinates<D>,
     elements: [F; E],
-    phantom_a: std::marker::PhantomData<*const &'a C>
+    nodal_temperatures: NodalTemperatures<D>
 }
 
 pub trait FiniteElementBlock<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
@@ -57,7 +61,7 @@ where
 
 impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
     FiniteElementBlock<'a, C, D, E, F, G, N>
-    for Block<'a, C, D, E, F, G, N>
+    for Block<D, E, F, G, N>
 where
     C: ConstitutiveModel<'a>,
     F: FiniteElement<'a, C, G, N>
@@ -97,8 +101,7 @@ where
         {
             connectivity,
             current_nodal_coordinates: reference_nodal_coordinates.convert(),
-            elements,
-            phantom_a: std::marker::PhantomData
+            elements
         }
     }
     fn set_current_nodal_coordinates(&mut self, current_nodal_coordinates: CurrentNodalCoordinates<D>)
@@ -109,7 +112,7 @@ where
 
 impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
     ElasticFiniteElementBlock<'a, C, D, E, F, G, N>
-    for Block<'a, C, D, E, F, G, N>
+    for Block<D, E, F, G, N>
 where
     C: ElasticConstitutiveModel<'a>,
     F: ElasticFiniteElement<'a, C, G, N>,
@@ -155,7 +158,7 @@ where
 
 impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
     HyperelasticFiniteElementBlock<'a, C, D, E, F, G, N>
-    for Block<'a, C, D, E, F, G, N>
+    for Block<D, E, F, G, N>
 where
     C: HyperelasticConstitutiveModel<'a>,
     F: HyperelasticFiniteElement<'a, C, G, N>,

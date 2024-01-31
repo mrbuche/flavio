@@ -89,7 +89,7 @@ macro_rules! test_finite_element_block_with_constitutive_model
 {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
     {
-        fn get_block<'a>() -> Block<'a, $constitutive_model<'a>, D, E, $element<'a, $constitutive_model<'a>>, G, N>
+        fn get_block<'a>() -> Block<D, E, $element<$constitutive_model<'a>>, G, N>
         {
             Block::new(
                 $constitutive_model_parameters,
@@ -97,7 +97,7 @@ macro_rules! test_finite_element_block_with_constitutive_model
                 get_reference_coordinates_block()
             )
         }
-        fn get_block_transformed<'a>() -> Block<'a, $constitutive_model<'a>, D, E, $element<'a, $constitutive_model<'a>>, G, N>
+        fn get_block_transformed<'a>() -> Block<D, E, $element<$constitutive_model<'a>>, G, N>
         {
             Block::new(
                 $constitutive_model_parameters,
@@ -747,7 +747,7 @@ macro_rules! test_finite_element_block_with_constitutive_model
         fn size()
         {
             assert_eq!(
-                std::mem::size_of::<Block<$constitutive_model, D, E, $element::<$constitutive_model>, G, N>>(),
+                std::mem::size_of::<Block<D, E, $element::<$constitutive_model>, G, N>>(),
                 std::mem::size_of::<Connectivity<E, N>>()
                 + std::mem::size_of::<CurrentNodalCoordinates<D>>()
                 + E * std::mem::size_of::<$element::<$constitutive_model>>()

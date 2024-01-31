@@ -6,16 +6,13 @@ use super::*;
 const G: usize = 1;
 const N: usize = 4;
 
-pub struct LinearTetrahedron<'a, C>
-where
-    C: ConstitutiveModel<'a>
+pub struct LinearTetrahedron<C>
 {
     constitutive_models: [C; G],
-    gradient_vectors: GradientVectors<N>,
-    phantom_a: std::marker::PhantomData<*const &'a C>
+    gradient_vectors: GradientVectors<N>
 }
 
-impl<'a, C> LinearFiniteElement<'a, C, G, N> for LinearTetrahedron<'a, C>
+impl<'a, C> LinearFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
 where
     C: ConstitutiveModel<'a>
 {
@@ -34,7 +31,7 @@ where
     }
 }
 
-impl<'a, C> FiniteElement<'a, C, G, N> for LinearTetrahedron<'a, C>
+impl<'a, C> FiniteElement<'a, C, G, N> for LinearTetrahedron<C>
 where
     C: ConstitutiveModel<'a>
 {
@@ -51,13 +48,12 @@ where
         Self
         {
             constitutive_models: std::array::from_fn(|_| <C>::new(constitutive_model_parameters)),
-            gradient_vectors: Self::calculate_gradient_vectors(&reference_nodal_coordinates),
-            phantom_a: std::marker::PhantomData
+            gradient_vectors: Self::calculate_gradient_vectors(&reference_nodal_coordinates)
         }
     }
 }
 
-impl<'a, C> ElasticFiniteElement<'a, C, G, N> for LinearTetrahedron<'a, C>
+impl<'a, C> ElasticFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
 where
     C: ElasticConstitutiveModel<'a>
 {
@@ -71,7 +67,7 @@ where
     }
 }
 
-impl<'a, C> HyperelasticFiniteElement<'a, C, G, N> for LinearTetrahedron<'a, C>
+impl<'a, C> HyperelasticFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
 where
     C: HyperelasticConstitutiveModel<'a>
 {
@@ -81,12 +77,12 @@ where
     }
 }
 
-impl<'a, C> ElasticLinearFiniteElement<'a, C, G, N> for LinearTetrahedron<'a, C>
+impl<'a, C> ElasticLinearFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
 where
     C: ElasticConstitutiveModel<'a>
 {}
 
-impl<'a, C> HyperelasticLinearFiniteElement<'a, C, G, N> for LinearTetrahedron<'a, C>
+impl<'a, C> HyperelasticLinearFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
 where
     C: HyperelasticConstitutiveModel<'a>
 {}
