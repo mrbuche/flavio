@@ -30,11 +30,6 @@ macro_rules! test_thermohyperelastic_constitutive_model_constructed
 {
     ($thermohyperelastic_constitutive_model_constructed: expr) =>
     {
-        #[test]
-        fn todo()
-        {
-            todo!()
-        }
     }
 }
 pub(crate) use test_thermohyperelastic_constitutive_model_constructed;

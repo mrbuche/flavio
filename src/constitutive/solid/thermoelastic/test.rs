@@ -79,11 +79,6 @@ macro_rules! test_thermoelastic_constitutive_model_constructed
                 DeformationGradient
             }
         };
-        #[test]
-        fn figure_out_how_to_reuse_elastic_hyperelastic_tests()
-        {
-            todo!()
-        }
     }
 }
 pub(crate) use test_thermoelastic_constitutive_model_constructed;
@@ -91,11 +86,6 @@ macro_rules! test_thermoelastic_only_constitutive_model_constructed
 {
     ($thermoelastic_constitutive_model_constructed: expr) =>
     {
-        #[test]
-        fn todo()
-        {
-            todo!()
-        }
     }
 }
 pub(crate) use test_thermoelastic_only_constitutive_model_constructed;
