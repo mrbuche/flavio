@@ -17,3 +17,8 @@ use super::
     ConstitutiveModel,
     ConstitutiveModelParameters
 };
+
+pub trait ThermalConstitutiveModel<'a>
+where
+    Self: ConstitutiveModel<'a>
+{}

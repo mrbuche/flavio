@@ -1,7 +1,7 @@
 //! Thermal conduction constitutive models.
 
 #[cfg(test)]
-mod test;
+pub mod test;
 
 mod fourier;
 

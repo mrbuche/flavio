@@ -19,12 +19,12 @@ pub struct Block<const D: usize, const E: usize, F, const G: usize, const N: usi
     elements: [F; E]
 }
 
-pub struct ThermalSolidBlock<const D: usize, const E: usize, F, const G: usize, const N: usize>
+pub struct _ThermalSolidBlock<const D: usize, const E: usize, F, const G: usize, const N: usize>
 {
     connectivity: Connectivity<E, N>,
     current_nodal_coordinates: CurrentNodalCoordinates<D>,
     elements: [F; E],
-    nodal_temperatures: NodalTemperatures<D>
+    nodal_temperatures: _NodalTemperatures<D>
 }
 
 pub trait FiniteElementBlock<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
@@ -38,6 +38,18 @@ where
     fn get_elements(&self) -> &[F; E];
     fn new(constitutive_model_parameters: ConstitutiveModelParameters<'a>, connectivity: Connectivity<E, N>, reference_nodal_coordinates: ReferenceNodalCoordinates<D>) -> Self;
     fn set_current_nodal_coordinates(&mut self, current_nodal_coordinates: CurrentNodalCoordinates<D>);
+}
+
+pub trait ThermalSolidFiniteElementBlock<'a, C, C1, C2, const D: usize, const E: usize, F, const G: usize, const N: usize>
+where
+    C: ThermalSolidConstitutiveModel<'a, C1, C2>,
+    C1: SolidConstitutiveModel<'a>,
+    C2: ThermalConstitutiveModel<'a>,
+    F: FiniteElement<'a, C, G, N>,
+    Self: FiniteElementBlock<'a, C, D, E, F, G, N>
+{
+    fn get_nodal_temperatures(&self) -> &_NodalTemperatures<D>;
+    fn set_nodal_temperatures(&mut self, nodal_temperatures: _NodalTemperatures<D>);
 }
 
 pub trait ElasticFiniteElementBlock<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>

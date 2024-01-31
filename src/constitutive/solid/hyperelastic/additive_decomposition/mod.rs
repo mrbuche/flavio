@@ -8,7 +8,7 @@ where
     C1: ConstitutiveModel<'a>,
     C2: ConstitutiveModel<'a>
 {
-    /// Dummy method that will panic, use [CompositeConstitutiveModel::construct()] instead.
+    /// Dummy method that will panic, use [Self::construct()] instead.
     fn new(_parameters: ConstitutiveModelParameters<'a>) -> Self
     {
         panic!()

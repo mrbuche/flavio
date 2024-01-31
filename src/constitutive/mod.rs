@@ -3,6 +3,7 @@
 #[cfg(test)]
 pub mod test;
 
+pub mod multiphysics;
 pub mod thermal;
 pub mod solid;
 

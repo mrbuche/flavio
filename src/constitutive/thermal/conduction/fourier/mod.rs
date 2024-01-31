@@ -38,6 +38,8 @@ impl<'a> ConstitutiveModel<'a> for FourierModel<'a>
         }
     }
 }
+/// Thermal constitutive model implementation of the Fourier thermal conduction constitutive model.
+impl<'a> ThermalConstitutiveModel<'a> for FourierModel<'a> {}
 
 /// Thermal conduction constitutive model implementation of the Fourier thermal conduction constitutive model.
 impl<'a> ThermalConduction<'a> for FourierModel<'a>
