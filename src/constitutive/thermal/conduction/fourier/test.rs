@@ -3,7 +3,7 @@ use super::
     ConstitutiveModel,
     FourierModel,
     TemperatureGradient,
-    ThermalConduction,
+    ThermalConductionConstitutiveModel,
     super::test::FOURIERPARAMETERS
 };
 use crate::math::TensorRank1Trait;

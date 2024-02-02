@@ -1,7 +1,16 @@
 #[cfg(test)]
 mod test;
 
-use super::*;
+use super::
+{
+    ConstitutiveModel,
+    ConstitutiveModelParameters,
+    HeatFlux,
+    Scalar,
+    TemperatureGradient,
+    ThermalConstitutiveModel,
+    ThermalConductionConstitutiveModel
+};
 
 /// The Fourier thermal conduction constitutive model.
 ///
@@ -42,7 +51,7 @@ impl<'a> ConstitutiveModel<'a> for FourierModel<'a>
 impl<'a> ThermalConstitutiveModel<'a> for FourierModel<'a> {}
 
 /// Thermal conduction constitutive model implementation of the Fourier thermal conduction constitutive model.
-impl<'a> ThermalConduction<'a> for FourierModel<'a>
+impl<'a> ThermalConductionConstitutiveModel<'a> for FourierModel<'a>
 {
     /// Calculates and returns the heat flux.
     ///

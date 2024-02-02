@@ -29,7 +29,7 @@ use crate::
     {
         ConstitutiveModel,
         ConstitutiveModelParameters,
-        multiphysics::ThermalSolidConstitutiveModel,
+        multiphysics::SolidThermalConstitutiveModel,
         solid::
         {
             SolidConstitutiveModel,
