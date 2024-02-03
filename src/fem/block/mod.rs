@@ -42,7 +42,7 @@ where
 
 pub trait ThermalSolidFiniteElementBlock<'a, C, C1, C2, const D: usize, const E: usize, F, const G: usize, const N: usize>
 where
-    C: ThermalSolidConstitutiveModel<'a, C1, C2>,
+    C: SolidThermalConstitutiveModel<'a, C1, C2>,
     C1: SolidConstitutiveModel<'a>,
     C2: ThermalConstitutiveModel<'a>,
     F: FiniteElement<'a, C, G, N>,

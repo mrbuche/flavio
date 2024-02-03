@@ -13,10 +13,8 @@ pub mod test;
 
 mod almansi_hamel;
 
-pub use self::
-{
-    almansi_hamel::AlmansiHamelModel
-};
+pub use almansi_hamel::AlmansiHamelModel;
+
 use super::*;
 
 /// Required methods for elastic constitutive models.

@@ -5,7 +5,7 @@ pub mod test;
 
 mod saint_venant_kirchoff;
 
-pub use self::saint_venant_kirchoff::SaintVenantKirchoffModel;
+pub use saint_venant_kirchoff::SaintVenantKirchoffModel;
 
 use super::
 {
