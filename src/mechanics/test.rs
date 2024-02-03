@@ -10,6 +10,7 @@ use super::
     RotationCurrentConfiguration,
     RotationReferenceConfiguration,
     ReferenceCoordinate,
+    TemperatureGradient,
     Scalar
 };
 
@@ -59,6 +60,16 @@ pub fn get_translation_current_configuration() -> CurrentCoordinate
 pub fn get_translation_reference_configuration() -> ReferenceCoordinate
 {
     ReferenceCoordinate::new([4.4, 5.5, 6.6])
+}
+
+pub fn get_temperature() -> Scalar
+{
+    100.0
+}
+
+pub fn get_temperature_gradient() -> TemperatureGradient
+{
+    TemperatureGradient::new([12.3, -5.0, 8.8])
 }
 
 #[test]
