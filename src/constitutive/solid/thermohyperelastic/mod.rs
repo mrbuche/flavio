@@ -5,17 +5,17 @@ pub mod test;
 
 mod saint_venant_kirchoff;
 
-pub use saint_venant_kirchoff::SaintVenantKirchoffModel;
+pub use saint_venant_kirchoff::SaintVenantKirchoff;
 
 use super::
 {
-    *, thermoelastic::ThermoelasticConstitutiveModel
+    *, thermoelastic::Thermoelastic
 };
 
 /// Required methods for thermohyperelastic constitutive models.
-pub trait ThermohyperelasticConstitutiveModel<'a>
+pub trait Thermohyperelastic<'a>
 where
-    Self: ThermoelasticConstitutiveModel<'a>
+    Self: Thermoelastic<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient, temperature: &Scalar) -> Scalar;

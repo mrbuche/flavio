@@ -17,14 +17,14 @@ use super::*;
 /// - None.
 ///
 /// **Notes**
-/// - The Mooney-Rivlin model reduces to the [Neo-Hookean model](NeoHookeanModel) when $`\mu_m\to 0`$.
-pub struct MooneyRivlinModel<'a>
+/// - The Mooney-Rivlin model reduces to the [Neo-Hookean model](NeoHookean) when $`\mu_m\to 0`$.
+pub struct MooneyRivlin<'a>
 {
     parameters: ConstitutiveModelParameters<'a>
 }
 
 /// Inherent implementation of the Mooney-Rivlin hyperelastic constitutive model.
-impl<'a> MooneyRivlinModel<'a>
+impl<'a> MooneyRivlin<'a>
 {
     /// Returns the extra modulus.
     pub fn get_extra_modulus(&self) -> &Scalar
@@ -34,7 +34,7 @@ impl<'a> MooneyRivlinModel<'a>
 }
 
 /// Constitutive model implementation of the Mooney-Rivlin hyperelastic constitutive model.
-impl<'a> ConstitutiveModel<'a> for MooneyRivlinModel<'a>
+impl<'a> ConstitutiveModel<'a> for MooneyRivlin<'a>
 {
     fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
     {
@@ -46,10 +46,10 @@ impl<'a> ConstitutiveModel<'a> for MooneyRivlinModel<'a>
 }
 
 /// Solid constitutive model implementation of the Mooney-Rivlin hyperelastic constitutive model.
-impl<'a> SolidConstitutiveModel<'a> for MooneyRivlinModel<'a> {}
+impl<'a> Solid<'a> for MooneyRivlin<'a> {}
 
 /// Elastic constitutive model implementation of the Mooney-Rivlin hyperelastic constitutive model.
-impl<'a> ElasticConstitutiveModel<'a> for MooneyRivlinModel<'a>
+impl<'a> Elastic<'a> for MooneyRivlin<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -90,7 +90,7 @@ impl<'a> ElasticConstitutiveModel<'a> for MooneyRivlinModel<'a>
 }
 
 /// Hyperelastic constitutive model implementation of the Mooney-Rivlin hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel<'a> for MooneyRivlinModel<'a>
+impl<'a> Hyperelastic<'a> for MooneyRivlin<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

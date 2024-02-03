@@ -1,14 +1,14 @@
 use crate::constitutive::solid::thermoelastic::
 {
-    AlmansiHamelModel,
+    AlmansiHamel,
     test::ALMANSIHAMELPARAMETERS
 };
 use super::*;
 
 test_thermoelastic_thermal_conduction_constitutive_model!(
-    ThermoelasticThermalConductionConstitutiveModel,
-    AlmansiHamelModel, ALMANSIHAMELPARAMETERS,
-    FourierModel, FOURIERPARAMETERS
+    ThermoelasticThermalConduction,
+    AlmansiHamel, ALMANSIHAMELPARAMETERS,
+    Fourier, FOURIERPARAMETERS
 );
 
 macro_rules! test_thermoelastic_thermal_conduction_constitutive_model
@@ -23,7 +23,7 @@ macro_rules! test_thermoelastic_thermal_conduction_constitutive_model
             {
                 thermal::conduction::
                 {
-                    FourierModel,
+                    Fourier,
                     test::FOURIERPARAMETERS
                 }
             },
@@ -238,7 +238,7 @@ macro_rules! test_thermoelastic_thermal_conduction_constitutive_model
         fn size()
         {
             assert_eq!(
-                std::mem::size_of::<ThermoelasticThermalConductionConstitutiveModel<
+                std::mem::size_of::<ThermoelasticThermalConduction<
                     $thermoelastic_constitutive_model, $thermal_conduction_constitutive_model
                 >>(), 2 * std::mem::size_of::<crate::constitutive::ConstitutiveModelParameters>()
             )

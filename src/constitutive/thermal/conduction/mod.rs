@@ -12,15 +12,15 @@ use super::
     HeatFlux,
     Scalar,
     TemperatureGradient,
-    ThermalConstitutiveModel
+    Thermal
 };
 
-pub use fourier::FourierModel;
+pub use fourier::Fourier;
 
 /// Required methods for thermal conduction constitutive models.
-pub trait ThermalConductionConstitutiveModel<'a>
+pub trait ThermalConduction<'a>
 where
-    Self: ConstitutiveModel<'a> + ThermalConstitutiveModel<'a>
+    Self: ConstitutiveModel<'a> + Thermal<'a>
 {
     /// Calculates and returns the heat flux.
     fn calculate_heat_flux(&self, temperature_gradient: &TemperatureGradient) -> HeatFlux;

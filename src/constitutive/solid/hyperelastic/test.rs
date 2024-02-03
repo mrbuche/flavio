@@ -20,12 +20,12 @@ macro_rules! test_hyperelastic_constitutive_model
         {
             elastic::
             {
-                ElasticConstitutiveModel,
+                Elastic,
                 test::test_elastic_constitutive_model,
             },
             hyperelastic::
             {
-                HyperelasticConstitutiveModel,
+                Hyperelastic,
                 test::test_hyperelastic_constitutive_model_constructed
             }
         };

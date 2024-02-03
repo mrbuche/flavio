@@ -1,6 +1,6 @@
 use super::
 {
-    ArrudaBoyceModel,
+    ArrudaBoyce,
     super::test::
     {
         ARRUDABOYCEPARAMETERS,
@@ -9,9 +9,9 @@ use super::
 };
 
 test_hyperelastic_constitutive_model!(
-    ArrudaBoyceModel,
+    ArrudaBoyce,
     ARRUDABOYCEPARAMETERS,
-    ArrudaBoyceModel::new(ARRUDABOYCEPARAMETERS)
+    ArrudaBoyce::new(ARRUDABOYCEPARAMETERS)
 );
 
 #[test]
@@ -19,6 +19,6 @@ fn get_number_of_links()
 {
     assert_eq!(
         &ARRUDABOYCEPARAMETERS[2],
-        ArrudaBoyceModel::new(ARRUDABOYCEPARAMETERS).get_number_of_links()
+        ArrudaBoyce::new(ARRUDABOYCEPARAMETERS).get_number_of_links()
     )
 }

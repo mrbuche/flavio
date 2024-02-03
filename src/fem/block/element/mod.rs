@@ -20,7 +20,7 @@ where
 
 pub trait ElasticFiniteElement<'a, C, const G: usize, const N: usize>
 where
-    C: ElasticConstitutiveModel<'a>,
+    C: Elastic<'a>,
     Self: FiniteElement<'a, C, G, N>
 {
     fn calculate_nodal_forces(&self, current_nodal_coordinates: &CurrentNodalCoordinates<N>) -> NodalForces<N>;
@@ -29,7 +29,7 @@ where
 
 pub trait HyperelasticFiniteElement<'a, C, const G: usize, const N: usize>
 where
-    C: HyperelasticConstitutiveModel<'a>,
+    C: Hyperelastic<'a>,
     Self: ElasticFiniteElement<'a, C, G, N>
 {
     fn calculate_helmholtz_free_energy(&self, current_nodal_coordinates: &CurrentNodalCoordinates<N>) -> Scalar;

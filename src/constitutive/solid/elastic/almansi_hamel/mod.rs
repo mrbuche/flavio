@@ -17,13 +17,13 @@ use super::*;
 ///
 /// **Notes**
 /// - The Almansi-Hamel strain measure is given by $`\mathbf{e}=\tfrac{1}{2}(\mathbf{1} - \mathbf{B}^{-1})`$.
-pub struct AlmansiHamelModel<'a>
+pub struct AlmansiHamel<'a>
 {
     parameters: ConstitutiveModelParameters<'a>
 }
 
 /// Constitutive model implementation of the Almansi-Hamel elastic constitutive model.
-impl<'a> ConstitutiveModel<'a> for AlmansiHamelModel<'a>
+impl<'a> ConstitutiveModel<'a> for AlmansiHamel<'a>
 {
     fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
     {
@@ -35,10 +35,10 @@ impl<'a> ConstitutiveModel<'a> for AlmansiHamelModel<'a>
 }
 
 /// Solid constitutive model implementation of the Almansi-Hamel elastic constitutive model.
-impl<'a> SolidConstitutiveModel<'a> for AlmansiHamelModel<'a> {}
+impl<'a> Solid<'a> for AlmansiHamel<'a> {}
 
 /// Elastic constitutive model implementation of the Almansi-Hamel elastic constitutive model.
-impl<'a> ElasticConstitutiveModel<'a> for AlmansiHamelModel<'a>
+impl<'a> Elastic<'a> for AlmansiHamel<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///

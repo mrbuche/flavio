@@ -18,14 +18,14 @@ use super::*;
 /// - None.
 ///
 /// **Notes**
-/// - The Fung model reduces to the [Neo-Hookean model](NeoHookeanModel) when $`\mu_m\to 0`$ or $`\eta\to 0`$.
-pub struct FungModel<'a>
+/// - The Fung model reduces to the [Neo-Hookean model](NeoHookean) when $`\mu_m\to 0`$ or $`\eta\to 0`$.
+pub struct Fung<'a>
 {
     parameters: ConstitutiveModelParameters<'a>
 }
 
 /// Inherent implementation of the Fung hyperelastic constitutive model.
-impl<'a> FungModel<'a>
+impl<'a> Fung<'a>
 {
     /// Returns the extra modulus.
     pub fn get_extra_modulus(&self) -> &Scalar
@@ -40,7 +40,7 @@ impl<'a> FungModel<'a>
 }
 
 /// Constitutive model implementation of the Fung hyperelastic constitutive model.
-impl<'a> ConstitutiveModel<'a> for FungModel<'a>
+impl<'a> ConstitutiveModel<'a> for Fung<'a>
 {
     fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
     {
@@ -52,10 +52,10 @@ impl<'a> ConstitutiveModel<'a> for FungModel<'a>
 }
 
 /// Solid constitutive model implementation of the Fung hyperelastic constitutive model.
-impl<'a> SolidConstitutiveModel<'a> for FungModel<'a> {}
+impl<'a> Solid<'a> for Fung<'a> {}
 
 /// Elastic constitutive model implementation of the Fung hyperelastic constitutive model.
-impl<'a> ElasticConstitutiveModel<'a> for FungModel<'a>
+impl<'a> Elastic<'a> for Fung<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -95,7 +95,7 @@ impl<'a> ElasticConstitutiveModel<'a> for FungModel<'a>
 }
 
 /// Hyperelastic constitutive model implementation of the Fung hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel<'a> for FungModel<'a>
+impl<'a> Hyperelastic<'a> for Fung<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

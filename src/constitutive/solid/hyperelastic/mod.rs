@@ -21,23 +21,23 @@ mod yeoh;
 
 pub use self::
 {
-    arruda_boyce::ArrudaBoyceModel,
-    fung::FungModel,
-    gent::GentModel,
-    mooney_rivlin::MooneyRivlinModel,
-    neo_hookean::NeoHookeanModel,
-    saint_venant_kirchoff::SaintVenantKirchoffModel,
-    yeoh::YeohModel
+    arruda_boyce::ArrudaBoyce,
+    fung::Fung,
+    gent::Gent,
+    mooney_rivlin::MooneyRivlin,
+    neo_hookean::NeoHookean,
+    saint_venant_kirchoff::SaintVenantKirchoff,
+    yeoh::Yeoh
 };
 use super::
 {
-    *, elastic::ElasticConstitutiveModel
+    *, elastic::Elastic
 };
 
 /// Required methods for hyperelastic constitutive models.
-pub trait HyperelasticConstitutiveModel<'a>
+pub trait Hyperelastic<'a>
 where
-    Self: ElasticConstitutiveModel<'a>
+    Self: Elastic<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///
@@ -47,9 +47,20 @@ where
     fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar;
 }
 
-/// A composite hyperelastic constitutive model.
-pub struct CompositeHyperelasticConstitutiveModel<C1, C2>
+/// A combined hyperelastic constitutive model.
+pub struct CombinedHyperelastic<C1, C2>
 {
     hyperelastic_constitutive_model_1: C1,
     hyperelastic_constitutive_model_2: C2
+}
+
+/// Required methods for combied constitutive models.
+pub trait Combined<C1, C2>
+{
+    /// Constructs and returns a new combined constitutive model.
+    fn construct(constitutive_model_1: C1, constitutive_model_2: C2) -> Self;
+    /// Returns a reference to the first constitutive model.
+    fn get_constitutive_model_1(&self) -> &C1;
+    /// Returns a reference to the second constitutive model.
+    fn get_constitutive_model_2(&self) -> &C2;
 }

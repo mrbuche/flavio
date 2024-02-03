@@ -55,7 +55,7 @@ where
 
 impl<'a, C> ElasticFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
 where
-    C: ElasticConstitutiveModel<'a>
+    C: Elastic<'a>
 {
     fn calculate_nodal_forces(&self, current_nodal_coordinates: &CurrentNodalCoordinates<N>) -> NodalForces<N>
     {
@@ -69,7 +69,7 @@ where
 
 impl<'a, C> HyperelasticFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
 where
-    C: HyperelasticConstitutiveModel<'a>
+    C: Hyperelastic<'a>
 {
     fn calculate_helmholtz_free_energy(&self, current_nodal_coordinates: &CurrentNodalCoordinates<N>) -> Scalar
     {
@@ -79,10 +79,10 @@ where
 
 impl<'a, C> ElasticLinearFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
 where
-    C: ElasticConstitutiveModel<'a>
+    C: Elastic<'a>
 {}
 
 impl<'a, C> HyperelasticLinearFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
 where
-    C: HyperelasticConstitutiveModel<'a>
+    C: Hyperelastic<'a>
 {}

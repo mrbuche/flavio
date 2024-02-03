@@ -29,14 +29,14 @@ use crate::
     {
         ConstitutiveModel,
         ConstitutiveModelParameters,
-        multiphysics::SolidThermalConstitutiveModel,
+        multiphysics::SolidThermal,
         solid::
         {
-            SolidConstitutiveModel,
-            elastic::ElasticConstitutiveModel,
-            hyperelastic::HyperelasticConstitutiveModel
+            Solid,
+            elastic::Elastic,
+            hyperelastic::Hyperelastic
         },
-        thermal::ThermalConstitutiveModel
+        thermal::Thermal
     },
     math::
     {

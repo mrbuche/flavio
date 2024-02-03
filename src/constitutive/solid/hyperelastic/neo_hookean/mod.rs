@@ -14,13 +14,13 @@ use super::*;
 ///
 /// **Internal variables**
 /// - None.
-pub struct NeoHookeanModel<'a>
+pub struct NeoHookean<'a>
 {
     parameters: ConstitutiveModelParameters<'a>
 }
 
 /// Constitutive model implementation of the Neo-Hookean hyperelastic constitutive model.
-impl<'a> ConstitutiveModel<'a> for NeoHookeanModel<'a>
+impl<'a> ConstitutiveModel<'a> for NeoHookean<'a>
 {
     fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
     {
@@ -32,10 +32,10 @@ impl<'a> ConstitutiveModel<'a> for NeoHookeanModel<'a>
 }
 
 /// Solid constitutive model implementation of the Neo-Hookean hyperelastic constitutive model.
-impl<'a> SolidConstitutiveModel<'a> for NeoHookeanModel<'a> {}
+impl<'a> Solid<'a> for NeoHookean<'a> {}
 
 /// Elastic constitutive model implementation of the Neo-Hookean hyperelastic constitutive model.
-impl<'a> ElasticConstitutiveModel<'a> for NeoHookeanModel<'a>
+impl<'a> Elastic<'a> for NeoHookean<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -70,7 +70,7 @@ impl<'a> ElasticConstitutiveModel<'a> for NeoHookeanModel<'a>
 }
 
 /// Hyperelastic constitutive model implementation of the Neo-Hookean hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel<'a> for NeoHookeanModel<'a>
+impl<'a> Hyperelastic<'a> for NeoHookean<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

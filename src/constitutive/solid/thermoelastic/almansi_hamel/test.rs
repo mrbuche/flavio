@@ -1,7 +1,7 @@
 use super::
 {
-    AlmansiHamelModel,
-    ThermoelasticConstitutiveModel,
+    AlmansiHamel,
+    Thermoelastic,
     super::test::
     {
         ALMANSIHAMELPARAMETERS,
@@ -14,28 +14,28 @@ use crate::
     ABS_TOL,
     constitutive::solid::elastic::
     {
-        ElasticConstitutiveModel,
-        AlmansiHamelModel as ElasticAlmansiHamelModel,
+        Elastic,
+        AlmansiHamel as ElasticAlmansiHamel,
         test::ALMANSIHAMELPARAMETERS as ELASTICALMANSIHAMELPARAMETERS
     },
     mechanics::test::get_deformation_gradient
 };
 
 test_thermoelastic_constitutive_model!(
-    AlmansiHamelModel,
+    AlmansiHamel,
     ALMANSIHAMELPARAMETERS,
-    AlmansiHamelModel::new(ALMANSIHAMELPARAMETERS)
+    AlmansiHamel::new(ALMANSIHAMELPARAMETERS)
 );
 
 test_thermoelastic_only_constitutive_model_constructed!(
-    AlmansiHamelModel::new(ALMANSIHAMELPARAMETERS)
+    AlmansiHamel::new(ALMANSIHAMELPARAMETERS)
 );
 
 #[test]
 fn cauchy_stress()
 {
-    let model = AlmansiHamelModel::new(ALMANSIHAMELPARAMETERS);
-    let elastic_model = ElasticAlmansiHamelModel::new(ELASTICALMANSIHAMELPARAMETERS);
+    let model = AlmansiHamel::new(ALMANSIHAMELPARAMETERS);
+    let elastic_model = ElasticAlmansiHamel::new(ELASTICALMANSIHAMELPARAMETERS);
     model.calculate_cauchy_stress(&get_deformation_gradient(), &model.get_reference_temperature()).iter()
     .zip(elastic_model.calculate_cauchy_stress(&get_deformation_gradient()).iter())
     .for_each(|(cauchy_stress_i, elastic_cauchy_stress_i)|
@@ -50,8 +50,8 @@ fn cauchy_stress()
 #[test]
 fn cauchy_tangent_stiffness()
 {
-    let model = AlmansiHamelModel::new(ALMANSIHAMELPARAMETERS);
-    let elastic_model = ElasticAlmansiHamelModel::new(ELASTICALMANSIHAMELPARAMETERS);
+    let model = AlmansiHamel::new(ALMANSIHAMELPARAMETERS);
+    let elastic_model = ElasticAlmansiHamel::new(ELASTICALMANSIHAMELPARAMETERS);
     model.calculate_cauchy_tangent_stiffness(&get_deformation_gradient(), &model.get_reference_temperature()).iter()
     .zip(elastic_model.calculate_cauchy_tangent_stiffness(&get_deformation_gradient()).iter())
     .for_each(|(cauchy_tangent_stiffness_i, elastic_cauchy_tangent_stiffness_i)|

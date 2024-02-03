@@ -17,13 +17,13 @@ use super::*;
 ///
 /// **Notes**
 /// - The Green-Saint Venant strain measure is given by $`\mathbf{E}=\tfrac{1}{2}(\mathbf{C} - \mathbf{1})`$.
-pub struct SaintVenantKirchoffModel<'a>
+pub struct SaintVenantKirchoff<'a>
 {
     parameters: ConstitutiveModelParameters<'a>
 }
 
 /// Constitutive model implementation of the Saint Venant-Kirchoff hyperelastic constitutive model.
-impl<'a> ConstitutiveModel<'a> for SaintVenantKirchoffModel<'a>
+impl<'a> ConstitutiveModel<'a> for SaintVenantKirchoff<'a>
 {
     fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
     {
@@ -35,10 +35,10 @@ impl<'a> ConstitutiveModel<'a> for SaintVenantKirchoffModel<'a>
 }
 
 /// Solid constitutive model implementation of the Saint Venant-Kirchoff hyperelastic constitutive model.
-impl<'a> SolidConstitutiveModel<'a> for SaintVenantKirchoffModel<'a> {}
+impl<'a> Solid<'a> for SaintVenantKirchoff<'a> {}
 
 /// Elastic constitutive model implementation of the Saint Venant-Kirchoff hyperelastic constitutive model.
-impl<'a> ElasticConstitutiveModel<'a> for SaintVenantKirchoffModel<'a>
+impl<'a> Elastic<'a> for SaintVenantKirchoff<'a>
 {
     /// Calculates and returns the second Piola-Kirchoff stress.
     ///
@@ -72,7 +72,7 @@ impl<'a> ElasticConstitutiveModel<'a> for SaintVenantKirchoffModel<'a>
 }
 
 /// Hyperelastic constitutive model implementation of the Saint Venant-Kirchoff hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel<'a> for SaintVenantKirchoffModel<'a>
+impl<'a> Hyperelastic<'a> for SaintVenantKirchoff<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///
