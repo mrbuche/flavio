@@ -1,7 +1,7 @@
-//! Thermoelastic-thermal conduction constitutive models.
+//! Thermohyperelastic-thermal conduction constitutive models.
 
 #[cfg(test)]
-pub mod test;
+mod test;
 
 use crate::mechanics::
 {
@@ -18,15 +18,15 @@ use crate::mechanics::
 };
 use super::*;
 
-/// A thermoelastic-thermal conduction constitutive model.
-pub struct ThermoelasticThermalConductionConstitutiveModel<C1, C2>
+/// A thermohyperelastic-thermal conduction constitutive model.
+pub struct ThermohyperelasticThermalConductionConstitutiveModel<C1, C2>
 {
-    thermoelastic_constitutive_model: C1,
+    thermohyperelastic_constitutive_model: C1,
     thermal_conduction_constitutive_model: C2
 }
 
-/// Constitutive model implementation of a thermoelastic-thermal conduction constitutive model.
-impl<'a, C1, C2> ConstitutiveModel<'a> for ThermoelasticThermalConductionConstitutiveModel<C1, C2>
+/// Constitutive model implementation of a thermohyperelastic-thermal conduction constitutive model.
+impl<'a, C1, C2> ConstitutiveModel<'a> for ThermohyperelasticThermalConductionConstitutiveModel<C1, C2>
 {
     /// Dummy method that will panic, use [Self::construct()] instead.
     fn new(_parameters: ConstitutiveModelParameters<'a>) -> Self
@@ -35,13 +35,13 @@ impl<'a, C1, C2> ConstitutiveModel<'a> for ThermoelasticThermalConductionConstit
     }
 }
 
-/// Solid constitutive model implementation of a thermoelastic-thermal conduction constitutive model.
-impl<'a, C1, C2> SolidConstitutiveModel<'a> for ThermoelasticThermalConductionConstitutiveModel<C1, C2> {}
+/// Solid constitutive model implementation of a thermohyperelastic-thermal conduction constitutive model.
+impl<'a, C1, C2> SolidConstitutiveModel<'a> for ThermohyperelasticThermalConductionConstitutiveModel<C1, C2> {}
 
-/// Thermoelastic constitutive model implementation of a thermoelastic-thermal conduction constitutive model.
-impl<'a, C1, C2> ThermoelasticConstitutiveModel<'a> for ThermoelasticThermalConductionConstitutiveModel<C1, C2>
+/// Thermoelastic constitutive model implementation of a thermohyperelastic-thermal conduction constitutive model.
+impl<'a, C1, C2> ThermoelasticConstitutiveModel<'a> for ThermohyperelasticThermalConductionConstitutiveModel<C1, C2>
 where
-    C1: ThermoelasticConstitutiveModel<'a>,
+    C1: ThermohyperelasticConstitutiveModel<'a>,
     C2: ThermalConductionConstitutiveModel<'a>
 {
     fn calculate_cauchy_stress(&self, deformation_gradient: &DeformationGradient, temperature: &Scalar) -> CauchyStress
@@ -86,13 +86,25 @@ where
     }
 }
 
-/// Thermal constitutive model implementation of a thermoelastic-thermal conduction constitutive model.
-impl<'a, C1, C2> ThermalConstitutiveModel<'a> for ThermoelasticThermalConductionConstitutiveModel<C1, C2> {}
-
-/// Thermal conduction constitutive model implementation of a thermoelastic-thermal conduction constitutive model.
-impl<'a, C1, C2> ThermalConductionConstitutiveModel<'a> for ThermoelasticThermalConductionConstitutiveModel<C1, C2>
+/// Thermohyperelastic constitutive model implementation of a thermohyperelastic-thermal conduction constitutive model.
+impl<'a, C1, C2> ThermohyperelasticConstitutiveModel<'a> for ThermohyperelasticThermalConductionConstitutiveModel<C1, C2>
 where
-    C1: ThermoelasticConstitutiveModel<'a>,
+    C1: ThermohyperelasticConstitutiveModel<'a>,
+    C2: ThermalConductionConstitutiveModel<'a>
+{
+    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient, temperature: &Scalar) -> Scalar
+    {
+        self.get_solid_constitutive_model().calculate_helmholtz_free_energy_density(deformation_gradient, temperature)
+    }
+}
+
+/// Thermal constitutive model implementation of a thermohyperelastic-thermal conduction constitutive model.
+impl<'a, C1, C2> ThermalConstitutiveModel<'a> for ThermohyperelasticThermalConductionConstitutiveModel<C1, C2> {}
+
+/// Thermal conduction constitutive model implementation of a thermhyperoelastic-thermal conduction constitutive model.
+impl<'a, C1, C2> ThermalConductionConstitutiveModel<'a> for ThermohyperelasticThermalConductionConstitutiveModel<C1, C2>
+where
+    C1: ThermohyperelasticConstitutiveModel<'a>,
     C2: ThermalConductionConstitutiveModel<'a>
 {
     fn calculate_heat_flux(&self, temperature_gradient: &TemperatureGradient) -> HeatFlux
@@ -101,26 +113,26 @@ where
     }
 }
 
-/// Multiphysics constitutive model implementation of a thermoelastic-thermal conduction constitutive model.
-impl<'a, C1, C2> MultiphysicsConstitutiveModel<'a> for ThermoelasticThermalConductionConstitutiveModel<C1, C2> {}
+/// Multiphysics constitutive model implementation of a thermohyperelastic-thermal conduction constitutive model.
+impl<'a, C1, C2> MultiphysicsConstitutiveModel<'a> for ThermohyperelasticThermalConductionConstitutiveModel<C1, C2> {}
 
-/// Solid-thermal constitutive model implementation of a thermoelastic-thermal conduction constitutive model.
-impl<'a, C1, C2> SolidThermalConstitutiveModel<'a, C1, C2> for ThermoelasticThermalConductionConstitutiveModel<C1, C2>
+/// Solid-thermal constitutive model implementation of a thermohyperelastic-thermal conduction constitutive model.
+impl<'a, C1, C2> SolidThermalConstitutiveModel<'a, C1, C2> for ThermohyperelasticThermalConductionConstitutiveModel<C1, C2>
 where
-    C1: ThermoelasticConstitutiveModel<'a>,
+    C1: ThermohyperelasticConstitutiveModel<'a>,
     C2: ThermalConductionConstitutiveModel<'a>
 {
-    fn construct(thermoelastic_constitutive_model: C1, thermal_conduction_constitutive_model: C2) -> Self
+    fn construct(thermohyperelastic_constitutive_model: C1, thermal_conduction_constitutive_model: C2) -> Self
     {
         Self
         {
-            thermoelastic_constitutive_model,
+            thermohyperelastic_constitutive_model,
             thermal_conduction_constitutive_model
         }
     }
     fn get_solid_constitutive_model(&self) -> &C1
     {
-        &self.thermoelastic_constitutive_model
+        &self.thermohyperelastic_constitutive_model
     }
     fn get_thermal_constitutive_model(&self) -> &C2
     {

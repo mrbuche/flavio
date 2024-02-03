@@ -5,7 +5,8 @@ mod solid_thermal;
 pub use solid_thermal::
 {
     SolidThermalConstitutiveModel,
-    thermoelastic_thermal_conduction::ThermoelasticThermalConductionConstitutiveModel
+    thermoelastic_thermal_conduction::ThermoelasticThermalConductionConstitutiveModel,
+    thermohyperelastic_thermal_conduction::ThermohyperelasticThermalConductionConstitutiveModel
 };
 
 use super::
@@ -15,7 +16,8 @@ use super::
     solid::
     {
         SolidConstitutiveModel,
-        thermoelastic::ThermoelasticConstitutiveModel
+        thermoelastic::ThermoelasticConstitutiveModel,
+        thermohyperelastic::ThermohyperelasticConstitutiveModel
     },
     thermal::
     {
