@@ -1,6 +1,6 @@
 use super::
 {
-    YeohModel,
+    Yeoh,
     super::test::
     {
         YEOHPARAMETERS,
@@ -9,15 +9,15 @@ use super::
 };
 
 test_hyperelastic_constitutive_model!(
-    YeohModel,
+    Yeoh,
     YEOHPARAMETERS,
-    YeohModel::new(YEOHPARAMETERS)
+    Yeoh::new(YEOHPARAMETERS)
 );
 
 #[test]
 fn get_moduli()
 {
-    YeohModel::new(YEOHPARAMETERS).get_moduli().iter()
+    Yeoh::new(YEOHPARAMETERS).get_moduli().iter()
     .zip(YEOHPARAMETERS[1..].iter())
     .for_each(|(modulus_i, parameter_i)|
         assert_eq!(modulus_i, parameter_i)
@@ -27,7 +27,7 @@ fn get_moduli()
 #[test]
 fn get_extra_moduli()
 {
-    YeohModel::new(YEOHPARAMETERS).get_extra_moduli().iter()
+    Yeoh::new(YEOHPARAMETERS).get_extra_moduli().iter()
     .zip(YEOHPARAMETERS[2..].iter())
     .for_each(|(modulus_i, parameter_i)|
         assert_eq!(modulus_i, parameter_i)

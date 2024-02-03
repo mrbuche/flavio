@@ -1,6 +1,6 @@
 use super::
 {
-    NeoHookeanModel,
+    NeoHookean,
     super::test::
     {
         NEOHOOKEANPARAMETERS,
@@ -9,7 +9,7 @@ use super::
 };
 
 test_hyperelastic_constitutive_model!(
-    NeoHookeanModel,
+    NeoHookean,
     NEOHOOKEANPARAMETERS,
-    NeoHookeanModel::new(NEOHOOKEANPARAMETERS)
+    NeoHookean::new(NEOHOOKEANPARAMETERS)
 );

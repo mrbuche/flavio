@@ -17,14 +17,14 @@ use super::*;
 /// - None.
 ///
 /// **Notes**
-/// - The Yeoh model reduces to the [Neo-Hookean model](NeoHookeanModel) when $`\mu_n\to 0`$ for $`n=2\ldots N`$.
-pub struct YeohModel<'a>
+/// - The Yeoh model reduces to the [Neo-Hookean model](NeoHookean) when $`\mu_n\to 0`$ for $`n=2\ldots N`$.
+pub struct Yeoh<'a>
 {
     parameters: ConstitutiveModelParameters<'a>
 }
 
 /// Inherent implementation of the Yeoh hyperelastic constitutive model.
-impl<'a> YeohModel<'a>
+impl<'a> Yeoh<'a>
 {
     /// Returns an array of the moduli.
     pub fn get_moduli(&self) -> &[Scalar]
@@ -39,7 +39,7 @@ impl<'a> YeohModel<'a>
 }
 
 /// Constitutive model implementation of the Yeoh hyperelastic constitutive model.
-impl<'a> ConstitutiveModel<'a> for YeohModel<'a>
+impl<'a> ConstitutiveModel<'a> for Yeoh<'a>
 {
     fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
     {
@@ -51,10 +51,10 @@ impl<'a> ConstitutiveModel<'a> for YeohModel<'a>
 }
 
 /// Solid constitutive model implementation of the Yeoh hyperelastic constitutive model.
-impl<'a> SolidConstitutiveModel<'a> for YeohModel<'a> {}
+impl<'a> SolidConstitutiveModel<'a> for Yeoh<'a> {}
 
 /// Elastic constitutive model implementation of the Yeoh hyperelastic constitutive model.
-impl<'a> ElasticConstitutiveModel<'a> for YeohModel<'a>
+impl<'a> ElasticConstitutiveModel<'a> for Yeoh<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -95,7 +95,7 @@ impl<'a> ElasticConstitutiveModel<'a> for YeohModel<'a>
 }
 
 /// Hyperelastic constitutive model implementation of the Yeoh hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel<'a> for YeohModel<'a>
+impl<'a> HyperelasticConstitutiveModel<'a> for Yeoh<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

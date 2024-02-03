@@ -1,6 +1,6 @@
 use super::
 {
-    SaintVenantKirchoffModel,
+    SaintVenantKirchoff,
     ThermohyperelasticConstitutiveModel,
     super::test::
     {
@@ -17,7 +17,7 @@ use crate::
         hyperelastic::
         {
             HyperelasticConstitutiveModel,
-            SaintVenantKirchoffModel as HyperelasticSaintVenantKirchoffModel,
+            SaintVenantKirchoff as HyperelasticSaintVenantKirchoff,
             test::SAINTVENANTKIRCHOFFPARAMETERS as HYPERELASTICSAINTVENANTKIRCHOFFPARAMETERS
         }
     },
@@ -25,16 +25,16 @@ use crate::
 };
 
 test_thermohyperelastic_constitutive_model!(
-    SaintVenantKirchoffModel,
+    SaintVenantKirchoff,
     SAINTVENANTKIRCHOFFPARAMETERS,
-    SaintVenantKirchoffModel::new(SAINTVENANTKIRCHOFFPARAMETERS)
+    SaintVenantKirchoff::new(SAINTVENANTKIRCHOFFPARAMETERS)
 );
 
 #[test]
 fn helmholtz_free_energy_density()
 {
-    let model = SaintVenantKirchoffModel::new(SAINTVENANTKIRCHOFFPARAMETERS);
-    let hyperelastic_model = HyperelasticSaintVenantKirchoffModel::new(HYPERELASTICSAINTVENANTKIRCHOFFPARAMETERS);
+    let model = SaintVenantKirchoff::new(SAINTVENANTKIRCHOFFPARAMETERS);
+    let hyperelastic_model = HyperelasticSaintVenantKirchoff::new(HYPERELASTICSAINTVENANTKIRCHOFFPARAMETERS);
     assert!(
         (model.calculate_helmholtz_free_energy_density(&get_deformation_gradient(), &model.get_reference_temperature())
         - hyperelastic_model.calculate_helmholtz_free_energy_density(&get_deformation_gradient())).abs() < ABS_TOL
@@ -44,8 +44,8 @@ fn helmholtz_free_energy_density()
 #[test]
 fn cauchy_stress()
 {
-    let model = SaintVenantKirchoffModel::new(SAINTVENANTKIRCHOFFPARAMETERS);
-    let hyperelastic_model = HyperelasticSaintVenantKirchoffModel::new(HYPERELASTICSAINTVENANTKIRCHOFFPARAMETERS);
+    let model = SaintVenantKirchoff::new(SAINTVENANTKIRCHOFFPARAMETERS);
+    let hyperelastic_model = HyperelasticSaintVenantKirchoff::new(HYPERELASTICSAINTVENANTKIRCHOFFPARAMETERS);
     model.calculate_cauchy_stress(&get_deformation_gradient(), &model.get_reference_temperature()).iter()
     .zip(hyperelastic_model.calculate_cauchy_stress(&get_deformation_gradient()).iter())
     .for_each(|(cauchy_stress_i, hyperelastic_cauchy_stress_i)|
@@ -60,8 +60,8 @@ fn cauchy_stress()
 #[test]
 fn cauchy_tangent_stiffness()
 {
-    let model = SaintVenantKirchoffModel::new(SAINTVENANTKIRCHOFFPARAMETERS);
-    let hyperelastic_model = HyperelasticSaintVenantKirchoffModel::new(SAINTVENANTKIRCHOFFPARAMETERS);
+    let model = SaintVenantKirchoff::new(SAINTVENANTKIRCHOFFPARAMETERS);
+    let hyperelastic_model = HyperelasticSaintVenantKirchoff::new(SAINTVENANTKIRCHOFFPARAMETERS);
     model.calculate_cauchy_tangent_stiffness(&get_deformation_gradient(), &model.get_reference_temperature()).iter()
     .zip(hyperelastic_model.calculate_cauchy_tangent_stiffness(&get_deformation_gradient()).iter())
     .for_each(|(cauchy_tangent_stiffness_i, hyperelastic_cauchy_tangent_stiffness_i)|

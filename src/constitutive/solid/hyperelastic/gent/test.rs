@@ -1,6 +1,6 @@
 use super::
 {
-    GentModel,
+    Gent,
     super::test::
     {
         GENTPARAMETERS,
@@ -9,9 +9,9 @@ use super::
 };
 
 test_hyperelastic_constitutive_model!(
-    GentModel,
+    Gent,
     GENTPARAMETERS,
-    GentModel::new(GENTPARAMETERS)
+    Gent::new(GENTPARAMETERS)
 );
 
 #[test]
@@ -19,6 +19,6 @@ fn get_extensibility()
 {
     assert_eq!(
         &GENTPARAMETERS[2],
-        GentModel::new(GENTPARAMETERS).get_extensibility()
+        Gent::new(GENTPARAMETERS).get_extensibility()
     )
 }

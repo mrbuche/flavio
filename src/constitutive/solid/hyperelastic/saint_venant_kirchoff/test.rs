@@ -1,6 +1,6 @@
 use super::
 {
-    SaintVenantKirchoffModel,
+    SaintVenantKirchoff,
     super::test::
     {
         SAINTVENANTKIRCHOFFPARAMETERS,
@@ -9,7 +9,7 @@ use super::
 };
 
 test_hyperelastic_constitutive_model!(
-    SaintVenantKirchoffModel,
+    SaintVenantKirchoff,
     SAINTVENANTKIRCHOFFPARAMETERS,
-    SaintVenantKirchoffModel::new(SAINTVENANTKIRCHOFFPARAMETERS)
+    SaintVenantKirchoff::new(SAINTVENANTKIRCHOFFPARAMETERS)
 );

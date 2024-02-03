@@ -17,14 +17,14 @@ use super::*;
 /// - None.
 /// 
 /// **Notes**
-/// - The Gent model reduces to the [Neo-Hookean model](NeoHookeanModel) when $`J_m\to\infty`$.
-pub struct GentModel<'a>
+/// - The Gent model reduces to the [Neo-Hookean model](NeoHookean) when $`J_m\to\infty`$.
+pub struct Gent<'a>
 {
     parameters: ConstitutiveModelParameters<'a>
 }
 
 /// Inherent implementation of the Gent hyperelastic constitutive model.
-impl<'a> GentModel<'a>
+impl<'a> Gent<'a>
 {
     /// Returns the extensibility.
     pub fn get_extensibility(&self) -> &Scalar
@@ -34,7 +34,7 @@ impl<'a> GentModel<'a>
 }
 
 /// Constitutive model implementation of the Gent hyperelastic constitutive model.
-impl<'a> ConstitutiveModel<'a> for GentModel<'a>
+impl<'a> ConstitutiveModel<'a> for Gent<'a>
 {
     fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
     {
@@ -46,10 +46,10 @@ impl<'a> ConstitutiveModel<'a> for GentModel<'a>
 }
 
 /// Solid constitutive model implementation of the Gent hyperelastic constitutive model.
-impl<'a> SolidConstitutiveModel<'a> for GentModel<'a> {}
+impl<'a> SolidConstitutiveModel<'a> for Gent<'a> {}
 
 /// Elastic constitutive model implementation of the Gent hyperelastic constitutive model.
-impl<'a> ElasticConstitutiveModel<'a> for GentModel<'a>
+impl<'a> ElasticConstitutiveModel<'a> for Gent<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -98,7 +98,7 @@ impl<'a> ElasticConstitutiveModel<'a> for GentModel<'a>
 }
 
 /// Hyperelastic constitutive model implementation of the Gent hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel<'a> for GentModel<'a>
+impl<'a> HyperelasticConstitutiveModel<'a> for Gent<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

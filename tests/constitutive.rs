@@ -3,56 +3,56 @@ mod public
 {
     use flavio::constitutive::solid::
     {
-        elastic::AlmansiHamelModel,
+        elastic::AlmansiHamel,
         hyperelastic::
         {
-            ArrudaBoyceModel,
-            GentModel,
-            FungModel,
-            MooneyRivlinModel,
-            NeoHookeanModel,
-            SaintVenantKirchoffModel,
-            YeohModel
+            ArrudaBoyce,
+            Gent,
+            Fung,
+            MooneyRivlin,
+            NeoHookean,
+            SaintVenantKirchoff,
+            Yeoh
         }
     };
     #[test]
     fn almansi_hamel()
     {
-        let _: AlmansiHamelModel;
+        let _: AlmansiHamel;
     }
     #[test]
     fn arruda_boyce_model()
     {
-        let _: ArrudaBoyceModel;
+        let _: ArrudaBoyce;
     }
     #[test]
     fn fung_model()
     {
-        let _: FungModel;
+        let _: Fung;
     }
     #[test]
     fn gent_model()
     {
-        let _: GentModel;
+        let _: Gent;
     }
     #[test]
     fn mooney_rivlin_model()
     {
-        let _: MooneyRivlinModel;
+        let _: MooneyRivlin;
     }
     #[test]
     fn neo_hookean_model()
     {
-        let _: NeoHookeanModel;
+        let _: NeoHookean;
     }
     #[test]
     fn saint_venant_kirchoff_model()
     {
-        let _: SaintVenantKirchoffModel;
+        let _: SaintVenantKirchoff;
     }
     #[test]
     fn yeoh_model()
     {
-        let _: YeohModel;
+        let _: Yeoh;
     }
 }

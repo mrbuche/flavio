@@ -13,7 +13,7 @@ pub mod test;
 
 mod almansi_hamel;
 
-pub use almansi_hamel::AlmansiHamelModel;
+pub use almansi_hamel::AlmansiHamel;
 
 use super::*;
 

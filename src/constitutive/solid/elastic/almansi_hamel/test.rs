@@ -1,6 +1,6 @@
 use super::
 {
-    AlmansiHamelModel,
+    AlmansiHamel,
     ElasticConstitutiveModel,
     super::test::
     {
@@ -11,11 +11,11 @@ use super::
 };
 
 test_elastic_constitutive_model!(
-    AlmansiHamelModel,
+    AlmansiHamel,
     ALMANSIHAMELPARAMETERS,
-    AlmansiHamelModel::new(ALMANSIHAMELPARAMETERS)
+    AlmansiHamel::new(ALMANSIHAMELPARAMETERS)
 );
 
 test_elastic_only_constitutive_model_constructed!(
-    AlmansiHamelModel::new(ALMANSIHAMELPARAMETERS)
+    AlmansiHamel::new(ALMANSIHAMELPARAMETERS)
 );

@@ -1,6 +1,6 @@
 use super::
 {
-    FungModel,
+    Fung,
     super::test::
     {
         FUNGPARAMETERS,
@@ -9,9 +9,9 @@ use super::
 };
 
 test_hyperelastic_constitutive_model!(
-    FungModel,
+    Fung,
     FUNGPARAMETERS,
-    FungModel::new(FUNGPARAMETERS)
+    Fung::new(FUNGPARAMETERS)
 );
 
 #[test]
@@ -19,7 +19,7 @@ fn get_extra_modulus()
 {
     assert_eq!(
         &FUNGPARAMETERS[2],
-        FungModel::new(FUNGPARAMETERS).get_extra_modulus()
+        Fung::new(FUNGPARAMETERS).get_extra_modulus()
     )
 }
 
@@ -28,6 +28,6 @@ fn get_exponent()
 {
     assert_eq!(
         &FUNGPARAMETERS[3],
-        FungModel::new(FUNGPARAMETERS).get_exponent()
+        Fung::new(FUNGPARAMETERS).get_exponent()
     )
 }

@@ -1,12 +1,12 @@
 use crate::constitutive::solid::thermohyperelastic::
 {
-    SaintVenantKirchoffModel,
+    SaintVenantKirchoff,
     test::SAINTVENANTKIRCHOFFPARAMETERS
 };
 use super::*;
 
 test_thermohyperelastic_thermal_conduction_constitutive_model!(
-    SaintVenantKirchoffModel, SAINTVENANTKIRCHOFFPARAMETERS,
+    SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS,
     FourierModel, FOURIERPARAMETERS
 );
 

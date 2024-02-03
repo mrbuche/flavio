@@ -1,6 +1,6 @@
 use super::
 {
-    MooneyRivlinModel,
+    MooneyRivlin,
     super::test::
     {
         MOONEYRIVLINPARAMETERS,
@@ -9,9 +9,9 @@ use super::
 };
 
 test_hyperelastic_constitutive_model!(
-    MooneyRivlinModel,
+    MooneyRivlin,
     MOONEYRIVLINPARAMETERS,
-    MooneyRivlinModel::new(MOONEYRIVLINPARAMETERS)
+    MooneyRivlin::new(MOONEYRIVLINPARAMETERS)
 );
 
 #[test]
@@ -19,6 +19,6 @@ fn get_extra_modulus()
 {
     assert_eq!(
         &MOONEYRIVLINPARAMETERS[2],
-        MooneyRivlinModel::new(MOONEYRIVLINPARAMETERS).get_extra_modulus()
+        MooneyRivlin::new(MOONEYRIVLINPARAMETERS).get_extra_modulus()
     )
 }

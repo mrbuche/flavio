@@ -10,13 +10,13 @@ macro_rules! test_linear_finite_element
                 {
                     hyperelastic::
                     {
-                        ArrudaBoyceModel,
-                        FungModel,
-                        GentModel,
-                        MooneyRivlinModel,
-                        NeoHookeanModel,
-                        SaintVenantKirchoffModel,
-                        YeohModel,
+                        ArrudaBoyce,
+                        Fung,
+                        Gent,
+                        MooneyRivlin,
+                        NeoHookean,
+                        SaintVenantKirchoff,
+                        Yeoh,
                         test::
                         {
                             ARRUDABOYCEPARAMETERS,
@@ -45,37 +45,37 @@ macro_rules! test_linear_finite_element
             pub mod arruda_boyce
             {
                 use super::*;
-                test_linear_finite_element_with_constitutive_model!($element, ArrudaBoyceModel, ARRUDABOYCEPARAMETERS);
+                test_linear_finite_element_with_constitutive_model!($element, ArrudaBoyce, ARRUDABOYCEPARAMETERS);
             }
             mod fung
             {
                 use super::*;
-                test_linear_finite_element_with_constitutive_model!($element, FungModel, FUNGPARAMETERS);
+                test_linear_finite_element_with_constitutive_model!($element, Fung, FUNGPARAMETERS);
             }
             mod gent
             {
                 use super::*;
-                test_linear_finite_element_with_constitutive_model!($element, GentModel, GENTPARAMETERS);
+                test_linear_finite_element_with_constitutive_model!($element, Gent, GENTPARAMETERS);
             }
             mod mooney_rivlin
             {
                 use super::*;
-                test_linear_finite_element_with_constitutive_model!($element, MooneyRivlinModel, MOONEYRIVLINPARAMETERS);
+                test_linear_finite_element_with_constitutive_model!($element, MooneyRivlin, MOONEYRIVLINPARAMETERS);
             }
             mod neo_hookean
             {
                 use super::*;
-                test_linear_finite_element_with_constitutive_model!($element, NeoHookeanModel, NEOHOOKEANPARAMETERS);
+                test_linear_finite_element_with_constitutive_model!($element, NeoHookean, NEOHOOKEANPARAMETERS);
             }
             mod saint_venant_kirchoff
             {
                 use super::*;
-                test_linear_finite_element_with_constitutive_model!($element, SaintVenantKirchoffModel, SAINTVENANTKIRCHOFFPARAMETERS);
+                test_linear_finite_element_with_constitutive_model!($element, SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS);
             }
             mod yeoh
             {
                 use super::*;
-                test_linear_finite_element_with_constitutive_model!($element, YeohModel, YEOHPARAMETERS);
+                test_linear_finite_element_with_constitutive_model!($element, Yeoh, YEOHPARAMETERS);
             }
         }
     }

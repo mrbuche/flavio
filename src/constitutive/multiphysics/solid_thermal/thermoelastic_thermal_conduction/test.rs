@@ -1,13 +1,13 @@
 use crate::constitutive::solid::thermoelastic::
 {
-    AlmansiHamelModel,
+    AlmansiHamel,
     test::ALMANSIHAMELPARAMETERS
 };
 use super::*;
 
 test_thermoelastic_thermal_conduction_constitutive_model!(
     ThermoelasticThermalConductionConstitutiveModel,
-    AlmansiHamelModel, ALMANSIHAMELPARAMETERS,
+    AlmansiHamel, ALMANSIHAMELPARAMETERS,
     FourierModel, FOURIERPARAMETERS
 );
 

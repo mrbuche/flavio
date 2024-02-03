@@ -25,14 +25,14 @@ use super::*;
 /// - The nondimensional end-to-end length per link of the chains is $`\gamma=\sqrt{\mathrm{tr}(\mathbf{B}^*)/3N_b}`$.
 /// - The nondimensional force is given by the inverse Langevin function as $`\eta=\mathcal{L}^{-1}(\gamma)`$.
 /// - The initial values are given by $`\gamma_0=\sqrt{1/3N_b}`$ and $`\eta_0=\mathcal{L}^{-1}(\gamma_0)`$.
-/// - The Arruda-Boyce model reduces to the [Neo-Hookean model](NeoHookeanModel) when $`N_b\to\infty`$.
-pub struct ArrudaBoyceModel<'a>
+/// - The Arruda-Boyce model reduces to the [Neo-Hookean model](NeoHookean) when $`N_b\to\infty`$.
+pub struct ArrudaBoyce<'a>
 {
     parameters: ConstitutiveModelParameters<'a>
 }
 
 /// Inherent implementation of the Arruda-Boyce hyperelastic constitutive model.
-impl<'a> ArrudaBoyceModel<'a>
+impl<'a> ArrudaBoyce<'a>
 {
     /// Returns the number of links.
     pub fn get_number_of_links(&self) -> &Scalar
@@ -42,7 +42,7 @@ impl<'a> ArrudaBoyceModel<'a>
 }
 
 /// Constitutive model implementation of the Arruda-Boyce hyperelastic constitutive model.
-impl<'a> ConstitutiveModel<'a> for ArrudaBoyceModel<'a>
+impl<'a> ConstitutiveModel<'a> for ArrudaBoyce<'a>
 {
     fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
     {
@@ -54,10 +54,10 @@ impl<'a> ConstitutiveModel<'a> for ArrudaBoyceModel<'a>
 }
 
 /// Solid constitutive model implementation of the Arruda-Boyce hyperelastic constitutive model.
-impl<'a> SolidConstitutiveModel<'a> for ArrudaBoyceModel<'a> {}
+impl<'a> SolidConstitutiveModel<'a> for ArrudaBoyce<'a> {}
 
 /// Elastic constitutive model implementation of the Arruda-Boyce hyperelastic constitutive model.
-impl<'a> ElasticConstitutiveModel<'a> for ArrudaBoyceModel<'a>
+impl<'a> ElasticConstitutiveModel<'a> for ArrudaBoyce<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -103,7 +103,7 @@ impl<'a> ElasticConstitutiveModel<'a> for ArrudaBoyceModel<'a>
 }
 
 /// Hyperelastic constitutive model implementation of the Arruda-Boyce hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel<'a> for ArrudaBoyceModel<'a>
+impl<'a> HyperelasticConstitutiveModel<'a> for ArrudaBoyce<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

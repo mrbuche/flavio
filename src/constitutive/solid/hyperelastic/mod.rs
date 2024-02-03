@@ -21,13 +21,13 @@ mod yeoh;
 
 pub use self::
 {
-    arruda_boyce::ArrudaBoyceModel,
-    fung::FungModel,
-    gent::GentModel,
-    mooney_rivlin::MooneyRivlinModel,
-    neo_hookean::NeoHookeanModel,
-    saint_venant_kirchoff::SaintVenantKirchoffModel,
-    yeoh::YeohModel
+    arruda_boyce::ArrudaBoyce,
+    fung::Fung,
+    gent::Gent,
+    mooney_rivlin::MooneyRivlin,
+    neo_hookean::NeoHookean,
+    saint_venant_kirchoff::SaintVenantKirchoff,
+    yeoh::Yeoh
 };
 use super::
 {

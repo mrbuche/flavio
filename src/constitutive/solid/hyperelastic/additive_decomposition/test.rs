@@ -5,10 +5,10 @@ use crate::
     {
         hyperelastic::
         {
-            GentModel,
-            MooneyRivlinModel,
-            NeoHookeanModel,
-            YeohModel,
+            Gent,
+            MooneyRivlin,
+            NeoHookean,
+            Yeoh,
             test::test_hyperelastic_constitutive_model_constructed,
             test::
             {
@@ -33,8 +33,8 @@ mod dual
     use super::*;
     test_hyperelastic_constitutive_model_constructed!(
         CompositeHyperelasticConstitutiveModel::construct(
-            NeoHookeanModel::new(NEOHOOKEANPARAMETERS),
-            NeoHookeanModel::new(NEOHOOKEANPARAMETERS)
+            NeoHookean::new(NEOHOOKEANPARAMETERS),
+            NeoHookean::new(NEOHOOKEANPARAMETERS)
         )
     );
 }
@@ -44,8 +44,8 @@ mod mixed
     use super::*;
     test_hyperelastic_constitutive_model_constructed!(
         CompositeHyperelasticConstitutiveModel::construct(
-            GentModel::new(GENTPARAMETERS),
-            MooneyRivlinModel::new(MOONEYRIVLINPARAMETERS)
+            Gent::new(GENTPARAMETERS),
+            MooneyRivlin::new(MOONEYRIVLINPARAMETERS)
         )
     );
 }
@@ -56,12 +56,12 @@ mod nested
     test_hyperelastic_constitutive_model_constructed!(
         CompositeHyperelasticConstitutiveModel::construct(
             CompositeHyperelasticConstitutiveModel::construct(
-                GentModel::new(GENTPARAMETERS),
-                YeohModel::new(YEOHPARAMETERS)
+                Gent::new(GENTPARAMETERS),
+                Yeoh::new(YEOHPARAMETERS)
             ),
             CompositeHyperelasticConstitutiveModel::construct(
-                MooneyRivlinModel::new(MOONEYRIVLINPARAMETERS),
-                NeoHookeanModel::new(NEOHOOKEANPARAMETERS)
+                MooneyRivlin::new(MOONEYRIVLINPARAMETERS),
+                NeoHookean::new(NEOHOOKEANPARAMETERS)
             )
         )
     );
@@ -71,12 +71,12 @@ mod nested
 fn additive_cauchy_stress()
 {
     CompositeHyperelasticConstitutiveModel::construct(
-        GentModel::new(GENTPARAMETERS),
-        MooneyRivlinModel::new(MOONEYRIVLINPARAMETERS)
+        Gent::new(GENTPARAMETERS),
+        MooneyRivlin::new(MOONEYRIVLINPARAMETERS)
     ).calculate_cauchy_stress(&get_deformation_gradient()).iter()
     .zip(
-        MooneyRivlinModel::new(MOONEYRIVLINPARAMETERS).calculate_cauchy_stress(&get_deformation_gradient()).iter()
-        .zip(GentModel::new(GENTPARAMETERS).calculate_cauchy_stress(&get_deformation_gradient()).iter())
+        MooneyRivlin::new(MOONEYRIVLINPARAMETERS).calculate_cauchy_stress(&get_deformation_gradient()).iter()
+        .zip(Gent::new(GENTPARAMETERS).calculate_cauchy_stress(&get_deformation_gradient()).iter())
     ).for_each(|(cauchy_stress_i, (cauchy_stress_1_i, cauchy_stress_2_i))|
         cauchy_stress_i.iter()
         .zip(
@@ -92,12 +92,12 @@ fn additive_cauchy_stress()
 fn additive_cauchy_tangent_stiffness()
 {
     CompositeHyperelasticConstitutiveModel::construct(
-        GentModel::new(GENTPARAMETERS),
-        MooneyRivlinModel::new(MOONEYRIVLINPARAMETERS)
+        Gent::new(GENTPARAMETERS),
+        MooneyRivlin::new(MOONEYRIVLINPARAMETERS)
     ).calculate_cauchy_tangent_stiffness(&get_deformation_gradient()).iter()
     .zip(
-        MooneyRivlinModel::new(MOONEYRIVLINPARAMETERS).calculate_cauchy_tangent_stiffness(&get_deformation_gradient()).iter()
-        .zip(GentModel::new(GENTPARAMETERS).calculate_cauchy_tangent_stiffness(&get_deformation_gradient()).iter())
+        MooneyRivlin::new(MOONEYRIVLINPARAMETERS).calculate_cauchy_tangent_stiffness(&get_deformation_gradient()).iter()
+        .zip(Gent::new(GENTPARAMETERS).calculate_cauchy_tangent_stiffness(&get_deformation_gradient()).iter())
     ).for_each(|(cauchy_tangent_stiffness_i, (cauchy_tangent_stiffness_1_i, cauchy_tangent_stiffness_2_i))|
         cauchy_tangent_stiffness_i.iter()
         .zip(
@@ -126,10 +126,10 @@ fn additive_helmholtz_free_energy_density()
 {
     assert_eq!(
         CompositeHyperelasticConstitutiveModel::construct(
-            GentModel::new(GENTPARAMETERS),
-            MooneyRivlinModel::new(MOONEYRIVLINPARAMETERS)
+            Gent::new(GENTPARAMETERS),
+            MooneyRivlin::new(MOONEYRIVLINPARAMETERS)
         ).calculate_helmholtz_free_energy_density(&get_deformation_gradient()),
-        MooneyRivlinModel::new(MOONEYRIVLINPARAMETERS).calculate_helmholtz_free_energy_density(&get_deformation_gradient())
-        + GentModel::new(GENTPARAMETERS).calculate_helmholtz_free_energy_density(&get_deformation_gradient())
+        MooneyRivlin::new(MOONEYRIVLINPARAMETERS).calculate_helmholtz_free_energy_density(&get_deformation_gradient())
+        + Gent::new(GENTPARAMETERS).calculate_helmholtz_free_energy_density(&get_deformation_gradient())
     )
 }
