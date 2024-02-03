@@ -8,8 +8,8 @@ use super::
     HeatFlux,
     Scalar,
     TemperatureGradient,
-    ThermalConstitutiveModel,
-    ThermalConductionConstitutiveModel
+    Thermal,
+    ThermalConduction
 };
 
 /// The Fourier thermal conduction constitutive model.
@@ -22,13 +22,13 @@ use super::
 ///
 /// **Internal variables**
 /// - None.
-pub struct FourierModel<'a>
+pub struct Fourier<'a>
 {
     parameters: ConstitutiveModelParameters<'a>
 }
 
 /// Inherent implementation of the Fourier thermal conduction constitutive model.
-impl<'a> FourierModel<'a>
+impl<'a> Fourier<'a>
 {
     fn get_thermal_conductivity(&self) -> &Scalar
     {
@@ -37,7 +37,7 @@ impl<'a> FourierModel<'a>
 }
 
 /// Constitutive model implementation of the Fourier thermal conduction constitutive model.
-impl<'a> ConstitutiveModel<'a> for FourierModel<'a>
+impl<'a> ConstitutiveModel<'a> for Fourier<'a>
 {
     fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
     {
@@ -48,10 +48,10 @@ impl<'a> ConstitutiveModel<'a> for FourierModel<'a>
     }
 }
 /// Thermal constitutive model implementation of the Fourier thermal conduction constitutive model.
-impl<'a> ThermalConstitutiveModel<'a> for FourierModel<'a> {}
+impl<'a> Thermal<'a> for Fourier<'a> {}
 
 /// Thermal conduction constitutive model implementation of the Fourier thermal conduction constitutive model.
-impl<'a> ThermalConductionConstitutiveModel<'a> for FourierModel<'a>
+impl<'a> ThermalConduction<'a> for Fourier<'a>
 {
     /// Calculates and returns the heat flux.
     ///

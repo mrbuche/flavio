@@ -52,10 +52,10 @@ impl<'a> ConstitutiveModel<'a> for Fung<'a>
 }
 
 /// Solid constitutive model implementation of the Fung hyperelastic constitutive model.
-impl<'a> SolidConstitutiveModel<'a> for Fung<'a> {}
+impl<'a> Solid<'a> for Fung<'a> {}
 
 /// Elastic constitutive model implementation of the Fung hyperelastic constitutive model.
-impl<'a> ElasticConstitutiveModel<'a> for Fung<'a>
+impl<'a> Elastic<'a> for Fung<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -95,7 +95,7 @@ impl<'a> ElasticConstitutiveModel<'a> for Fung<'a>
 }
 
 /// Hyperelastic constitutive model implementation of the Fung hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel<'a> for Fung<'a>
+impl<'a> Hyperelastic<'a> for Fung<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

@@ -31,13 +31,13 @@ pub use self::
 };
 use super::
 {
-    *, elastic::ElasticConstitutiveModel
+    *, elastic::Elastic
 };
 
 /// Required methods for hyperelastic constitutive models.
-pub trait HyperelasticConstitutiveModel<'a>
+pub trait Hyperelastic<'a>
 where
-    Self: ElasticConstitutiveModel<'a>
+    Self: Elastic<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///
@@ -48,7 +48,7 @@ where
 }
 
 /// A composite hyperelastic constitutive model.
-pub struct CompositeHyperelasticConstitutiveModel<C1, C2>
+pub struct CompositeHyperelastic<C1, C2>
 {
     hyperelastic_constitutive_model_1: C1,
     hyperelastic_constitutive_model_2: C2

@@ -35,10 +35,10 @@ impl<'a> ConstitutiveModel<'a> for AlmansiHamel<'a>
 }
 
 /// Solid constitutive model implementation of the Almansi-Hamel elastic constitutive model.
-impl<'a> SolidConstitutiveModel<'a> for AlmansiHamel<'a> {}
+impl<'a> Solid<'a> for AlmansiHamel<'a> {}
 
 /// Elastic constitutive model implementation of the Almansi-Hamel elastic constitutive model.
-impl<'a> ElasticConstitutiveModel<'a> for AlmansiHamel<'a>
+impl<'a> Elastic<'a> for AlmansiHamel<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///

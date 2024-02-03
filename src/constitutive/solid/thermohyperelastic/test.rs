@@ -13,7 +13,7 @@ macro_rules! test_thermohyperelastic_constitutive_model
         {
             thermoelastic::
             {
-                ThermoelasticConstitutiveModel,
+                Thermoelastic,
                 test::test_thermoelastic_constitutive_model,
             },
             thermohyperelastic::

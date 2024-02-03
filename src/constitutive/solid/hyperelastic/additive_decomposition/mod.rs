@@ -3,7 +3,7 @@ mod test;
 
 use super::*;
 
-impl<'a, C1, C2> ConstitutiveModel<'a> for CompositeHyperelasticConstitutiveModel<C1, C2>
+impl<'a, C1, C2> ConstitutiveModel<'a> for CompositeHyperelastic<C1, C2>
 where
     C1: ConstitutiveModel<'a>,
     C2: ConstitutiveModel<'a>
@@ -15,16 +15,16 @@ where
     }
 }
 
-impl<'a, C1, C2> SolidConstitutiveModel<'a> for CompositeHyperelasticConstitutiveModel<C1, C2>
+impl<'a, C1, C2> Solid<'a> for CompositeHyperelastic<C1, C2>
 where
-    C1: SolidConstitutiveModel<'a>,
-    C2: SolidConstitutiveModel<'a>
+    C1: Solid<'a>,
+    C2: Solid<'a>
 {}
 
-impl<'a, C1, C2> ElasticConstitutiveModel<'a> for CompositeHyperelasticConstitutiveModel<C1, C2>
+impl<'a, C1, C2> Elastic<'a> for CompositeHyperelastic<C1, C2>
 where
-    C1: ElasticConstitutiveModel<'a>,
-    C2: ElasticConstitutiveModel<'a>
+    C1: Elastic<'a>,
+    C2: Elastic<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -55,10 +55,10 @@ where
 }
 
 /// Hyperelastic constitutive model implementation of a composite hyperelastic constitutive model constructed using the additive decomposition.
-impl<'a, C1, C2> HyperelasticConstitutiveModel<'a> for CompositeHyperelasticConstitutiveModel<C1, C2>
+impl<'a, C1, C2> Hyperelastic<'a> for CompositeHyperelastic<C1, C2>
 where
-    C1: HyperelasticConstitutiveModel<'a>,
-    C2: HyperelasticConstitutiveModel<'a>
+    C1: Hyperelastic<'a>,
+    C2: Hyperelastic<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///
@@ -72,7 +72,7 @@ where
 }
 
 /// Composite constitutive model implementation of a composite hyperelastic constitutive model constructed using the additive decomposition.
-impl<C1, C2> CompositeConstitutiveModel<C1, C2> for CompositeHyperelasticConstitutiveModel<C1, C2>
+impl<C1, C2> CompositeConstitutiveModel<C1, C2> for CompositeHyperelastic<C1, C2>
 {
     fn construct(hyperelastic_constitutive_model_1: C1, hyperelastic_constitutive_model_2: C2) -> Self
     {

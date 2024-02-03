@@ -46,10 +46,10 @@ impl<'a> ConstitutiveModel<'a> for Gent<'a>
 }
 
 /// Solid constitutive model implementation of the Gent hyperelastic constitutive model.
-impl<'a> SolidConstitutiveModel<'a> for Gent<'a> {}
+impl<'a> Solid<'a> for Gent<'a> {}
 
 /// Elastic constitutive model implementation of the Gent hyperelastic constitutive model.
-impl<'a> ElasticConstitutiveModel<'a> for Gent<'a>
+impl<'a> Elastic<'a> for Gent<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -98,7 +98,7 @@ impl<'a> ElasticConstitutiveModel<'a> for Gent<'a>
 }
 
 /// Hyperelastic constitutive model implementation of the Gent hyperelastic constitutive model.
-impl<'a> HyperelasticConstitutiveModel<'a> for Gent<'a>
+impl<'a> Hyperelastic<'a> for Gent<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

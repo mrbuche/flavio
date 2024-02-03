@@ -42,9 +42,9 @@ where
 
 pub trait ThermalSolidFiniteElementBlock<'a, C, C1, C2, const D: usize, const E: usize, F, const G: usize, const N: usize>
 where
-    C: SolidThermalConstitutiveModel<'a, C1, C2>,
-    C1: SolidConstitutiveModel<'a>,
-    C2: ThermalConstitutiveModel<'a>,
+    C: SolidThermal<'a, C1, C2>,
+    C1: Solid<'a>,
+    C2: Thermal<'a>,
     F: FiniteElement<'a, C, G, N>,
     Self: FiniteElementBlock<'a, C, D, E, F, G, N>
 {
@@ -54,7 +54,7 @@ where
 
 pub trait ElasticFiniteElementBlock<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
 where
-    C: ElasticConstitutiveModel<'a>,
+    C: Elastic<'a>,
     F: ElasticFiniteElement<'a, C, G, N>,
     Self: FiniteElementBlock<'a, C, D, E, F, G, N>
 {
@@ -64,7 +64,7 @@ where
 
 pub trait HyperelasticFiniteElementBlock<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
 where
-    C: HyperelasticConstitutiveModel<'a>,
+    C: Hyperelastic<'a>,
     F: HyperelasticFiniteElement<'a, C, G, N>,
     Self: ElasticFiniteElementBlock<'a, C, D, E, F, G, N>
 {
@@ -126,7 +126,7 @@ impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
     ElasticFiniteElementBlock<'a, C, D, E, F, G, N>
     for Block<D, E, F, G, N>
 where
-    C: ElasticConstitutiveModel<'a>,
+    C: Elastic<'a>,
     F: ElasticFiniteElement<'a, C, G, N>,
     Self: FiniteElementBlock<'a, C, D, E, F, G, N>
 {
@@ -172,7 +172,7 @@ impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
     HyperelasticFiniteElementBlock<'a, C, D, E, F, G, N>
     for Block<D, E, F, G, N>
 where
-    C: HyperelasticConstitutiveModel<'a>,
+    C: Hyperelastic<'a>,
     F: HyperelasticFiniteElement<'a, C, G, N>,
     Self: ElasticFiniteElementBlock<'a, C, D, E, F, G, N>
 {

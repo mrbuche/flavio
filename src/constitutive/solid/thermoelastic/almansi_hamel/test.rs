@@ -1,7 +1,7 @@
 use super::
 {
     AlmansiHamel,
-    ThermoelasticConstitutiveModel,
+    Thermoelastic,
     super::test::
     {
         ALMANSIHAMELPARAMETERS,
@@ -14,7 +14,7 @@ use crate::
     ABS_TOL,
     constitutive::solid::elastic::
     {
-        ElasticConstitutiveModel,
+        Elastic,
         AlmansiHamel as ElasticAlmansiHamel,
         test::ALMANSIHAMELPARAMETERS as ELASTICALMANSIHAMELPARAMETERS
     },

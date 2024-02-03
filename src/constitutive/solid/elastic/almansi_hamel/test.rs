@@ -1,7 +1,7 @@
 use super::
 {
     AlmansiHamel,
-    ElasticConstitutiveModel,
+    Elastic,
     super::test::
     {
         ALMANSIHAMELPARAMETERS,

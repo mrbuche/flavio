@@ -38,10 +38,10 @@ impl<'a> ConstitutiveModel<'a> for SaintVenantKirchoff<'a>
 }
 
 /// Solid constitutive model implementation of the Saint Venant-Kirchoff thermohyperelastic constitutive model.
-impl<'a> SolidConstitutiveModel<'a> for SaintVenantKirchoff<'a> {}
+impl<'a> Solid<'a> for SaintVenantKirchoff<'a> {}
 
 /// Thermohyperelastic constitutive model implementation of the Saint Venant-Kirchoff thermohyperelastic constitutive model.
-impl<'a> ThermoelasticConstitutiveModel<'a> for SaintVenantKirchoff<'a>
+impl<'a> Thermoelastic<'a> for SaintVenantKirchoff<'a>
 {
     /// Calculates and returns the second Piola-Kirchoff stress.
     ///
@@ -83,7 +83,7 @@ impl<'a> ThermoelasticConstitutiveModel<'a> for SaintVenantKirchoff<'a>
 }
 
 /// Thermohyperelastic constitutive model implementation of the Saint Venant-Kirchoff thermohyperelastic constitutive model.
-impl<'a> ThermohyperelasticConstitutiveModel<'a> for SaintVenantKirchoff<'a>
+impl<'a> Thermohyperelastic<'a> for SaintVenantKirchoff<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///

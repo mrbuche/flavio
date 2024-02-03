@@ -1,7 +1,7 @@
 use super::
 {
     SaintVenantKirchoff,
-    ThermohyperelasticConstitutiveModel,
+    Thermohyperelastic,
     super::test::
     {
         SAINTVENANTKIRCHOFFPARAMETERS,
@@ -13,10 +13,10 @@ use crate::
     ABS_TOL,
     constitutive::solid::
     {
-        elastic::ElasticConstitutiveModel,
+        elastic::Elastic,
         hyperelastic::
         {
-            HyperelasticConstitutiveModel,
+            Hyperelastic,
             SaintVenantKirchoff as HyperelasticSaintVenantKirchoff,
             test::SAINTVENANTKIRCHOFFPARAMETERS as HYPERELASTICSAINTVENANTKIRCHOFFPARAMETERS
         }

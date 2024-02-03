@@ -18,9 +18,9 @@ pub use almansi_hamel::AlmansiHamel;
 use super::*;
 
 /// Required methods for elastic constitutive models.
-pub trait ElasticConstitutiveModel<'a>
+pub trait Elastic<'a>
 where
-    Self: SolidConstitutiveModel<'a>
+    Self: Solid<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///

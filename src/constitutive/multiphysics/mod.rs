@@ -4,9 +4,9 @@ mod solid_thermal;
 
 pub use solid_thermal::
 {
-    SolidThermalConstitutiveModel,
-    thermoelastic_thermal_conduction::ThermoelasticThermalConductionConstitutiveModel,
-    thermohyperelastic_thermal_conduction::ThermohyperelasticThermalConductionConstitutiveModel
+    SolidThermal,
+    thermoelastic_thermal_conduction::ThermoelasticThermalConduction,
+    thermohyperelastic_thermal_conduction::ThermohyperelasticThermalConduction
 };
 
 use super::
@@ -15,19 +15,19 @@ use super::
     ConstitutiveModelParameters,
     solid::
     {
-        SolidConstitutiveModel,
-        thermoelastic::ThermoelasticConstitutiveModel,
-        thermohyperelastic::ThermohyperelasticConstitutiveModel
+        Solid,
+        thermoelastic::Thermoelastic,
+        thermohyperelastic::Thermohyperelastic
     },
     thermal::
     {
-        ThermalConstitutiveModel,
-        conduction::ThermalConductionConstitutiveModel
+        Thermal,
+        conduction::ThermalConduction
     }
 };
 
 /// Required methods for multiphysics constitutive models.
-pub trait MultiphysicsConstitutiveModel<'a>
+pub trait Multiphysics<'a>
 where
     Self: ConstitutiveModel<'a>
 {}

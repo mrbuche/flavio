@@ -19,7 +19,7 @@ use super::
 };
 
 /// Required methods for thermal constitutive models.
-pub trait ThermalConstitutiveModel<'a>
+pub trait Thermal<'a>
 where
     Self: ConstitutiveModel<'a>
 {}

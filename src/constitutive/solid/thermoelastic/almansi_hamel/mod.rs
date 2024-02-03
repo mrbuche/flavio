@@ -38,10 +38,10 @@ impl<'a> ConstitutiveModel<'a> for AlmansiHamel<'a>
 }
 
 /// Solid constitutive model implementation of the Almansi-Hamel thermoelastic constitutive model.
-impl<'a> SolidConstitutiveModel<'a> for AlmansiHamel<'a> {}
+impl<'a> Solid<'a> for AlmansiHamel<'a> {}
 
 /// Thermoelastic constitutive model implementation of the Almansi-Hamel thermoelastic constitutive model.
-impl<'a> ThermoelasticConstitutiveModel<'a> for AlmansiHamel<'a>
+impl<'a> Thermoelastic<'a> for AlmansiHamel<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///

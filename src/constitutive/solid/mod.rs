@@ -35,7 +35,7 @@ use super::
 };
 
 /// Required methods for solid constitutive models.
-pub trait SolidConstitutiveModel<'a>
+pub trait Solid<'a>
 where
     Self: ConstitutiveModel<'a>
 {
