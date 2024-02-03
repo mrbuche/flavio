@@ -71,14 +71,3 @@ where
         ).collect()
     }
 }
-
-/// Required methods for composite constitutive models.
-pub trait CompositeConstitutiveModel<C1, C2>
-{
-    /// Constructs and returns a new composite constitutive model.
-    fn construct(constitutive_model_1: C1, constitutive_model_2: C2) -> Self;
-    /// Returns a reference to the first constitutive model.
-    fn get_constitutive_model_1(&self) -> &C1;
-    /// Returns a reference to the second constitutive model.
-    fn get_constitutive_model_2(&self) -> &C2;
-}

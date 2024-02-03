@@ -32,7 +32,7 @@ mod dual
 {
     use super::*;
     test_hyperelastic_constitutive_model_constructed!(
-        CompositeHyperelastic::construct(
+        CombinedHyperelastic::construct(
             NeoHookean::new(NEOHOOKEANPARAMETERS),
             NeoHookean::new(NEOHOOKEANPARAMETERS)
         )
@@ -43,7 +43,7 @@ mod mixed
 {
     use super::*;
     test_hyperelastic_constitutive_model_constructed!(
-        CompositeHyperelastic::construct(
+        CombinedHyperelastic::construct(
             Gent::new(GENTPARAMETERS),
             MooneyRivlin::new(MOONEYRIVLINPARAMETERS)
         )
@@ -54,12 +54,12 @@ mod nested
 {
     use super::*;
     test_hyperelastic_constitutive_model_constructed!(
-        CompositeHyperelastic::construct(
-            CompositeHyperelastic::construct(
+        CombinedHyperelastic::construct(
+            CombinedHyperelastic::construct(
                 Gent::new(GENTPARAMETERS),
                 Yeoh::new(YEOHPARAMETERS)
             ),
-            CompositeHyperelastic::construct(
+            CombinedHyperelastic::construct(
                 MooneyRivlin::new(MOONEYRIVLINPARAMETERS),
                 NeoHookean::new(NEOHOOKEANPARAMETERS)
             )
@@ -70,7 +70,7 @@ mod nested
 #[test]
 fn additive_cauchy_stress()
 {
-    CompositeHyperelastic::construct(
+    CombinedHyperelastic::construct(
         Gent::new(GENTPARAMETERS),
         MooneyRivlin::new(MOONEYRIVLINPARAMETERS)
     ).calculate_cauchy_stress(&get_deformation_gradient()).iter()
@@ -91,7 +91,7 @@ fn additive_cauchy_stress()
 #[test]
 fn additive_cauchy_tangent_stiffness()
 {
-    CompositeHyperelastic::construct(
+    CombinedHyperelastic::construct(
         Gent::new(GENTPARAMETERS),
         MooneyRivlin::new(MOONEYRIVLINPARAMETERS)
     ).calculate_cauchy_tangent_stiffness(&get_deformation_gradient()).iter()
@@ -125,7 +125,7 @@ fn additive_cauchy_tangent_stiffness()
 fn additive_helmholtz_free_energy_density()
 {
     assert_eq!(
-        CompositeHyperelastic::construct(
+        CombinedHyperelastic::construct(
             Gent::new(GENTPARAMETERS),
             MooneyRivlin::new(MOONEYRIVLINPARAMETERS)
         ).calculate_helmholtz_free_energy_density(&get_deformation_gradient()),

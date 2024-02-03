@@ -3,10 +3,10 @@ mod test;
 
 use super::*;
 
-impl<'a, C1, C2> ConstitutiveModel<'a> for CompositeHyperelastic<C1, C2>
+impl<'a, C1, C2> ConstitutiveModel<'a> for CombinedHyperelastic<C1, C2>
 where
-    C1: ConstitutiveModel<'a>,
-    C2: ConstitutiveModel<'a>
+    C1: Hyperelastic<'a>,
+    C2: Hyperelastic<'a>
 {
     /// Dummy method that will panic, use [Self::construct()] instead.
     fn new(_parameters: ConstitutiveModelParameters<'a>) -> Self
@@ -15,16 +15,16 @@ where
     }
 }
 
-impl<'a, C1, C2> Solid<'a> for CompositeHyperelastic<C1, C2>
+impl<'a, C1, C2> Solid<'a> for CombinedHyperelastic<C1, C2>
 where
-    C1: Solid<'a>,
-    C2: Solid<'a>
+    C1: Hyperelastic<'a>,
+    C2: Hyperelastic<'a>
 {}
 
-impl<'a, C1, C2> Elastic<'a> for CompositeHyperelastic<C1, C2>
+impl<'a, C1, C2> Elastic<'a> for CombinedHyperelastic<C1, C2>
 where
-    C1: Elastic<'a>,
-    C2: Elastic<'a>
+    C1: Hyperelastic<'a>,
+    C2: Hyperelastic<'a>
 {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -54,8 +54,8 @@ where
     }
 }
 
-/// Hyperelastic constitutive model implementation of a composite hyperelastic constitutive model constructed using the additive decomposition.
-impl<'a, C1, C2> Hyperelastic<'a> for CompositeHyperelastic<C1, C2>
+/// Hyperelastic constitutive model implementation of a combined hyperelastic constitutive model constructed using the additive decomposition.
+impl<'a, C1, C2> Hyperelastic<'a> for CombinedHyperelastic<C1, C2>
 where
     C1: Hyperelastic<'a>,
     C2: Hyperelastic<'a>
@@ -71,8 +71,11 @@ where
     }
 }
 
-/// Composite constitutive model implementation of a composite hyperelastic constitutive model constructed using the additive decomposition.
-impl<C1, C2> CompositeConstitutiveModel<C1, C2> for CompositeHyperelastic<C1, C2>
+/// Combined constitutive model implementation of a combined hyperelastic constitutive model constructed using the additive decomposition.
+impl<'a, C1, C2> Combined<C1, C2> for CombinedHyperelastic<C1, C2>
+where
+    C1: Hyperelastic<'a>,
+    C2: Hyperelastic<'a>
 {
     fn construct(hyperelastic_constitutive_model_1: C1, hyperelastic_constitutive_model_2: C2) -> Self
     {
