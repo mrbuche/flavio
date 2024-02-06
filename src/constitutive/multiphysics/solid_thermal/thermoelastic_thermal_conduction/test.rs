@@ -240,7 +240,7 @@ macro_rules! test_thermoelastic_thermal_conduction_constitutive_model
             assert_eq!(
                 std::mem::size_of::<ThermoelasticThermalConduction<
                     $thermoelastic_constitutive_model, $thermal_conduction_constitutive_model
-                >>(), 2 * std::mem::size_of::<crate::constitutive::ConstitutiveModelParameters>()
+                >>(), 2 * std::mem::size_of::<crate::constitutive::Parameters>()
             )
         }
     }

@@ -28,7 +28,7 @@ use super::*;
 /// - The Arruda-Boyce model reduces to the [Neo-Hookean model](NeoHookean) when $`N_b\to\infty`$.
 pub struct ArrudaBoyce<'a>
 {
-    parameters: ConstitutiveModelParameters<'a>
+    parameters: Parameters<'a>
 }
 
 /// Inherent implementation of the Arruda-Boyce hyperelastic constitutive model.
@@ -42,9 +42,9 @@ impl<'a> ArrudaBoyce<'a>
 }
 
 /// Constitutive model implementation of the Arruda-Boyce hyperelastic constitutive model.
-impl<'a> ConstitutiveModel<'a> for ArrudaBoyce<'a>
+impl<'a> Constitutive<'a> for ArrudaBoyce<'a>
 {
-    fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
+    fn new(parameters: Parameters<'a>) -> Self
     {
         Self
         {

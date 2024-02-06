@@ -20,7 +20,7 @@ use super::*;
 /// - The Mooney-Rivlin model reduces to the [Neo-Hookean model](NeoHookean) when $`\mu_m\to 0`$.
 pub struct MooneyRivlin<'a>
 {
-    parameters: ConstitutiveModelParameters<'a>
+    parameters: Parameters<'a>
 }
 
 /// Inherent implementation of the Mooney-Rivlin hyperelastic constitutive model.
@@ -34,9 +34,9 @@ impl<'a> MooneyRivlin<'a>
 }
 
 /// Constitutive model implementation of the Mooney-Rivlin hyperelastic constitutive model.
-impl<'a> ConstitutiveModel<'a> for MooneyRivlin<'a>
+impl<'a> Constitutive<'a> for MooneyRivlin<'a>
 {
-    fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
+    fn new(parameters: Parameters<'a>) -> Self
     {
         Self
         {

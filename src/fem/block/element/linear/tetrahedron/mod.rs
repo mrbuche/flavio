@@ -14,7 +14,7 @@ pub struct LinearTetrahedron<C>
 
 impl<'a, C> LinearFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
 where
-    C: ConstitutiveModel<'a>
+    C: Constitutive<'a>
 {
     fn calculate_standard_gradient_operator() -> StandardGradientOperator<N>
     {
@@ -33,7 +33,7 @@ where
 
 impl<'a, C> FiniteElement<'a, C, G, N> for LinearTetrahedron<C>
 where
-    C: ConstitutiveModel<'a>
+    C: Constitutive<'a>
 {
     fn get_constitutive_models(&self) -> &[C; G]
     {
@@ -43,7 +43,7 @@ where
     {
         IntegrationWeights::new([1.0; G])
     }
-    fn new(constitutive_model_parameters: ConstitutiveModelParameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>) -> Self
+    fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>) -> Self
     {
         Self
         {

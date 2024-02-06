@@ -3,13 +3,13 @@ mod test;
 
 use super::*;
 
-impl<'a, C1, C2> ConstitutiveModel<'a> for CombinedHyperelastic<C1, C2>
+impl<'a, C1, C2> Constitutive<'a> for CombinedHyperelastic<C1, C2>
 where
     C1: Hyperelastic<'a>,
     C2: Hyperelastic<'a>
 {
     /// Dummy method that will panic, use [Self::construct()] instead.
-    fn new(_parameters: ConstitutiveModelParameters<'a>) -> Self
+    fn new(_parameters: Parameters<'a>) -> Self
     {
         panic!()
     }

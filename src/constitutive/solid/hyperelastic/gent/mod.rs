@@ -20,7 +20,7 @@ use super::*;
 /// - The Gent model reduces to the [Neo-Hookean model](NeoHookean) when $`J_m\to\infty`$.
 pub struct Gent<'a>
 {
-    parameters: ConstitutiveModelParameters<'a>
+    parameters: Parameters<'a>
 }
 
 /// Inherent implementation of the Gent hyperelastic constitutive model.
@@ -34,9 +34,9 @@ impl<'a> Gent<'a>
 }
 
 /// Constitutive model implementation of the Gent hyperelastic constitutive model.
-impl<'a> ConstitutiveModel<'a> for Gent<'a>
+impl<'a> Constitutive<'a> for Gent<'a>
 {
-    fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
+    fn new(parameters: Parameters<'a>) -> Self
     {
         Self
         {

@@ -30,14 +30,14 @@ use crate::
 };
 use super::
 {
-    ConstitutiveModel,
-    ConstitutiveModelParameters
+    Constitutive,
+    Parameters
 };
 
 /// Required methods for solid constitutive models.
 pub trait Solid<'a>
 where
-    Self: ConstitutiveModel<'a>
+    Self: Constitutive<'a>
 {
     /// Calculates and returns the left Cauchy-Green deformation.
     ///

@@ -22,13 +22,13 @@ use super::*;
 /// - The Almansi-Hamel strain measure is given by $`\mathbf{e}=\tfrac{1}{2}(\mathbf{1} - \mathbf{B}^{-1})`$.
 pub struct AlmansiHamel<'a>
 {
-    parameters: ConstitutiveModelParameters<'a>
+    parameters: Parameters<'a>
 }
 
 /// Constitutive model implementation of the Almansi-Hamel thermoelastic constitutive model.
-impl<'a> ConstitutiveModel<'a> for AlmansiHamel<'a>
+impl<'a> Constitutive<'a> for AlmansiHamel<'a>
 {
-    fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
+    fn new(parameters: Parameters<'a>) -> Self
     {
         Self
         {

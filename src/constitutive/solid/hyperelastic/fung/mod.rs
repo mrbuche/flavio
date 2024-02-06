@@ -21,7 +21,7 @@ use super::*;
 /// - The Fung model reduces to the [Neo-Hookean model](NeoHookean) when $`\mu_m\to 0`$ or $`\eta\to 0`$.
 pub struct Fung<'a>
 {
-    parameters: ConstitutiveModelParameters<'a>
+    parameters: Parameters<'a>
 }
 
 /// Inherent implementation of the Fung hyperelastic constitutive model.
@@ -40,9 +40,9 @@ impl<'a> Fung<'a>
 }
 
 /// Constitutive model implementation of the Fung hyperelastic constitutive model.
-impl<'a> ConstitutiveModel<'a> for Fung<'a>
+impl<'a> Constitutive<'a> for Fung<'a>
 {
-    fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
+    fn new(parameters: Parameters<'a>) -> Self
     {
         Self
         {

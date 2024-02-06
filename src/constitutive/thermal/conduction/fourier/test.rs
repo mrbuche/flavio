@@ -1,6 +1,6 @@
 use super::
 {
-    ConstitutiveModel,
+    Constitutive,
     Fourier,
     TemperatureGradient,
     ThermalConduction,
