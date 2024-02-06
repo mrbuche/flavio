@@ -14,12 +14,12 @@ use crate::
 
 use super::
 {
-    ConstitutiveModel,
-    ConstitutiveModelParameters
+    Constitutive,
+    Parameters
 };
 
 /// Required methods for thermal constitutive models.
 pub trait Thermal<'a>
 where
-    Self: ConstitutiveModel<'a>
+    Self: Constitutive<'a>
 {}

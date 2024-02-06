@@ -11,8 +11,8 @@ pub use solid_thermal::
 
 use super::
 {
-    ConstitutiveModel,
-    ConstitutiveModelParameters,
+    Constitutive,
+    Parameters,
     solid::
     {
         Solid,
@@ -29,5 +29,5 @@ use super::
 /// Required methods for multiphysics constitutive models.
 pub trait Multiphysics<'a>
 where
-    Self: ConstitutiveModel<'a>
+    Self: Constitutive<'a>
 {}

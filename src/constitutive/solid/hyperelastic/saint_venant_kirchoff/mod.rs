@@ -19,13 +19,13 @@ use super::*;
 /// - The Green-Saint Venant strain measure is given by $`\mathbf{E}=\tfrac{1}{2}(\mathbf{C} - \mathbf{1})`$.
 pub struct SaintVenantKirchoff<'a>
 {
-    parameters: ConstitutiveModelParameters<'a>
+    parameters: Parameters<'a>
 }
 
 /// Constitutive model implementation of the Saint Venant-Kirchoff hyperelastic constitutive model.
-impl<'a> ConstitutiveModel<'a> for SaintVenantKirchoff<'a>
+impl<'a> Constitutive<'a> for SaintVenantKirchoff<'a>
 {
-    fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
+    fn new(parameters: Parameters<'a>) -> Self
     {
         Self
         {

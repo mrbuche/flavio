@@ -26,10 +26,10 @@ pub struct ThermoelasticThermalConduction<C1, C2>
 }
 
 /// Constitutive model implementation of a thermoelastic-thermal conduction constitutive model.
-impl<'a, C1, C2> ConstitutiveModel<'a> for ThermoelasticThermalConduction<C1, C2>
+impl<'a, C1, C2> Constitutive<'a> for ThermoelasticThermalConduction<C1, C2>
 {
     /// Dummy method that will panic, use [Self::construct()] instead.
-    fn new(_parameters: ConstitutiveModelParameters<'a>) -> Self
+    fn new(_parameters: Parameters<'a>) -> Self
     {
         panic!()
     }

@@ -20,7 +20,7 @@ use super::*;
 /// - The Yeoh model reduces to the [Neo-Hookean model](NeoHookean) when $`\mu_n\to 0`$ for $`n=2\ldots N`$.
 pub struct Yeoh<'a>
 {
-    parameters: ConstitutiveModelParameters<'a>
+    parameters: Parameters<'a>
 }
 
 /// Inherent implementation of the Yeoh hyperelastic constitutive model.
@@ -39,9 +39,9 @@ impl<'a> Yeoh<'a>
 }
 
 /// Constitutive model implementation of the Yeoh hyperelastic constitutive model.
-impl<'a> ConstitutiveModel<'a> for Yeoh<'a>
+impl<'a> Constitutive<'a> for Yeoh<'a>
 {
-    fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
+    fn new(parameters: Parameters<'a>) -> Self
     {
         Self
         {

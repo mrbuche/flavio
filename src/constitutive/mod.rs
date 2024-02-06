@@ -10,11 +10,11 @@ pub mod solid;
 use crate::mechanics::Scalar;
 
 /// Array of constitutive model parameters.
-pub type ConstitutiveModelParameters<'a> = &'a [Scalar];
+pub type Parameters<'a> = &'a [Scalar];
 
 /// Required methods for constitutive models.
-pub trait ConstitutiveModel<'a>
+pub trait Constitutive<'a>
 {
     /// Constructs and returns a new constitutive model.
-    fn new(parameters: ConstitutiveModelParameters<'a>) -> Self;
+    fn new(parameters: Parameters<'a>) -> Self;
 }

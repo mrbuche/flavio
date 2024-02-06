@@ -29,14 +29,14 @@ pub struct _ThermalSolidBlock<const D: usize, const E: usize, F, const G: usize,
 
 pub trait FiniteElementBlock<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
 where
-    C: ConstitutiveModel<'a>,
+    C: Constitutive<'a>,
     F: FiniteElement<'a, C, G, N>
 {
     fn calculate_current_nodal_coordinates_element(&self, element_connectivity: &[usize; N]) -> CurrentNodalCoordinates<N>;
     fn get_current_nodal_coordinates(&self) -> &CurrentNodalCoordinates<D>;
     fn get_connectivity(&self) -> &Connectivity<E, N>;
     fn get_elements(&self) -> &[F; E];
-    fn new(constitutive_model_parameters: ConstitutiveModelParameters<'a>, connectivity: Connectivity<E, N>, reference_nodal_coordinates: ReferenceNodalCoordinates<D>) -> Self;
+    fn new(constitutive_model_parameters: Parameters<'a>, connectivity: Connectivity<E, N>, reference_nodal_coordinates: ReferenceNodalCoordinates<D>) -> Self;
     fn set_current_nodal_coordinates(&mut self, current_nodal_coordinates: CurrentNodalCoordinates<D>);
 }
 
@@ -75,7 +75,7 @@ impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
     FiniteElementBlock<'a, C, D, E, F, G, N>
     for Block<D, E, F, G, N>
 where
-    C: ConstitutiveModel<'a>,
+    C: Constitutive<'a>,
     F: FiniteElement<'a, C, G, N>
 {
     fn calculate_current_nodal_coordinates_element(&self, element_connectivity: &[usize; N]) -> CurrentNodalCoordinates<N>
@@ -98,7 +98,7 @@ where
     {
         &self.elements
     }
-    fn new(constitutive_model_parameters: ConstitutiveModelParameters<'a>, connectivity: Connectivity<E, N>, reference_nodal_coordinates: ReferenceNodalCoordinates<D>) -> Self
+    fn new(constitutive_model_parameters: Parameters<'a>, connectivity: Connectivity<E, N>, reference_nodal_coordinates: ReferenceNodalCoordinates<D>) -> Self
     {
         let elements = from_fn(|element|
             <F>::new(

@@ -42,7 +42,7 @@ macro_rules! test_elastic_constitutive_model
         {
             assert_eq!(
                 std::mem::size_of::<$elastic_constitutive_model>(),
-                std::mem::size_of::<crate::constitutive::ConstitutiveModelParameters>()
+                std::mem::size_of::<crate::constitutive::Parameters>()
             )
         }
         crate::constitutive::solid::elastic::test::test_elastic_constitutive_model_constructed!($elastic_constitutive_model_constructed);
@@ -58,7 +58,7 @@ macro_rules! test_elastic_constitutive_model_constructed
             EPSILON,
             constitutive::
             {
-                ConstitutiveModel,
+                Constitutive,
             },
             math::
             {

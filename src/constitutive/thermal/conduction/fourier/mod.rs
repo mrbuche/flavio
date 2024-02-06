@@ -3,8 +3,8 @@ mod test;
 
 use super::
 {
-    ConstitutiveModel,
-    ConstitutiveModelParameters,
+    Constitutive,
+    Parameters,
     HeatFlux,
     Scalar,
     TemperatureGradient,
@@ -24,7 +24,7 @@ use super::
 /// - None.
 pub struct Fourier<'a>
 {
-    parameters: ConstitutiveModelParameters<'a>
+    parameters: Parameters<'a>
 }
 
 /// Inherent implementation of the Fourier thermal conduction constitutive model.
@@ -37,9 +37,9 @@ impl<'a> Fourier<'a>
 }
 
 /// Constitutive model implementation of the Fourier thermal conduction constitutive model.
-impl<'a> ConstitutiveModel<'a> for Fourier<'a>
+impl<'a> Constitutive<'a> for Fourier<'a>
 {
-    fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
+    fn new(parameters: Parameters<'a>) -> Self
     {
         Self
         {

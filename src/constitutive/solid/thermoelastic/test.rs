@@ -52,7 +52,7 @@ macro_rules! test_thermoelastic_constitutive_model
         {
             assert_eq!(
                 std::mem::size_of::<$thermoelastic_constitutive_model>(),
-                std::mem::size_of::<crate::constitutive::ConstitutiveModelParameters>()
+                std::mem::size_of::<crate::constitutive::Parameters>()
             )
         }
         crate::constitutive::solid::thermoelastic::test::test_thermoelastic_constitutive_model_constructed!($thermoelastic_constitutive_model_constructed);
@@ -68,7 +68,7 @@ macro_rules! test_thermoelastic_constitutive_model_constructed
             EPSILON,
             constitutive::
             {
-                ConstitutiveModel
+                Constitutive
             },
             math::
             {

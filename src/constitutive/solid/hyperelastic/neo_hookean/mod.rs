@@ -16,13 +16,13 @@ use super::*;
 /// - None.
 pub struct NeoHookean<'a>
 {
-    parameters: ConstitutiveModelParameters<'a>
+    parameters: Parameters<'a>
 }
 
 /// Constitutive model implementation of the Neo-Hookean hyperelastic constitutive model.
-impl<'a> ConstitutiveModel<'a> for NeoHookean<'a>
+impl<'a> Constitutive<'a> for NeoHookean<'a>
 {
-    fn new(parameters: ConstitutiveModelParameters<'a>) -> Self
+    fn new(parameters: Parameters<'a>) -> Self
     {
         Self
         {

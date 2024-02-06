@@ -11,11 +11,11 @@ type StandardGradientOperator<const N: usize> = Vectors<9, N>;
 
 pub trait FiniteElement<'a, C, const G: usize, const N: usize>
 where
-    C: ConstitutiveModel<'a>
+    C: Constitutive<'a>
 {
     fn get_constitutive_models(&self) -> &[C; G];
     fn get_integration_weights(&self) -> IntegrationWeights<G>;
-    fn new(constitutive_model_parameters: ConstitutiveModelParameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>) -> Self;
+    fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>) -> Self;
 }
 
 pub trait ElasticFiniteElement<'a, C, const G: usize, const N: usize>
