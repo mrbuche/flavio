@@ -13,7 +13,7 @@ use super::*;
 ///
 /// **External variables**
 /// - The deformation gradient $`\mathbf{F}`$.
-/// - The rate of deformation gradient $`\dot{\mathbf{F}}`$.
+/// - The deformation gradient rate $`\dot{\mathbf{F}}`$.
 ///
 /// **Internal variables**
 /// - None.
@@ -71,11 +71,22 @@ impl<'a> Viscoelastic<'a> for SaintVenantKirchoff<'a>
     /// ```math
     /// \mathbf{S}(\mathbf{F},\dot\mathbf{F}) = 2\mu\mathbf{E}' + \kappa\,\mathrm{tr}(\mathbf{E})\mathbf{1} + 2\eta\dot{\mathbf{E}}' + \zeta\,\mathrm{tr}(\dot{\mathbf{E}})\mathbf{1}
     /// ```
-    fn calculate_second_piola_kirchoff_stress(&self, deformation_gradient: &DeformationGradient, deformation_gradient_dot: &DeformationGradientDot) -> SecondPiolaKirchoffStress
+    fn calculate_second_piola_kirchoff_stress(&self, deformation_gradient: &DeformationGradient, deformation_gradient_rate: &DeformationGradientRate) -> SecondPiolaKirchoffStress
     {
         let (deviatoric_strain, strain_trace) = ((self.calculate_right_cauchy_green_deformation(deformation_gradient) - RightCauchyGreenDeformation::identity())*0.5).deviatoric_and_trace();
-        let (deviatoric_strain_rate, strain_rate_trace) = ((self.calculate_right_cauchy_green_deformation(deformation_gradient_dot) - RightCauchyGreenDeformation::identity())*0.5).deviatoric_and_trace();
+        let (deviatoric_strain_rate, strain_rate_trace) = ((self.calculate_right_cauchy_green_deformation(deformation_gradient_rate) - RightCauchyGreenDeformation::identity())*0.5).deviatoric_and_trace();
         deviatoric_strain*(2.0*self.get_shear_modulus()) + deviatoric_strain_rate*(2.0*self.get_shear_viscosity()) + RightCauchyGreenDeformation::identity()*(self.get_bulk_modulus()*strain_trace + self.get_bulk_viscosity()*strain_rate_trace)
+    }
+    /// Calculates and returns the rate tangent stiffness associated with the second Piola-Kirchoff stress.
+    ///
+    /// ```math
+    /// \mathcal{W}_{IJkL}(\dot\mathbf{F}) = \eta\,\delta_{JL}\dot{F}_{kI} + \eta\,\delta_{IL}\dot{F}_{kJ} + \left(\zeta - \frac{2}{3}\,\eta\right)\delta_{IJ}\dot{F}_{kL}
+    /// ```
+    fn calculate_second_piola_kirchoff_rate_tangent_stiffness(&self, _: &DeformationGradient, deformation_gradient_rate: &DeformationGradientRate) -> SecondPiolaKirchoffRateTangentStiffness
+    {
+        let identity = SecondPiolaKirchoffStress::identity();
+        let scaled_deformation_gradient_rate_transpose = deformation_gradient_rate.transpose()*self.get_shear_viscosity();
+        SecondPiolaKirchoffRateTangentStiffness::dyad_ik_jl(&scaled_deformation_gradient_rate_transpose, &identity) + SecondPiolaKirchoffRateTangentStiffness::dyad_il_jk(&identity, &scaled_deformation_gradient_rate_transpose) + SecondPiolaKirchoffTangentStiffness::dyad_ij_kl(&(identity*(self.get_bulk_viscosity() - 2.0/3.0*self.get_shear_viscosity())), deformation_gradient_rate)
     }
 }
 
@@ -92,14 +103,14 @@ impl<'a> Hyperviscoelastic<'a> for SaintVenantKirchoff<'a>
         let strain = (self.calculate_right_cauchy_green_deformation(deformation_gradient) - RightCauchyGreenDeformation::identity())*0.5;
         self.get_shear_modulus()*strain.squared_trace() + 0.5*(self.get_bulk_modulus() - 2.0/3.0*self.get_shear_modulus())*strain.trace().powi(2)
     }
-    /// Calculates and returns the Helmholtz free energy density.
+    /// Calculates and returns the viscous dissipation.
     ///
     /// ```math
-    /// b(\dot{\mathbf{F}}) = \mu\,\mathrm{tr}(\dot{\mathbf{E}}^2) + \left(\kappa - \frac{2}{3}\,\mu\right)\mathrm{tr}(\dot{\mathbf{E}})^2
+    /// \phi(\dot{\mathbf{F}}) = \eta\,\mathrm{tr}(\dot{\mathbf{E}}^2) + \left(\zeta - \frac{2}{3}\,\eta\right)\mathrm{tr}(\dot{\mathbf{E}})^2
     /// ```
-    fn calculate_viscous_dissipation(&self, deformation_gradient_dot: &DeformationGradientDot) -> Scalar
+    fn calculate_viscous_dissipation(&self, deformation_gradient_rate: &DeformationGradientRate) -> Scalar
     {
-        let strain_rate = (self.calculate_right_cauchy_green_deformation(deformation_gradient_dot) - RightCauchyGreenDeformation::identity())*0.5;
+        let strain_rate = (self.calculate_right_cauchy_green_deformation(deformation_gradient_rate) - RightCauchyGreenDeformation::identity())*0.5;
         self.get_shear_modulus()*strain_rate.squared_trace() + 0.5*(self.get_bulk_modulus() - 2.0/3.0*self.get_shear_modulus())*strain_rate.trace().powi(2)
     }
 }

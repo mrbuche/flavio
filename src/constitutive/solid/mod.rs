@@ -20,15 +20,18 @@ use crate::
     {
         CauchyStress,
         CauchyTangentStiffness,
+        CauchyRateTangentStiffness,
         DeformationGradient,
-        DeformationGradientDot,
+        DeformationGradientRate,
         FirstPiolaKirchoffStress,
         FirstPiolaKirchoffTangentStiffness,
+        FirstPiolaKirchoffRateTangentStiffness,
         LeftCauchyGreenDeformation,
         RightCauchyGreenDeformation,
         Scalar,
         SecondPiolaKirchoffStress,
-        SecondPiolaKirchoffTangentStiffness
+        SecondPiolaKirchoffTangentStiffness,
+        SecondPiolaKirchoffRateTangentStiffness
     }
 };
 use super::

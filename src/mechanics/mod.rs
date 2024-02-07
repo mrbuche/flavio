@@ -22,6 +22,9 @@ pub type CauchyStress = TensorRank2<3, 1, 1>;
 /// The tangent stiffness associated with the Cauchy stress $`\boldsymbol{\mathcal{T}}`$.
 pub type CauchyTangentStiffness = TensorRank4<3, 1, 1, 1, 0>;
 
+/// The rate tangent stiffness associated with the Cauchy stress $`\boldsymbol{\mathcal{V}}`$.
+pub type CauchyRateTangentStiffness = TensorRank4<3, 1, 1, 1, 0>;
+
 /// A coordinate in the current configuration.
 pub type CurrentCoordinate = TensorRank1<3, 1>;
 
@@ -31,8 +34,8 @@ pub type CurrentCoordinates<const W: usize> = TensorRank1List<3, 1, W>;
 /// The deformation gradient $`\mathbf{F}`$.
 pub type DeformationGradient = TensorRank2<3, 1, 0>;
 
-/// The rate of deformation gradient $`\dot{\mathbf{F}}`$.
-pub type DeformationGradientDot = TensorRank2<3, 1, 0>;
+/// The deformation gradient rate $`\dot{\mathbf{F}}`$.
+pub type DeformationGradientRate = TensorRank2<3, 1, 0>;
 
 /// A list of deformation gradients.
 pub type DeformationGradients<const W: usize> = TensorRank2List<3, 1, 0, W>;
@@ -45,6 +48,9 @@ pub type FirstPiolaKirchoffStresses<const W: usize> = TensorRank2List<3, 1, 0, W
 
 /// The tangent stiffness associated with the first Piola-Kirchoff stress $`\boldsymbol{\mathcal{C}}`$.
 pub type FirstPiolaKirchoffTangentStiffness = TensorRank4<3, 1, 0, 1, 0>;
+
+/// The rate tangent stiffness associated with the first Piola-Kirchoff stress $`\boldsymbol{\mathcal{U}}`$.
+pub type FirstPiolaKirchoffRateTangentStiffness = TensorRank4<3, 1, 0, 1, 0>;
 
 /// A list of first Piola-Kirchoff tangent stiffnesses.
 pub type FirstPiolaKirchoffTangentStiffnesses<const W: usize> = TensorRank4List<3, 1, 0, 1, 0, W>;
@@ -85,8 +91,11 @@ pub type Scalars<const W: usize> = TensorRank0List<W>;
 /// The second Piola-Kirchoff stress $`\mathbf{S}`$.
 pub type SecondPiolaKirchoffStress = TensorRank2<3, 0, 0>;
 
-/// The tangent stiffness associated with the second Piola-Kirchoff stress $`\boldsymbol{\mathcal{?}}`$.
+/// The tangent stiffness associated with the second Piola-Kirchoff stress $`\boldsymbol{\mathcal{G}}`$.
 pub type SecondPiolaKirchoffTangentStiffness = TensorRank4<3, 0, 0, 1, 0>;
+
+/// The rate tangent stiffness associated with the second Piola-Kirchoff stress $`\boldsymbol{\mathcal{W}}`$.
+pub type SecondPiolaKirchoffRateTangentStiffness = TensorRank4<3, 0, 0, 1, 0>;
 
 /// A stiffness resulting from a force.
 pub type Stiffness = TensorRank2<3, 1, 1>;

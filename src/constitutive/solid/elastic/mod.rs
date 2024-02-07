@@ -22,7 +22,7 @@ pub trait Elastic<'a>
 where
     Self: Solid<'a>
 {
-    /// Calculates and returns the Cauchy stress $`\boldsymbol{\sigma}`$.
+    /// Calculates and returns the Cauchy stress.
     ///
     /// ```math
     /// \boldsymbol{\sigma} = J^{-1}\mathbf{P}\cdot\mathbf{F}^T
