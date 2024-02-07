@@ -1,9 +1,9 @@
 //! Hyperviscoelastic constitutive models.
 //!
-//! Hyperviscoelastic constitutive models are completely defined by Helmholtz free energy and viscous dissipation functions.
+//! Hyperviscoelastic constitutive models are defined by a Helmholtz free energy density function and a viscous dissipation function.
 //!
 //! ```math
-//! \mathbf{P}:\dot{\mathbf{F}} - \dot{a}(\mathbf{F}) - \phi(\dot{\mathbf{F}}) \geq 0
+//! \mathbf{P}:\dot{\mathbf{F}} - \dot{a}(\mathbf{F}) - \phi(\mathbf{F},\dot{\mathbf{F}}) \geq 0
 //! ```
 //! Satisfying the second law of thermodynamics though a maximum viscous dissipation principal yields a relation for the stress.
 //!
@@ -44,7 +44,7 @@ where
     /// Calculates and returns the viscous dissipation.
     ///
     /// ```math
-    /// \phi = \phi(\dot{\mathbf{F}})
+    /// \phi = \phi(\mathbf{F},\dot{\mathbf{F}})
     /// ```
-    fn calculate_viscous_dissipation(&self, deformation_gradient_rate: &DeformationGradientRate) -> Scalar;
+    fn calculate_viscous_dissipation(&self, deformation_gradient: &DeformationGradient, deformation_gradient_rate: &DeformationGradientRate) -> Scalar;
 }
