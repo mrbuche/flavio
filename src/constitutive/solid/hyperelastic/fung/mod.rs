@@ -52,7 +52,17 @@ impl<'a> Constitutive<'a> for Fung<'a>
 }
 
 /// Solid constitutive model implementation of the Fung hyperelastic constitutive model.
-impl<'a> Solid<'a> for Fung<'a> {}
+impl<'a> Solid<'a> for Fung<'a>
+{
+    fn get_bulk_modulus(&self) -> &Scalar
+    {
+        &self.parameters[0]
+    }
+    fn get_shear_modulus(&self) -> &Scalar
+    {
+        &self.parameters[1]
+    }
+}
 
 /// Elastic constitutive model implementation of the Fung hyperelastic constitutive model.
 impl<'a> Elastic<'a> for Fung<'a>
@@ -83,14 +93,6 @@ impl<'a> Elastic<'a> for Fung<'a>
         let exponential = (self.get_exponent()*(isochoric_left_cauchy_green_deformation_trace - 3.0)).exp();
         let scaled_shear_modulus_0 = (self.get_shear_modulus() + self.get_extra_modulus()*(exponential - 1.0))/jacobian.powf(5.0/3.0);
         (CauchyTangentStiffness::dyad_ik_jl(&identity, deformation_gradient) + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &identity) - CauchyTangentStiffness::dyad_ij_kl(&identity, deformation_gradient)*(2.0/3.0))*scaled_shear_modulus_0 + CauchyTangentStiffness::dyad_ij_kl(&deviatoric_isochoric_left_cauchy_green_deformation, &((&deviatoric_isochoric_left_cauchy_green_deformation*&inverse_transpose_deformation_gradient)*(2.0*self.get_extra_modulus()*exponential/jacobian))) + CauchyTangentStiffness::dyad_ij_kl(&(identity*(0.5*self.get_bulk_modulus()*(jacobian + 1.0/jacobian)) - self.calculate_left_cauchy_green_deformation(deformation_gradient).deviatoric()*(scaled_shear_modulus_0*5.0/3.0)), &inverse_transpose_deformation_gradient)
-    }
-    fn get_bulk_modulus(&self) -> &Scalar
-    {
-        &self.parameters[0]
-    }
-    fn get_shear_modulus(&self) -> &Scalar
-    {
-        &self.parameters[1]
     }
 }
 

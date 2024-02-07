@@ -9,6 +9,7 @@ macro_rules! test_thermoelastic_constitutive_model
 {
     ($thermoelastic_constitutive_model: ident, $thermoelastic_constitutive_model_parameters: expr, $thermoelastic_constitutive_model_constructed: expr) =>
     {
+        use crate::constitutive::solid::Solid;
         fn get_thermoelastic_constitutive_model<'a>() -> $thermoelastic_constitutive_model<'a>
         {
             $thermoelastic_constitutive_model::new($thermoelastic_constitutive_model_parameters)

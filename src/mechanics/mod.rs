@@ -31,6 +31,9 @@ pub type CurrentCoordinates<const W: usize> = TensorRank1List<3, 1, W>;
 /// The deformation gradient $`\mathbf{F}`$.
 pub type DeformationGradient = TensorRank2<3, 1, 0>;
 
+/// The rate of deformation gradient $`\dot{\mathbf{F}}`$.
+pub type DeformationGradientDot = TensorRank2<3, 1, 0>;
+
 /// A list of deformation gradients.
 pub type DeformationGradients<const W: usize> = TensorRank2List<3, 1, 0, W>;
 

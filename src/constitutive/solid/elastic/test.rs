@@ -6,6 +6,7 @@ macro_rules! test_elastic_constitutive_model
 {
     ($elastic_constitutive_model: ident, $elastic_constitutive_model_parameters: expr, $elastic_constitutive_model_constructed: expr) =>
     {
+        use crate::constitutive::solid::Solid;
         fn get_elastic_constitutive_model<'a>() -> $elastic_constitutive_model<'a>
         {
             $elastic_constitutive_model::new($elastic_constitutive_model_parameters)
@@ -58,7 +59,7 @@ macro_rules! test_elastic_constitutive_model_constructed
             EPSILON,
             constitutive::
             {
-                Constitutive,
+                Constitutive
             },
             math::
             {

@@ -19,7 +19,16 @@ impl<'a, C1, C2> Solid<'a> for CombinedHyperelastic<C1, C2>
 where
     C1: Hyperelastic<'a>,
     C2: Hyperelastic<'a>
-{}
+{
+    fn get_bulk_modulus(&self) -> &Scalar
+    {
+        panic!()
+    }
+    fn get_shear_modulus(&self) -> &Scalar
+    {
+        panic!()
+    }
+}
 
 impl<'a, C1, C2> Elastic<'a> for CombinedHyperelastic<C1, C2>
 where
@@ -43,14 +52,6 @@ where
     fn calculate_cauchy_tangent_stiffness(&self, deformation_gradient: &DeformationGradient) -> CauchyTangentStiffness
     {
         self.get_constitutive_model_1().calculate_cauchy_tangent_stiffness(deformation_gradient) + self.get_constitutive_model_2().calculate_cauchy_tangent_stiffness(deformation_gradient)
-    }
-    fn get_bulk_modulus(&self) -> &Scalar
-    {
-        panic!()
-    }
-    fn get_shear_modulus(&self) -> &Scalar
-    {
-        panic!()
     }
 }
 

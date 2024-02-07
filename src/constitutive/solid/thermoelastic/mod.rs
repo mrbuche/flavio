@@ -53,10 +53,6 @@ where
         let second_piola_kirchoff_stress = self.calculate_second_piola_kirchoff_stress(deformation_gradient, temperature);
         self.calculate_cauchy_tangent_stiffness(deformation_gradient, temperature).contract_first_second_indices_with_second_indices_of(&deformation_gradient_inverse, &deformation_gradient_inverse)*deformation_gradient.determinant() + SecondPiolaKirchoffTangentStiffness::dyad_ij_kl(&second_piola_kirchoff_stress, &deformation_gradient_inverse_transpose) - SecondPiolaKirchoffTangentStiffness::dyad_il_kj(&second_piola_kirchoff_stress, &deformation_gradient_inverse_transpose) - SecondPiolaKirchoffTangentStiffness::dyad_ik_jl(&deformation_gradient_inverse, &second_piola_kirchoff_stress)
     }
-    /// Returns the bulk modulus.
-    fn get_bulk_modulus(&self) -> &Scalar;
-    /// Returns the shear modulus.
-    fn get_shear_modulus(&self) -> &Scalar;
     /// Returns the coefficient of thermal expansion.
     fn get_coefficient_of_thermal_expansion(&self) -> &Scalar;
     /// Returns the reference temperature.

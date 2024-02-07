@@ -35,7 +35,17 @@ impl<'a> Constitutive<'a> for SaintVenantKirchoff<'a>
 }
 
 /// Solid constitutive model implementation of the Saint Venant-Kirchoff hyperelastic constitutive model.
-impl<'a> Solid<'a> for SaintVenantKirchoff<'a> {}
+impl<'a> Solid<'a> for SaintVenantKirchoff<'a>
+{
+    fn get_bulk_modulus(&self) -> &Scalar
+    {
+        &self.parameters[0]
+    }
+    fn get_shear_modulus(&self) -> &Scalar
+    {
+        &self.parameters[1]
+    }
+}
 
 /// Elastic constitutive model implementation of the Saint Venant-Kirchoff hyperelastic constitutive model.
 impl<'a> Elastic<'a> for SaintVenantKirchoff<'a>
@@ -60,14 +70,6 @@ impl<'a> Elastic<'a> for SaintVenantKirchoff<'a>
         let identity = SecondPiolaKirchoffStress::identity();
         let scaled_deformation_gradient_transpose = deformation_gradient.transpose()*self.get_shear_modulus();
         SecondPiolaKirchoffTangentStiffness::dyad_ik_jl(&scaled_deformation_gradient_transpose, &identity) + SecondPiolaKirchoffTangentStiffness::dyad_il_jk(&identity, &scaled_deformation_gradient_transpose) + SecondPiolaKirchoffTangentStiffness::dyad_ij_kl(&(identity*(self.get_bulk_modulus() - 2.0/3.0*self.get_shear_modulus())), deformation_gradient)
-    }
-    fn get_bulk_modulus(&self) -> &Scalar
-    {
-        &self.parameters[0]
-    }
-    fn get_shear_modulus(&self) -> &Scalar
-    {
-        &self.parameters[1]
     }
 }
 

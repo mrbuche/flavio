@@ -54,7 +54,17 @@ impl<'a> Constitutive<'a> for ArrudaBoyce<'a>
 }
 
 /// Solid constitutive model implementation of the Arruda-Boyce hyperelastic constitutive model.
-impl<'a> Solid<'a> for ArrudaBoyce<'a> {}
+impl<'a> Solid<'a> for ArrudaBoyce<'a>
+{
+    fn get_bulk_modulus(&self) -> &Scalar
+    {
+        &self.parameters[0]
+    }
+    fn get_shear_modulus(&self) -> &Scalar
+    {
+        &self.parameters[1]
+    }
+}
 
 /// Elastic constitutive model implementation of the Arruda-Boyce hyperelastic constitutive model.
 impl<'a> Elastic<'a> for ArrudaBoyce<'a>
@@ -91,14 +101,6 @@ impl<'a> Elastic<'a> for ArrudaBoyce<'a>
         let scaled_deviatoric_isochoric_left_cauchy_green_deformation = deviatoric_left_cauchy_green_deformation*scaled_shear_modulus;
         let term = CauchyTangentStiffness::dyad_ij_kl(&scaled_deviatoric_isochoric_left_cauchy_green_deformation, &(deviatoric_isochoric_left_cauchy_green_deformation * &inverse_transpose_deformation_gradient*((1.0/eta/langevin_derivative(eta) - 1.0/gamma)/3.0/self.get_number_of_links()/gamma)));
         (CauchyTangentStiffness::dyad_ik_jl(&identity, deformation_gradient) + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &identity) - CauchyTangentStiffness::dyad_ij_kl(&identity, deformation_gradient)*(2.0/3.0))*scaled_shear_modulus + CauchyTangentStiffness::dyad_ij_kl(&(identity*(0.5*self.get_bulk_modulus()*(jacobian + 1.0/jacobian)) - scaled_deviatoric_isochoric_left_cauchy_green_deformation*(5.0/3.0)), &inverse_transpose_deformation_gradient) + term
-    }
-    fn get_bulk_modulus(&self) -> &Scalar
-    {
-        &self.parameters[0]
-    }
-    fn get_shear_modulus(&self) -> &Scalar
-    {
-        &self.parameters[1]
     }
 }
 

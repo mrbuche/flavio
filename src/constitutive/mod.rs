@@ -3,9 +3,10 @@
 #[cfg(test)]
 pub mod test;
 
+pub mod fluid;
 pub mod multiphysics;
-pub mod thermal;
 pub mod solid;
+pub mod thermal;
 
 use crate::mechanics::Scalar;
 

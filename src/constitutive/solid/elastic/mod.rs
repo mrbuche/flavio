@@ -22,10 +22,10 @@ pub trait Elastic<'a>
 where
     Self: Solid<'a>
 {
-    /// Calculates and returns the Cauchy stress.
+    /// Calculates and returns the Cauchy stress $`\boldsymbol{\sigma}`$.
     ///
     /// ```math
-    /// \boldsymbol{\sigma} = \frac{1}{J}\frac{\partial a}{\partial\mathbf{F}}\cdot\mathbf{F}^T
+    /// \boldsymbol{\sigma} = J^{-1}\mathbf{P}\cdot\mathbf{F}^T
     /// ```
     fn calculate_cauchy_stress(&self, deformation_gradient: &DeformationGradient) -> CauchyStress
     {
@@ -47,7 +47,7 @@ where
     /// Calculates and returns the first Piola-Kirchoff stress.
     ///
     /// ```math
-    /// \mathbf{P} = \frac{\partial a}{\partial\mathbf{F}} = J\boldsymbol{\sigma}\cdot\mathbf{F}^{-T}
+    /// \mathbf{P} = J\boldsymbol{\sigma}\cdot\mathbf{F}^{-T}
     /// ```
     fn calculate_first_piola_kirchoff_stress(&self, deformation_gradient: &DeformationGradient) -> FirstPiolaKirchoffStress
     {
@@ -67,7 +67,7 @@ where
     /// Calculates and returns the second Piola-Kirchoff stress.
     ///
     /// ```math
-    /// \mathbf{S} = \frac{\partial a}{\partial\mathbf{E}} = \mathbf{F}^{-1}\cdot\mathbf{P}
+    /// \mathbf{S} = \mathbf{F}^{-1}\cdot\mathbf{P}
     /// ```
     fn calculate_second_piola_kirchoff_stress(&self, deformation_gradient: &DeformationGradient) -> SecondPiolaKirchoffStress
     {
@@ -85,8 +85,4 @@ where
         let second_piola_kirchoff_stress = self.calculate_second_piola_kirchoff_stress(deformation_gradient);
         self.calculate_cauchy_tangent_stiffness(deformation_gradient).contract_first_second_indices_with_second_indices_of(&deformation_gradient_inverse, &deformation_gradient_inverse)*deformation_gradient.determinant() + SecondPiolaKirchoffTangentStiffness::dyad_ij_kl(&second_piola_kirchoff_stress, &deformation_gradient_inverse_transpose) - SecondPiolaKirchoffTangentStiffness::dyad_il_kj(&second_piola_kirchoff_stress, &deformation_gradient_inverse_transpose) - SecondPiolaKirchoffTangentStiffness::dyad_ik_jl(&deformation_gradient_inverse, &second_piola_kirchoff_stress)
     }
-    /// Returns the bulk modulus.
-    fn get_bulk_modulus(&self) -> &Scalar;
-    /// Returns the shear modulus.
-    fn get_shear_modulus(&self) -> &Scalar;
 }
