@@ -19,7 +19,7 @@ use super::*;
 /// - None.
 ///
 /// **Notes**
-/// - The Green-Saint Venant strain measure is given by $`\mathbf{E}=\tfrac{1}{2}(\mathbf{C} - \mathbf{1})`$.
+/// - The Green-Saint Venant strain measure is given by $`\mathbf{E}=\tfrac{1}{2}(\mathbf{C}-\mathbf{1})`$.
 pub struct SaintVenantKirchoff<'a>
 {
     parameters: Parameters<'a>
@@ -75,7 +75,7 @@ impl<'a> Viscoelastic<'a> for SaintVenantKirchoff<'a>
     {
         let (deviatoric_strain, strain_trace) = ((self.calculate_right_cauchy_green_deformation(deformation_gradient) - RightCauchyGreenDeformation::identity())*0.5).deviatoric_and_trace();
         let (deviatoric_strain_rate, strain_rate_trace) = ((self.calculate_right_cauchy_green_deformation(deformation_gradient_dot) - RightCauchyGreenDeformation::identity())*0.5).deviatoric_and_trace();
-        deviatoric_strain*(2.0*self.get_shear_modulus()) + RightCauchyGreenDeformation::identity()*(self.get_bulk_modulus()*strain_trace) + deviatoric_strain_rate*(2.0*self.get_shear_viscosity()) + RightCauchyGreenDeformation::identity()*(self.get_bulk_viscosity()*strain_rate_trace)
+        deviatoric_strain*(2.0*self.get_shear_modulus()) + deviatoric_strain_rate*(2.0*self.get_shear_viscosity()) + RightCauchyGreenDeformation::identity()*(self.get_bulk_modulus()*strain_trace + self.get_bulk_viscosity()*strain_rate_trace)
     }
 }
 

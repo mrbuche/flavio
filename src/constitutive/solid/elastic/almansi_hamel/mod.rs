@@ -16,7 +16,7 @@ use super::*;
 /// - None.
 ///
 /// **Notes**
-/// - The Almansi-Hamel strain measure is given by $`\mathbf{e}=\tfrac{1}{2}(\mathbf{1} - \mathbf{B}^{-1})`$.
+/// - The Almansi-Hamel strain measure is given by $`\mathbf{e}=\tfrac{1}{2}(\mathbf{1}-\mathbf{B}^{-1})`$.
 pub struct AlmansiHamel<'a>
 {
     parameters: Parameters<'a>

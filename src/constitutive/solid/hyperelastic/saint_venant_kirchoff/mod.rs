@@ -16,7 +16,7 @@ use super::*;
 /// - None.
 ///
 /// **Notes**
-/// - The Green-Saint Venant strain measure is given by $`\mathbf{E}=\tfrac{1}{2}(\mathbf{C} - \mathbf{1})`$.
+/// - The Green-Saint Venant strain measure is given by $`\mathbf{E}=\tfrac{1}{2}(\mathbf{C}-\mathbf{1})`$.
 pub struct SaintVenantKirchoff<'a>
 {
     parameters: Parameters<'a>
