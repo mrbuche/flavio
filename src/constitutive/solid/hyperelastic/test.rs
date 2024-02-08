@@ -34,6 +34,7 @@ macro_rules! test_hyperelastic_constitutive_model
     }
 }
 pub(crate) use test_hyperelastic_constitutive_model;
+
 macro_rules! test_hyperelastic_constitutive_model_constructed
 {
     ($hyperelastic_constitutive_model_constructed: expr) =>

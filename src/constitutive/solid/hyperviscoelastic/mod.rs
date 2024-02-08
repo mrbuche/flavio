@@ -17,7 +17,7 @@
 //! ```
 
 #[cfg(test)]
-mod test;
+pub mod test;
 
 mod saint_venant_kirchoff;
 
