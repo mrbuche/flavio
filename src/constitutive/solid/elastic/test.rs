@@ -33,10 +33,21 @@ macro_rules! test_elastic_constitutive_model_nu
 {
     ($constitutive_model: ident, $constitutive_model_parameters: expr, $constitutive_model_constructed: expr) =>
     {
-
-        mod temporary
+mod temporary {
+        use crate::
         {
-
+            mechanics::
+            {
+                test::
+                {
+                    get_deformation_gradient,
+                    get_deformation_gradient_rotated,
+                    get_rotation_current_configuration,
+                    get_rotation_reference_configuration
+                }
+            },
+            test::assert_eq_within_tols
+        };
         use super::*;
         fn get_constitutive_model<'a>() -> $constitutive_model<'a>
         {
@@ -127,8 +138,9 @@ macro_rules! test_elastic_constitutive_model_nu
                 #[test]
                 fn finite_difference()
                 {
-                    calculate_cauchy_tangent_stiffness_from_deformation_gradient!(&$constitutive_model_constructed, &get_deformation_gradient()).iter()
-                    .zip(calculate_cauchy_tangent_stiffness_from_finite_difference_of_cauchy_stress(true).iter())
+                    calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
+                        &$constitutive_model_constructed, &get_deformation_gradient()
+                    ).iter().zip(calculate_cauchy_tangent_stiffness_from_finite_difference_of_cauchy_stress(true).iter())
                     .for_each(|(cauchy_tangent_stiffness_i, fd_cauchy_tangent_stiffness_i)|
                         cauchy_tangent_stiffness_i.iter()
                         .zip(fd_cauchy_tangent_stiffness_i.iter())
@@ -145,11 +157,79 @@ macro_rules! test_elastic_constitutive_model_nu
                         )
                     )
                 }
+                #[test]
+                fn objectivity()
+                {
+                    let model = $constitutive_model_constructed;
+                    calculate_cauchy_stress_from_deformation_gradient!(&model, &get_deformation_gradient())
+                    .iter().zip((
+                        get_rotation_current_configuration().transpose() *
+                        calculate_cauchy_stress_from_deformation_gradient!(&model, &get_deformation_gradient_rotated()) *
+                        get_rotation_current_configuration()
+                    ).iter())
+                    .for_each(|(cauchy_stress_i, rotated_cauchy_stress_i)|
+                        cauchy_stress_i.iter().zip(rotated_cauchy_stress_i.iter())
+                        .for_each(|(cauchy_stress_ij, rotated_cauchy_stress_ij)|
+                            assert_eq_within_tols(cauchy_stress_ij, rotated_cauchy_stress_ij)
+                        )
+                    )
+                }
+                #[test]
+                fn symmetry()
+                {
+                    let model = $constitutive_model_constructed;
+                    let cauchy_stress = calculate_cauchy_stress_from_deformation_gradient!(&model, &get_deformation_gradient());
+                    cauchy_stress.iter().zip(cauchy_stress.transpose().iter())
+                    .for_each(|(cauchy_stress_i, cauchy_stress_tranpose_i)|
+                        cauchy_stress_i.iter().zip(cauchy_stress_tranpose_i.iter())
+                        .for_each(|(cauchy_stress_ij, cauchy_stress_tranpose_ij)|
+                            assert_eq_within_tols(cauchy_stress_ij, cauchy_stress_tranpose_ij)
+                        )
+                    )
+                }
+            }
+            mod undeformed
+            {
+                use super::*;
+                #[test]
+                fn finite_difference()
+                {
+                    calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
+                        &$constitutive_model_constructed, &DeformationGradient::identity()
+                    ).iter().zip(calculate_cauchy_tangent_stiffness_from_finite_difference_of_cauchy_stress(false).iter())
+                    .for_each(|(cauchy_tangent_stiffness_i, fd_cauchy_tangent_stiffness_i)|
+                        cauchy_tangent_stiffness_i.iter()
+                        .zip(fd_cauchy_tangent_stiffness_i.iter())
+                        .for_each(|(cauchy_tangent_stiffness_ij, fd_cauchy_tangent_stiffness_ij)|
+                            cauchy_tangent_stiffness_ij.iter()
+                            .zip(fd_cauchy_tangent_stiffness_ij.iter())
+                            .for_each(|(cauchy_tangent_stiffness_ijk, fd_cauchy_tangent_stiffness_ijk)|
+                                cauchy_tangent_stiffness_ijk.iter()
+                                .zip(fd_cauchy_tangent_stiffness_ijk.iter())
+                                .for_each(|(cauchy_tangent_stiffness_ijkl, fd_cauchy_tangent_stiffness_ijkl)|
+                                    assert!(
+                                        (cauchy_tangent_stiffness_ijkl/fd_cauchy_tangent_stiffness_ijkl - 1.0).abs() < EPSILON ||
+                                        fd_cauchy_tangent_stiffness_ijkl.abs() < EPSILON
+                                    )
+                                )
+                            )
+                        )
+                    )
+                }
+                #[test]
+                fn zero()
+                {
+                    calculate_cauchy_stress_from_deformation_gradient!(
+                        &$constitutive_model_constructed, &DeformationGradient::identity()
+                    ).iter().for_each(|cauchy_stress_i|
+                        cauchy_stress_i.iter().for_each(|cauchy_stress_ij|
+                            assert_eq!(cauchy_stress_ij, &0.0)
+                        )
+                    )
+                }
             }
         }
-
-        }
-
+}
     }
 }
 pub(crate) use test_elastic_constitutive_model_nu;
