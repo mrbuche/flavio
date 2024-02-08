@@ -3,11 +3,17 @@ use super::
     *, super::test::*
 };
 
-test_elastic_constitutive_model_nu!(
+test_solid_constitutive_model!(
     AlmansiHamel,
     ALMANSIHAMELPARAMETERS,
     AlmansiHamel::new(ALMANSIHAMELPARAMETERS)
 );
+
+test_solid_elastic_constitutive_model!(
+    AlmansiHamel::new(ALMANSIHAMELPARAMETERS)
+);
+
+
 
 test_elastic_constitutive_model!(
     AlmansiHamel,

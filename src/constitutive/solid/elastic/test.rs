@@ -1,4 +1,4 @@
-use crate:: mechanics::Scalar;
+use crate::mechanics::Scalar;
 
 pub const ALMANSIHAMELPARAMETERS: &[Scalar; 2] = &[13.0, 3.0];
 
@@ -29,13 +29,44 @@ macro_rules! calculate_first_piola_kirchoff_stress_from_deformation_gradient
 }
 pub(crate) use calculate_first_piola_kirchoff_stress_from_deformation_gradient;
 
-macro_rules! test_elastic_constitutive_model_nu
+macro_rules! calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient
+{
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
+    {
+        $constitutive_model_constructed.calculate_first_piola_kirchoff_tangent_stiffness($deformation_gradient)
+    }
+}
+pub(crate) use calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient;
+
+macro_rules! calculate_second_piola_kirchoff_stress_from_deformation_gradient
+{
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
+    {
+        $constitutive_model_constructed.calculate_second_piola_kirchoff_stress($deformation_gradient)
+    }
+}
+pub(crate) use calculate_second_piola_kirchoff_stress_from_deformation_gradient;
+
+macro_rules! calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient
+{
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
+    {
+        $constitutive_model_constructed.calculate_second_piola_kirchoff_tangent_stiffness($deformation_gradient)
+    }
+}
+pub(crate) use calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient;
+
+macro_rules! test_solid_constitutive_model
 {
     ($constitutive_model: ident, $constitutive_model_parameters: expr, $constitutive_model_constructed: expr) =>
     {
 mod temporary {
         use crate::
         {
+            math::
+            {
+                ContractAllIndicesWithFirstIndicesOf
+            },
             mechanics::
             {
                 test::
@@ -229,10 +260,154 @@ mod temporary {
                 }
             }
         }
+        mod cauchy_tangent_stiffness
+        {
+            use super::*;
+            mod deformed
+            {
+                use super::*;
+                #[test]
+                fn objectivity()
+                {
+                    let model = $constitutive_model_constructed;
+                    calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
+                        &model, &get_deformation_gradient()
+                    ).iter().zip((
+                        calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
+                            &model, &get_deformation_gradient_rotated()
+                        ).contract_all_indices_with_first_indices_of(
+                            &get_rotation_current_configuration(),
+                            &get_rotation_current_configuration(),
+                            &get_rotation_current_configuration(),
+                            &get_rotation_reference_configuration()
+                        )
+                    ).iter())
+                    .for_each(|(cauchy_tangent_stiffness_i, rotated_cauchy_tangent_stiffness_i)|
+                        cauchy_tangent_stiffness_i.iter()
+                        .zip(rotated_cauchy_tangent_stiffness_i.iter())
+                        .for_each(|(cauchy_tangent_stiffness_ij, rotated_cauchy_tangent_stiffness_ij)|
+                            cauchy_tangent_stiffness_ij.iter()
+                            .zip(rotated_cauchy_tangent_stiffness_ij.iter())
+                            .for_each(|(cauchy_tangent_stiffness_ijk, rotated_cauchy_tangent_stiffness_ijk)|
+                                cauchy_tangent_stiffness_ijk.iter()
+                                .zip(rotated_cauchy_tangent_stiffness_ijk.iter())
+                                .for_each(|(cauchy_tangent_stiffness_ijkl, rotated_cauchy_tangent_stiffness_ijkl)|
+                                    assert_eq_within_tols(cauchy_tangent_stiffness_ijkl, rotated_cauchy_tangent_stiffness_ijkl)
+                                )
+                            )
+                        )
+                    )
+                }
+                #[test]
+                fn symmetry()
+                {
+                    let cauchy_tangent_stiffness = 
+                    calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
+                        &$constitutive_model_constructed, &get_deformation_gradient()
+                    );
+                    for i in 0..3
+                    {
+                        for j in 0..3
+                        {
+                            for k in 0..3
+                            {
+                                for l in 0..3
+                                {
+                                    assert_eq_within_tols(
+                                        &cauchy_tangent_stiffness[i][j][k][l],
+                                        &cauchy_tangent_stiffness[j][i][k][l]
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            mod undeformed
+            {
+                use super::*;
+                #[test]
+                fn symmetry()
+                {
+                    let cauchy_tangent_stiffness = 
+                    calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
+                        &$constitutive_model_constructed, &DeformationGradient::identity()
+                    );
+                    for i in 0..3
+                    {
+                        for j in 0..3
+                        {
+                            for k in 0..3
+                            {
+                                for l in 0..3
+                                {
+                                    assert_eq!(
+                                        cauchy_tangent_stiffness[i][j][k][l],
+                                        cauchy_tangent_stiffness[j][i][k][l]
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 }
     }
 }
-pub(crate) use test_elastic_constitutive_model_nu;
+pub(crate) use test_solid_constitutive_model;
+
+macro_rules! test_solid_elastic_constitutive_model
+{
+    ($constitutive_model_constructed: expr) =>
+    {
+        mod elastic
+        {
+            use crate::test::check_eq_within_tols;
+            use super::*;
+            mod first_piola_kirchoff_tangent_stiffness
+            {
+                use super::*;
+                mod deformed
+                {
+                    use super::*;
+                    #[test]
+                    fn non_symmetry()
+                    {
+                        let first_piola_kirchoff_tangent_stiffness =
+                        calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient!(
+                            &$constitutive_model_constructed, &get_deformation_gradient()
+                        );
+                        let mut sum: u8 = 0;
+                        for i in 0..3
+                        {
+                            for j in 0..3
+                            {
+                                for k in 0..3
+                                {
+                                    for l in 0..3
+                                    {
+                                        if check_eq_within_tols(
+                                            &first_piola_kirchoff_tangent_stiffness[i][j][k][l],
+                                            &first_piola_kirchoff_tangent_stiffness[k][l][i][j]
+                                        ) == false
+                                        {
+                                            sum += 1;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        assert!(sum > 0)
+                    }
+                }
+            }
+        }
+    }
+}
+pub(crate) use test_solid_elastic_constitutive_model;
+
+
 
 macro_rules! test_elastic_constitutive_model
 {
@@ -621,7 +796,6 @@ macro_rules! test_elastic_constitutive_model_constructed
                     }
                 }
             }
-
         }
         mod first_piola_kirchoff_stress
         {

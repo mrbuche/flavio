@@ -17,11 +17,17 @@ use crate::
     mechanics::test::get_deformation_gradient
 };
 
-crate::constitutive::solid::elastic::test::test_elastic_constitutive_model_nu!(
+crate::constitutive::solid::elastic::test::test_solid_constitutive_model!(
     AlmansiHamel,
     ALMANSIHAMELPARAMETERS,
     AlmansiHamel::new(ALMANSIHAMELPARAMETERS)
 );
+
+crate::constitutive::solid::elastic::test::test_solid_elastic_constitutive_model!(
+    AlmansiHamel::new(ALMANSIHAMELPARAMETERS)
+);
+
+
 
 test_thermoelastic_constitutive_model!(
     AlmansiHamel,
