@@ -2,6 +2,158 @@ use crate:: mechanics::Scalar;
 
 pub const ALMANSIHAMELPARAMETERS: &[Scalar; 2] = &[13.0, 3.0];
 
+macro_rules! calculate_cauchy_stress_from_deformation_gradient
+{
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
+    {
+        $constitutive_model_constructed.calculate_cauchy_stress($deformation_gradient)
+    }
+}
+pub(crate) use calculate_cauchy_stress_from_deformation_gradient;
+
+macro_rules! calculate_cauchy_tangent_stiffness_from_deformation_gradient
+{
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
+    {
+        $constitutive_model_constructed.calculate_cauchy_tangent_stiffness($deformation_gradient)
+    }
+}
+pub(crate) use calculate_cauchy_tangent_stiffness_from_deformation_gradient;
+
+macro_rules! calculate_first_piola_kirchoff_stress_from_deformation_gradient
+{
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
+    {
+        $constitutive_model_constructed.calculate_first_piola_kirchoff_stress($deformation_gradient)
+    }
+}
+pub(crate) use calculate_first_piola_kirchoff_stress_from_deformation_gradient;
+
+macro_rules! test_elastic_constitutive_model_nu
+{
+    ($constitutive_model: ident, $constitutive_model_parameters: expr, $constitutive_model_constructed: expr) =>
+    {
+
+        mod temporary
+        {
+
+        use super::*;
+        fn get_constitutive_model<'a>() -> $constitutive_model<'a>
+        {
+            $constitutive_model::new($constitutive_model_parameters)
+        }
+        #[test]
+        fn get_bulk_modulus()
+        {
+            assert_eq!(get_constitutive_model().get_bulk_modulus(), &$constitutive_model_parameters[0])
+        }
+        #[test]
+        fn get_shear_modulus()
+        {
+            assert_eq!(get_constitutive_model().get_shear_modulus(), &$constitutive_model_parameters[1])
+        }
+        #[test]
+        fn bulk_modulus()
+        {
+            let model = get_constitutive_model();
+            let deformation_gradient = DeformationGradient::identity()*(1.0 + EPSILON).powf(1.0/3.0);
+            let first_piola_kirchoff_stress = calculate_first_piola_kirchoff_stress_from_deformation_gradient!(&model, &deformation_gradient);
+            assert!((3.0*EPSILON*model.get_bulk_modulus()/first_piola_kirchoff_stress.trace() - 1.0).abs() < 3.0*EPSILON);
+        }
+        #[test]
+        fn shear_modulus()
+        {
+            let model = get_constitutive_model();
+            let mut deformation_gradient = DeformationGradient::identity();
+            deformation_gradient[0][1] = EPSILON;
+            let first_piola_kirchoff_stress = calculate_first_piola_kirchoff_stress_from_deformation_gradient!(&model, &deformation_gradient);
+            assert!((EPSILON*model.get_shear_modulus()/first_piola_kirchoff_stress[0][1] - 1.0).abs() < EPSILON)
+        }
+        #[test]
+        fn size()
+        {
+            assert_eq!(
+                std::mem::size_of::<$constitutive_model>(),
+                std::mem::size_of::<crate::constitutive::Parameters>()
+            )
+        }
+        fn calculate_cauchy_tangent_stiffness_from_finite_difference_of_cauchy_stress(is_deformed: bool) -> CauchyTangentStiffness
+        {
+            let model = $constitutive_model_constructed;
+            let mut cauchy_tangent_stiffness = CauchyTangentStiffness::zero();
+            for k in 0..3
+            {
+                for l in 0..3
+                {
+                    let mut deformation_gradient_plus = 
+                        if is_deformed
+                        {
+                            get_deformation_gradient()
+                        }
+                        else
+                        {
+                            DeformationGradient::identity()
+                        };
+                    deformation_gradient_plus[k][l] += 0.5*EPSILON;
+                    let calculate_cauchy_stress_plus = calculate_cauchy_stress_from_deformation_gradient!(&model, &deformation_gradient_plus);
+                    let mut deformation_gradient_minus = 
+                        if is_deformed
+                        {
+                            get_deformation_gradient()
+                        }
+                        else
+                        {
+                            DeformationGradient::identity()
+                        };
+                    deformation_gradient_minus[k][l] -= 0.5*EPSILON;
+                    let calculate_cauchy_stress_minus = calculate_cauchy_stress_from_deformation_gradient!(&model, &deformation_gradient_minus);
+                    for i in 0..3
+                    {
+                        for j in 0..3
+                        {
+                            cauchy_tangent_stiffness[i][j][k][l] = (calculate_cauchy_stress_plus[i][j] - calculate_cauchy_stress_minus[i][j])/EPSILON;
+                        }
+                    }
+                }
+            }
+            cauchy_tangent_stiffness
+        }
+        mod cauchy_stress
+        {
+            use super::*;
+            mod deformed
+            {
+                use super::*;
+                #[test]
+                fn finite_difference()
+                {
+                    calculate_cauchy_tangent_stiffness_from_deformation_gradient!(&$constitutive_model_constructed, &get_deformation_gradient()).iter()
+                    .zip(calculate_cauchy_tangent_stiffness_from_finite_difference_of_cauchy_stress(true).iter())
+                    .for_each(|(cauchy_tangent_stiffness_i, fd_cauchy_tangent_stiffness_i)|
+                        cauchy_tangent_stiffness_i.iter()
+                        .zip(fd_cauchy_tangent_stiffness_i.iter())
+                        .for_each(|(cauchy_tangent_stiffness_ij, fd_cauchy_tangent_stiffness_ij)|
+                            cauchy_tangent_stiffness_ij.iter()
+                            .zip(fd_cauchy_tangent_stiffness_ij.iter())
+                            .for_each(|(cauchy_tangent_stiffness_ijk, fd_cauchy_tangent_stiffness_ijk)|
+                                cauchy_tangent_stiffness_ijk.iter()
+                                .zip(fd_cauchy_tangent_stiffness_ijk.iter())
+                                .for_each(|(cauchy_tangent_stiffness_ijkl, fd_cauchy_tangent_stiffness_ijkl)|
+                                    assert!((cauchy_tangent_stiffness_ijkl/fd_cauchy_tangent_stiffness_ijkl - 1.0).abs() < EPSILON)
+                                )
+                            )
+                        )
+                    )
+                }
+            }
+        }
+
+        }
+
+    }
+}
+pub(crate) use test_elastic_constitutive_model_nu;
+
 macro_rules! test_elastic_constitutive_model
 {
     ($elastic_constitutive_model: ident, $elastic_constitutive_model_parameters: expr, $elastic_constitutive_model_constructed: expr) =>

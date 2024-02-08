@@ -5,6 +5,33 @@ use crate::
 };
 pub const ALMANSIHAMELPARAMETERS: &[Scalar; 4] = &[ALMANSIHAMELPARAMETERSELASTIC[0], ALMANSIHAMELPARAMETERSELASTIC[1], 1.0, 1.0];
 
+macro_rules! calculate_cauchy_stress_from_deformation_gradient
+{
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
+    {
+        $constitutive_model_constructed.calculate_cauchy_stress($deformation_gradient, &crate::mechanics::test::get_temperature())
+    }
+}
+pub(crate) use calculate_cauchy_stress_from_deformation_gradient;
+
+macro_rules! calculate_cauchy_tangent_stiffness_from_deformation_gradient
+{
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
+    {
+        $constitutive_model_constructed.calculate_cauchy_tangent_stiffness($deformation_gradient, &crate::mechanics::test::get_temperature())
+    }
+}
+pub(crate) use calculate_cauchy_tangent_stiffness_from_deformation_gradient;
+
+macro_rules! calculate_first_piola_kirchoff_stress_from_deformation_gradient
+{
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
+    {
+        $constitutive_model_constructed.calculate_first_piola_kirchoff_stress($deformation_gradient, &crate::mechanics::test::get_temperature())
+    }
+}
+pub(crate) use calculate_first_piola_kirchoff_stress_from_deformation_gradient;
+
 macro_rules! test_thermoelastic_constitutive_model
 {
     ($thermoelastic_constitutive_model: ident, $thermoelastic_constitutive_model_parameters: expr, $thermoelastic_constitutive_model_constructed: expr) =>

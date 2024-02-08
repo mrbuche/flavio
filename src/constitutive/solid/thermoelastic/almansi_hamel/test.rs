@@ -1,13 +1,6 @@
 use super::
 {
-    AlmansiHamel,
-    Thermoelastic,
-    super::test::
-    {
-        ALMANSIHAMELPARAMETERS,
-        test_thermoelastic_constitutive_model,
-        test_thermoelastic_only_constitutive_model_constructed
-    }
+    *, super::test::*
 };
 use crate::
 {
@@ -16,10 +9,19 @@ use crate::
     {
         Elastic,
         AlmansiHamel as ElasticAlmansiHamel,
-        test::ALMANSIHAMELPARAMETERS as ELASTICALMANSIHAMELPARAMETERS
+        test::
+        {
+            ALMANSIHAMELPARAMETERS as ELASTICALMANSIHAMELPARAMETERS
+        }
     },
     mechanics::test::get_deformation_gradient
 };
+
+crate::constitutive::solid::elastic::test::test_elastic_constitutive_model_nu!(
+    AlmansiHamel,
+    ALMANSIHAMELPARAMETERS,
+    AlmansiHamel::new(ALMANSIHAMELPARAMETERS)
+);
 
 test_thermoelastic_constitutive_model!(
     AlmansiHamel,
