@@ -1,14 +1,7 @@
-use super::
-{
-    Yeoh,
-    super::test::
-    {
-        YEOHPARAMETERS,
-        test_hyperelastic_constitutive_model
-    }
-};
+use super::*;
+use super::super::test::*;
 
-test_hyperelastic_constitutive_model!(
+test_solid_hyperelastic_constitutive_model!(
     Yeoh,
     YEOHPARAMETERS,
     Yeoh::new(YEOHPARAMETERS)
