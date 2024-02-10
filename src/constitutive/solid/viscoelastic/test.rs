@@ -71,6 +71,17 @@ macro_rules! calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_
 }
 pub(crate) use calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient;
 
+macro_rules! calculate_first_piola_kirchoff_stress_from_deformation_gradient_rate
+{
+    ($constitutive_model_constructed: expr, $deformation_gradient_rate: expr) =>
+    {
+        $constitutive_model_constructed.calculate_first_piola_kirchoff_stress(
+            &DeformationGradient::identity(), $deformation_gradient_rate
+        )
+    }
+}
+pub(crate) use calculate_first_piola_kirchoff_stress_from_deformation_gradient_rate;
+
 macro_rules! test_solid_viscous_constitutive_model
 {
     ($constitutive_model: ident, $constitutive_model_parameters: expr, $constitutive_model_constructed: expr) =>
@@ -88,17 +99,26 @@ macro_rules! test_solid_viscous_constitutive_model
         #[test]
         fn bulk_viscosity()
         {
-            todo!()
+            let model = get_constitutive_model();
+            let mut deformation_gradient_rate = DeformationGradientRate::zero();
+            deformation_gradient_rate += DeformationGradientRate::identity()*(EPSILON/3.0);
+            let first_piola_kirchoff_stress = calculate_first_piola_kirchoff_stress_from_deformation_gradient_rate!(&model, &deformation_gradient_rate);
+            assert!((3.0*EPSILON*model.get_bulk_modulus()/first_piola_kirchoff_stress.trace() - 1.0).abs() < 3.0*EPSILON);
         }
         #[test]
         fn shear_viscosity()
         {
-            todo!()
+            let model = get_constitutive_model();
+            let mut deformation_gradient_rate = DeformationGradientRate::zero();
+            deformation_gradient_rate[0][1] = EPSILON;
+            let first_piola_kirchoff_stress = calculate_first_piola_kirchoff_stress_from_deformation_gradient_rate!(&model, &deformation_gradient_rate);
+            assert!((EPSILON*model.get_shear_viscosity()/first_piola_kirchoff_stress[0][1] - 1.0).abs() < EPSILON)
         }
         #[test]
         fn repeat_all_elastic_tests_as_relevant_here()
         {
-            todo!()
+            todo!("need tests for tangent/rate-tangent where the non-important ESV is non-trivial
+                   because dF of those strain rates in stress are nonzero")
         }
     }
 }

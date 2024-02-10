@@ -27,7 +27,8 @@ macro_rules! use_viscoelastic_macros
             calculate_first_piola_kirchoff_stress_from_deformation_gradient,
             calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient,
             calculate_second_piola_kirchoff_stress_from_deformation_gradient,
-            calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient
+            calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient,
+            calculate_first_piola_kirchoff_stress_from_deformation_gradient_rate,
         };
     }
 }
