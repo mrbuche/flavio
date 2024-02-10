@@ -71,20 +71,19 @@ macro_rules! calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_
 }
 pub(crate) use calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient;
 
-macro_rules! test_thermoelastic_constitutive_model
+macro_rules! test_solid_thermal_constitutive_model
 {
-    ($thermoelastic_constitutive_model: ident, $thermoelastic_constitutive_model_parameters: expr, $thermoelastic_constitutive_model_constructed: expr) =>
+    ($constitutive_model: ident, $constitutive_model_parameters: expr, $constitutive_model_constructed: expr) =>
     {
-        use crate::constitutive::solid::Solid;
-        fn get_thermoelastic_constitutive_model<'a>() -> $thermoelastic_constitutive_model<'a>
+        fn get_thermoelastic_constitutive_model<'a>() -> $constitutive_model<'a>
         {
-            $thermoelastic_constitutive_model::new($thermoelastic_constitutive_model_parameters)
+            $constitutive_model::new($constitutive_model_parameters)
         }
         #[test]
         fn get_coefficient_of_thermal_expansion()
         {
             assert_eq!(
-                &$thermoelastic_constitutive_model_parameters[2],
+                &$constitutive_model_parameters[2],
                 get_thermoelastic_constitutive_model().get_coefficient_of_thermal_expansion()
             )
         }
@@ -92,7 +91,7 @@ macro_rules! test_thermoelastic_constitutive_model
         fn get_reference_temperature()
         {
             assert_eq!(
-                &$thermoelastic_constitutive_model_parameters[3],
+                &$constitutive_model_parameters[3],
                 get_thermoelastic_constitutive_model().get_reference_temperature()
             )
         }
@@ -114,45 +113,24 @@ macro_rules! test_thermoelastic_constitutive_model
             assert_eq!(first_piola_kirchoff_stress[2][0], 0.0);
             assert_eq!(first_piola_kirchoff_stress[2][1], 0.0);
         }
-        #[test]
-        fn size()
-        {
-            assert_eq!(
-                std::mem::size_of::<$thermoelastic_constitutive_model>(),
-                std::mem::size_of::<crate::constitutive::Parameters>()
-            )
-        }
-        crate::constitutive::solid::thermoelastic::test::test_thermoelastic_constitutive_model_constructed!($thermoelastic_constitutive_model_constructed);
     }
 }
-pub(crate) use test_thermoelastic_constitutive_model;
-macro_rules! test_thermoelastic_constitutive_model_constructed
+pub(crate) use test_solid_thermal_constitutive_model;
+
+macro_rules! test_solid_thermoelastic_constitutive_model
 {
-    ($thermoelastic_constitutive_model_constructed: expr) =>
+    ($constitutive_model: ident, $constitutive_model_parameters: expr, $constitutive_model_constructed: expr) =>
     {
-        use crate::
-        {
-            EPSILON,
-            constitutive::
-            {
-                Constitutive
-            },
-            math::
-            {
-                TensorRank2Trait
-            },
-            mechanics::
-            {
-                DeformationGradient
-            }
-        };
+        crate::constitutive::solid::elastic::test::test_solid_elastic_constitutive_model!(
+            $constitutive_model,
+            $constitutive_model_parameters,
+            $constitutive_model_constructed
+        );
+        crate::constitutive::solid::thermoelastic::test::test_solid_thermal_constitutive_model!(
+            $constitutive_model,
+            $constitutive_model_parameters,
+            $constitutive_model_constructed
+        );
     }
 }
-pub(crate) use test_thermoelastic_constitutive_model_constructed;
-macro_rules! test_thermoelastic_only_constitutive_model_constructed
-{
-    ($thermoelastic_constitutive_model_constructed: expr) =>
-    {
-    }
-}
-pub(crate) use test_thermoelastic_only_constitutive_model_constructed;
+pub(crate) use test_solid_thermoelastic_constitutive_model;

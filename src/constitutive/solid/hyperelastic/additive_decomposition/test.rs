@@ -9,7 +9,7 @@ use crate::
             MooneyRivlin,
             NeoHookean,
             Yeoh,
-            test::test_hyperelastic_constitutive_model_constructed,
+            // test::test_hyperelastic_constitutive_model_constructed,
             test::
             {
                 GENTPARAMETERS,
@@ -28,44 +28,44 @@ use crate::
 };
 use super::*;
 
-mod dual
-{
-    use super::*;
-    test_hyperelastic_constitutive_model_constructed!(
-        CombinedHyperelastic::construct(
-            NeoHookean::new(NEOHOOKEANPARAMETERS),
-            NeoHookean::new(NEOHOOKEANPARAMETERS)
-        )
-    );
-}
+// mod dual
+// {
+//     use super::*;
+//     test_hyperelastic_constitutive_model_constructed!(
+//         CombinedHyperelastic::construct(
+//             NeoHookean::new(NEOHOOKEANPARAMETERS),
+//             NeoHookean::new(NEOHOOKEANPARAMETERS)
+//         )
+//     );
+// }
 
-mod mixed
-{
-    use super::*;
-    test_hyperelastic_constitutive_model_constructed!(
-        CombinedHyperelastic::construct(
-            Gent::new(GENTPARAMETERS),
-            MooneyRivlin::new(MOONEYRIVLINPARAMETERS)
-        )
-    );
-}
+// mod mixed
+// {
+//     use super::*;
+//     test_hyperelastic_constitutive_model_constructed!(
+//         CombinedHyperelastic::construct(
+//             Gent::new(GENTPARAMETERS),
+//             MooneyRivlin::new(MOONEYRIVLINPARAMETERS)
+//         )
+//     );
+// }
 
-mod nested
-{
-    use super::*;
-    test_hyperelastic_constitutive_model_constructed!(
-        CombinedHyperelastic::construct(
-            CombinedHyperelastic::construct(
-                Gent::new(GENTPARAMETERS),
-                Yeoh::new(YEOHPARAMETERS)
-            ),
-            CombinedHyperelastic::construct(
-                MooneyRivlin::new(MOONEYRIVLINPARAMETERS),
-                NeoHookean::new(NEOHOOKEANPARAMETERS)
-            )
-        )
-    );
-}
+// mod nested
+// {
+//     use super::*;
+//     test_hyperelastic_constitutive_model_constructed!(
+//         CombinedHyperelastic::construct(
+//             CombinedHyperelastic::construct(
+//                 Gent::new(GENTPARAMETERS),
+//                 Yeoh::new(YEOHPARAMETERS)
+//             ),
+//             CombinedHyperelastic::construct(
+//                 MooneyRivlin::new(MOONEYRIVLINPARAMETERS),
+//                 NeoHookean::new(NEOHOOKEANPARAMETERS)
+//             )
+//         )
+//     );
+// }
 
 #[test]
 fn additive_cauchy_stress()

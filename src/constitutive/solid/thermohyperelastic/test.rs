@@ -5,31 +5,48 @@ use crate::
 };
 pub const SAINTVENANTKIRCHOFFPARAMETERS: &[Scalar; 4] = &[ALMANSIHAMELPARAMETERS[0], ALMANSIHAMELPARAMETERS[1], ALMANSIHAMELPARAMETERS[2], ALMANSIHAMELPARAMETERS[3]];
 
-macro_rules! test_thermohyperelastic_constitutive_model
+macro_rules! calculate_helmholtz_free_energy_density_from_deformation_gradient
 {
-    ($thermohyperelastic_constitutive_model: ident, $thermohyperelastic_constitutive_model_parameters: expr, $thermohyperelastic_constitutive_model_constructed: expr) =>
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
     {
-        use crate::constitutive::solid::
+        $constitutive_model_constructed.calculate_helmholtz_free_energy_density(
+            $deformation_gradient, $constitutive_model_constructed.get_reference_temperature()
+        )
+    }
+}
+pub(crate) use calculate_helmholtz_free_energy_density_from_deformation_gradient;
+
+macro_rules! use_thermoelastic_macros
+{
+    () =>
+    {
+        use crate::constitutive::solid::thermoelastic::test::
         {
-            thermoelastic::
-            {
-                Thermoelastic,
-                test::test_thermoelastic_constitutive_model,
-            },
-            thermohyperelastic::
-            {
-                test::test_thermohyperelastic_constitutive_model_constructed
-            }
+            calculate_cauchy_stress_from_deformation_gradient,
+            calculate_cauchy_tangent_stiffness_from_deformation_gradient,
+            calculate_first_piola_kirchoff_stress_from_deformation_gradient,
+            calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient,
+            calculate_second_piola_kirchoff_stress_from_deformation_gradient,
+            calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient
         };
-        test_thermoelastic_constitutive_model!($thermohyperelastic_constitutive_model, $thermohyperelastic_constitutive_model_parameters, $thermohyperelastic_constitutive_model_constructed);
-        test_thermohyperelastic_constitutive_model_constructed!($thermohyperelastic_constitutive_model_constructed);
     }
 }
-pub(crate) use test_thermohyperelastic_constitutive_model;
-macro_rules! test_thermohyperelastic_constitutive_model_constructed
+pub(crate) use use_thermoelastic_macros;
+
+macro_rules! test_solid_thermohyperelastic_constitutive_model
 {
-    ($thermohyperelastic_constitutive_model_constructed: expr) =>
+    ($constitutive_model: ident, $constitutive_model_parameters: expr, $constitutive_model_constructed: expr) =>
     {
+        crate::constitutive::solid::hyperelastic::test::test_solid_hyperelastic_constitutive_model!(
+            $constitutive_model,
+            $constitutive_model_parameters,
+            $constitutive_model_constructed
+        );
+        crate::constitutive::solid::thermoelastic::test::test_solid_thermal_constitutive_model!(
+            $constitutive_model,
+            $constitutive_model_parameters,
+            $constitutive_model_constructed
+        );
     }
 }
-pub(crate) use test_thermohyperelastic_constitutive_model_constructed;
+pub(crate) use test_solid_thermohyperelastic_constitutive_model;

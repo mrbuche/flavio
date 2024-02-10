@@ -78,6 +78,15 @@ impl<'a> Viscoelastic<'a> for SaintVenantKirchoff<'a>
         let (deviatoric_strain_rate, strain_rate_trace) = ((&first_term + first_term.transpose())*0.5).deviatoric_and_trace();
         deviatoric_strain*(2.0*self.get_shear_modulus()) + deviatoric_strain_rate*(2.0*self.get_shear_viscosity()) + RightCauchyGreenDeformation::identity()*(self.get_bulk_modulus()*strain_trace + self.get_bulk_viscosity()*strain_rate_trace)
     }
+    /// Calculates and returns the tangent stiffness associated with the second Piola-Kirchoff stress.
+    ///
+    /// ```math
+    /// \mathcal{G}_{IJkL}(\mathbf{F}) = ?
+    /// ```
+    fn calculate_second_piola_kirchoff_tangent_stiffness(&self, deformation_gradient: &DeformationGradient, deformation_gradient_rate: &DeformationGradientRate) -> SecondPiolaKirchoffTangentStiffness
+    {
+        todo!()
+    }
     /// Calculates and returns the rate tangent stiffness associated with the second Piola-Kirchoff stress.
     ///
     /// ```math

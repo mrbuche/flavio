@@ -1,9 +1,10 @@
 use super::*;
 use super::super::test::*;
 
+use_elastic_macros!();
+
 test_solid_hyperelastic_constitutive_model!(
-    Yeoh,
-    YEOHPARAMETERS,
+    Yeoh, YEOHPARAMETERS,
     Yeoh::new(YEOHPARAMETERS)
 );
 
@@ -26,4 +27,3 @@ fn get_extra_moduli()
         assert_eq!(modulus_i, parameter_i)
     )
 }
-

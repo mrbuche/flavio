@@ -15,6 +15,10 @@ where
     Self: Solid<'a>
 {
     /// Calculates and returns the Cauchy stress.
+    ///
+    /// ```math
+    /// \boldsymbol{\sigma} = J^{-1}\mathbf{P}\cdot\mathbf{F}^T
+    /// ```
     fn calculate_cauchy_stress(&self, deformation_gradient: &DeformationGradient, temperature: &Scalar) -> CauchyStress
     {
         deformation_gradient*self.calculate_second_piola_kirchoff_stress(deformation_gradient, temperature)*deformation_gradient.transpose()/deformation_gradient.determinant()

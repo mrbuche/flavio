@@ -1,16 +1,10 @@
-use super::
-{
-    MooneyRivlin,
-    super::test::
-    {
-        MOONEYRIVLINPARAMETERS,
-        test_hyperelastic_constitutive_model
-    }
-};
+use super::*;
+use super::super::test::*;
 
-test_hyperelastic_constitutive_model!(
-    MooneyRivlin,
-    MOONEYRIVLINPARAMETERS,
+use_elastic_macros!();
+
+test_solid_hyperelastic_constitutive_model!(
+    MooneyRivlin, MOONEYRIVLINPARAMETERS,
     MooneyRivlin::new(MOONEYRIVLINPARAMETERS)
 );
 
