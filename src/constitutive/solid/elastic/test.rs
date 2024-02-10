@@ -109,9 +109,9 @@ macro_rules! test_solid_constitutive_model
         fn bulk_modulus()
         {
             let model = get_constitutive_model();
-            let deformation_gradient = DeformationGradient::identity()*(1.0 + EPSILON).powf(1.0/3.0);
+            let deformation_gradient = DeformationGradient::identity()*(1.0 + EPSILON/3.0);
             let first_piola_kirchoff_stress = calculate_first_piola_kirchoff_stress_from_deformation_gradient!(&model, &deformation_gradient);
-            assert!((3.0*EPSILON*model.get_bulk_modulus()/first_piola_kirchoff_stress.trace() - 1.0).abs() < 3.0*EPSILON);
+            assert!((3.0*EPSILON*model.get_bulk_modulus()/first_piola_kirchoff_stress.trace() - 1.0).abs() < EPSILON);
         }
         #[test]
         fn shear_modulus()

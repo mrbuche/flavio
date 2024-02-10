@@ -103,7 +103,7 @@ macro_rules! test_solid_viscous_constitutive_model
             let mut deformation_gradient_rate = DeformationGradientRate::zero();
             deformation_gradient_rate += DeformationGradientRate::identity()*(EPSILON/3.0);
             let first_piola_kirchoff_stress = calculate_first_piola_kirchoff_stress_from_deformation_gradient_rate!(&model, &deformation_gradient_rate);
-            assert!((3.0*EPSILON*model.get_bulk_modulus()/first_piola_kirchoff_stress.trace() - 1.0).abs() < 3.0*EPSILON);
+            assert!((3.0*EPSILON*model.get_bulk_modulus()/first_piola_kirchoff_stress.trace() - 1.0).abs() < EPSILON);
         }
         #[test]
         fn shear_viscosity()
