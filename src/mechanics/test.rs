@@ -1,14 +1,20 @@
-use crate::math::
+use crate::
 {
-    TensorRank1Trait,
-    TensorRank2Trait
+    math::
+    {
+        TensorRank1Trait,
+        TensorRank2Trait
+    },
+    test::assert_eq_within_tols
 };
 use super::
 {
     CurrentCoordinate,
     DeformationGradient,
     DeformationGradientRate,
+    FrameSpin,
     RotationCurrentConfiguration,
+    RotationRateCurrentConfiguration,
     RotationReferenceConfiguration,
     ReferenceCoordinate,
     TemperatureGradient,
@@ -38,10 +44,20 @@ pub fn get_deformation_gradient_rotated() -> DeformationGradient
     get_rotation_current_configuration() * get_deformation_gradient() * get_rotation_reference_configuration().transpose()
 }
 
-// should use more general relation with Qdot and use Qdot_ik Q_lk + Q_ik Qdot_lk = 0_il for permissible Qdot (see Paolucci)
 pub fn get_deformation_gradient_rate_rotated() -> DeformationGradientRate
 {
-    get_rotation_current_configuration() * get_deformation_gradient_rate() * get_rotation_reference_configuration().transpose()
+    (get_rotation_current_configuration() * get_deformation_gradient_rate()
+        + get_rotation_rate_current_configuration() * get_deformation_gradient()
+    ) * get_rotation_reference_configuration().transpose()
+}
+
+pub fn get_frame_spin() -> FrameSpin
+{
+    FrameSpin::new([
+        [ 0.0,  0.1, -0.2],
+        [-0.1,  0.0,  0.8],
+        [ 0.2, -0.8,  0.0]
+    ])
 }
 
 pub fn get_rotation_current_configuration() -> RotationCurrentConfiguration
@@ -54,6 +70,11 @@ pub fn get_rotation_current_configuration() -> RotationCurrentConfiguration
         [0.125*sqrt_2 + 0.75, -0.125*sqrt_6 + 0.25*sqrt_3, -0.25*sqrt_2],
         [-0.125*sqrt_6 + 0.25*sqrt_3, 0.25 + 0.375*sqrt_2, 0.25*sqrt_6]
     ])
+}
+
+pub fn get_rotation_rate_current_configuration() -> RotationRateCurrentConfiguration
+{
+    get_frame_spin() * get_rotation_current_configuration()
 }
 
 pub fn get_rotation_reference_configuration() -> RotationReferenceConfiguration
@@ -86,6 +107,62 @@ pub fn get_temperature() -> Scalar
 pub fn get_temperature_gradient() -> TemperatureGradient
 {
     TemperatureGradient::new([12.3, -5.0, 8.8])
+}
+
+#[test]
+fn frame_spin_tensor()
+{
+    get_frame_spin().iter()
+    .zip(get_frame_spin().transpose().iter())
+    .for_each(|(frame_spin_i, frame_spin_transpose_i)|
+        frame_spin_i.iter()
+        .zip(frame_spin_transpose_i.iter())
+        .for_each(|(frame_spin_ij, frame_spin_transpose_ij)|
+            assert_eq!(frame_spin_ij, &(-frame_spin_transpose_ij))
+        )
+    )
+}
+
+#[test]
+fn rotation_current_configuration()
+{
+    (get_rotation_current_configuration() *
+        get_rotation_current_configuration().transpose()
+    ).iter().zip(RotationCurrentConfiguration::identity().iter())
+    .for_each(|(res_i, identity_i)|
+        res_i.iter().zip(identity_i.iter())
+        .for_each(|(res_ij, identity_ij)|
+            assert_eq_within_tols(res_ij, identity_ij)
+        )
+    )
+}
+
+#[test]
+fn rotation_reference_configuration()
+{
+    (get_rotation_reference_configuration() *
+        get_rotation_reference_configuration().transpose()
+    ).iter().zip(RotationReferenceConfiguration::identity().iter())
+    .for_each(|(res_i, identity_i)|
+        res_i.iter().zip(identity_i.iter())
+        .for_each(|(res_ij, identity_ij)|
+            assert_eq_within_tols(res_ij, identity_ij)
+        )
+    )
+}
+
+#[test]
+fn rotation_rate_current_configuration()
+{
+    get_rotation_rate_current_configuration().iter()
+    .zip((get_frame_spin() * get_rotation_current_configuration()).iter())
+    .for_each(|(rotation_rate_i, res_rotation_rate_i)|
+        rotation_rate_i.iter()
+        .zip(res_rotation_rate_i.iter())
+        .for_each(|(rotation_rate_ij, res_rotation_rate_ij)|
+            assert_eq_within_tols(rotation_rate_ij, res_rotation_rate_ij)
+        )
+    )
 }
 
 #[test]
