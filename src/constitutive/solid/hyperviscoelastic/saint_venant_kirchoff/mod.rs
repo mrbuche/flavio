@@ -81,7 +81,7 @@ impl<'a> Viscoelastic<'a> for SaintVenantKirchoff<'a>
     /// Calculates and returns the tangent stiffness associated with the second Piola-Kirchoff stress.
     ///
     /// ```math
-    /// \mathcal{G}_{IJkL}(\mathbf{F}) = ?
+    /// \mathcal{G}_{IJkL}(\mathbf{F},\dot\mathbf{F}) = ?
     /// ```
     fn calculate_second_piola_kirchoff_tangent_stiffness(&self, deformation_gradient: &DeformationGradient, deformation_gradient_rate: &DeformationGradientRate) -> SecondPiolaKirchoffTangentStiffness
     {
@@ -90,9 +90,9 @@ impl<'a> Viscoelastic<'a> for SaintVenantKirchoff<'a>
     /// Calculates and returns the rate tangent stiffness associated with the second Piola-Kirchoff stress.
     ///
     /// ```math
-    /// \mathcal{W}_{IJkL}(\dot\mathbf{F}) = \eta\,\delta_{JL}\dot{F}_{kI} + \eta\,\delta_{IL}\dot{F}_{kJ} + \left(\zeta - \frac{2}{3}\,\eta\right)\delta_{IJ}\dot{F}_{kL}
+    /// \mathcal{W}_{IJkL}(\mathbf{F},\dot\mathbf{F}) = ?
     /// ```
-    fn calculate_second_piola_kirchoff_rate_tangent_stiffness(&self, _: &DeformationGradient, deformation_gradient_rate: &DeformationGradientRate) -> SecondPiolaKirchoffRateTangentStiffness
+    fn calculate_second_piola_kirchoff_rate_tangent_stiffness(&self, deformation_gradient: &DeformationGradient, deformation_gradient_rate: &DeformationGradientRate) -> SecondPiolaKirchoffRateTangentStiffness
     {
         let identity = SecondPiolaKirchoffStress::identity();
         let scaled_deformation_gradient_rate_transpose = deformation_gradient_rate.transpose()*self.get_shear_viscosity();

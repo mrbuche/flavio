@@ -429,6 +429,11 @@ macro_rules! test_solid_constitutive_model
             {
                 use super::*;
                 #[test]
+                fn objectivity()
+                {
+                    todo!()
+                }
+                #[test]
                 fn symmetry()
                 {
                     let cauchy_tangent_stiffness = 
@@ -488,13 +493,12 @@ macro_rules! test_solid_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    let model = $constitutive_model_constructed;
                     calculate_first_piola_kirchoff_stress_from_deformation_gradient!(
-                        &model, &get_deformation_gradient()
+                        &$constitutive_model_constructed, &get_deformation_gradient()
                     ).iter().zip((
                         get_rotation_current_configuration().transpose() *
                         calculate_first_piola_kirchoff_stress_from_deformation_gradient!(
-                            &model, &get_deformation_gradient_rotated()
+                            &$constitutive_model_constructed, &get_deformation_gradient_rotated()
                         ) * get_rotation_reference_configuration()
                     ).iter())
                     .for_each(|(first_piola_kirchoff_stress_i, rotated_first_piola_kirchoff_stress_i)|
@@ -564,6 +568,42 @@ macro_rules! test_solid_constitutive_model
                     ).iter().zip((
                         calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient!(
                             &model, &get_deformation_gradient_rotated()
+                        ).contract_all_indices_with_first_indices_of(
+                            &get_rotation_current_configuration(),
+                            &get_rotation_reference_configuration(),
+                            &get_rotation_current_configuration(),
+                            &get_rotation_reference_configuration()
+                        )
+                    ).iter())
+                    .for_each(|(first_piola_kirchoff_tangent_stiffness_i, rotated_first_piola_kirchoff_tangent_stiffness_i)|
+                        first_piola_kirchoff_tangent_stiffness_i.iter()
+                        .zip(rotated_first_piola_kirchoff_tangent_stiffness_i.iter())
+                        .for_each(|(first_piola_kirchoff_tangent_stiffness_ij, rotated_first_piola_kirchoff_tangent_stiffness_ij)|
+                            first_piola_kirchoff_tangent_stiffness_ij.iter()
+                            .zip(rotated_first_piola_kirchoff_tangent_stiffness_ij.iter())
+                            .for_each(|(first_piola_kirchoff_tangent_stiffness_ijk, rotated_first_piola_kirchoff_tangent_stiffness_ijk)|
+                                first_piola_kirchoff_tangent_stiffness_ijk.iter()
+                                .zip(rotated_first_piola_kirchoff_tangent_stiffness_ijk.iter())
+                                .for_each(|(first_piola_kirchoff_tangent_stiffness_ijkl, rotated_first_piola_kirchoff_tangent_stiffness_ijkl)|
+                                    assert_eq_within_tols(first_piola_kirchoff_tangent_stiffness_ijkl, rotated_first_piola_kirchoff_tangent_stiffness_ijkl)
+                                )
+                            )
+                        )
+                    )
+                }
+            }
+            mod undeformed
+            {
+                use super::*;
+                #[test]
+                fn objectivity()
+                {
+                    let model = $constitutive_model_constructed;
+                    calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient!(
+                        &model, &DeformationGradient::identity()
+                    ).iter().zip((
+                        calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient!(
+                            &model, &(get_rotation_current_configuration()*DeformationGradient::identity()*get_rotation_reference_configuration().transpose())
                         ).contract_all_indices_with_first_indices_of(
                             &get_rotation_current_configuration(),
                             &get_rotation_reference_configuration(),
@@ -722,6 +762,15 @@ macro_rules! test_solid_constitutive_model
                             )
                         )
                     )
+                }
+            }
+            mod undeformed
+            {
+                use super::*;
+                #[test]
+                fn objectivity()
+                {
+                    todo!()
                 }
             }
         }

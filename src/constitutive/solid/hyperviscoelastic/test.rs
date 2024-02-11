@@ -62,8 +62,8 @@ macro_rules! use_viscoelastic_macros
             calculate_second_piola_kirchoff_stress_from_deformation_gradient,
             calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient,
             calculate_first_piola_kirchoff_stress_from_deformation_gradient_rate,
-            calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_rate,
-            calculate_first_piola_kirchoff_stress_from_deformation_gradient_and_deformation_gradient_rate
+            calculate_first_piola_kirchoff_stress_from_deformation_gradient_and_deformation_gradient_rate,
+            calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate
         };
     }
 }
@@ -86,7 +86,7 @@ macro_rules! test_solid_hyperviscoelastic_constitutive_model
         mod hyperviscoelastic
         {
             use super::*;
-            mod viscous_dissipation
+            mod viscous_dissipation // eventually should go in fluid/hyperviscous/test.rs
             {
                 use super::*;
                 fn calculate_first_piola_kirchoff_stress_from_finite_difference_of_viscous_dissipation(is_deformed: bool) -> FirstPiolaKirchoffStress
@@ -449,8 +449,8 @@ macro_rules! test_solid_hyperviscoelastic_constitutive_model
                     fn symmetry()
                     {
                         let first_piola_kirchoff_rate_tangent_stiffness =
-                        calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_rate!(
-                            $constitutive_model_constructed, &get_deformation_gradient_rate()
+                        calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
+                            $constitutive_model_constructed, &get_deformation_gradient(), &get_deformation_gradient_rate()
                         );
                         first_piola_kirchoff_rate_tangent_stiffness.iter().enumerate()
                         .for_each(|(i, first_piola_kirchoff_rate_tangent_stiffness_i)|
@@ -478,8 +478,8 @@ macro_rules! test_solid_hyperviscoelastic_constitutive_model
                     fn symmetry()
                     {
                         let first_piola_kirchoff_rate_tangent_stiffness =
-                        calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_rate!(
-                            $constitutive_model_constructed, &DeformationGradientRate::zero()
+                        calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
+                            $constitutive_model_constructed, &DeformationGradient::identity(), &DeformationGradientRate::zero()
                         );
                         first_piola_kirchoff_rate_tangent_stiffness.iter().enumerate()
                         .for_each(|(i, first_piola_kirchoff_rate_tangent_stiffness_i)|
