@@ -7,6 +7,7 @@ use super::
 {
     CurrentCoordinate,
     DeformationGradient,
+    DeformationGradientRate,
     RotationCurrentConfiguration,
     RotationReferenceConfiguration,
     ReferenceCoordinate,
@@ -23,9 +24,24 @@ pub fn get_deformation_gradient() -> DeformationGradient
     ])
 }
 
+pub fn get_deformation_gradient_rate() -> DeformationGradientRate
+{
+    DeformationGradientRate::new([
+        [0.17414455, 0.97269465, 0.87856299],
+        [0.96651379, 0.84670298, 0.66739030],
+        [0.16205052, 0.85112927, 0.38711266]
+    ])
+}
+
 pub fn get_deformation_gradient_rotated() -> DeformationGradient
 {
     get_rotation_current_configuration() * get_deformation_gradient() * get_rotation_reference_configuration().transpose()
+}
+
+// should use more general relation with Qdot and use Qdot_ik Q_lk + Q_ik Qdot_lk = 0_il for permissible Qdot (see Paolucci)
+pub fn get_deformation_gradient_rate_rotated() -> DeformationGradientRate
+{
+    get_rotation_current_configuration() * get_deformation_gradient_rate() * get_rotation_reference_configuration().transpose()
 }
 
 pub fn get_rotation_current_configuration() -> RotationCurrentConfiguration

@@ -122,6 +122,6 @@ impl<'a> Hyperviscoelastic<'a> for SaintVenantKirchoff<'a>
     {
         let first_term = deformation_gradient_rate.transpose()*deformation_gradient;
         let strain_rate = (&first_term + first_term.transpose())*0.5;
-        self.get_shear_modulus()*strain_rate.squared_trace() + 0.5*(self.get_bulk_modulus() - 2.0/3.0*self.get_shear_modulus())*strain_rate.trace().powi(2)
+        self.get_shear_viscosity()*strain_rate.squared_trace() + 0.5*(self.get_bulk_viscosity() - 2.0/3.0*self.get_shear_viscosity())*strain_rate.trace().powi(2)
     }
 }

@@ -3,7 +3,7 @@ use crate::
     constitutive::solid::elastic::test::ALMANSIHAMELPARAMETERS as ALMANSIHAMELPARAMETERSELASTIC,
     mechanics::Scalar
 };
-pub const ALMANSIHAMELPARAMETERS: &[Scalar; 4] = &[ALMANSIHAMELPARAMETERSELASTIC[0], ALMANSIHAMELPARAMETERSELASTIC[1], ALMANSIHAMELPARAMETERSELASTIC[0], ALMANSIHAMELPARAMETERSELASTIC[1]];
+pub const ALMANSIHAMELPARAMETERS: &[Scalar; 4] = &[ALMANSIHAMELPARAMETERSELASTIC[0], ALMANSIHAMELPARAMETERSELASTIC[1], 11.0, 1.0];
 
 macro_rules! calculate_cauchy_stress_from_deformation_gradient
 {
@@ -82,10 +82,37 @@ macro_rules! calculate_first_piola_kirchoff_stress_from_deformation_gradient_rat
 }
 pub(crate) use calculate_first_piola_kirchoff_stress_from_deformation_gradient_rate;
 
+macro_rules! calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_rate
+{
+    ($constitutive_model_constructed: expr, $deformation_gradient_rate: expr) =>
+    {
+        $constitutive_model_constructed.calculate_first_piola_kirchoff_rate_tangent_stiffness(
+            &DeformationGradient::identity(), $deformation_gradient_rate
+        )
+    }
+}
+pub(crate) use calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_rate;
+
+macro_rules! calculate_first_piola_kirchoff_stress_from_deformation_gradient_and_deformation_gradient_rate
+{
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr, $deformation_gradient_rate: expr) =>
+    {
+        $constitutive_model_constructed.calculate_first_piola_kirchoff_stress(
+            $deformation_gradient, $deformation_gradient_rate
+        )
+    }
+}
+pub(crate) use calculate_first_piola_kirchoff_stress_from_deformation_gradient_and_deformation_gradient_rate;
+
 macro_rules! test_solid_viscous_constitutive_model
 {
     ($constitutive_model: ident, $constitutive_model_parameters: expr, $constitutive_model_constructed: expr) =>
     {
+        use crate::mechanics::test::
+        {
+            get_deformation_gradient_rate,
+            get_deformation_gradient_rate_rotated
+        };
         #[test]
         fn get_bulk_viscosity()
         {
@@ -103,7 +130,7 @@ macro_rules! test_solid_viscous_constitutive_model
             let mut deformation_gradient_rate = DeformationGradientRate::zero();
             deformation_gradient_rate += DeformationGradientRate::identity()*(EPSILON/3.0);
             let first_piola_kirchoff_stress = calculate_first_piola_kirchoff_stress_from_deformation_gradient_rate!(&model, &deformation_gradient_rate);
-            assert!((3.0*EPSILON*model.get_bulk_modulus()/first_piola_kirchoff_stress.trace() - 1.0).abs() < EPSILON);
+            assert!((3.0*EPSILON*model.get_bulk_viscosity()/first_piola_kirchoff_stress.trace() - 1.0).abs() < EPSILON);
         }
         #[test]
         fn shear_viscosity()

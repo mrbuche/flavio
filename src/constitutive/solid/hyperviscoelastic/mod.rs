@@ -5,7 +5,7 @@
 //! ```math
 //! \mathbf{P}:\dot{\mathbf{F}} - \dot{a}(\mathbf{F}) - \phi(\mathbf{F},\dot{\mathbf{F}}) \geq 0
 //! ```
-//! Satisfying the second law of thermodynamics though a maximum viscous dissipation principal yields a relation for the stress.
+//! Satisfying the second law of thermodynamics though a minimum viscous dissipation principal yields a relation for the stress.
 //!
 //! ```math
 //! \mathbf{P} = \frac{\partial a}{\partial\mathbf{F}} + \frac{\partial\phi}{\partial\dot{\mathbf{F}}}
@@ -41,6 +41,15 @@ where
     /// a = a(\mathbf{F})
     /// ```
     fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar;
+    /// Calculates and returns the dissipation potential.
+    ///
+    /// ```math
+    /// \dot{a}(\mathbf{F}) + \phi(\mathbf{F},\dot{\mathbf{F}})
+    /// ```
+    fn calculate_dissipation_potential(&self, deformation_gradient: &DeformationGradient, deformation_gradient_rate: &DeformationGradientRate) -> Scalar
+    {
+        self.calculate_first_piola_kirchoff_stress(deformation_gradient, &DeformationGradientRate::zero()).full_contraction(deformation_gradient_rate) + self.calculate_viscous_dissipation(deformation_gradient, deformation_gradient_rate)
+    }
     /// Calculates and returns the viscous dissipation.
     ///
     /// ```math

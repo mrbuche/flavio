@@ -248,7 +248,7 @@ macro_rules! test_solid_hyperelastic_constitutive_model
                                     .zip(first_piola_kirchoff_tangent_stiffness_k.iter())
                                     .for_each(|(first_piola_kirchoff_tangent_stiffness_ijkl, first_piola_kirchoff_tangent_stiffness_kl)|
                                         assert_eq_within_tols(
-                                            &first_piola_kirchoff_tangent_stiffness_ijkl, &first_piola_kirchoff_tangent_stiffness_kl[i][j]
+                                            first_piola_kirchoff_tangent_stiffness_ijkl, &first_piola_kirchoff_tangent_stiffness_kl[i][j]
                                         )
                                     )
                                 )
@@ -277,7 +277,7 @@ macro_rules! test_solid_hyperelastic_constitutive_model
                                     .zip(first_piola_kirchoff_tangent_stiffness_k.iter())
                                     .for_each(|(first_piola_kirchoff_tangent_stiffness_ijkl, first_piola_kirchoff_tangent_stiffness_kl)|
                                         assert_eq_within_tols(
-                                            &first_piola_kirchoff_tangent_stiffness_ijkl, &first_piola_kirchoff_tangent_stiffness_kl[i][j]
+                                            first_piola_kirchoff_tangent_stiffness_ijkl, &first_piola_kirchoff_tangent_stiffness_kl[i][j]
                                         )
                                     )
                                 )
