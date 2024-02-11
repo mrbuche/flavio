@@ -44,11 +44,21 @@ pub fn get_deformation_gradient_rotated() -> DeformationGradient
     get_rotation_current_configuration() * get_deformation_gradient() * get_rotation_reference_configuration().transpose()
 }
 
+pub fn get_deformation_gradient_rotated_undeformed() -> DeformationGradient
+{
+    get_rotation_current_configuration() * DeformationGradient::identity() * get_rotation_reference_configuration().transpose()
+}
+
 pub fn get_deformation_gradient_rate_rotated() -> DeformationGradientRate
 {
     (get_rotation_current_configuration() * get_deformation_gradient_rate()
         + get_rotation_rate_current_configuration() * get_deformation_gradient()
     ) * get_rotation_reference_configuration().transpose()
+}
+
+pub fn get_deformation_gradient_rate_rotated_undeformed() -> DeformationGradientRate
+{
+    get_rotation_rate_current_configuration() * get_deformation_gradient() * get_rotation_reference_configuration().transpose()
 }
 
 pub fn get_frame_spin() -> FrameSpin

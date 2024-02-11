@@ -85,6 +85,7 @@ macro_rules! test_solid_constitutive_model
                 {
                     get_deformation_gradient,
                     get_deformation_gradient_rotated,
+                    get_deformation_gradient_rotated_undeformed,
                     get_rotation_current_configuration,
                     get_rotation_reference_configuration
                 }
@@ -431,7 +432,34 @@ macro_rules! test_solid_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    todo!()
+                    let model = $constitutive_model_constructed;
+                    calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
+                        &model, &DeformationGradient::identity()
+                    ).iter().zip((
+                        calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
+                            &model, &get_deformation_gradient_rotated_undeformed()
+                        ).contract_all_indices_with_first_indices_of(
+                            &get_rotation_current_configuration(),
+                            &get_rotation_current_configuration(),
+                            &get_rotation_current_configuration(),
+                            &get_rotation_reference_configuration()
+                        )
+                    ).iter())
+                    .for_each(|(cauchy_tangent_stiffness_i, rotated_cauchy_tangent_stiffness_i)|
+                        cauchy_tangent_stiffness_i.iter()
+                        .zip(rotated_cauchy_tangent_stiffness_i.iter())
+                        .for_each(|(cauchy_tangent_stiffness_ij, rotated_cauchy_tangent_stiffness_ij)|
+                            cauchy_tangent_stiffness_ij.iter()
+                            .zip(rotated_cauchy_tangent_stiffness_ij.iter())
+                            .for_each(|(cauchy_tangent_stiffness_ijk, rotated_cauchy_tangent_stiffness_ijk)|
+                                cauchy_tangent_stiffness_ijk.iter()
+                                .zip(rotated_cauchy_tangent_stiffness_ijk.iter())
+                                .for_each(|(cauchy_tangent_stiffness_ijkl, rotated_cauchy_tangent_stiffness_ijkl)|
+                                    assert_eq_within_tols(cauchy_tangent_stiffness_ijkl, rotated_cauchy_tangent_stiffness_ijkl)
+                                )
+                            )
+                        )
+                    )
                 }
                 #[test]
                 fn symmetry()
@@ -603,7 +631,7 @@ macro_rules! test_solid_constitutive_model
                         &model, &DeformationGradient::identity()
                     ).iter().zip((
                         calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient!(
-                            &model, &(get_rotation_current_configuration()*DeformationGradient::identity()*get_rotation_reference_configuration().transpose())
+                            &model, &get_deformation_gradient_rotated_undeformed()
                         ).contract_all_indices_with_first_indices_of(
                             &get_rotation_current_configuration(),
                             &get_rotation_reference_configuration(),
@@ -770,7 +798,34 @@ macro_rules! test_solid_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    todo!()
+                    let model = $constitutive_model_constructed;
+                    calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient!(
+                        &model, &DeformationGradient::identity()
+                    ).iter().zip((
+                        calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient!(
+                            &model, &get_deformation_gradient_rotated_undeformed()
+                        ).contract_all_indices_with_first_indices_of(
+                            &get_rotation_reference_configuration(),
+                            &get_rotation_reference_configuration(),
+                            &get_rotation_current_configuration(),
+                            &get_rotation_reference_configuration()
+                        )
+                    ).iter())
+                    .for_each(|(second_piola_kirchoff_tangent_stiffness_i, rotated_second_piola_kirchoff_tangent_stiffness_i)|
+                        second_piola_kirchoff_tangent_stiffness_i.iter()
+                        .zip(rotated_second_piola_kirchoff_tangent_stiffness_i.iter())
+                        .for_each(|(second_piola_kirchoff_tangent_stiffness_ij, rotated_second_piola_kirchoff_tangent_stiffness_ij)|
+                            second_piola_kirchoff_tangent_stiffness_ij.iter()
+                            .zip(rotated_second_piola_kirchoff_tangent_stiffness_ij.iter())
+                            .for_each(|(second_piola_kirchoff_tangent_stiffness_ijk, rotated_second_piola_kirchoff_tangent_stiffness_ijk)|
+                                second_piola_kirchoff_tangent_stiffness_ijk.iter()
+                                .zip(rotated_second_piola_kirchoff_tangent_stiffness_ijk.iter())
+                                .for_each(|(second_piola_kirchoff_tangent_stiffness_ijkl, rotated_second_piola_kirchoff_tangent_stiffness_ijkl)|
+                                    assert_eq_within_tols(second_piola_kirchoff_tangent_stiffness_ijkl, rotated_second_piola_kirchoff_tangent_stiffness_ijkl)
+                                )
+                            )
+                        )
+                    )
                 }
             }
         }
