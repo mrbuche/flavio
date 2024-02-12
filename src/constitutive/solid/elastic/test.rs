@@ -13,6 +13,17 @@ macro_rules! calculate_cauchy_stress_from_deformation_gradient
 }
 pub(crate) use calculate_cauchy_stress_from_deformation_gradient;
 
+macro_rules! calculate_cauchy_stress_from_deformation_gradient_simple
+{
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
+    {
+        $constitutive_model_constructed.calculate_cauchy_stress(
+            $deformation_gradient
+        )
+    }
+}
+pub(crate) use calculate_cauchy_stress_from_deformation_gradient_simple;
+
 macro_rules! calculate_cauchy_tangent_stiffness_from_deformation_gradient
 {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
@@ -35,6 +46,17 @@ macro_rules! calculate_first_piola_kirchoff_stress_from_deformation_gradient
 }
 pub(crate) use calculate_first_piola_kirchoff_stress_from_deformation_gradient;
 
+macro_rules! calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple
+{
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
+    {
+        $constitutive_model_constructed.calculate_first_piola_kirchoff_stress(
+            $deformation_gradient
+        )
+    }
+}
+pub(crate) use calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple;
+
 macro_rules! calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient
 {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
@@ -56,6 +78,17 @@ macro_rules! calculate_second_piola_kirchoff_stress_from_deformation_gradient
     }
 }
 pub(crate) use calculate_second_piola_kirchoff_stress_from_deformation_gradient;
+
+macro_rules! calculate_second_piola_kirchoff_stress_from_deformation_gradient_simple
+{
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
+    {
+        $constitutive_model_constructed.calculate_second_piola_kirchoff_stress(
+            $deformation_gradient
+        )
+    }
+}
+pub(crate) use calculate_second_piola_kirchoff_stress_from_deformation_gradient_simple;
 
 macro_rules! calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient
 {
@@ -111,7 +144,7 @@ macro_rules! test_solid_constitutive_model
         {
             let model = get_constitutive_model();
             let deformation_gradient = DeformationGradient::identity()*(1.0 + EPSILON/3.0);
-            let first_piola_kirchoff_stress = calculate_first_piola_kirchoff_stress_from_deformation_gradient!(&model, &deformation_gradient);
+            let first_piola_kirchoff_stress = calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple!(&model, &deformation_gradient);
             assert!((3.0*EPSILON*model.get_bulk_modulus()/first_piola_kirchoff_stress.trace() - 1.0).abs() < EPSILON);
         }
         #[test]
@@ -120,7 +153,7 @@ macro_rules! test_solid_constitutive_model
             let model = get_constitutive_model();
             let mut deformation_gradient = DeformationGradient::identity();
             deformation_gradient[0][1] = EPSILON;
-            let first_piola_kirchoff_stress = calculate_first_piola_kirchoff_stress_from_deformation_gradient!(&model, &deformation_gradient);
+            let first_piola_kirchoff_stress = calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple!(&model, &deformation_gradient);
             assert!((EPSILON*model.get_shear_modulus()/first_piola_kirchoff_stress[0][1] - 1.0).abs() < EPSILON)
         }
         #[test]
@@ -351,7 +384,7 @@ macro_rules! test_solid_constitutive_model
                 #[test]
                 fn zero()
                 {
-                    calculate_cauchy_stress_from_deformation_gradient!(
+                    calculate_cauchy_stress_from_deformation_gradient_simple!(
                         &$constitutive_model_constructed, &DeformationGradient::identity()
                     ).iter().for_each(|cauchy_stress_i|
                         cauchy_stress_i.iter().for_each(|cauchy_stress_ij|
@@ -570,7 +603,7 @@ macro_rules! test_solid_constitutive_model
                 #[test]
                 fn zero()
                 {
-                    calculate_first_piola_kirchoff_stress_from_deformation_gradient!(
+                    calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple!(
                         &$constitutive_model_constructed, &DeformationGradient::identity()
                     ).iter().for_each(|first_piola_kirchoff_stress_i|
                         first_piola_kirchoff_stress_i.iter()
@@ -742,7 +775,7 @@ macro_rules! test_solid_constitutive_model
                 #[test]
                 fn zero()
                 {
-                    calculate_second_piola_kirchoff_stress_from_deformation_gradient!(
+                    calculate_second_piola_kirchoff_stress_from_deformation_gradient_simple!(
                         &$constitutive_model_constructed, &DeformationGradient::identity()
                     ).iter().for_each(|second_piola_kirchoff_stress_i|
                         second_piola_kirchoff_stress_i.iter()

@@ -10,18 +10,29 @@ macro_rules! calculate_cauchy_stress_from_deformation_gradient
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
     {
         $constitutive_model_constructed.calculate_cauchy_stress(
-            $deformation_gradient, &DeformationGradientRate::zero()
+            $deformation_gradient, &get_deformation_gradient_rate()
         )
     }
 }
 pub(crate) use calculate_cauchy_stress_from_deformation_gradient;
+
+macro_rules! calculate_cauchy_stress_from_deformation_gradient_simple
+{
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
+    {
+        $constitutive_model_constructed.calculate_cauchy_stress(
+            $deformation_gradient, &DeformationGradientRate::zero()
+        )
+    }
+}
+pub(crate) use calculate_cauchy_stress_from_deformation_gradient_simple;
 
 macro_rules! calculate_cauchy_tangent_stiffness_from_deformation_gradient
 {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
     {
         $constitutive_model_constructed.calculate_cauchy_tangent_stiffness(
-            $deformation_gradient, &DeformationGradientRate::zero()
+            $deformation_gradient, &get_deformation_gradient_rate()
         )
     }
 }
@@ -32,18 +43,29 @@ macro_rules! calculate_first_piola_kirchoff_stress_from_deformation_gradient
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
     {
         $constitutive_model_constructed.calculate_first_piola_kirchoff_stress(
-            $deformation_gradient, &DeformationGradientRate::zero()
+            $deformation_gradient, &get_deformation_gradient_rate()
         )
     }
 }
 pub(crate) use calculate_first_piola_kirchoff_stress_from_deformation_gradient;
+
+macro_rules! calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple
+{
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
+    {
+        $constitutive_model_constructed.calculate_first_piola_kirchoff_stress(
+            $deformation_gradient, &DeformationGradientRate::zero()
+        )
+    }
+}
+pub(crate) use calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple;
 
 macro_rules! calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient
 {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
     {
         $constitutive_model_constructed.calculate_first_piola_kirchoff_tangent_stiffness(
-            $deformation_gradient, &DeformationGradientRate::zero()
+            $deformation_gradient, &get_deformation_gradient_rate()
         )
     }
 }
@@ -54,18 +76,29 @@ macro_rules! calculate_second_piola_kirchoff_stress_from_deformation_gradient
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
     {
         $constitutive_model_constructed.calculate_second_piola_kirchoff_stress(
-            $deformation_gradient, &DeformationGradientRate::zero()
+            $deformation_gradient, &get_deformation_gradient_rate()
         )
     }
 }
 pub(crate) use calculate_second_piola_kirchoff_stress_from_deformation_gradient;
+
+macro_rules! calculate_second_piola_kirchoff_stress_from_deformation_gradient_simple
+{
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
+    {
+        $constitutive_model_constructed.calculate_second_piola_kirchoff_stress(
+            $deformation_gradient, &DeformationGradientRate::zero()
+        )
+    }
+}
+pub(crate) use calculate_second_piola_kirchoff_stress_from_deformation_gradient_simple;
 
 macro_rules! calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient
 {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
     {
         $constitutive_model_constructed.calculate_second_piola_kirchoff_tangent_stiffness(
-            $deformation_gradient, &DeformationGradientRate::zero()
+            $deformation_gradient, &get_deformation_gradient_rate()
         )
     }
 }
@@ -76,11 +109,22 @@ macro_rules! calculate_first_piola_kirchoff_stress_from_deformation_gradient_rat
     ($constitutive_model_constructed: expr, $deformation_gradient_rate: expr) =>
     {
         $constitutive_model_constructed.calculate_first_piola_kirchoff_stress(
-            &DeformationGradient::identity(), $deformation_gradient_rate
+            &get_deformation_gradient(), $deformation_gradient_rate
         )
     }
 }
 pub(crate) use calculate_first_piola_kirchoff_stress_from_deformation_gradient_rate;
+
+macro_rules! calculate_first_piola_kirchoff_stress_from_deformation_gradient_rate_simple
+{
+    ($constitutive_model_constructed: expr, $deformation_gradient_rate: expr) =>
+    {
+        $constitutive_model_constructed.calculate_first_piola_kirchoff_stress(
+            &DeformationGradient::identity(), $deformation_gradient_rate
+        )
+    }
+}
+pub(crate) use calculate_first_piola_kirchoff_stress_from_deformation_gradient_rate_simple;
 
 macro_rules! calculate_first_piola_kirchoff_stress_from_deformation_gradient_and_deformation_gradient_rate
 {
@@ -130,7 +174,7 @@ macro_rules! test_solid_viscous_constitutive_model
             let model = get_constitutive_model();
             let mut deformation_gradient_rate = DeformationGradientRate::zero();
             deformation_gradient_rate += DeformationGradientRate::identity()*(EPSILON/3.0);
-            let first_piola_kirchoff_stress = calculate_first_piola_kirchoff_stress_from_deformation_gradient_rate!(&model, &deformation_gradient_rate);
+            let first_piola_kirchoff_stress = calculate_first_piola_kirchoff_stress_from_deformation_gradient_rate_simple!(&model, &deformation_gradient_rate);
             assert!((3.0*EPSILON*model.get_bulk_viscosity()/first_piola_kirchoff_stress.trace() - 1.0).abs() < EPSILON);
         }
         #[test]
@@ -139,249 +183,155 @@ macro_rules! test_solid_viscous_constitutive_model
             let model = get_constitutive_model();
             let mut deformation_gradient_rate = DeformationGradientRate::zero();
             deformation_gradient_rate[0][1] = EPSILON;
-            let first_piola_kirchoff_stress = calculate_first_piola_kirchoff_stress_from_deformation_gradient_rate!(&model, &deformation_gradient_rate);
+            let first_piola_kirchoff_stress = calculate_first_piola_kirchoff_stress_from_deformation_gradient_rate_simple!(&model, &deformation_gradient_rate);
             assert!((EPSILON*model.get_shear_viscosity()/first_piola_kirchoff_stress[0][1] - 1.0).abs() < EPSILON)
         }
-        #[test]
-        fn repeat_all_elastic_tests_as_relevant_here()
+        fn calculate_first_piola_kirchoff_rate_tangent_stiffness_from_finite_difference_of_first_piola_kirchoff_stress(is_deformed: bool) -> FirstPiolaKirchoffTangentStiffness
         {
-            todo!("need tests for tangent/rate-tangent where the non-important ESV is non-trivial
-                   because dF of those strain rates in stress are nonzero
-                   like dP/dF=C for nonzero Fdot since you are implementing C
-                   but then you are repeating tests!
-                   so otherwise you have to send those to elastic with nonzero Fdot in macros
-                   ...
-                   basically all (stresses and tangents) would be repeated here just to vary Fdot
-                   only thing new here is the rate-tangents
-                   ...
-                   FD/obj/sym shouldnt care about T, Fdot
-                   so can implement macros for zero everything besides F and also for varying them!")
-        }
-        mod solid_viscous
-        {
-            fn calculate_first_piola_kirchoff_rate_tangent_stiffness_from_finite_difference_of_first_piola_kirchoff_stress(is_deformed: bool) -> FirstPiolaKirchoffTangentStiffness
-            {
-                let deformation_gradient =
-                    if is_deformed
-                    {
-                        get_deformation_gradient()
-                    }
-                    else
-                    {
-                        DeformationGradient::identity()
-                    };
-                let mut first_piola_kirchoff_tangent_stiffness = FirstPiolaKirchoffTangentStiffness::zero();
-                for k in 0..3
+            let deformation_gradient =
+                if is_deformed
                 {
-                    for l in 0..3
-                    {
-                        let mut deformation_gradient_rate_plus = 
-                            if is_deformed
-                            {
-                                get_deformation_gradient_rate()
-                            }
-                            else
-                            {
-                                DeformationGradientRate::zero()
-                            };
-                        deformation_gradient_rate_plus[k][l] += 0.5*EPSILON;
-                        let first_piola_kirchoff_stress_plus =
-                        calculate_first_piola_kirchoff_stress_from_deformation_gradient_and_deformation_gradient_rate!(
-                            &$constitutive_model_constructed, &deformation_gradient, &deformation_gradient_rate_plus
-                        );
-                        let mut deformation_gradient_rate_minus = 
-                            if is_deformed
-                            {
-                                get_deformation_gradient_rate()
-                            }
-                            else
-                            {
-                                DeformationGradientRate::zero()
-                            };
-                        deformation_gradient_rate_minus[k][l] -= 0.5*EPSILON;
-                        let first_piola_kirchoff_stress_minus =
-                        calculate_first_piola_kirchoff_stress_from_deformation_gradient_and_deformation_gradient_rate!(
-                            &$constitutive_model_constructed, &deformation_gradient, &deformation_gradient_rate_minus
-                        );
-                        for i in 0..3
+                    get_deformation_gradient()
+                }
+                else
+                {
+                    DeformationGradient::identity()
+                };
+            let mut first_piola_kirchoff_tangent_stiffness = FirstPiolaKirchoffTangentStiffness::zero();
+            for k in 0..3
+            {
+                for l in 0..3
+                {
+                    let mut deformation_gradient_rate_plus = 
+                        if is_deformed
                         {
-                            for j in 0..3
-                            {
-                                first_piola_kirchoff_tangent_stiffness[i][j][k][l] = (
-                                    first_piola_kirchoff_stress_plus[i][j] - first_piola_kirchoff_stress_minus[i][j]
-                                )/EPSILON;
-                            }
+                            get_deformation_gradient_rate()
+                        }
+                        else
+                        {
+                            DeformationGradientRate::zero()
+                        };
+                    deformation_gradient_rate_plus[k][l] += 0.5*EPSILON;
+                    let first_piola_kirchoff_stress_plus =
+                    calculate_first_piola_kirchoff_stress_from_deformation_gradient_and_deformation_gradient_rate!(
+                        &$constitutive_model_constructed, &deformation_gradient, &deformation_gradient_rate_plus
+                    );
+                    let mut deformation_gradient_rate_minus = 
+                        if is_deformed
+                        {
+                            get_deformation_gradient_rate()
+                        }
+                        else
+                        {
+                            DeformationGradientRate::zero()
+                        };
+                    deformation_gradient_rate_minus[k][l] -= 0.5*EPSILON;
+                    let first_piola_kirchoff_stress_minus =
+                    calculate_first_piola_kirchoff_stress_from_deformation_gradient_and_deformation_gradient_rate!(
+                        &$constitutive_model_constructed, &deformation_gradient, &deformation_gradient_rate_minus
+                    );
+                    for i in 0..3
+                    {
+                        for j in 0..3
+                        {
+                            first_piola_kirchoff_tangent_stiffness[i][j][k][l] = (
+                                first_piola_kirchoff_stress_plus[i][j] - first_piola_kirchoff_stress_minus[i][j]
+                            )/EPSILON;
                         }
                     }
                 }
-                first_piola_kirchoff_tangent_stiffness
             }
+            first_piola_kirchoff_tangent_stiffness
+        }
+        use super::*;
+        mod cauchy_rate_tangent_stiffness
+        {
+            #[test]
+            fn todo()
+            {
+                todo!()
+            }
+        }
+        mod first_piola_kirchoff_rate_tangent_stiffness
+        {
             use super::*;
-            mod first_piola_kirchoff_stress
+            mod deformed
             {
                 use super::*;
-                mod deformed
+                #[test]
+                fn objectivity()
                 {
-                    use super::*;
-                    #[test]
-                    fn finite_difference()
-                    {
+                    calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
+                        &$constitutive_model_constructed, &get_deformation_gradient(), &get_deformation_gradient_rate()
+                    ).iter().zip((
                         calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
-                            &$constitutive_model_constructed, &get_deformation_gradient(), &get_deformation_gradient_rate()
-                        ).iter()
-                        .zip(calculate_first_piola_kirchoff_rate_tangent_stiffness_from_finite_difference_of_first_piola_kirchoff_stress(true).iter())
-                        .for_each(|(first_piola_kirchoff_rate_tangent_stiffness_i, fd_first_piola_kirchoff_rate_tangent_stiffness_i)|
-                            first_piola_kirchoff_rate_tangent_stiffness_i.iter()
-                            .zip(fd_first_piola_kirchoff_rate_tangent_stiffness_i.iter())
-                            .for_each(|(first_piola_kirchoff_rate_tangent_stiffness_ij, fd_first_piola_kirchoff_rate_tangent_stiffness_ij)|
-                                first_piola_kirchoff_rate_tangent_stiffness_ij.iter()
-                                .zip(fd_first_piola_kirchoff_rate_tangent_stiffness_ij.iter())
-                                .for_each(|(first_piola_kirchoff_rate_tangent_stiffness_ijk, fd_first_piola_kirchoff_rate_tangent_stiffness_ijk)|
-                                    first_piola_kirchoff_rate_tangent_stiffness_ijk.iter()
-                                    .zip(fd_first_piola_kirchoff_rate_tangent_stiffness_ijk.iter())
-                                    .for_each(|(first_piola_kirchoff_rate_tangent_stiffness_ijkl, fd_first_piola_kirchoff_rate_tangent_stiffness_ijkl)|
-                                        assert!((first_piola_kirchoff_rate_tangent_stiffness_ijkl/fd_first_piola_kirchoff_rate_tangent_stiffness_ijkl - 1.0).abs() < EPSILON)
-                                    )
+                            &$constitutive_model_constructed, &get_deformation_gradient_rotated(), &get_deformation_gradient_rate_rotated()
+                        ).contract_all_indices_with_first_indices_of(
+                            &get_rotation_current_configuration(),
+                            &get_rotation_reference_configuration(),
+                            &get_rotation_current_configuration(),
+                            &get_rotation_reference_configuration()
+                        )
+                    ).iter())
+                    .for_each(|(first_piola_kirchoff_tangent_stiffness_i, rotated_first_piola_kirchoff_tangent_stiffness_i)|
+                        first_piola_kirchoff_tangent_stiffness_i.iter()
+                        .zip(rotated_first_piola_kirchoff_tangent_stiffness_i.iter())
+                        .for_each(|(first_piola_kirchoff_tangent_stiffness_ij, rotated_first_piola_kirchoff_tangent_stiffness_ij)|
+                            first_piola_kirchoff_tangent_stiffness_ij.iter()
+                            .zip(rotated_first_piola_kirchoff_tangent_stiffness_ij.iter())
+                            .for_each(|(first_piola_kirchoff_tangent_stiffness_ijk, rotated_first_piola_kirchoff_tangent_stiffness_ijk)|
+                                first_piola_kirchoff_tangent_stiffness_ijk.iter()
+                                .zip(rotated_first_piola_kirchoff_tangent_stiffness_ijk.iter())
+                                .for_each(|(first_piola_kirchoff_tangent_stiffness_ijkl, rotated_first_piola_kirchoff_tangent_stiffness_ijkl)|
+                                    assert_eq_within_tols(first_piola_kirchoff_tangent_stiffness_ijkl, rotated_first_piola_kirchoff_tangent_stiffness_ijkl)
                                 )
                             )
                         )
-                    }
-                    #[test]
-                    fn objectivity()
-                    {
-                        calculate_first_piola_kirchoff_stress_from_deformation_gradient_and_deformation_gradient_rate!(
-                            &$constitutive_model_constructed, &get_deformation_gradient(), &get_deformation_gradient_rate()
-                        ).iter().zip((
-                            get_rotation_current_configuration().transpose() *
-                            calculate_first_piola_kirchoff_stress_from_deformation_gradient_and_deformation_gradient_rate!(
-                                &$constitutive_model_constructed, &get_deformation_gradient_rotated(), &get_deformation_gradient_rate_rotated()
-                            ) * get_rotation_reference_configuration()
-                        ).iter())
-                        .for_each(|(first_piola_kirchoff_stress_i, rotated_first_piola_kirchoff_stress_i)|
-                            first_piola_kirchoff_stress_i.iter()
-                            .zip(rotated_first_piola_kirchoff_stress_i.iter())
-                            .for_each(|(first_piola_kirchoff_stress_ij, rotated_first_piola_kirchoff_stress_ij)|
-                                assert_eq_within_tols(first_piola_kirchoff_stress_ij, rotated_first_piola_kirchoff_stress_ij)
-                            )
-                        )
-                    }
-                }
-                mod undeformed
-                {
-                    use super::*;
-                    #[test]
-                    fn finite_difference()
-                    {
-                        calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
-                            &$constitutive_model_constructed, &DeformationGradient::identity(), &DeformationGradientRate::zero()
-                        ).iter()
-                        .zip(calculate_first_piola_kirchoff_rate_tangent_stiffness_from_finite_difference_of_first_piola_kirchoff_stress(false).iter())
-                        .for_each(|(first_piola_kirchoff_rate_tangent_stiffness_i, fd_first_piola_kirchoff_rate_tangent_stiffness_i)|
-                            first_piola_kirchoff_rate_tangent_stiffness_i.iter()
-                            .zip(fd_first_piola_kirchoff_rate_tangent_stiffness_i.iter())
-                            .for_each(|(first_piola_kirchoff_rate_tangent_stiffness_ij, fd_first_piola_kirchoff_rate_tangent_stiffness_ij)|
-                                first_piola_kirchoff_rate_tangent_stiffness_ij.iter()
-                                .zip(fd_first_piola_kirchoff_rate_tangent_stiffness_ij.iter())
-                                .for_each(|(first_piola_kirchoff_rate_tangent_stiffness_ijk, fd_first_piola_kirchoff_rate_tangent_stiffness_ijk)|
-                                    first_piola_kirchoff_rate_tangent_stiffness_ijk.iter()
-                                    .zip(fd_first_piola_kirchoff_rate_tangent_stiffness_ijk.iter())
-                                    .for_each(|(first_piola_kirchoff_rate_tangent_stiffness_ijkl, fd_first_piola_kirchoff_rate_tangent_stiffness_ijkl)|
-                                        assert!(
-                                            (first_piola_kirchoff_rate_tangent_stiffness_ijkl/fd_first_piola_kirchoff_rate_tangent_stiffness_ijkl - 1.0).abs() < EPSILON ||
-                                            first_piola_kirchoff_rate_tangent_stiffness_ijkl.abs() < EPSILON
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    }
-                    #[test]
-                    fn zero()
-                    {
-                        calculate_first_piola_kirchoff_stress_from_deformation_gradient_and_deformation_gradient_rate!(
-                            &$constitutive_model_constructed, &DeformationGradient::identity(), &DeformationGradientRate::zero()
-                        ).iter().for_each(|first_piola_kirchoff_stress_i|
-                            first_piola_kirchoff_stress_i.iter()
-                            .for_each(|first_piola_kirchoff_stress_ij|
-                                assert_eq!(first_piola_kirchoff_stress_ij, &0.0)
-                            )
-                        )
-                    }
+                    )
                 }
             }
-            mod first_piola_kirchoff_rate_tangent_stiffness
+            mod undeformed
             {
                 use super::*;
-                mod deformed
+                #[test]
+                fn objectivity()
                 {
-                    use super::*;
-                    #[test]
-                    fn objectivity()
-                    {
+                    calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
+                        &$constitutive_model_constructed, &DeformationGradient::identity(), &DeformationGradientRate::zero()
+                    ).iter().zip((
                         calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
-                            &$constitutive_model_constructed, &get_deformation_gradient(), &get_deformation_gradient_rate()
-                        ).iter().zip((
-                            calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
-                                &$constitutive_model_constructed, &get_deformation_gradient_rotated(), &get_deformation_gradient_rate_rotated()
-                            ).contract_all_indices_with_first_indices_of(
-                                &get_rotation_current_configuration(),
-                                &get_rotation_reference_configuration(),
-                                &get_rotation_current_configuration(),
-                                &get_rotation_reference_configuration()
-                            )
-                        ).iter())
-                        .for_each(|(first_piola_kirchoff_tangent_stiffness_i, rotated_first_piola_kirchoff_tangent_stiffness_i)|
-                            first_piola_kirchoff_tangent_stiffness_i.iter()
-                            .zip(rotated_first_piola_kirchoff_tangent_stiffness_i.iter())
-                            .for_each(|(first_piola_kirchoff_tangent_stiffness_ij, rotated_first_piola_kirchoff_tangent_stiffness_ij)|
-                                first_piola_kirchoff_tangent_stiffness_ij.iter()
-                                .zip(rotated_first_piola_kirchoff_tangent_stiffness_ij.iter())
-                                .for_each(|(first_piola_kirchoff_tangent_stiffness_ijk, rotated_first_piola_kirchoff_tangent_stiffness_ijk)|
-                                    first_piola_kirchoff_tangent_stiffness_ijk.iter()
-                                    .zip(rotated_first_piola_kirchoff_tangent_stiffness_ijk.iter())
-                                    .for_each(|(first_piola_kirchoff_tangent_stiffness_ijkl, rotated_first_piola_kirchoff_tangent_stiffness_ijkl)|
-                                        assert_eq_within_tols(first_piola_kirchoff_tangent_stiffness_ijkl, rotated_first_piola_kirchoff_tangent_stiffness_ijkl)
-                                    )
+                            &$constitutive_model_constructed, &get_deformation_gradient_rotated_undeformed(), &get_deformation_gradient_rate_rotated_undeformed()
+                        ).contract_all_indices_with_first_indices_of(
+                            &get_rotation_current_configuration(),
+                            &get_rotation_reference_configuration(),
+                            &get_rotation_current_configuration(),
+                            &get_rotation_reference_configuration()
+                        )
+                    ).iter())
+                    .for_each(|(first_piola_kirchoff_tangent_stiffness_i, rotated_first_piola_kirchoff_tangent_stiffness_i)|
+                        first_piola_kirchoff_tangent_stiffness_i.iter()
+                        .zip(rotated_first_piola_kirchoff_tangent_stiffness_i.iter())
+                        .for_each(|(first_piola_kirchoff_tangent_stiffness_ij, rotated_first_piola_kirchoff_tangent_stiffness_ij)|
+                            first_piola_kirchoff_tangent_stiffness_ij.iter()
+                            .zip(rotated_first_piola_kirchoff_tangent_stiffness_ij.iter())
+                            .for_each(|(first_piola_kirchoff_tangent_stiffness_ijk, rotated_first_piola_kirchoff_tangent_stiffness_ijk)|
+                                first_piola_kirchoff_tangent_stiffness_ijk.iter()
+                                .zip(rotated_first_piola_kirchoff_tangent_stiffness_ijk.iter())
+                                .for_each(|(first_piola_kirchoff_tangent_stiffness_ijkl, rotated_first_piola_kirchoff_tangent_stiffness_ijkl)|
+                                    assert_eq_within_tols(first_piola_kirchoff_tangent_stiffness_ijkl, rotated_first_piola_kirchoff_tangent_stiffness_ijkl)
                                 )
                             )
                         )
-                    }
+                    )
                 }
-                mod undeformed
-                {
-                    use super::*;
-                    #[test]
-                    fn objectivity()
-                    {
-                        calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
-                            &$constitutive_model_constructed, &DeformationGradient::identity(), &DeformationGradientRate::zero()
-                        ).iter().zip((
-                            calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
-                                &$constitutive_model_constructed, &get_deformation_gradient_rotated_undeformed(), &get_deformation_gradient_rate_rotated_undeformed()
-                            ).contract_all_indices_with_first_indices_of(
-                                &get_rotation_current_configuration(),
-                                &get_rotation_reference_configuration(),
-                                &get_rotation_current_configuration(),
-                                &get_rotation_reference_configuration()
-                            )
-                        ).iter())
-                        .for_each(|(first_piola_kirchoff_tangent_stiffness_i, rotated_first_piola_kirchoff_tangent_stiffness_i)|
-                            first_piola_kirchoff_tangent_stiffness_i.iter()
-                            .zip(rotated_first_piola_kirchoff_tangent_stiffness_i.iter())
-                            .for_each(|(first_piola_kirchoff_tangent_stiffness_ij, rotated_first_piola_kirchoff_tangent_stiffness_ij)|
-                                first_piola_kirchoff_tangent_stiffness_ij.iter()
-                                .zip(rotated_first_piola_kirchoff_tangent_stiffness_ij.iter())
-                                .for_each(|(first_piola_kirchoff_tangent_stiffness_ijk, rotated_first_piola_kirchoff_tangent_stiffness_ijk)|
-                                    first_piola_kirchoff_tangent_stiffness_ijk.iter()
-                                    .zip(rotated_first_piola_kirchoff_tangent_stiffness_ijk.iter())
-                                    .for_each(|(first_piola_kirchoff_tangent_stiffness_ijkl, rotated_first_piola_kirchoff_tangent_stiffness_ijkl)|
-                                        assert_eq_within_tols(first_piola_kirchoff_tangent_stiffness_ijkl, rotated_first_piola_kirchoff_tangent_stiffness_ijkl)
-                                    )
-                                )
-                            )
-                        )
-                    }
-                }
+            }
+        }
+        mod second_piola_kirchoff_rate_tangent_stiffness
+        {
+            #[test]
+            fn todo()
+            {
+                todo!()
             }
         }
     }

@@ -111,7 +111,7 @@ pub fn get_translation_reference_configuration() -> ReferenceCoordinate
 
 pub fn get_temperature() -> Scalar
 {
-    100.0
+    123.0
 }
 
 pub fn get_temperature_gradient() -> TemperatureGradient

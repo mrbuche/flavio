@@ -23,10 +23,13 @@ macro_rules! use_thermoelastic_macros
         use crate::constitutive::solid::thermoelastic::test::
         {
             calculate_cauchy_stress_from_deformation_gradient,
+            calculate_cauchy_stress_from_deformation_gradient_simple,
             calculate_cauchy_tangent_stiffness_from_deformation_gradient,
             calculate_first_piola_kirchoff_stress_from_deformation_gradient,
+            calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple,
             calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient,
             calculate_second_piola_kirchoff_stress_from_deformation_gradient,
+            calculate_second_piola_kirchoff_stress_from_deformation_gradient_simple,
             calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient
         };
     }
