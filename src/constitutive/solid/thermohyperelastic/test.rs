@@ -5,7 +5,7 @@ use crate::
 };
 pub const SAINTVENANTKIRCHOFFPARAMETERS: &[Scalar; 4] = &[ALMANSIHAMELPARAMETERS[0], ALMANSIHAMELPARAMETERS[1], ALMANSIHAMELPARAMETERS[2], ALMANSIHAMELPARAMETERS[3]];
 
-macro_rules! calculate_helmholtz_free_energy_density_from_deformation_gradient
+macro_rules! calculate_helmholtz_free_energy_density_from_deformation_gradient_simple
 {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
     {
@@ -14,7 +14,7 @@ macro_rules! calculate_helmholtz_free_energy_density_from_deformation_gradient
         )
     }
 }
-pub(crate) use calculate_helmholtz_free_energy_density_from_deformation_gradient;
+pub(crate) use calculate_helmholtz_free_energy_density_from_deformation_gradient_simple;
 
 macro_rules! use_thermoelastic_macros
 {
