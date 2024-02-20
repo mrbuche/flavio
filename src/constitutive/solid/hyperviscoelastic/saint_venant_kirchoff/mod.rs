@@ -81,11 +81,14 @@ impl<'a> Viscoelastic<'a> for SaintVenantKirchoff<'a>
     /// Calculates and returns the tangent stiffness associated with the second Piola-Kirchoff stress.
     ///
     /// ```math
-    /// \mathcal{G}_{IJkL}(\mathbf{F},\dot\mathbf{F}) = ?
+    /// \mathcal{G}_{IJkL}(\mathbf{F},\dot\mathbf{F}) = \left(\mu F_{kI} + \eta \dot{F}_{kI}\right)\delta_{JL} + \left(\mu F_{kJ} + \eta \dot{F}_{kJ}\right)\delta_{IL} + \left[\left(\kappa - \frac{2}{3}\,\mu\right)F_{kL} + \left(\zeta - \frac{2}{3}\,\eta\right)\dot{F}_{kL}\right]\delta_{IJ}
     /// ```
     fn calculate_second_piola_kirchoff_tangent_stiffness(&self, deformation_gradient: &DeformationGradient, deformation_gradient_rate: &DeformationGradientRate) -> SecondPiolaKirchoffTangentStiffness
     {
-        todo!()
+        let identity = SecondPiolaKirchoffStress::identity();
+        let identity_copy = SecondPiolaKirchoffStress::identity();
+        let scaled_term = deformation_gradient.transpose()*self.get_shear_modulus() + deformation_gradient_rate.transpose()*self.get_shear_viscosity();
+        SecondPiolaKirchoffTangentStiffness::dyad_ik_jl(&scaled_term, &identity) + SecondPiolaKirchoffTangentStiffness::dyad_il_jk(&identity, &scaled_term) + SecondPiolaKirchoffTangentStiffness::dyad_ij_kl(&(identity*(self.get_bulk_modulus() - 2.0/3.0*self.get_shear_modulus())), deformation_gradient) + SecondPiolaKirchoffTangentStiffness::dyad_ij_kl(&(identity_copy*(self.get_bulk_viscosity() - 2.0/3.0*self.get_shear_viscosity())), deformation_gradient_rate)
     }
     /// Calculates and returns the rate tangent stiffness associated with the second Piola-Kirchoff stress.
     ///
