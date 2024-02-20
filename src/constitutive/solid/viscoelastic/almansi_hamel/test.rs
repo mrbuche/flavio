@@ -37,27 +37,4 @@ mod consistency
             )
         )
     }
-    #[test]
-    fn cauchy_tangent_stiffness()
-    {
-        let model = AlmansiHamel::new(ALMANSIHAMELPARAMETERS);
-        let elastic_model = HyperelasticAlmansiHamel::new(HYPERELASTICALMANSIHAMELPARAMETERS);
-        model.calculate_cauchy_tangent_stiffness(&get_deformation_gradient(), &DeformationGradientRate::zero()).iter()
-        .zip(elastic_model.calculate_cauchy_tangent_stiffness(&get_deformation_gradient()).iter())
-        .for_each(|(cauchy_tangent_stiffness_i, elastic_cauchy_tangent_stiffness_i)|
-            cauchy_tangent_stiffness_i.iter()
-            .zip(elastic_cauchy_tangent_stiffness_i.iter())
-            .for_each(|(cauchy_tangent_stiffness_ij, elastic_cauchy_tangent_stiffness_ij)|
-                cauchy_tangent_stiffness_ij.iter()
-                .zip(elastic_cauchy_tangent_stiffness_ij.iter())
-                .for_each(|(cauchy_tangent_stiffness_ijk, elastic_cauchy_tangent_stiffness_ijk)|
-                    cauchy_tangent_stiffness_ijk.iter()
-                    .zip(elastic_cauchy_tangent_stiffness_ijk.iter())
-                    .for_each(|(cauchy_tangent_stiffness_ijkl, elastic_cauchy_tangent_stiffness_ijkl)|
-                        assert!((cauchy_tangent_stiffness_ijkl - elastic_cauchy_tangent_stiffness_ijkl).abs() < ABS_TOL)
-                    )
-                )
-            )
-        )
-    }
 }

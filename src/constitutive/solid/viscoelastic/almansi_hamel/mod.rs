@@ -75,15 +75,6 @@ impl<'a> Viscoelastic<'a> for AlmansiHamel<'a>
     {
         todo!()
     }
-    /// Calculates and returns the tangent stiffness associated with the Cauchy stress.
-    ///
-    /// ```math
-    /// \mathcal{T}_{ijkL}(\mathbf{F},\dot{\mathbf{F}}) = ?
-    /// ```
-    fn calculate_cauchy_tangent_stiffness(&self, deformation_gradient: &DeformationGradient, deformation_gradient_rate: &DeformationGradientRate) -> CauchyTangentStiffness
-    {
-        todo!()
-    }
     /// Calculates and returns the rate tangent stiffness associated with the Cauchy stress.
     ///
     /// ```math

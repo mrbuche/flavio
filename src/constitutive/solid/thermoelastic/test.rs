@@ -49,17 +49,6 @@ macro_rules! calculate_cauchy_tangent_stiffness_from_deformation_gradient
 }
 pub(crate) use calculate_cauchy_tangent_stiffness_from_deformation_gradient;
 
-macro_rules! calculate_cauchy_tangent_stiffness_from_deformation_gradient_rotated
-{
-    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
-    {
-        $constitutive_model_constructed.calculate_cauchy_tangent_stiffness(
-            $deformation_gradient, &get_temperature()
-        )
-    }
-}
-pub(crate) use calculate_cauchy_tangent_stiffness_from_deformation_gradient_rotated;
-
 macro_rules! calculate_first_piola_kirchoff_stress_from_deformation_gradient
 {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>

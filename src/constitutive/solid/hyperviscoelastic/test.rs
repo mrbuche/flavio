@@ -59,14 +59,10 @@ macro_rules! use_viscoelastic_macros
             calculate_cauchy_stress_from_deformation_gradient_simple,
             calculate_cauchy_stress_from_deformation_gradient_rotated,
             calculate_cauchy_stress_from_deformation_gradient_and_deformation_gradient_rate,
-            calculate_cauchy_tangent_stiffness_from_deformation_gradient,
-            calculate_cauchy_tangent_stiffness_from_deformation_gradient_rotated,
             calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate,
             calculate_first_piola_kirchoff_stress_from_deformation_gradient,
             calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple,
             calculate_first_piola_kirchoff_stress_from_deformation_gradient_rotated,
-            calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient,
-            calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient_simple,
             calculate_first_piola_kirchoff_stress_from_deformation_gradient_rate_simple,
             calculate_first_piola_kirchoff_stress_from_deformation_gradient_and_deformation_gradient_rate,
             calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate,
@@ -74,7 +70,6 @@ macro_rules! use_viscoelastic_macros
             calculate_second_piola_kirchoff_stress_from_deformation_gradient_simple,
             calculate_second_piola_kirchoff_stress_from_deformation_gradient_rotated,
             calculate_second_piola_kirchoff_stress_from_deformation_gradient_and_deformation_gradient_rate,
-            calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient,
             calculate_second_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate
         };
     }
@@ -85,7 +80,7 @@ macro_rules! test_solid_hyperviscoelastic_constitutive_model
 {
     ($constitutive_model: ident, $constitutive_model_parameters: expr, $constitutive_model_constructed: expr) =>
     {
-        crate::constitutive::solid::hyperelastic::test::test_solid_hyperelastic_constitutive_model!(
+        crate::constitutive::solid::hyperelastic::test::test_solid_hyperelastic_constitutive_model_no_tangents!(
             $constitutive_model,
             $constitutive_model_parameters,
             $constitutive_model_constructed
