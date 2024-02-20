@@ -46,6 +46,17 @@ macro_rules! calculate_cauchy_tangent_stiffness_from_deformation_gradient
 }
 pub(crate) use calculate_cauchy_tangent_stiffness_from_deformation_gradient;
 
+macro_rules! calculate_cauchy_tangent_stiffness_from_deformation_gradient_rotated
+{
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
+    {
+        $constitutive_model_constructed.calculate_cauchy_tangent_stiffness(
+            $deformation_gradient
+        )
+    }
+}
+pub(crate) use calculate_cauchy_tangent_stiffness_from_deformation_gradient_rotated;
+
 macro_rules! calculate_first_piola_kirchoff_stress_from_deformation_gradient
 {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
@@ -89,6 +100,17 @@ macro_rules! calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_g
     }
 }
 pub(crate) use calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient;
+
+macro_rules! calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient_simple
+{
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
+    {
+        $constitutive_model_constructed.calculate_first_piola_kirchoff_tangent_stiffness(
+            $deformation_gradient
+        )
+    }
+}
+pub(crate) use calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient_simple;
 
 macro_rules! calculate_second_piola_kirchoff_stress_from_deformation_gradient
 {
@@ -441,7 +463,7 @@ macro_rules! test_solid_constitutive_model
                     calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
                         &model, &get_deformation_gradient()
                     ).iter().zip((
-                        calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
+                        calculate_cauchy_tangent_stiffness_from_deformation_gradient_rotated!(
                             &model, &get_deformation_gradient_rotated()
                         ).contract_all_indices_with_first_indices_of(
                             &get_rotation_current_configuration(),
@@ -503,7 +525,7 @@ macro_rules! test_solid_constitutive_model
                     calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
                         &model, &DeformationGradient::identity()
                     ).iter().zip((
-                        calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
+                        calculate_cauchy_tangent_stiffness_from_deformation_gradient_rotated!(
                             &model, &get_deformation_gradient_rotated_undeformed()
                         ).contract_all_indices_with_first_indices_of(
                             &get_rotation_current_configuration(),

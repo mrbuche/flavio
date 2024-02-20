@@ -33,10 +33,12 @@ macro_rules! use_elastic_macros
             calculate_cauchy_stress_from_deformation_gradient_simple,
             calculate_cauchy_stress_from_deformation_gradient_rotated,
             calculate_cauchy_tangent_stiffness_from_deformation_gradient,
+            calculate_cauchy_tangent_stiffness_from_deformation_gradient_rotated,
             calculate_first_piola_kirchoff_stress_from_deformation_gradient,
             calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple,
             calculate_first_piola_kirchoff_stress_from_deformation_gradient_rotated,
             calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient,
+            calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient_simple,
             calculate_second_piola_kirchoff_stress_from_deformation_gradient,
             calculate_second_piola_kirchoff_stress_from_deformation_gradient_simple,
             calculate_second_piola_kirchoff_stress_from_deformation_gradient_rotated,
@@ -240,7 +242,7 @@ macro_rules! test_solid_hyperelastic_constitutive_model
                     fn symmetry()
                     {
                         let first_piola_kirchoff_tangent_stiffness =
-                        calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient!(
+                        calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient_simple!(
                             $constitutive_model_constructed, &get_deformation_gradient()
                         );
                         first_piola_kirchoff_tangent_stiffness.iter().enumerate()
@@ -269,7 +271,7 @@ macro_rules! test_solid_hyperelastic_constitutive_model
                     fn symmetry()
                     {
                         let first_piola_kirchoff_tangent_stiffness =
-                        calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient!(
+                        calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient_simple!(
                             $constitutive_model_constructed, &DeformationGradient::identity()
                         );
                         first_piola_kirchoff_tangent_stiffness.iter().enumerate()
