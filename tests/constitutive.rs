@@ -1,10 +1,18 @@
 #[cfg(feature = "constitutive")]
 mod public
 {
-    use flavio::constitutive::solid::
+    mod elastic
     {
-        elastic::AlmansiHamel,
-        hyperelastic::
+        use flavio::constitutive::solid::elastic::AlmansiHamel;
+        #[test]
+        fn almansi_hamel()
+        {
+            let _: AlmansiHamel;
+        }
+    }
+    mod hyperelastic
+    {
+        use flavio::constitutive::solid::hyperelastic::
         {
             ArrudaBoyce,
             Gent,
@@ -13,46 +21,68 @@ mod public
             NeoHookean,
             SaintVenantKirchoff,
             Yeoh
+        };
+        #[test]
+        fn arruda_boyce()
+        {
+            let _: ArrudaBoyce;
         }
-    };
-    #[test]
-    fn almansi_hamel()
-    {
-        let _: AlmansiHamel;
+        #[test]
+        fn fung()
+        {
+            let _: Fung;
+        }
+        #[test]
+        fn gent()
+        {
+            let _: Gent;
+        }
+        #[test]
+        fn mooney_rivlin()
+        {
+            let _: MooneyRivlin;
+        }
+        #[test]
+        fn neo_hookean()
+        {
+            let _: NeoHookean;
+        }
+        #[test]
+        fn saint_venant_kirchoff()
+        {
+            let _: SaintVenantKirchoff;
+        }
+        #[test]
+        fn yeoh()
+        {
+            let _: Yeoh;
+        }
     }
-    #[test]
-    fn arruda_boyce_model()
+    mod hyperviscoelastic
     {
-        let _: ArrudaBoyce;
+        use flavio::constitutive::solid::hyperviscoelastic::SaintVenantKirchoff;
+        #[test]
+        fn saint_venant_kirchoff()
+        {
+            let _: SaintVenantKirchoff;
+        }
     }
-    #[test]
-    fn fung_model()
+    mod thermoelastic
     {
-        let _: Fung;
+        use flavio::constitutive::solid::thermoelastic::AlmansiHamel;
+        #[test]
+        fn almansi_hamel()
+        {
+            let _: AlmansiHamel;
+        }
     }
-    #[test]
-    fn gent_model()
+    mod thermohyperelastic
     {
-        let _: Gent;
-    }
-    #[test]
-    fn mooney_rivlin_model()
-    {
-        let _: MooneyRivlin;
-    }
-    #[test]
-    fn neo_hookean_model()
-    {
-        let _: NeoHookean;
-    }
-    #[test]
-    fn saint_venant_kirchoff_model()
-    {
-        let _: SaintVenantKirchoff;
-    }
-    #[test]
-    fn yeoh_model()
-    {
-        let _: Yeoh;
+        use flavio::constitutive::solid::thermohyperelastic::SaintVenantKirchoff;
+        #[test]
+        fn almansi_hamel()
+        {
+            let _: SaintVenantKirchoff;
+        }
     }
 }
