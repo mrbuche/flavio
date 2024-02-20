@@ -1,21 +1,7 @@
-use super::
-{
-    AlmansiHamel,
-    Elastic,
-    super::test::
-    {
-        ALMANSIHAMELPARAMETERS,
-        test_elastic_constitutive_model,
-        test_elastic_only_constitutive_model_constructed
-    }
-};
+use super::*;
+use super::super::test::*;
 
-test_elastic_constitutive_model!(
-    AlmansiHamel,
-    ALMANSIHAMELPARAMETERS,
-    AlmansiHamel::new(ALMANSIHAMELPARAMETERS)
-);
-
-test_elastic_only_constitutive_model_constructed!(
+test_solid_elastic_constitutive_model!(
+    AlmansiHamel, ALMANSIHAMELPARAMETERS,
     AlmansiHamel::new(ALMANSIHAMELPARAMETERS)
 );

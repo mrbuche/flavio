@@ -51,7 +51,17 @@ impl<'a> Constitutive<'a> for Yeoh<'a>
 }
 
 /// Solid constitutive model implementation of the Yeoh hyperelastic constitutive model.
-impl<'a> Solid<'a> for Yeoh<'a> {}
+impl<'a> Solid<'a> for Yeoh<'a>
+{
+    fn get_bulk_modulus(&self) -> &Scalar
+    {
+        &self.parameters[0]
+    }
+    fn get_shear_modulus(&self) -> &Scalar
+    {
+        &self.parameters[1]
+    }
+}
 
 /// Elastic constitutive model implementation of the Yeoh hyperelastic constitutive model.
 impl<'a> Elastic<'a> for Yeoh<'a>
@@ -83,14 +93,6 @@ impl<'a> Elastic<'a> for Yeoh<'a>
         let deviatoric_left_cauchy_green_deformation = left_cauchy_green_deformation.deviatoric();
         let last_term = CauchyTangentStiffness::dyad_ij_kl(&deviatoric_left_cauchy_green_deformation, &((left_cauchy_green_deformation.deviatoric() * &inverse_transpose_deformation_gradient) * (2.0*self.get_extra_moduli().iter().enumerate().map(|(n, modulus)| ((n as Scalar) + 2.0)*((n as Scalar) + 1.0)*modulus*scalar_term.powi(n.try_into().unwrap())).sum::<Scalar>()/jacobian.powf(7.0/3.0))));
         (CauchyTangentStiffness::dyad_ik_jl(&identity, deformation_gradient) + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &identity) - CauchyTangentStiffness::dyad_ij_kl(&identity, deformation_gradient)*(2.0/3.0))*scaled_modulus + CauchyTangentStiffness::dyad_ij_kl(&(identity*(0.5*self.get_bulk_modulus()*(jacobian + 1.0/jacobian)) - deviatoric_left_cauchy_green_deformation*(scaled_modulus*5.0/3.0)), &inverse_transpose_deformation_gradient) + last_term
-    }
-    fn get_bulk_modulus(&self) -> &Scalar
-    {
-        &self.parameters[0]
-    }
-    fn get_shear_modulus(&self) -> &Scalar
-    {
-        &self.parameters[1]
     }
 }
 

@@ -1,16 +1,10 @@
-use super::
-{
-    Gent,
-    super::test::
-    {
-        GENTPARAMETERS,
-        test_hyperelastic_constitutive_model
-    }
-};
+use super::*;
+use super::super::test::*;
 
-test_hyperelastic_constitutive_model!(
-    Gent,
-    GENTPARAMETERS,
+use_elastic_macros!();
+
+test_solid_hyperelastic_constitutive_model!(
+    Gent, GENTPARAMETERS,
     Gent::new(GENTPARAMETERS)
 );
 

@@ -1,15 +1,9 @@
-use super::
-{
-    NeoHookean,
-    super::test::
-    {
-        NEOHOOKEANPARAMETERS,
-        test_hyperelastic_constitutive_model
-    }
-};
+use super::*;
+use super::super::test::*;
 
-test_hyperelastic_constitutive_model!(
-    NeoHookean,
-    NEOHOOKEANPARAMETERS,
+use_elastic_macros!();
+
+test_solid_hyperelastic_constitutive_model!(
+    NeoHookean, NEOHOOKEANPARAMETERS,
     NeoHookean::new(NEOHOOKEANPARAMETERS)
 );

@@ -2,8 +2,10 @@
 
 pub mod elastic;
 pub mod hyperelastic;
+pub mod hyperviscoelastic;
 pub mod thermoelastic;
 pub mod thermohyperelastic;
+pub mod viscoelastic;
 
 use crate::
 {
@@ -18,14 +20,18 @@ use crate::
     {
         CauchyStress,
         CauchyTangentStiffness,
+        CauchyRateTangentStiffness,
         DeformationGradient,
+        DeformationGradientRate,
         FirstPiolaKirchoffStress,
         FirstPiolaKirchoffTangentStiffness,
+        FirstPiolaKirchoffRateTangentStiffness,
         LeftCauchyGreenDeformation,
         RightCauchyGreenDeformation,
         Scalar,
         SecondPiolaKirchoffStress,
-        SecondPiolaKirchoffTangentStiffness
+        SecondPiolaKirchoffTangentStiffness,
+        SecondPiolaKirchoffRateTangentStiffness
     }
 };
 use super::
@@ -70,4 +76,8 @@ where
             ).collect()
         ).collect()
     }
+    /// Returns the bulk modulus.
+    fn get_bulk_modulus(&self) -> &Scalar;
+    /// Returns the shear modulus.
+    fn get_shear_modulus(&self) -> &Scalar;
 }

@@ -1,16 +1,10 @@
-use super::
-{
-    Fung,
-    super::test::
-    {
-        FUNGPARAMETERS,
-        test_hyperelastic_constitutive_model
-    }
-};
+use super::*;
+use super::super::test::*;
 
-test_hyperelastic_constitutive_model!(
-    Fung,
-    FUNGPARAMETERS,
+use_elastic_macros!();
+
+test_solid_hyperelastic_constitutive_model!(
+    Fung, FUNGPARAMETERS,
     Fung::new(FUNGPARAMETERS)
 );
 

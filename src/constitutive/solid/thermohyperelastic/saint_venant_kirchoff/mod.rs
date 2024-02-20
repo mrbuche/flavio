@@ -19,7 +19,7 @@ use super::*;
 /// - None.
 ///
 /// **Notes**
-/// - The Green-Saint Venant strain measure is given by $`\mathbf{E}=\tfrac{1}{2}(\mathbf{C} - \mathbf{1})`$.
+/// - The Green-Saint Venant strain measure is given by $`\mathbf{E}=\tfrac{1}{2}(\mathbf{C}-\mathbf{1})`$.
 pub struct SaintVenantKirchoff<'a>
 {
     parameters: Parameters<'a>
@@ -38,7 +38,17 @@ impl<'a> Constitutive<'a> for SaintVenantKirchoff<'a>
 }
 
 /// Solid constitutive model implementation of the Saint Venant-Kirchoff thermohyperelastic constitutive model.
-impl<'a> Solid<'a> for SaintVenantKirchoff<'a> {}
+impl<'a> Solid<'a> for SaintVenantKirchoff<'a>
+{
+    fn get_bulk_modulus(&self) -> &Scalar
+    {
+        &self.parameters[0]
+    }
+    fn get_shear_modulus(&self) -> &Scalar
+    {
+        &self.parameters[1]
+    }
+}
 
 /// Thermohyperelastic constitutive model implementation of the Saint Venant-Kirchoff thermohyperelastic constitutive model.
 impl<'a> Thermoelastic<'a> for SaintVenantKirchoff<'a>
@@ -63,14 +73,6 @@ impl<'a> Thermoelastic<'a> for SaintVenantKirchoff<'a>
         let identity = SecondPiolaKirchoffStress::identity();
         let scaled_deformation_gradient_transpose = deformation_gradient.transpose()*self.get_shear_modulus();
         SecondPiolaKirchoffTangentStiffness::dyad_ik_jl(&scaled_deformation_gradient_transpose, &identity) + SecondPiolaKirchoffTangentStiffness::dyad_il_jk(&identity, &scaled_deformation_gradient_transpose) + SecondPiolaKirchoffTangentStiffness::dyad_ij_kl(&(identity*(self.get_bulk_modulus() - 2.0/3.0*self.get_shear_modulus())), deformation_gradient)
-    }
-    fn get_bulk_modulus(&self) -> &Scalar
-    {
-        &self.parameters[0]
-    }
-    fn get_shear_modulus(&self) -> &Scalar
-    {
-        &self.parameters[1]
     }
     fn get_coefficient_of_thermal_expansion(&self) -> &Scalar
     {

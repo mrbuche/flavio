@@ -1,6 +1,15 @@
 //! Hyperelastic constitutive models.
 //!
 //! Hyperelastic constitutive models are completely defined by a Helmholtz free energy density function of the deformation gradient.
+//!
+//! ```math
+//! \mathbf{P}:\dot{\mathbf{F}} - \dot{a}(\mathbf{F}) \geq 0
+//! ```
+//! Satisfying the second law of thermodynamics (here, equivalent to extremized or zero dissipation) yields a relation for the stress.
+//!
+//! ```math
+//! \mathbf{P} = \frac{\partial a}{\partial\mathbf{F}}
+//! ```
 //! Consequently, the tangent stiffness associated with the first Piola-Kirchoff stress is symmetric for hyperelastic constitutive models.
 //!
 //! ```math
@@ -10,7 +19,6 @@
 #[cfg(test)]
 pub mod test;
 
-mod additive_decomposition;
 mod arruda_boyce;
 mod fung;
 mod gent;
@@ -45,22 +53,4 @@ where
     /// a = a(\mathbf{F})
     /// ```
     fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar;
-}
-
-/// A combined hyperelastic constitutive model.
-pub struct CombinedHyperelastic<C1, C2>
-{
-    hyperelastic_constitutive_model_1: C1,
-    hyperelastic_constitutive_model_2: C2
-}
-
-/// Required methods for combied constitutive models.
-pub trait Combined<C1, C2>
-{
-    /// Constructs and returns a new combined constitutive model.
-    fn construct(constitutive_model_1: C1, constitutive_model_2: C2) -> Self;
-    /// Returns a reference to the first constitutive model.
-    fn get_constitutive_model_1(&self) -> &C1;
-    /// Returns a reference to the second constitutive model.
-    fn get_constitutive_model_2(&self) -> &C2;
 }

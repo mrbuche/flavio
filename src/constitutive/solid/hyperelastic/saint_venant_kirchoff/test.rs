@@ -1,15 +1,9 @@
-use super::
-{
-    SaintVenantKirchoff,
-    super::test::
-    {
-        SAINTVENANTKIRCHOFFPARAMETERS,
-        test_hyperelastic_constitutive_model
-    }
-};
+use super::*;
+use super::super::test::*;
 
-test_hyperelastic_constitutive_model!(
-    SaintVenantKirchoff,
-    SAINTVENANTKIRCHOFFPARAMETERS,
+use_elastic_macros!();
+
+test_solid_hyperelastic_constitutive_model!(
+    SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS,
     SaintVenantKirchoff::new(SAINTVENANTKIRCHOFFPARAMETERS)
 );

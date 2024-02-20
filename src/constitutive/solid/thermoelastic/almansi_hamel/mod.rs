@@ -19,7 +19,7 @@ use super::*;
 /// - None.
 ///
 /// **Notes**
-/// - The Almansi-Hamel strain measure is given by $`\mathbf{e}=\tfrac{1}{2}(\mathbf{1} - \mathbf{B}^{-1})`$.
+/// - The Almansi-Hamel strain measure is given by $`\mathbf{e}=\tfrac{1}{2}(\mathbf{1}-\mathbf{B}^{-1})`$.
 pub struct AlmansiHamel<'a>
 {
     parameters: Parameters<'a>
@@ -38,7 +38,17 @@ impl<'a> Constitutive<'a> for AlmansiHamel<'a>
 }
 
 /// Solid constitutive model implementation of the Almansi-Hamel thermoelastic constitutive model.
-impl<'a> Solid<'a> for AlmansiHamel<'a> {}
+impl<'a> Solid<'a> for AlmansiHamel<'a>
+{
+    fn get_bulk_modulus(&self) -> &Scalar
+    {
+        &self.parameters[0]
+    }
+    fn get_shear_modulus(&self) -> &Scalar
+    {
+        &self.parameters[1]
+    }
+}
 
 /// Thermoelastic constitutive model implementation of the Almansi-Hamel thermoelastic constitutive model.
 impl<'a> Thermoelastic<'a> for AlmansiHamel<'a>
@@ -69,14 +79,6 @@ impl<'a> Thermoelastic<'a> for AlmansiHamel<'a>
         let strain = (&identity * 1.0 - &inverse_left_cauchy_green_deformation) * 0.5;
         let (deviatoric_strain, strain_trace) = strain.deviatoric_and_trace();
         (CauchyTangentStiffness::dyad_il_jk(&inverse_transpose_deformation_gradient, &inverse_left_cauchy_green_deformation) + CauchyTangentStiffness::dyad_ik_jl(&inverse_left_cauchy_green_deformation, &inverse_transpose_deformation_gradient)) * (self.get_shear_modulus() / jacobian)+ CauchyTangentStiffness::dyad_ij_kl(&identity,&(inverse_left_cauchy_green_deformation * &inverse_transpose_deformation_gradient*((self.get_bulk_modulus() - self.get_shear_modulus() * 2.0 / 3.0) / jacobian))) - CauchyTangentStiffness::dyad_ij_kl(&(deviatoric_strain * (2.0 * self.get_shear_modulus() / jacobian) + identity * (self.get_bulk_modulus() / jacobian * (strain_trace - 3.0*self.get_coefficient_of_thermal_expansion()*(temperature - self.get_reference_temperature())))), &inverse_transpose_deformation_gradient)
-    }
-    fn get_bulk_modulus(&self) -> &Scalar
-    {
-        &self.parameters[0]
-    }
-    fn get_shear_modulus(&self) -> &Scalar
-    {
-        &self.parameters[1]
     }
     fn get_coefficient_of_thermal_expansion(&self) -> &Scalar
     {

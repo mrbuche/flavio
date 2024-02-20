@@ -46,7 +46,17 @@ impl<'a> Constitutive<'a> for Gent<'a>
 }
 
 /// Solid constitutive model implementation of the Gent hyperelastic constitutive model.
-impl<'a> Solid<'a> for Gent<'a> {}
+impl<'a> Solid<'a> for Gent<'a>
+{
+    fn get_bulk_modulus(&self) -> &Scalar
+    {
+        &self.parameters[0]
+    }
+    fn get_shear_modulus(&self) -> &Scalar
+    {
+        &self.parameters[1]
+    }
+}
 
 /// Elastic constitutive model implementation of the Gent hyperelastic constitutive model.
 impl<'a> Elastic<'a> for Gent<'a>
@@ -86,14 +96,6 @@ impl<'a> Elastic<'a> for Gent<'a>
         }
         let prefactor = self.get_shear_modulus()*self.get_extensibility()/jacobian/denominator;
         (CauchyTangentStiffness::dyad_ik_jl(&identity, deformation_gradient) + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &identity) - CauchyTangentStiffness::dyad_ij_kl(&identity, deformation_gradient)*(2.0/3.0) + CauchyTangentStiffness::dyad_ij_kl(&deviatoric_isochoric_left_cauchy_green_deformation, deformation_gradient)*(2.0/denominator))*(prefactor/jacobian.powf(2.0/3.0)) + CauchyTangentStiffness::dyad_ij_kl(&(identity*(0.5*self.get_bulk_modulus()*(jacobian + 1.0/jacobian)) - deviatoric_isochoric_left_cauchy_green_deformation*prefactor*((5.0 + 2.0*isochoric_left_cauchy_green_deformation_trace/denominator)/3.0)), &inverse_transpose_deformation_gradient)
-    }
-    fn get_bulk_modulus(&self) -> &Scalar
-    {
-        &self.parameters[0]
-    }
-    fn get_shear_modulus(&self) -> &Scalar
-    {
-        &self.parameters[1]
     }
 }
 

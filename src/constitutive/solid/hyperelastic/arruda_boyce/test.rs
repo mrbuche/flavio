@@ -1,16 +1,10 @@
-use super::
-{
-    ArrudaBoyce,
-    super::test::
-    {
-        ARRUDABOYCEPARAMETERS,
-        test_hyperelastic_constitutive_model
-    }
-};
+use super::*;
+use super::super::test::*;
 
-test_hyperelastic_constitutive_model!(
-    ArrudaBoyce,
-    ARRUDABOYCEPARAMETERS,
+use_elastic_macros!();
+
+test_solid_hyperelastic_constitutive_model!(
+    ArrudaBoyce, ARRUDABOYCEPARAMETERS,
     ArrudaBoyce::new(ARRUDABOYCEPARAMETERS)
 );
 

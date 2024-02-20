@@ -36,7 +36,20 @@ impl<'a, C1, C2> Constitutive<'a> for ThermohyperelasticThermalConduction<C1, C2
 }
 
 /// Solid constitutive model implementation of a thermohyperelastic-thermal conduction constitutive model.
-impl<'a, C1, C2> Solid<'a> for ThermohyperelasticThermalConduction<C1, C2> {}
+impl<'a, C1, C2> Solid<'a> for ThermohyperelasticThermalConduction<C1, C2>
+where
+    C1: Thermohyperelastic<'a>,
+    C2: ThermalConduction<'a>
+{
+    fn get_bulk_modulus(&self) -> &Scalar
+    {
+        self.get_solid_constitutive_model().get_bulk_modulus()
+    }
+    fn get_shear_modulus(&self) -> &Scalar
+    {
+        self.get_solid_constitutive_model().get_shear_modulus()
+    }
+}
 
 /// Thermoelastic constitutive model implementation of a thermohyperelastic-thermal conduction constitutive model.
 impl<'a, C1, C2> Thermoelastic<'a> for ThermohyperelasticThermalConduction<C1, C2>
@@ -67,14 +80,6 @@ where
     fn calculate_second_piola_kirchoff_tangent_stiffness(&self, deformation_gradient: &DeformationGradient, temperature: &Scalar) -> SecondPiolaKirchoffTangentStiffness
     {
         self.get_solid_constitutive_model().calculate_second_piola_kirchoff_tangent_stiffness(deformation_gradient, temperature)
-    }
-    fn get_bulk_modulus(&self) -> &Scalar
-    {
-        self.get_solid_constitutive_model().get_bulk_modulus()
-    }
-    fn get_shear_modulus(&self) -> &Scalar
-    {
-        self.get_solid_constitutive_model().get_shear_modulus()
     }
     fn get_coefficient_of_thermal_expansion(&self) -> &Scalar
     {

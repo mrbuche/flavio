@@ -46,7 +46,17 @@ impl<'a> Constitutive<'a> for MooneyRivlin<'a>
 }
 
 /// Solid constitutive model implementation of the Mooney-Rivlin hyperelastic constitutive model.
-impl<'a> Solid<'a> for MooneyRivlin<'a> {}
+impl<'a> Solid<'a> for MooneyRivlin<'a>
+{
+    fn get_bulk_modulus(&self) -> &Scalar
+    {
+        &self.parameters[0]
+    }
+    fn get_shear_modulus(&self) -> &Scalar
+    {
+        &self.parameters[1]
+    }
+}
 
 /// Elastic constitutive model implementation of the Mooney-Rivlin hyperelastic constitutive model.
 impl<'a> Elastic<'a> for MooneyRivlin<'a>
@@ -78,14 +88,6 @@ impl<'a> Elastic<'a> for MooneyRivlin<'a>
         let term_3 = CauchyTangentStiffness::dyad_ij_kl(&deviatoric_inverse_isochoric_left_cauchy_green_deformation, &inverse_transpose_deformation_gradient);
         let term_2 = CauchyTangentStiffness::dyad_ij_kl(&identity, &((deviatoric_inverse_isochoric_left_cauchy_green_deformation * 2.0/3.0) * &inverse_transpose_deformation_gradient));
         (CauchyTangentStiffness::dyad_ik_jl(&identity, deformation_gradient) + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &identity) - CauchyTangentStiffness::dyad_ij_kl(&identity, deformation_gradient)*(2.0/3.0))*scaled_delta_shear_modulus + CauchyTangentStiffness::dyad_ij_kl(&(identity*(0.5*self.get_bulk_modulus()*(jacobian + 1.0/jacobian)) - self.calculate_left_cauchy_green_deformation(deformation_gradient).deviatoric()*(scaled_delta_shear_modulus*5.0/3.0)), &inverse_transpose_deformation_gradient) - (term_1 + term_2 - term_3)*self.get_extra_modulus()/jacobian
-    }
-    fn get_bulk_modulus(&self) -> &Scalar
-    {
-        &self.parameters[0]
-    }
-    fn get_shear_modulus(&self) -> &Scalar
-    {
-        &self.parameters[1]
     }
 }
 
