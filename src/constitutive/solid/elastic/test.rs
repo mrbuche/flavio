@@ -24,6 +24,17 @@ macro_rules! calculate_cauchy_stress_from_deformation_gradient_simple
 }
 pub(crate) use calculate_cauchy_stress_from_deformation_gradient_simple;
 
+macro_rules! calculate_cauchy_stress_from_deformation_gradient_rotated
+{
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
+    {
+        $constitutive_model_constructed.calculate_cauchy_stress(
+            $deformation_gradient
+        )
+    }
+}
+pub(crate) use calculate_cauchy_stress_from_deformation_gradient_rotated;
+
 macro_rules! calculate_cauchy_tangent_stiffness_from_deformation_gradient
 {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
@@ -57,6 +68,17 @@ macro_rules! calculate_first_piola_kirchoff_stress_from_deformation_gradient_sim
 }
 pub(crate) use calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple;
 
+macro_rules! calculate_first_piola_kirchoff_stress_from_deformation_gradient_rotated
+{
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
+    {
+        $constitutive_model_constructed.calculate_first_piola_kirchoff_stress(
+            $deformation_gradient
+        )
+    }
+}
+pub(crate) use calculate_first_piola_kirchoff_stress_from_deformation_gradient_rotated;
+
 macro_rules! calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient
 {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
@@ -89,6 +111,17 @@ macro_rules! calculate_second_piola_kirchoff_stress_from_deformation_gradient_si
     }
 }
 pub(crate) use calculate_second_piola_kirchoff_stress_from_deformation_gradient_simple;
+
+macro_rules! calculate_second_piola_kirchoff_stress_from_deformation_gradient_rotated
+{
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
+    {
+        $constitutive_model_constructed.calculate_second_piola_kirchoff_stress(
+            $deformation_gradient
+        )
+    }
+}
+pub(crate) use calculate_second_piola_kirchoff_stress_from_deformation_gradient_rotated;
 
 macro_rules! calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient
 {
@@ -325,12 +358,13 @@ macro_rules! test_solid_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    let model = $constitutive_model_constructed;
-                    calculate_cauchy_stress_from_deformation_gradient!(&model, &get_deformation_gradient())
-                    .iter().zip((
+                    calculate_cauchy_stress_from_deformation_gradient!(
+                        &$constitutive_model_constructed, &get_deformation_gradient()
+                    ).iter().zip((
                         get_rotation_current_configuration().transpose() *
-                        calculate_cauchy_stress_from_deformation_gradient!(&model, &get_deformation_gradient_rotated()) *
-                        get_rotation_current_configuration()
+                        calculate_cauchy_stress_from_deformation_gradient_rotated!(
+                            &$constitutive_model_constructed, &get_deformation_gradient_rotated()
+                        ) * get_rotation_current_configuration()
                     ).iter())
                     .for_each(|(cauchy_stress_i, rotated_cauchy_stress_i)|
                         cauchy_stress_i.iter().zip(rotated_cauchy_stress_i.iter())
@@ -558,7 +592,7 @@ macro_rules! test_solid_constitutive_model
                         &$constitutive_model_constructed, &get_deformation_gradient()
                     ).iter().zip((
                         get_rotation_current_configuration().transpose() *
-                        calculate_first_piola_kirchoff_stress_from_deformation_gradient!(
+                        calculate_first_piola_kirchoff_stress_from_deformation_gradient_rotated!(
                             &$constitutive_model_constructed, &get_deformation_gradient_rotated()
                         ) * get_rotation_reference_configuration()
                     ).iter())
@@ -730,7 +764,7 @@ macro_rules! test_solid_constitutive_model
                         &model, &get_deformation_gradient()
                     ).iter().zip((
                         get_rotation_reference_configuration().transpose() *
-                        calculate_second_piola_kirchoff_stress_from_deformation_gradient!(
+                        calculate_second_piola_kirchoff_stress_from_deformation_gradient_rotated!(
                             &model, &get_deformation_gradient_rotated()
                         ) * get_rotation_reference_configuration()
                     ).iter())
