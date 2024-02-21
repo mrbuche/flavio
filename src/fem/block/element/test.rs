@@ -90,14 +90,14 @@ macro_rules! test_finite_element_with_constitutive_model
 {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
     {
-        fn get_current_coordinates() -> CurrentNodalCoordinates<N>
+        fn get_current_coordinates() -> NodalCoordinates<N>
         {
             get_reference_coordinates().iter()
             .map(|reference_coordinate|
                 get_deformation_gradient() * reference_coordinate
             ).collect()
         }
-        fn get_current_coordinates_transformed() -> CurrentNodalCoordinates<N>
+        fn get_current_coordinates_transformed() -> NodalCoordinates<N>
         {
             get_current_coordinates().iter()
             .map(|current_coordinate|

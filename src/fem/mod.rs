@@ -4,7 +4,7 @@ mod block;
 
 pub use block::
 {
-    Block,
+    ElasticBlock,
     FiniteElementBlock,
     HyperelasticFiniteElementBlock,
     element::
@@ -29,14 +29,14 @@ use crate::
     {
         Constitutive,
         Parameters,
-        multiphysics::SolidThermal,
         solid::
         {
             Solid,
             elastic::Elastic,
-            hyperelastic::Hyperelastic
-        },
-        thermal::Thermal
+            hyperelastic::Hyperelastic,
+            viscoelastic::Viscoelastic,
+            hyperviscoelastic::Hyperviscoelastic
+        }
     },
     math::
     {
@@ -51,6 +51,7 @@ use crate::
     {
         CurrentCoordinates,
         DeformationGradient,
+        DeformationGradientRate,
         FirstPiolaKirchoffStress,
         FirstPiolaKirchoffTangentStiffness,
         Forces,
@@ -63,8 +64,8 @@ use crate::
 };
 
 type Connectivity<const E: usize, const N: usize> = [[usize; N]; E];
-type CurrentNodalCoordinates<const D: usize> = CurrentCoordinates<D>;
+type NodalCoordinates<const D: usize> = CurrentCoordinates<D>;
 type NodalForces<const D: usize> = Forces<D>;
 type NodalStiffnesses<const D: usize> = Stiffnesses<D>;
-type _NodalTemperatures<const D: usize> = Scalars<D>;
+type NodalVelocities<const D: usize> = CurrentCoordinates<D>;
 type ReferenceNodalCoordinates<const D: usize> = ReferenceCoordinates<D>;

@@ -45,9 +45,9 @@ fn get_connectivity() -> Connectivity<E, N>
     ]
 }
 
-fn get_current_coordinates_block() -> CurrentNodalCoordinates<D>
+fn get_current_coordinates_block() -> NodalCoordinates<D>
 {
-    CurrentNodalCoordinates::new([
+    NodalCoordinates::new([
         [ 0.48419081, -0.52698494,  0.42026988],
         [ 0.43559430,  0.52696224,  0.54477963],
         [-0.56594965,  0.57076191,  0.51683869],
