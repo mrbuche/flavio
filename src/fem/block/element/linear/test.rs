@@ -8,6 +8,11 @@ macro_rules! test_linear_finite_element
             {
                 constitutive::solid::
                 {
+                    elastic::
+                    {
+                        AlmansiHamel,
+                        test::ALMANSIHAMELPARAMETERS
+                    },
                     hyperelastic::
                     {
                         ArrudaBoyce,
@@ -29,7 +34,11 @@ macro_rules! test_linear_finite_element
                         }
                     }
                 },
-                fem::block::element::linear::test::test_linear_finite_element_with_constitutive_model,
+                fem::block::element::linear::test::
+                {
+                    test_linear_finite_element_with_elastic_constitutive_model,
+                    test_linear_finite_element_with_hyperelastic_constitutive_model
+                },
                 math::Convert,
                 mechanics::test::
                 {
@@ -42,59 +51,65 @@ macro_rules! test_linear_finite_element
                 test::assert_eq_within_tols
             };
             use super::*;
+            pub mod almansi_hamel
+            {
+                use super::*;
+                test_linear_finite_element_with_elastic_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
+            }
             pub mod arruda_boyce
             {
                 use super::*;
-                test_linear_finite_element_with_constitutive_model!($element, ArrudaBoyce, ARRUDABOYCEPARAMETERS);
+                test_linear_finite_element_with_hyperelastic_constitutive_model!($element, ArrudaBoyce, ARRUDABOYCEPARAMETERS);
             }
             mod fung
             {
                 use super::*;
-                test_linear_finite_element_with_constitutive_model!($element, Fung, FUNGPARAMETERS);
+                test_linear_finite_element_with_hyperelastic_constitutive_model!($element, Fung, FUNGPARAMETERS);
             }
             mod gent
             {
                 use super::*;
-                test_linear_finite_element_with_constitutive_model!($element, Gent, GENTPARAMETERS);
+                test_linear_finite_element_with_hyperelastic_constitutive_model!($element, Gent, GENTPARAMETERS);
             }
             mod mooney_rivlin
             {
                 use super::*;
-                test_linear_finite_element_with_constitutive_model!($element, MooneyRivlin, MOONEYRIVLINPARAMETERS);
+                test_linear_finite_element_with_hyperelastic_constitutive_model!($element, MooneyRivlin, MOONEYRIVLINPARAMETERS);
             }
             mod neo_hookean
             {
                 use super::*;
-                test_linear_finite_element_with_constitutive_model!($element, NeoHookean, NEOHOOKEANPARAMETERS);
+                test_linear_finite_element_with_hyperelastic_constitutive_model!($element, NeoHookean, NEOHOOKEANPARAMETERS);
             }
             mod saint_venant_kirchoff
             {
                 use super::*;
-                test_linear_finite_element_with_constitutive_model!($element, SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS);
+                test_linear_finite_element_with_hyperelastic_constitutive_model!($element, SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS);
             }
             mod yeoh
             {
                 use super::*;
-                test_linear_finite_element_with_constitutive_model!($element, Yeoh, YEOHPARAMETERS);
+                test_linear_finite_element_with_hyperelastic_constitutive_model!($element, Yeoh, YEOHPARAMETERS);
             }
         }
     }
 }
 pub(crate) use test_linear_finite_element;
-macro_rules! test_linear_finite_element_with_constitutive_model
+
+macro_rules! test_linear_finite_element_with_elastic_constitutive_model
 {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
     {
-        fn get_current_coordinates() -> NodalCoordinates<N>
+        fn get_coordinates() -> NodalCoordinates<N>
         {
             get_reference_coordinates().iter()
             .map(|reference_coordinate|
                 get_deformation_gradient() * reference_coordinate
             ).collect()
         }
-        fn get_current_coordinates_transformed() -> NodalCoordinates<N>
+        fn get_coordinates_transformed() -> NodalCoordinates<N>
         {
-            get_current_coordinates().iter()
+            get_coordinates().iter()
             .map(|current_coordinate|
                 get_rotation_current_configuration() * current_coordinate
                 + get_translation_current_configuration()
@@ -133,11 +148,11 @@ macro_rules! test_linear_finite_element_with_constitutive_model
                 fn objectivity()
                 {
                     get_element().calculate_deformation_gradient(
-                        &get_current_coordinates()
+                        &get_coordinates()
                     ).iter().zip((
                         get_rotation_current_configuration().transpose() *
                         get_element_transformed().calculate_deformation_gradient(
-                            &get_current_coordinates_transformed()
+                            &get_coordinates_transformed()
                         ) * get_rotation_reference_configuration()
                     ).iter()
                     ).for_each(|(deformation_gradient_i, res_deformation_gradient_i)|
@@ -243,7 +258,6 @@ macro_rules! test_linear_finite_element_with_constitutive_model
         #[test]
         fn size()
         {
-            // really only for hyperelastic constitutive models (no state variables)
             assert_eq!(
                 std::mem::size_of::<$element::<$constitutive_model>>(),
                 std::mem::size_of::<$constitutive_model>()
@@ -252,4 +266,15 @@ macro_rules! test_linear_finite_element_with_constitutive_model
         }
     }
 }
-pub(crate) use test_linear_finite_element_with_constitutive_model;
+pub(crate) use test_linear_finite_element_with_elastic_constitutive_model;
+
+macro_rules! test_linear_finite_element_with_hyperelastic_constitutive_model
+{
+    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
+    {
+        crate::fem::block::element::linear::test::test_linear_finite_element_with_elastic_constitutive_model!(
+            $element, $constitutive_model, $constitutive_model_parameters
+        );
+    }
+}
+pub(crate) use test_linear_finite_element_with_hyperelastic_constitutive_model;
