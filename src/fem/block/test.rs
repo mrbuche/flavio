@@ -2,19 +2,54 @@ macro_rules! test_finite_element_block
 {
     ($element: ident) =>
     {
-        mod finite_element_block
+        mod block
         {
             use crate::
             {
                 EPSILON,
-                constitutive::solid::
+                fem::block::test::
                 {
-                    elastic::
+                    test_finite_element_block_with_elastic_constitutive_model,
+                    test_finite_element_block_with_hyperelastic_constitutive_model,
+                    test_finite_element_block_with_hyperviscoelastic_constitutive_model
+                },
+                math::
+                {
+                    Convert,
+                    TensorRank2
+                },
+                mechanics::test::
+                {
+                    get_rotation_current_configuration,
+                    get_rotation_reference_configuration,
+                    get_translation_current_configuration,
+                    get_translation_reference_configuration
+                },
+                test::assert_eq_within_tols
+            };
+            use super::*;
+            mod elastic
+            {
+                use super::*;
+                mod almansi_hamel
+                {
+                    use crate::
                     {
-                        AlmansiHamel,
-                        test::ALMANSIHAMELPARAMETERS
-                    },
-                    hyperelastic::
+                        constitutive::solid::elastic::
+                        {
+                            AlmansiHamel,
+                            test::ALMANSIHAMELPARAMETERS
+                        }
+                    };
+                    use super::*;
+                    test_finite_element_block_with_elastic_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
+                }
+            }
+            mod hyperelastic
+            {
+                use crate::
+                {
+                    constitutive::solid::hyperelastic::
                     {
                         ArrudaBoyce,
                         Fung,
@@ -34,66 +69,60 @@ macro_rules! test_finite_element_block
                             YEOHPARAMETERS
                         }
                     }
-                },
-                fem::block::test::
+                };
+                use super::*;
+                mod arruda_boyce
                 {
-                    test_finite_element_block_with_elastic_constitutive_model,
-                    test_finite_element_block_with_hyperelastic_constitutive_model
-                },
-                math::
+                    use super::*;
+                    test_finite_element_block_with_hyperelastic_constitutive_model!($element, ArrudaBoyce, ARRUDABOYCEPARAMETERS);
+                }
+                mod fung
                 {
-                    Convert,
-                    TensorRank2
-                },
-                mechanics::test::
+                    use super::*;
+                    test_finite_element_block_with_hyperelastic_constitutive_model!($element, Fung, FUNGPARAMETERS);
+                }
+                mod gent
                 {
-                    get_rotation_current_configuration,
-                    get_rotation_reference_configuration,
-                    get_translation_current_configuration,
-                    get_translation_reference_configuration
-                },
-                test::assert_eq_within_tols
-            };
-            use super::*;
-            mod almansi_hamel
-            {
-                use super::*;
-                test_finite_element_block_with_elastic_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
+                    use super::*;
+                    test_finite_element_block_with_hyperelastic_constitutive_model!($element, Gent, GENTPARAMETERS);
+                }
+                mod mooney_rivlin
+                {
+                    use super::*;
+                    test_finite_element_block_with_hyperelastic_constitutive_model!($element, MooneyRivlin, MOONEYRIVLINPARAMETERS);
+                }
+                mod neo_hookean
+                {
+                    use super::*;
+                    test_finite_element_block_with_hyperelastic_constitutive_model!($element, NeoHookean, NEOHOOKEANPARAMETERS);
+                }
+                mod saint_venant_kirchoff
+                {
+                    use super::*;
+                    test_finite_element_block_with_hyperelastic_constitutive_model!($element, SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS);
+                }
+                mod yeoh
+                {
+                    use super::*;
+                    test_finite_element_block_with_hyperelastic_constitutive_model!($element, Yeoh, YEOHPARAMETERS);
+                }
             }
-            mod arruda_boyce
+            mod hyperviscoelastic
             {
+                use crate::
+                {
+                    constitutive::solid::hyperviscoelastic::
+                    {
+                        SaintVenantKirchoff,
+                        test::SAINTVENANTKIRCHOFFPARAMETERS
+                    }
+                };
                 use super::*;
-                test_finite_element_block_with_hyperelastic_constitutive_model!($element, ArrudaBoyce, ARRUDABOYCEPARAMETERS);
-            }
-            mod fung
-            {
-                use super::*;
-                test_finite_element_block_with_hyperelastic_constitutive_model!($element, Fung, FUNGPARAMETERS);
-            }
-            mod gent
-            {
-                use super::*;
-                test_finite_element_block_with_hyperelastic_constitutive_model!($element, Gent, GENTPARAMETERS);
-            }
-            mod mooney_rivlin
-            {
-                use super::*;
-                test_finite_element_block_with_hyperelastic_constitutive_model!($element, MooneyRivlin, MOONEYRIVLINPARAMETERS);
-            }
-            mod neo_hookean
-            {
-                use super::*;
-                test_finite_element_block_with_hyperelastic_constitutive_model!($element, NeoHookean, NEOHOOKEANPARAMETERS);
-            }
-            mod saint_venant_kirchoff
-            {
-                use super::*;
-                test_finite_element_block_with_hyperelastic_constitutive_model!($element, SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS);
-            }
-            mod yeoh
-            {
-                use super::*;
-                test_finite_element_block_with_hyperelastic_constitutive_model!($element, Yeoh, YEOHPARAMETERS);
+                mod saint_venant_kirchoff
+                {
+                    use super::*;
+                    test_finite_element_block_with_hyperviscoelastic_constitutive_model!($element, SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS);
+                }
             }
         }
     }
@@ -782,3 +811,125 @@ macro_rules! test_finite_element_block_with_hyperelastic_constitutive_model
     }
 }
 pub(crate) use test_finite_element_block_with_hyperelastic_constitutive_model;
+
+macro_rules! test_finite_element_block_with_hyperviscoelastic_constitutive_model
+{
+    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
+    {
+        #[test]
+        fn test_finite_element_block_with_elastic_constitutive_model()
+        {
+            todo!()
+        }
+        #[test]
+        fn test_finite_element_block_with_hyperelastic_constitutive_model()
+        {
+            todo!()
+        }
+        mod viscous_dissipation
+        {
+            use super::*;
+            mod deformed
+            {
+                use super::*;
+                #[test]
+                fn finite_difference()
+                {
+                    todo!()
+                }
+                #[test]
+                fn minimized()
+                {
+                    todo!()
+                }
+                #[test]
+                fn objectivity()
+                {
+                    todo!()
+                }
+                #[test]
+                fn positive()
+                {
+                    todo!()
+                }
+            }
+            mod undeformed
+            {
+                use super::*;
+                #[test]
+                fn finite_difference()
+                {
+                    todo!()
+                }
+                #[test]
+                fn minimized()
+                {
+                    todo!()
+                }
+                #[test]
+                fn objectivity()
+                {
+                    todo!()
+                }
+                #[test]
+                fn zero()
+                {
+                    todo!()
+                }
+            }
+        }
+        mod dissipation_potential
+        {
+            use super::*;
+            mod deformed
+            {
+                use super::*;
+                #[test]
+                fn finite_difference()
+                {
+                    todo!()
+                }
+                #[test]
+                fn minimized()
+                {
+                    todo!()
+                }
+                #[test]
+                fn objectivity()
+                {
+                    todo!()
+                }
+                #[test]
+                fn positive()
+                {
+                    todo!()
+                }
+            }
+            mod undeformed
+            {
+                use super::*;
+                #[test]
+                fn finite_difference()
+                {
+                    todo!()
+                }
+                #[test]
+                fn minimized()
+                {
+                    todo!()
+                }
+                #[test]
+                fn objectivity()
+                {
+                    todo!()
+                }
+                #[test]
+                fn zero()
+                {
+                    todo!()
+                }
+            }
+        }
+    }
+}
+pub(crate) use test_finite_element_block_with_hyperviscoelastic_constitutive_model;

@@ -2,18 +2,48 @@ macro_rules! test_linear_finite_element
 {
     ($element: ident) =>
     {
-        mod linear_finite_element
+        mod linear_element
         {
             use crate::
             {
-                constitutive::solid::
+                fem::block::element::linear::test::
                 {
-                    elastic::
+                    test_linear_finite_element_with_constitutive_model
+                },
+                math::Convert,
+                mechanics::test::
+                {
+                    get_deformation_gradient,
+                    get_rotation_current_configuration,
+                    get_rotation_reference_configuration,
+                    get_translation_current_configuration,
+                    get_translation_reference_configuration
+                },
+                test::assert_eq_within_tols
+            };
+            use super::*;
+            mod elastic
+            {
+                use super::*;
+                mod almansi_hamel
+                {
+                    use crate::
                     {
-                        AlmansiHamel,
-                        test::ALMANSIHAMELPARAMETERS
-                    },
-                    hyperelastic::
+                        constitutive::solid::elastic::
+                        {
+                            AlmansiHamel,
+                            test::ALMANSIHAMELPARAMETERS
+                        }
+                    };
+                    use super::*;
+                    test_linear_finite_element_with_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
+                }
+            }
+            mod hyperelastic
+            {
+                use crate::
+                {
+                    constitutive::solid::hyperelastic::
                     {
                         ArrudaBoyce,
                         Fung,
@@ -33,70 +63,67 @@ macro_rules! test_linear_finite_element
                             YEOHPARAMETERS
                         }
                     }
-                },
-                fem::block::element::linear::test::
+                };
+                use super::*;
+                mod arruda_boyce
                 {
-                    test_linear_finite_element_with_elastic_constitutive_model,
-                    test_linear_finite_element_with_hyperelastic_constitutive_model
-                },
-                math::Convert,
-                mechanics::test::
+                    use super::*;
+                    test_linear_finite_element_with_constitutive_model!($element, ArrudaBoyce, ARRUDABOYCEPARAMETERS);
+                }
+                mod fung
                 {
-                    get_deformation_gradient,
-                    get_rotation_current_configuration,
-                    get_rotation_reference_configuration,
-                    get_translation_current_configuration,
-                    get_translation_reference_configuration
-                },
-                test::assert_eq_within_tols
-            };
-            use super::*;
-            mod almansi_hamel
-            {
-                use super::*;
-                test_linear_finite_element_with_elastic_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
+                    use super::*;
+                    test_linear_finite_element_with_constitutive_model!($element, Fung, FUNGPARAMETERS);
+                }
+                mod gent
+                {
+                    use super::*;
+                    test_linear_finite_element_with_constitutive_model!($element, Gent, GENTPARAMETERS);
+                }
+                mod mooney_rivlin
+                {
+                    use super::*;
+                    test_linear_finite_element_with_constitutive_model!($element, MooneyRivlin, MOONEYRIVLINPARAMETERS);
+                }
+                mod neo_hookean
+                {
+                    use super::*;
+                    test_linear_finite_element_with_constitutive_model!($element, NeoHookean, NEOHOOKEANPARAMETERS);
+                }
+                mod saint_venant_kirchoff
+                {
+                    use super::*;
+                    test_linear_finite_element_with_constitutive_model!($element, SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS);
+                }
+                mod yeoh
+                {
+                    use super::*;
+                    test_linear_finite_element_with_constitutive_model!($element, Yeoh, YEOHPARAMETERS);
+                }
             }
-            mod arruda_boyce
+            mod hyperviscoelastic
             {
+                use crate::
+                {
+                    constitutive::solid::hyperviscoelastic::
+                    {
+                        SaintVenantKirchoff,
+                        test::SAINTVENANTKIRCHOFFPARAMETERS
+                    }
+                };
                 use super::*;
-                test_linear_finite_element_with_hyperelastic_constitutive_model!($element, ArrudaBoyce, ARRUDABOYCEPARAMETERS);
-            }
-            mod fung
-            {
-                use super::*;
-                test_linear_finite_element_with_hyperelastic_constitutive_model!($element, Fung, FUNGPARAMETERS);
-            }
-            mod gent
-            {
-                use super::*;
-                test_linear_finite_element_with_hyperelastic_constitutive_model!($element, Gent, GENTPARAMETERS);
-            }
-            mod mooney_rivlin
-            {
-                use super::*;
-                test_linear_finite_element_with_hyperelastic_constitutive_model!($element, MooneyRivlin, MOONEYRIVLINPARAMETERS);
-            }
-            mod neo_hookean
-            {
-                use super::*;
-                test_linear_finite_element_with_hyperelastic_constitutive_model!($element, NeoHookean, NEOHOOKEANPARAMETERS);
-            }
-            mod saint_venant_kirchoff
-            {
-                use super::*;
-                test_linear_finite_element_with_hyperelastic_constitutive_model!($element, SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS);
-            }
-            mod yeoh
-            {
-                use super::*;
-                test_linear_finite_element_with_hyperelastic_constitutive_model!($element, Yeoh, YEOHPARAMETERS);
+                mod saint_venant_kirchoff
+                {
+                    use super::*;
+                    test_linear_finite_element_with_constitutive_model!($element, SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS);
+                }
             }
         }
     }
 }
 pub(crate) use test_linear_finite_element;
 
-macro_rules! test_linear_finite_element_with_elastic_constitutive_model
+macro_rules! test_linear_finite_element_with_constitutive_model
 {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
     {
@@ -266,15 +293,4 @@ macro_rules! test_linear_finite_element_with_elastic_constitutive_model
         }
     }
 }
-pub(crate) use test_linear_finite_element_with_elastic_constitutive_model;
-
-macro_rules! test_linear_finite_element_with_hyperelastic_constitutive_model
-{
-    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
-    {
-        crate::fem::block::element::linear::test::test_linear_finite_element_with_elastic_constitutive_model!(
-            $element, $constitutive_model, $constitutive_model_parameters
-        );
-    }
-}
-pub(crate) use test_linear_finite_element_with_hyperelastic_constitutive_model;
+pub(crate) use test_linear_finite_element_with_constitutive_model;

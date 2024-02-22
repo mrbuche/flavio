@@ -2,7 +2,7 @@ macro_rules! test_finite_element
 {
     ($element: ident) =>
     {
-        mod finite_element
+        mod element
         {
             use crate::
             {

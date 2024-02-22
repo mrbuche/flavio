@@ -65,6 +65,11 @@ fn get_coordinates_block() -> NodalCoordinates<D>
     ])
 }
 
+fn get_velocities_block() -> NodalVelocities<D>
+{
+    todo!()
+}
+
 fn get_reference_coordinates() -> ReferenceNodalCoordinates<N>
 {
     ReferenceNodalCoordinates::new([
