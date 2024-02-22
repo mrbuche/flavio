@@ -7,14 +7,50 @@ macro_rules! test_finite_element
             use crate::
             {
                 EPSILON,
-                constitutive::solid::
+                fem::block::element::test::
                 {
-                    elastic::
+                    test_finite_element_with_elastic_constitutive_model,
+                    test_finite_element_with_hyperelastic_constitutive_model,
+                    test_finite_element_with_hyperviscoelastic_constitutive_model
+                },
+                math::
+                {
+                    Convert,
+                    TensorRank2
+                },
+                mechanics::test::
+                {
+                    get_deformation_gradient,
+                    get_rotation_current_configuration,
+                    get_rotation_reference_configuration,
+                    get_translation_current_configuration,
+                    get_translation_reference_configuration
+                },
+                test::assert_eq_within_tols
+            };
+            use super::*;
+            mod elastic
+            {
+                use super::*;
+                mod almansi_hamel
+                {
+                    use crate::
                     {
-                        AlmansiHamel,
-                        test::ALMANSIHAMELPARAMETERS
-                    },
-                    hyperelastic::
+                        constitutive::solid::elastic::
+                        {
+                            AlmansiHamel,
+                            test::ALMANSIHAMELPARAMETERS
+                        }
+                    };
+                    use super::*;
+                    test_finite_element_with_elastic_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
+                }
+            }
+            mod hyperelastic
+            {
+                use crate::
+                {
+                    constitutive::solid::hyperelastic::
                     {
                         ArrudaBoyce,
                         Fung,
@@ -34,74 +70,67 @@ macro_rules! test_finite_element
                             YEOHPARAMETERS
                         }
                     }
-                },
-                fem::block::element::test::
+                };
+                use super::*;
+                mod arruda_boyce
                 {
-                    test_finite_element_with_elastic_constitutive_model,
-                    test_finite_element_with_hyperelastic_constitutive_model
-                },
-                math::
+                    use super::*;
+                    test_finite_element_with_hyperelastic_constitutive_model!($element, ArrudaBoyce, ARRUDABOYCEPARAMETERS);
+                }
+                mod fung
                 {
-                    Convert,
-                    TensorRank2
-                },
-                mechanics::test::
+                    use super::*;
+                    test_finite_element_with_hyperelastic_constitutive_model!($element, Fung, FUNGPARAMETERS);
+                }
+                mod gent
                 {
-                    get_deformation_gradient,
-                    get_rotation_current_configuration,
-                    get_rotation_reference_configuration,
-                    get_translation_current_configuration,
-                    get_translation_reference_configuration
-                },
-                test::assert_eq_within_tols
-            };
-            use super::*;
-            pub mod almansi_hamel
-            {
-                use super::*;
-                test_finite_element_with_elastic_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
+                    use super::*;
+                    test_finite_element_with_hyperelastic_constitutive_model!($element, Gent, GENTPARAMETERS);
+                }
+                mod mooney_rivlin
+                {
+                    use super::*;
+                    test_finite_element_with_hyperelastic_constitutive_model!($element, MooneyRivlin, MOONEYRIVLINPARAMETERS);
+                }
+                mod neo_hookean
+                {
+                    use super::*;
+                    test_finite_element_with_hyperelastic_constitutive_model!($element, NeoHookean, NEOHOOKEANPARAMETERS);
+                }
+                mod saint_venant_kirchoff
+                {
+                    use super::*;
+                    test_finite_element_with_hyperelastic_constitutive_model!($element, SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS);
+                }
+                mod yeoh
+                {
+                    use super::*;
+                    test_finite_element_with_hyperelastic_constitutive_model!($element, Yeoh, YEOHPARAMETERS);
+                }
             }
-            pub mod arruda_boyce
+            mod hyperviscoelastic
             {
+                use crate::
+                {
+                    constitutive::solid::hyperviscoelastic::
+                    {
+                        SaintVenantKirchoff,
+                        test::SAINTVENANTKIRCHOFFPARAMETERS
+                    }
+                };
                 use super::*;
-                test_finite_element_with_hyperelastic_constitutive_model!($element, ArrudaBoyce, ARRUDABOYCEPARAMETERS);
-            }
-            pub mod fung
-            {
-                use super::*;
-                test_finite_element_with_hyperelastic_constitutive_model!($element, Fung, FUNGPARAMETERS);
-            }
-            pub mod gent
-            {
-                use super::*;
-                test_finite_element_with_hyperelastic_constitutive_model!($element, Gent, GENTPARAMETERS);
-            }
-            pub mod mooney_rivlin
-            {
-                use super::*;
-                test_finite_element_with_hyperelastic_constitutive_model!($element, MooneyRivlin, MOONEYRIVLINPARAMETERS);
-            }
-            pub mod neo_hookean
-            {
-                use super::*;
-                test_finite_element_with_hyperelastic_constitutive_model!($element, NeoHookean, NEOHOOKEANPARAMETERS);
-            }
-            pub mod saint_venant_kirchoff
-            {
-                use super::*;
-                test_finite_element_with_hyperelastic_constitutive_model!($element, SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS);
-            }
-            pub mod yeoh
-            {
-                use super::*;
-                test_finite_element_with_hyperelastic_constitutive_model!($element, Yeoh, YEOHPARAMETERS);
+                mod saint_venant_kirchoff
+                {
+                    use super::*;
+                    test_finite_element_with_hyperviscoelastic_constitutive_model!($element, SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS);
+                }
             }
         }
     }
 }
 pub(crate) use test_finite_element;
 
-macro_rules! test_finite_element_with_elastic_constitutive_model
+macro_rules! test_finite_element_with_solid_constitutive_model
 {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
     {
@@ -135,33 +164,6 @@ macro_rules! test_finite_element_with_elastic_constitutive_model
                 get_reference_coordinates_transformed()
             )
         }
-        fn get_fd_nodal_forces(is_deformed: bool) -> NodalStiffnesses<N>
-        {
-            let element = get_element();
-            let mut finite_difference = 0.0;
-            (0..N).map(|node_a|
-                (0..N).map(|node_b|
-                    (0..3).map(|i|
-                        (0..3).map(|j|{
-                            let mut nodal_coordinates = 
-                            if is_deformed
-                            {
-                                get_coordinates()
-                            }
-                            else
-                            {
-                                get_reference_coordinates().convert()
-                            };
-                            nodal_coordinates[node_a][i] += 0.5 * EPSILON;
-                            finite_difference = element.calculate_nodal_forces(&nodal_coordinates)[node_b][j];
-                            nodal_coordinates[node_a][i] -= EPSILON;
-                            finite_difference -= element.calculate_nodal_forces(&nodal_coordinates)[node_b][j];
-                            finite_difference/EPSILON
-                        }).collect()
-                    ).collect()
-                ).collect()
-            ).collect()
-        }
         fn get_reference_coordinates_transformed() -> ReferenceNodalCoordinates<N>
         {
             get_reference_coordinates().iter()
@@ -169,6 +171,10 @@ macro_rules! test_finite_element_with_elastic_constitutive_model
                 get_rotation_reference_configuration() * reference_coordinate
                 + get_translation_reference_configuration()
             ).collect()
+        }
+        fn get_velocities() -> NodalVelocities<N>
+        {
+            todo!()
         }
         #[test]
         fn integration_weights_sum_to_one()
@@ -184,12 +190,8 @@ macro_rules! test_finite_element_with_elastic_constitutive_model
                 #[test]
                 fn finite_difference()
                 {
-                    get_element().calculate_nodal_stiffnesses(
-                        &get_coordinates()
-                    ).iter()
-                    .zip(get_fd_nodal_forces(
-                        true
-                    ).iter())
+                    get_nodal_stiffnesses(true, false).iter()
+                    .zip(get_finite_difference_of_nodal_forces(true).iter())
                     .for_each(|(nodal_stiffness_a, fd_nodal_stiffness_a)|
                         nodal_stiffness_a.iter()
                         .zip(fd_nodal_stiffness_a.iter())
@@ -211,15 +213,9 @@ macro_rules! test_finite_element_with_elastic_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    get_element().calculate_nodal_forces(
-                        &get_coordinates()
-                    ).iter().zip((
-                        get_rotation_current_configuration().transpose() *
-                        get_element_transformed().calculate_nodal_forces(
-                            &get_coordinates_transformed()
-                        )
-                    ).iter()
-                    ).for_each(|(nodal_force, res_nodal_force)|
+                    get_nodal_forces(true, false).iter()
+                    .zip(get_nodal_forces(true, true).iter())
+                    .for_each(|(nodal_force, res_nodal_force)|
                         nodal_force.iter()
                         .zip(res_nodal_force.iter())
                         .for_each(|(nodal_force_i, res_nodal_force_i)|
@@ -236,12 +232,8 @@ macro_rules! test_finite_element_with_elastic_constitutive_model
                 #[test]
                 fn finite_difference()
                 {
-                    get_element().calculate_nodal_stiffnesses(
-                        &get_reference_coordinates().convert()
-                    ).iter()
-                    .zip(get_fd_nodal_forces(
-                        false
-                    ).iter())
+                    get_nodal_stiffnesses(false, false).iter()
+                    .zip(get_finite_difference_of_nodal_forces(false).iter())
                     .for_each(|(nodal_stiffness_a, fd_nodal_stiffness_a)|
                         nodal_stiffness_a.iter()
                         .zip(fd_nodal_stiffness_a.iter())
@@ -264,9 +256,7 @@ macro_rules! test_finite_element_with_elastic_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    get_element_transformed().calculate_nodal_forces(
-                        &get_reference_coordinates_transformed().convert()
-                    ).iter()
+                    get_nodal_forces(false, false).iter()
                     .for_each(|nodal_force|
                         nodal_force.iter()
                         .for_each(|nodal_force_i|
@@ -279,10 +269,10 @@ macro_rules! test_finite_element_with_elastic_constitutive_model
                 #[test]
                 fn zero()
                 {
-                    get_element().calculate_nodal_forces(
-                        &get_reference_coordinates().convert()
-                    ).iter().for_each(|nodal_force|
-                        nodal_force.iter().for_each(|nodal_force_i|
+                    get_nodal_forces(false, false).iter()
+                    .for_each(|nodal_force|
+                        nodal_force.iter()
+                        .for_each(|nodal_force_i|
                             assert_eq_within_tols(
                                 nodal_force_i, &0.0
                             )
@@ -300,14 +290,8 @@ macro_rules! test_finite_element_with_elastic_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    get_element().calculate_nodal_stiffnesses(
-                        &get_coordinates()
-                    ).iter().zip((
-                        get_rotation_current_configuration().transpose() *
-                        get_element_transformed().calculate_nodal_stiffnesses(
-                            &get_coordinates_transformed()
-                        ) * get_rotation_current_configuration()
-                    ).iter())
+                    get_nodal_stiffnesses(true, false).iter()
+                    .zip(get_nodal_stiffnesses(true, true).iter())
                     .for_each(|(nodal_stiffness_a, res_nodal_stiffness_a)|
                         nodal_stiffness_a.iter()
                         .zip(res_nodal_stiffness_a.iter())
@@ -329,9 +313,7 @@ macro_rules! test_finite_element_with_elastic_constitutive_model
                 #[test]
                 fn symmetry()
                 {
-                    let nodal_stiffness = get_element().calculate_nodal_stiffnesses(
-                        &get_coordinates()
-                    );
+                    let nodal_stiffness = get_nodal_stiffnesses(true, false);
                     nodal_stiffness.iter()
                     .enumerate()
                     .for_each(|(a, nodal_stiffness_a)|
@@ -371,15 +353,8 @@ macro_rules! test_finite_element_with_elastic_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    let converted: TensorRank2<3, 1, 1> = get_rotation_reference_configuration().convert();
-                    get_element().calculate_nodal_stiffnesses(
-                        &get_reference_coordinates().convert()
-                    ).iter().zip((
-                        converted.transpose() *
-                        get_element_transformed().calculate_nodal_stiffnesses(
-                            &get_reference_coordinates_transformed().convert()
-                        ) * converted
-                    ).iter())
+                    get_nodal_stiffnesses(false, false).iter()
+                    .zip(get_nodal_stiffnesses(false, true).iter())
                     .for_each(|(nodal_stiffness_a, res_nodal_stiffness_a)|
                         nodal_stiffness_a.iter()
                         .zip(res_nodal_stiffness_a.iter())
@@ -401,9 +376,7 @@ macro_rules! test_finite_element_with_elastic_constitutive_model
                 #[test]
                 fn symmetry()
                 {
-                    let nodal_stiffness = get_element().calculate_nodal_stiffnesses(
-                        &get_reference_coordinates().convert()
-                    );
+                    let nodal_stiffness = get_nodal_stiffnesses(false, false);
                     nodal_stiffness.iter()
                     .enumerate()
                     .for_each(|(a, nodal_stiffness_a)|
@@ -440,6 +413,112 @@ macro_rules! test_finite_element_with_elastic_constitutive_model
         }
     }
 }
+pub(crate) use test_finite_element_with_solid_constitutive_model;
+
+macro_rules! test_finite_element_with_elastic_constitutive_model
+{
+    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
+    {
+        fn get_nodal_forces(is_deformed: bool, is_rotated: bool) -> NodalForces<N>
+        {
+            if is_rotated
+            {
+                if is_deformed
+                {
+                    get_rotation_current_configuration().transpose() *
+                    get_element_transformed().calculate_nodal_forces(
+                        &get_coordinates_transformed()
+                    )
+                }
+                else
+                {
+                    panic!()
+                }
+            }
+            else
+            {
+                if is_deformed
+                {
+                    get_element().calculate_nodal_forces(
+                        &get_coordinates()
+                    )
+                }
+                else
+                {
+                    get_element().calculate_nodal_forces(
+                        &get_reference_coordinates().convert()
+                    )
+                }
+            }
+        }
+        fn get_nodal_stiffnesses(is_deformed: bool, is_rotated: bool) -> NodalStiffnesses<N>
+        {
+            if is_rotated
+            {
+                if is_deformed
+                {
+                    get_rotation_current_configuration().transpose() *
+                    get_element_transformed().calculate_nodal_stiffnesses(
+                        &get_coordinates_transformed()
+                    ) * get_rotation_current_configuration()
+                }
+                else
+                {
+                    let converted: TensorRank2<3, 1, 1> = get_rotation_reference_configuration().convert();
+                    converted.transpose() *
+                    get_element_transformed().calculate_nodal_stiffnesses(
+                        &get_reference_coordinates_transformed().convert()
+                    ) * converted
+                }
+            }
+            else
+            {
+                if is_deformed
+                {
+                    get_element().calculate_nodal_stiffnesses(
+                        &get_coordinates()
+                    )
+                }
+                else
+                {
+                    get_element().calculate_nodal_stiffnesses(
+                        &get_reference_coordinates().convert()
+                    )
+                }
+            }
+        }
+        fn get_finite_difference_of_nodal_forces(is_deformed: bool) -> NodalStiffnesses<N>
+        {
+            let element = get_element();
+            let mut finite_difference = 0.0;
+            (0..N).map(|node_a|
+                (0..N).map(|node_b|
+                    (0..3).map(|i|
+                        (0..3).map(|j|{
+                            let mut nodal_coordinates = 
+                            if is_deformed
+                            {
+                                get_coordinates()
+                            }
+                            else
+                            {
+                                get_reference_coordinates().convert()
+                            };
+                            nodal_coordinates[node_a][i] += 0.5 * EPSILON;
+                            finite_difference = element.calculate_nodal_forces(&nodal_coordinates)[node_b][j];
+                            nodal_coordinates[node_a][i] -= EPSILON;
+                            finite_difference -= element.calculate_nodal_forces(&nodal_coordinates)[node_b][j];
+                            finite_difference/EPSILON
+                        }).collect()
+                    ).collect()
+                ).collect()
+            ).collect()
+        }
+        crate::fem::block::element::test::test_finite_element_with_solid_constitutive_model!(
+            $element, $constitutive_model, $constitutive_model_parameters
+        );
+    }
+}
 pub(crate) use test_finite_element_with_elastic_constitutive_model;
 
 macro_rules! test_finite_element_with_hyperelastic_constitutive_model
@@ -449,31 +528,31 @@ macro_rules! test_finite_element_with_hyperelastic_constitutive_model
         crate::fem::block::element::test::test_finite_element_with_elastic_constitutive_model!(
             $element, $constitutive_model, $constitutive_model_parameters
         );
+        fn get_finite_difference_of_helmholtz_free_energy(is_deformed: bool) -> NodalForces<N>
+        {
+            let element = get_element();
+            let mut finite_difference = 0.0;
+            (0..N).map(|node|
+                (0..3).map(|i|{
+                    let mut nodal_coordinates = 
+                    if is_deformed
+                    {
+                        get_coordinates()
+                    }
+                    else
+                    {
+                        get_reference_coordinates().convert()
+                    };
+                    nodal_coordinates[node][i] += 0.5 * EPSILON;
+                    finite_difference = element.calculate_helmholtz_free_energy(&nodal_coordinates);
+                    nodal_coordinates[node][i] -= EPSILON;
+                    finite_difference -= element.calculate_helmholtz_free_energy(&nodal_coordinates);
+                    finite_difference/EPSILON
+                }).collect()
+            ).collect()
+        }
         mod helmholtz_free_energy
         {
-            fn get_fd_helmholtz_free_energy(is_deformed: bool) -> NodalForces<N>
-            {
-                let element = get_element();
-                let mut finite_difference = 0.0;
-                (0..N).map(|node|
-                    (0..3).map(|i|{
-                        let mut nodal_coordinates = 
-                        if is_deformed
-                        {
-                            get_coordinates()
-                        }
-                        else
-                        {
-                            get_reference_coordinates().convert()
-                        };
-                        nodal_coordinates[node][i] += 0.5 * EPSILON;
-                        finite_difference = element.calculate_helmholtz_free_energy(&nodal_coordinates);
-                        nodal_coordinates[node][i] -= EPSILON;
-                        finite_difference -= element.calculate_helmholtz_free_energy(&nodal_coordinates);
-                        finite_difference/EPSILON
-                    }).collect()
-                ).collect()
-            }
             use super::*;
             mod deformed
             {
@@ -484,7 +563,7 @@ macro_rules! test_finite_element_with_hyperelastic_constitutive_model
                     get_element().calculate_nodal_forces(
                         &get_coordinates()
                     ).iter()
-                    .zip(get_fd_helmholtz_free_energy(
+                    .zip(get_finite_difference_of_helmholtz_free_energy(
                         true
                     ).iter())
                     .for_each(|(nodal_force, fd_nodal_force)|
@@ -563,7 +642,7 @@ macro_rules! test_finite_element_with_hyperelastic_constitutive_model
                 #[test]
                 fn finite_difference()
                 {
-                    get_fd_helmholtz_free_energy(
+                    get_finite_difference_of_helmholtz_free_energy(
                         false
                     ).iter()
                     .for_each(|fd_nodal_force|
@@ -630,3 +709,64 @@ macro_rules! test_finite_element_with_hyperelastic_constitutive_model
     }
 }
 pub(crate) use test_finite_element_with_hyperelastic_constitutive_model;
+
+macro_rules! test_finite_element_with_viscoelastic_constitutive_model
+{
+    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
+    {
+        fn get_nodal_forces(is_deformed: bool, is_rotated: bool) -> NodalForces<N>
+        {
+            if is_deformed
+            {
+                get_element().calculate_nodal_forces(
+                    &get_coordinates(), &get_velocities()
+                )
+            }
+            else
+            {
+                get_element().calculate_nodal_forces(
+                    &get_reference_coordinates().convert(), &NodalVelocities::zero()
+                )
+            }
+        }
+        fn get_nodal_stiffnesses(is_deformed: bool, is_rotated: bool) -> NodalStiffnesses<N>
+        {
+            if is_deformed
+            {
+                get_element().calculate_nodal_stiffnesses(
+                    &get_coordinates(), &get_velocities()
+                )
+            }
+            else
+            {
+                get_element().calculate_nodal_stiffnesses(
+                    &get_reference_coordinates().convert(), &NodalVelocities::zero()
+                )
+            }
+        }
+        fn get_finite_difference_of_nodal_forces(is_deformed: bool) -> NodalStiffnesses<N>
+        {
+            todo!()
+        }
+        crate::fem::block::element::test::test_finite_element_with_solid_constitutive_model!(
+            $element, $constitutive_model, $constitutive_model_parameters
+        );
+    }
+}
+pub(crate) use test_finite_element_with_viscoelastic_constitutive_model;
+
+macro_rules! test_finite_element_with_hyperviscoelastic_constitutive_model
+{
+    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
+    {
+        crate::fem::block::element::test::test_finite_element_with_viscoelastic_constitutive_model!(
+            $element, $constitutive_model, $constitutive_model_parameters
+        );
+        #[test]
+        fn hyperviscoelastic()
+        {
+            todo!()
+        }
+    }
+}
+pub(crate) use test_finite_element_with_hyperviscoelastic_constitutive_model;

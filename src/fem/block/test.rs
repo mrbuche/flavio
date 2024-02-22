@@ -55,42 +55,42 @@ macro_rules! test_finite_element_block
                 test::assert_eq_within_tols
             };
             use super::*;
-            pub mod almansi_hamel
+            mod almansi_hamel
             {
                 use super::*;
                 test_finite_element_block_with_elastic_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
             }
-            pub mod arruda_boyce
+            mod arruda_boyce
             {
                 use super::*;
                 test_finite_element_block_with_hyperelastic_constitutive_model!($element, ArrudaBoyce, ARRUDABOYCEPARAMETERS);
             }
-            pub mod fung
+            mod fung
             {
                 use super::*;
                 test_finite_element_block_with_hyperelastic_constitutive_model!($element, Fung, FUNGPARAMETERS);
             }
-            pub mod gent
+            mod gent
             {
                 use super::*;
                 test_finite_element_block_with_hyperelastic_constitutive_model!($element, Gent, GENTPARAMETERS);
             }
-            pub mod mooney_rivlin
+            mod mooney_rivlin
             {
                 use super::*;
                 test_finite_element_block_with_hyperelastic_constitutive_model!($element, MooneyRivlin, MOONEYRIVLINPARAMETERS);
             }
-            pub mod neo_hookean
+            mod neo_hookean
             {
                 use super::*;
                 test_finite_element_block_with_hyperelastic_constitutive_model!($element, NeoHookean, NEOHOOKEANPARAMETERS);
             }
-            pub mod saint_venant_kirchoff
+            mod saint_venant_kirchoff
             {
                 use super::*;
                 test_finite_element_block_with_hyperelastic_constitutive_model!($element, SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS);
             }
-            pub mod yeoh
+            mod yeoh
             {
                 use super::*;
                 test_finite_element_block_with_hyperelastic_constitutive_model!($element, Yeoh, YEOHPARAMETERS);
@@ -128,7 +128,7 @@ macro_rules! test_finite_element_block_with_elastic_constitutive_model
                 + get_translation_current_configuration()
             ).collect()
         }
-        fn get_fd_nodal_forces(is_deformed: bool) -> NodalStiffnesses<D>
+        fn get_finite_difference_of_nodal_forces(is_deformed: bool) -> NodalStiffnesses<D>
         {
             let mut block = get_block();
             let mut finite_difference = 0.0;
@@ -188,7 +188,7 @@ macro_rules! test_finite_element_block_with_elastic_constitutive_model
                         get_coordinates_block()
                     );
                     block.calculate_nodal_stiffnesses().iter()
-                    .zip(get_fd_nodal_forces(true).iter())
+                    .zip(get_finite_difference_of_nodal_forces(true).iter())
                     .for_each(|(nodal_stiffness_a, fd_nodal_stiffness_a)|
                         nodal_stiffness_a.iter()
                         .zip(fd_nodal_stiffness_a.iter())
@@ -243,7 +243,7 @@ macro_rules! test_finite_element_block_with_elastic_constitutive_model
                 {
                     let mut block = get_block();
                     block.calculate_nodal_stiffnesses().iter()
-                    .zip(get_fd_nodal_forces(false).iter())
+                    .zip(get_finite_difference_of_nodal_forces(false).iter())
                     .for_each(|(nodal_stiffness_a, fd_nodal_stiffness_a)|
                         nodal_stiffness_a.iter()
                         .zip(fd_nodal_stiffness_a.iter())
@@ -266,7 +266,7 @@ macro_rules! test_finite_element_block_with_elastic_constitutive_model
                         get_reference_coordinates_block().convert()
                     );
                     block.calculate_nodal_stiffnesses().iter()
-                    .zip(get_fd_nodal_forces(false).iter())
+                    .zip(get_finite_difference_of_nodal_forces(false).iter())
                     .for_each(|(nodal_stiffness_a, fd_nodal_stiffness_a)|
                         nodal_stiffness_a.iter()
                         .zip(fd_nodal_stiffness_a.iter())
@@ -578,7 +578,7 @@ macro_rules! test_finite_element_block_with_hyperelastic_constitutive_model
         crate::fem::block::test::test_finite_element_block_with_elastic_constitutive_model!(
             $element, $constitutive_model, $constitutive_model_parameters
         );
-        fn get_fd_helmholtz_free_energy(is_deformed: bool) -> NodalForces<D>
+        fn get_finite_difference_of_helmholtz_free_energy(is_deformed: bool) -> NodalForces<D>
         {
             let mut block = get_block();
             let mut finite_difference = 0.0;
@@ -626,7 +626,7 @@ macro_rules! test_finite_element_block_with_hyperelastic_constitutive_model
                         get_coordinates_block()
                     );
                     block.calculate_nodal_forces().iter()
-                    .zip(get_fd_helmholtz_free_energy(true).iter())
+                    .zip(get_finite_difference_of_helmholtz_free_energy(true).iter())
                     .for_each(|(nodal_force, fd_nodal_force)|
                         nodal_force.iter()
                         .zip(fd_nodal_force.iter())
@@ -709,7 +709,7 @@ macro_rules! test_finite_element_block_with_hyperelastic_constitutive_model
                 #[test]
                 fn finite_difference()
                 {
-                    get_fd_helmholtz_free_energy(
+                    get_finite_difference_of_helmholtz_free_energy(
                         false
                     ).iter()
                     .for_each(|fd_nodal_force|
