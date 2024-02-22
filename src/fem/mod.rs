@@ -5,16 +5,25 @@ mod block;
 pub use block::
 {
     ElasticBlock,
+    ViscoelasticBlock,
     FiniteElementBlock,
+    ElasticFiniteElementBlock,
     HyperelasticFiniteElementBlock,
+    ViscoelasticFiniteElementBlock,
+    HyperviscoelasticFiniteElementBlock,
     element::
     {
         FiniteElement,
+        ElasticFiniteElement,
         HyperelasticFiniteElement,
+        ViscoelasticFiniteElement,
+        HyperviscoelasticFiniteElement,
         linear::
         {
             LinearFiniteElement,
             HyperelasticLinearFiniteElement,
+            ViscoelasticLinearFiniteElement,
+            HyperviscoelasticLinearFiniteElement,
             tetrahedron::
             {
                 LinearTetrahedron
