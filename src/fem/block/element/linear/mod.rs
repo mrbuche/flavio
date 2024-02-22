@@ -69,8 +69,8 @@ where
                     ) * integration_weight
                 ).sum::<FirstPiolaKirchoffTangentStiffness>()
                 .contract_second_fourth_indices_with_first_indices_of(
-                    gradient_vector_a, gradient_vector_b
-                )
+                    gradient_vector_b, gradient_vector_a
+                ).transpose()
             ).collect()
         ).collect()
     }
