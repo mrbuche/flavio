@@ -492,9 +492,7 @@ macro_rules! test_helmholtz_free_energy
                 fn finite_difference()
                 {
                     get_nodal_forces(true, false, false).iter()
-                    .zip(get_finite_difference_of_helmholtz_free_energy(
-                        true
-                    ).iter())
+                    .zip(get_finite_difference_of_helmholtz_free_energy(true).iter())
                     .for_each(|(nodal_force, fd_nodal_force)|
                         nodal_force.iter()
                         .zip(fd_nodal_force.iter())
@@ -510,9 +508,7 @@ macro_rules! test_helmholtz_free_energy
                 {
                     let element = get_element();
                     let nodal_forces = get_nodal_forces(true, false, false);
-                    let minimum = get_helmholtz_free_energy(true, false) - nodal_forces.dot(
-                        &get_coordinates()
-                    );
+                    let minimum = get_helmholtz_free_energy(true, false) - nodal_forces.dot(&get_coordinates());
                     let mut perturbed_coordinates = get_coordinates();
                     (0..N).for_each(|node|
                         (0..3).for_each(|i|{
@@ -558,9 +554,7 @@ macro_rules! test_helmholtz_free_energy
                 #[test]
                 fn finite_difference()
                 {
-                    get_finite_difference_of_helmholtz_free_energy(
-                        false
-                    ).iter()
+                    get_finite_difference_of_helmholtz_free_energy(false).iter()
                     .for_each(|fd_nodal_force|
                         fd_nodal_force.iter()
                         .for_each(|fd_nodal_force_i|
@@ -925,15 +919,395 @@ macro_rules! test_finite_element_with_hyperviscoelastic_constitutive_model
         crate::fem::block::element::test::test_helmholtz_free_energy!(
             $element, $constitutive_model, $constitutive_model_parameters
         );
-        #[test]
-        fn viscous_dissipation_tests()
+        fn get_viscous_dissipation(is_deformed: bool, is_rotated: bool) -> Scalar
         {
-            todo!()
+            if is_rotated
+            {
+                if is_deformed
+                {
+                    get_element_transformed()
+                    .calculate_viscous_dissipation(
+                        &get_coordinates_transformed(), &get_velocities_transformed()
+                    )
+                }
+                else
+                {
+                    get_element_transformed()
+                    .calculate_viscous_dissipation(
+                        &get_reference_coordinates_transformed().convert(), &NodalVelocities::zero()
+                    )
+                }
+            }
+            else
+            {
+                if is_deformed
+                {
+                    get_element()
+                    .calculate_viscous_dissipation(
+                        &get_coordinates(), &get_velocities()
+                    )
+                }
+                else
+                {
+                    get_element()
+                    .calculate_viscous_dissipation(
+                        &get_reference_coordinates().convert(), &NodalVelocities::zero()
+                    )
+                }
+            }
         }
-        #[test]
-        fn dissipation_potential_tests()
+        fn get_dissipation_potential(is_deformed: bool, is_rotated: bool) -> Scalar
         {
-            todo!()
+            if is_rotated
+            {
+                if is_deformed
+                {
+                    get_element_transformed()
+                    .calculate_dissipation_potential(
+                        &get_coordinates_transformed(), &get_velocities_transformed()
+                    )
+                }
+                else
+                {
+                    get_element_transformed()
+                    .calculate_dissipation_potential(
+                        &get_reference_coordinates_transformed().convert(), &NodalVelocities::zero()
+                    )
+                }
+            }
+            else
+            {
+                if is_deformed
+                {
+                    get_element()
+                    .calculate_dissipation_potential(
+                        &get_coordinates(), &get_velocities()
+                    )
+                }
+                else
+                {
+                    get_element()
+                    .calculate_dissipation_potential(
+                        &get_reference_coordinates().convert(), &NodalVelocities::zero()
+                    )
+                }
+            }
+        }
+        fn get_finite_difference_of_viscous_dissipation(is_deformed: bool) -> NodalForces<N>
+        {
+            let element = get_element();
+            let mut finite_difference = 0.0;
+            (0..N).map(|node|
+                (0..3).map(|i|{
+                    let nodal_coordinates = 
+                    if is_deformed
+                    {
+                        get_coordinates()
+                    }
+                    else
+                    {
+                        get_reference_coordinates().convert()
+                    };
+                    let mut nodal_velocities = 
+                    if is_deformed
+                    {
+                        get_velocities()
+                    }
+                    else
+                    {
+                        NodalVelocities::zero()
+                    };
+                    nodal_velocities[node][i] += 0.5 * EPSILON;
+                    finite_difference = element.calculate_viscous_dissipation(
+                        &nodal_coordinates, &nodal_velocities
+                    );
+                    nodal_velocities[node][i] -= EPSILON;
+                    finite_difference -= element.calculate_viscous_dissipation(
+                        &nodal_coordinates, &nodal_velocities
+                    );
+                    finite_difference/EPSILON
+                }).collect()
+            ).collect()
+        }
+        fn get_finite_difference_of_dissipation_potential(is_deformed: bool) -> NodalForces<N>
+        {
+            let element = get_element();
+            let mut finite_difference = 0.0;
+            (0..N).map(|node|
+                (0..3).map(|i|{
+                    let nodal_coordinates = 
+                    if is_deformed
+                    {
+                        get_coordinates()
+                    }
+                    else
+                    {
+                        get_reference_coordinates().convert()
+                    };
+                    let mut nodal_velocities = 
+                    if is_deformed
+                    {
+                        get_velocities()
+                    }
+                    else
+                    {
+                        NodalVelocities::zero()
+                    };
+                    nodal_velocities[node][i] += 0.5 * EPSILON;
+                    finite_difference = element.calculate_dissipation_potential(
+                        &nodal_coordinates, &nodal_velocities
+                    );
+                    nodal_velocities[node][i] -= EPSILON;
+                    finite_difference -= element.calculate_dissipation_potential(
+                        &nodal_coordinates, &nodal_velocities
+                    );
+                    finite_difference/EPSILON
+                }).collect()
+            ).collect()
+        }
+        mod viscous_dissipation
+        {
+            use super::*;
+            mod deformed
+            {
+                use super::*;
+                #[test]
+                fn finite_difference()
+                {
+                    (get_nodal_forces(true, false, true) - get_nodal_forces(true, false, false)).iter()
+                    .zip(get_finite_difference_of_viscous_dissipation(true).iter())
+                    .for_each(|(nodal_force, fd_nodal_force)|
+                        nodal_force.iter()
+                        .zip(fd_nodal_force.iter())
+                        .for_each(|(nodal_force_i, fd_nodal_force_i)|
+                            assert!(
+                                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON
+                            )
+                        )
+                    )
+                }
+                #[test]
+                fn minimized()
+                {
+                    let element = get_element();
+                    let nodal_forces = get_nodal_forces(true, false, true) - get_nodal_forces(true, false, false);
+                    let minimum = get_viscous_dissipation(true, false) - nodal_forces.dot(&get_velocities());
+                    let mut perturbed_velocities = get_velocities();
+                    (0..N).for_each(|node|
+                        (0..3).for_each(|i|{
+                            perturbed_velocities = get_velocities();
+                            perturbed_velocities[node][i] += 0.5 * EPSILON;
+                            assert!(
+                                element.calculate_viscous_dissipation(
+                                    &get_coordinates(), &perturbed_velocities
+                                ) - nodal_forces.dot(
+                                    &perturbed_velocities
+                                ) > minimum
+                            );
+                            perturbed_velocities[node][i] -= EPSILON;
+                            assert!(
+                                element.calculate_viscous_dissipation(
+                                    &get_coordinates(), &perturbed_velocities
+                                ) - nodal_forces.dot(
+                                    &perturbed_velocities
+                                ) > minimum
+                            );
+                        })
+                    )
+                }
+                #[test]
+                fn objectivity()
+                {
+                    assert_eq_within_tols(
+                        &get_viscous_dissipation(true, false),
+                        &get_viscous_dissipation(true, true)
+                    )
+                }
+                #[test]
+                fn positive()
+                {
+                    assert!(
+                        get_viscous_dissipation(true, false) > 0.0
+                    )
+                }
+            }
+            mod undeformed
+            {
+                use super::*;
+                #[test]
+                fn finite_difference()
+                {
+                    get_finite_difference_of_viscous_dissipation(false).iter()
+                    .for_each(|fd_nodal_force|
+                        fd_nodal_force.iter()
+                        .for_each(|fd_nodal_force_i|
+                            assert!(
+                                fd_nodal_force_i.abs() < EPSILON
+                            )
+                        )
+                    )
+                }
+                #[test]
+                fn minimized()
+                {
+                    let element = get_element();
+                    let minimum = get_viscous_dissipation(false, false);
+                    let mut perturbed_velocities = NodalVelocities::zero();
+                    (0..N).for_each(|node|
+                        (0..3).for_each(|i|{
+                            perturbed_velocities = NodalVelocities::zero();
+                            perturbed_velocities[node][i] += 0.5 * EPSILON;
+                            assert!(
+                                element.calculate_viscous_dissipation(
+                                    &get_reference_coordinates().convert(), &perturbed_velocities
+                                ) > minimum
+                            );
+                            perturbed_velocities[node][i] -= EPSILON;
+                            assert!(
+                                element.calculate_viscous_dissipation(
+                                    &get_reference_coordinates().convert(), &perturbed_velocities
+                                ) > minimum
+                            );
+                        })
+                    )
+                }
+                #[test]
+                fn objectivity()
+                {
+                    assert_eq_within_tols(
+                        &get_viscous_dissipation(false, true), &0.0
+                    )
+                }
+                #[test]
+                fn zero()
+                {
+                    assert_eq!(
+                        get_viscous_dissipation(false, false), 0.0
+                    )
+                }
+            }
+        }
+        mod dissipation_potential
+        {
+            use super::*;
+            mod deformed
+            {
+                use super::*;
+                #[test]
+                fn finite_difference()
+                {
+                    get_nodal_forces(true, false, true).iter()
+                    .zip(get_finite_difference_of_dissipation_potential(true).iter())
+                    .for_each(|(nodal_force, fd_nodal_force)|
+                        nodal_force.iter()
+                        .zip(fd_nodal_force.iter())
+                        .for_each(|(nodal_force_i, fd_nodal_force_i)|
+                            assert!(
+                                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON
+                            )
+                        )
+                    )
+                }
+                #[test]
+                fn minimized()
+                {
+                    let element = get_element();
+                    let nodal_forces = get_nodal_forces(true, false, true);
+                    let minimum = get_dissipation_potential(true, false) - nodal_forces.dot(&get_velocities());
+                    let mut perturbed_velocities = get_velocities();
+                    (0..N).for_each(|node|
+                        (0..3).for_each(|i|{
+                            perturbed_velocities = get_velocities();
+                            perturbed_velocities[node][i] += 0.5 * EPSILON;
+                            assert!(
+                                element.calculate_dissipation_potential(
+                                    &get_coordinates(), &perturbed_velocities
+                                ) - nodal_forces.dot(
+                                    &perturbed_velocities
+                                ) > minimum
+                            );
+                            perturbed_velocities[node][i] -= EPSILON;
+                            assert!(
+                                element.calculate_dissipation_potential(
+                                    &get_coordinates(), &perturbed_velocities
+                                ) - nodal_forces.dot(
+                                    &perturbed_velocities
+                                ) > minimum
+                            );
+                        })
+                    )
+                }
+                #[test]
+                fn objectivity()
+                {
+                    assert_eq_within_tols(
+                        &get_dissipation_potential(true, false),
+                        &get_dissipation_potential(true, true)
+                    )
+                }
+                #[test]
+                fn positive()
+                {
+                    assert!(
+                        get_dissipation_potential(true, false) > 0.0
+                    )
+                }
+            }
+            mod undeformed
+            {
+                use super::*;
+                #[test]
+                fn finite_difference()
+                {
+                    get_finite_difference_of_dissipation_potential(false).iter()
+                    .for_each(|fd_nodal_force|
+                        fd_nodal_force.iter()
+                        .for_each(|fd_nodal_force_i|
+                            assert!(
+                                fd_nodal_force_i.abs() < EPSILON
+                            )
+                        )
+                    )
+                }
+                #[test]
+                fn minimized()
+                {
+                    let element = get_element();
+                    let minimum = get_dissipation_potential(false, false);
+                    let mut perturbed_velocities = NodalVelocities::zero();
+                    (0..N).for_each(|node|
+                        (0..3).for_each(|i|{
+                            perturbed_velocities = NodalVelocities::zero();
+                            perturbed_velocities[node][i] += 0.5 * EPSILON;
+                            assert!(
+                                element.calculate_dissipation_potential(
+                                    &get_reference_coordinates().convert(), &perturbed_velocities
+                                ) > minimum
+                            );
+                            perturbed_velocities[node][i] -= EPSILON;
+                            assert!(
+                                element.calculate_dissipation_potential(
+                                    &get_reference_coordinates().convert(), &perturbed_velocities
+                                ) > minimum
+                            );
+                        })
+                    )
+                }
+                #[test]
+                fn objectivity()
+                {
+                    assert_eq_within_tols(
+                        &get_dissipation_potential(false, true), &0.0
+                    )
+                }
+                #[test]
+                fn zero()
+                {
+                    assert_eq!(
+                        get_dissipation_potential(false, false), 0.0
+                    )
+                }
+            }
         }
     }
 }
