@@ -21,8 +21,10 @@ macro_rules! test_finite_element_block
                 mechanics::test::
                 {
                     get_rotation_current_configuration,
+                    get_rotation_rate_current_configuration,
                     get_rotation_reference_configuration,
                     get_translation_current_configuration,
+                    get_translation_rate_current_configuration,
                     get_translation_reference_configuration
                 },
                 test::assert_eq_within_tols
@@ -152,8 +154,8 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses
         fn get_coordinates_transformed_block() -> NodalCoordinates<D>
         {
             get_coordinates_block().iter()
-            .map(|current_coordinate|
-                (get_rotation_current_configuration() * current_coordinate)
+            .map(|coordinate|
+                (get_rotation_current_configuration() * coordinate)
                 + get_translation_current_configuration()
             ).collect()
         }
@@ -854,6 +856,14 @@ macro_rules! test_finite_element_block_with_hyperviscoelastic_constitutive_model
                 get_reference_coordinates_transformed_block()
             )
         }
+        fn get_coordinates_transformed_block() -> NodalCoordinates<D>
+        {
+            get_coordinates_block().iter()
+            .map(|coordinate|
+                (get_rotation_current_configuration() * coordinate)
+                + get_translation_current_configuration()
+            ).collect()
+        }
         fn get_reference_coordinates_transformed_block() -> ReferenceNodalCoordinates<D>
         {
             get_reference_coordinates_block().iter()
@@ -865,14 +875,19 @@ macro_rules! test_finite_element_block_with_hyperviscoelastic_constitutive_model
         // need to make Block type a macro input when giving constitutive model
         // and then get rid of above temporarily repeated functions
         //
+        fn get_velocities_transformed_block() -> NodalCoordinates<D>
+        {
+            get_coordinates_block().iter()
+            .zip(get_velocities_block().iter())
+            .map(|(coordinate, velocity)|
+                get_rotation_current_configuration() * velocity
+                + get_rotation_rate_current_configuration() * coordinate
+                + get_translation_rate_current_configuration()
+            ).collect()
+        }
         // crate::fem::block::test::test_finite_element_block_with_viscoelastic_constitutive_model!(
         //     $element, $constitutive_model, $constitutive_model_parameters
         // );
-        #[test]
-        fn test_finite_element_block_with_elastic_constitutive_model()
-        {
-            todo!()
-        }
         #[test]
         fn test_finite_element_block_with_hyperelastic_constitutive_model()
         {
@@ -897,7 +912,24 @@ macro_rules! test_finite_element_block_with_hyperviscoelastic_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    todo!()
+                    let mut block_1 = get_block();
+                    let mut block_2 = get_block_transformed();
+                    block_1.set_nodal_coordinates(
+                        get_coordinates_block()
+                    );
+                    block_1.set_nodal_velocities(
+                        get_velocities_block()
+                    );
+                    block_2.set_nodal_coordinates(
+                        get_coordinates_transformed_block()
+                    );
+                    block_2.set_nodal_velocities(
+                        get_velocities_transformed_block()
+                    );
+                    assert_eq_within_tols(
+                        &block_1.calculate_viscous_dissipation(),
+                        &block_2.calculate_viscous_dissipation()
+                    );
                 }
                 #[test]
                 fn positive()
@@ -1004,7 +1036,24 @@ macro_rules! test_finite_element_block_with_hyperviscoelastic_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    todo!()
+                    let mut block_1 = get_block();
+                    let mut block_2 = get_block_transformed();
+                    block_1.set_nodal_coordinates(
+                        get_coordinates_block()
+                    );
+                    block_1.set_nodal_velocities(
+                        get_velocities_block()
+                    );
+                    block_2.set_nodal_coordinates(
+                        get_coordinates_transformed_block()
+                    );
+                    block_2.set_nodal_velocities(
+                        get_velocities_transformed_block()
+                    );
+                    assert_eq_within_tols(
+                        &block_1.calculate_dissipation_potential(),
+                        &block_2.calculate_dissipation_potential()
+                    );
                 }
                 #[test]
                 fn positive()
