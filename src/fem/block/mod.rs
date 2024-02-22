@@ -42,7 +42,7 @@ where
     fn set_nodal_coordinates(&mut self, nodal_coordinates: NodalCoordinates<D>);
 }
 
-pub trait SolidFiniteElementBlock<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
+pub trait ElasticFiniteElementBlock<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
 where
     C: Solid<'a>,
     F: FiniteElement<'a, C, G, N>,
@@ -56,16 +56,27 @@ pub trait HyperelasticFiniteElementBlock<'a, C, const D: usize, const E: usize, 
 where
     C: Hyperelastic<'a>,
     F: HyperelasticFiniteElement<'a, C, G, N>,
-    Self: SolidFiniteElementBlock<'a, C, D, E, F, G, N>
+    Self: ElasticFiniteElementBlock<'a, C, D, E, F, G, N>
 {
     fn calculate_helmholtz_free_energy(&self) -> Scalar;
+}
+
+pub trait ViscoelasticFiniteElementBlock<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
+where
+    C: Viscoelastic<'a>,
+    F: ViscoelasticFiniteElement<'a, C, G, N>,
+    Self: ElasticFiniteElementBlock<'a, C, D, E, F, G, N>
+{
+    fn calculate_nodal_velocities_element(&self, element_connectivity: &[usize; N]) -> NodalVelocities<N>;
+    fn get_nodal_velocities(&self) -> &NodalVelocities<D>;
+    fn set_nodal_velocities(&mut self, nodal_velocities: NodalVelocities<D>);
 }
 
 pub trait HyperviscoelasticFiniteElementBlock<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
 where
     C: Hyperviscoelastic<'a>,
     F: HyperviscoelasticFiniteElement<'a, C, G, N>,
-    Self: SolidFiniteElementBlock<'a, C, D, E, F, G, N>
+    Self: ViscoelasticFiniteElementBlock<'a, C, D, E, F, G, N>
 {
     fn calculate_helmholtz_free_energy(&self) -> Scalar;
     fn calculate_viscous_dissipation(&self) -> Scalar;
@@ -76,7 +87,7 @@ impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
     FiniteElementBlock<'a, C, D, E, F, G, N>
     for ElasticBlock<D, E, F, G, N>
 where
-    C: Constitutive<'a>,
+    C: Elastic<'a>,
     F: FiniteElement<'a, C, G, N>
 {
     fn calculate_nodal_coordinates_element(&self, element_connectivity: &[usize; N]) -> NodalCoordinates<N>
@@ -124,7 +135,7 @@ where
 }
 
 impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
-    SolidFiniteElementBlock<'a, C, D, E, F, G, N>
+    ElasticFiniteElementBlock<'a, C, D, E, F, G, N>
     for ElasticBlock<D, E, F, G, N>
 where
     C: Elastic<'a>,
@@ -179,7 +190,7 @@ impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
 where
     C: Hyperelastic<'a>,
     F: HyperelasticFiniteElement<'a, C, G, N>,
-    Self: SolidFiniteElementBlock<'a, C, D, E, F, G, N>
+    Self: ElasticFiniteElementBlock<'a, C, D, E, F, G, N>
 {
     fn calculate_helmholtz_free_energy(&self) -> Scalar
     {
@@ -196,7 +207,59 @@ where
 }
 
 impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
-    SolidFiniteElementBlock<'a, C, D, E, F, G, N>
+    FiniteElementBlock<'a, C, D, E, F, G, N>
+    for ViscoelasticBlock<D, E, F, G, N>
+where
+    C: Viscoelastic<'a>,
+    F: ViscoelasticFiniteElement<'a, C, G, N>
+{
+    fn calculate_nodal_coordinates_element(&self, element_connectivity: &[usize; N]) -> NodalCoordinates<N>
+    {
+        let nodal_coordinates = self.get_nodal_coordinates();
+        element_connectivity.iter().map(|node|
+            nodal_coordinates[*node]
+            .iter().copied().collect()
+        ).collect()
+    }
+    fn get_nodal_coordinates(&self) -> &NodalCoordinates<D>
+    {
+        &self.nodal_coordinates
+    }
+    fn get_connectivity(&self) -> &Connectivity<E, N>
+    {
+        &self.connectivity
+    }
+    fn get_elements(&self) -> &[F; E]
+    {
+        &self.elements
+    }
+    fn new(constitutive_model_parameters: Parameters<'a>, connectivity: Connectivity<E, N>, reference_nodal_coordinates: ReferenceNodalCoordinates<D>) -> Self
+    {
+        let elements = from_fn(|element|
+            <F>::new(
+                constitutive_model_parameters,
+                connectivity[element].iter().map(|node|
+                    reference_nodal_coordinates[*node]
+                    .iter().copied().collect()
+                ).collect()
+            )
+        );
+        Self
+        {
+            connectivity,
+            elements,
+            nodal_coordinates: reference_nodal_coordinates.convert(),
+            nodal_velocities: NodalVelocities::zero()
+        }
+    }
+    fn set_nodal_coordinates(&mut self, nodal_coordinates: NodalCoordinates<D>)
+    {
+        self.nodal_coordinates = nodal_coordinates;
+    }
+}
+
+impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
+    ElasticFiniteElementBlock<'a, C, D, E, F, G, N>
     for ViscoelasticBlock<D, E, F, G, N>
 where
     C: Viscoelastic<'a>,
@@ -205,11 +268,75 @@ where
 {
     fn calculate_nodal_forces(&self) -> NodalForces<D>
     {
-        todo!()
+        let mut nodal_forces = NodalForces::zero();
+        self.get_elements().iter()
+        .zip(self.get_connectivity().iter())
+        .for_each(|(element, element_connectivity)|
+            element.calculate_nodal_forces(
+                &self.calculate_nodal_coordinates_element(
+                    element_connectivity
+                ),
+                &self.calculate_nodal_velocities_element(
+                    element_connectivity
+                )
+            ).iter()
+            .zip(element_connectivity.iter())
+            .for_each(|(nodal_force, node)|
+                nodal_forces[*node] += nodal_force
+            )
+        );
+        nodal_forces
     }
     fn calculate_nodal_stiffnesses(&self) -> NodalStiffnesses<D>
     {
-        todo!()
+        let mut nodal_stiffnesses = NodalStiffnesses::zero();
+        self.get_elements().iter()
+        .zip(self.get_connectivity().iter())
+        .for_each(|(element, element_connectivity)|
+            element.calculate_nodal_stiffnesses(
+                &self.calculate_nodal_coordinates_element(
+                    element_connectivity
+                ),
+                &self.calculate_nodal_velocities_element(
+                    element_connectivity
+                )
+            ).iter()
+            .zip(element_connectivity.iter())
+            .for_each(|(object, node_a)|
+                object.iter()
+                .zip(element_connectivity.iter())
+                .for_each(|(nodal_stiffness, node_b)|
+                    nodal_stiffnesses[*node_a][*node_b] += nodal_stiffness
+                )
+            )
+        );
+        nodal_stiffnesses
+    }
+}
+
+impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
+    ViscoelasticFiniteElementBlock<'a, C, D, E, F, G, N>
+    for ViscoelasticBlock<D, E, F, G, N>
+where
+    C: Viscoelastic<'a>,
+    F: ViscoelasticFiniteElement<'a, C, G, N>,
+    Self: ElasticFiniteElementBlock<'a, C, D, E, F, G, N>
+{
+    fn calculate_nodal_velocities_element(&self, element_connectivity: &[usize; N]) -> NodalVelocities<N>
+    {
+        let nodal_velocities = self.get_nodal_velocities();
+        element_connectivity.iter().map(|node|
+            nodal_velocities[*node]
+            .iter().copied().collect()
+        ).collect()
+    }
+    fn get_nodal_velocities(&self) -> &NodalVelocities<D>
+    {
+        &self.nodal_velocities
+    }
+    fn set_nodal_velocities(&mut self, nodal_velocities: NodalVelocities<D>)
+    {
+        self.nodal_velocities = nodal_velocities;
     }
 }
 
@@ -219,18 +346,48 @@ impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
 where
     C: Hyperviscoelastic<'a>,
     F: HyperviscoelasticFiniteElement<'a, C, G, N>,
-    Self: SolidFiniteElementBlock<'a, C, D, E, F, G, N>
+    Self: ViscoelasticFiniteElementBlock<'a, C, D, E, F, G, N>
 {
     fn calculate_helmholtz_free_energy(&self) -> Scalar
     {
-        todo!()
+        self.get_elements().iter()
+        .zip(self.get_connectivity().iter())
+        .map(|(element, element_connectivity)|
+            element.calculate_helmholtz_free_energy(
+                &self.calculate_nodal_coordinates_element(
+                    element_connectivity
+                )
+            )
+        ).sum()
     }
     fn calculate_viscous_dissipation(&self) -> Scalar
     {
-        todo!()
+        self.get_elements().iter()
+        .zip(self.get_connectivity().iter())
+        .map(|(element, element_connectivity)|
+            element.calculate_viscous_dissipation(
+                &self.calculate_nodal_coordinates_element(
+                    element_connectivity
+                ),
+                &self.calculate_nodal_velocities_element(
+                    element_connectivity
+                )
+            )
+        ).sum()
     }
     fn calculate_dissipation_potential(&self) -> Scalar
     {
-        todo!()
+        self.get_elements().iter()
+        .zip(self.get_connectivity().iter())
+        .map(|(element, element_connectivity)|
+            element.calculate_dissipation_potential(
+                &self.calculate_nodal_coordinates_element(
+                    element_connectivity
+                ),
+                &self.calculate_nodal_velocities_element(
+                    element_connectivity
+                )
+            )
+        ).sum()
     }
 }
