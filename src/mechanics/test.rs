@@ -10,6 +10,7 @@ use crate::
 use super::
 {
     CurrentCoordinate,
+    CurrentVelocity,
     DeformationGradient,
     DeformationGradientRate,
     FrameSpin,
@@ -102,6 +103,11 @@ pub fn get_rotation_reference_configuration() -> RotationReferenceConfiguration
 pub fn get_translation_current_configuration() -> CurrentCoordinate
 {
     CurrentCoordinate::new([1.1, 2.2, 3.3])
+}
+
+pub fn get_translation_rate_current_configuration() -> CurrentVelocity
+{
+    CurrentVelocity::new([0.4, -0.7, 1.2])
 }
 
 pub fn get_translation_reference_configuration() -> ReferenceCoordinate

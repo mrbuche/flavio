@@ -31,6 +31,9 @@ pub type CurrentCoordinate = TensorRank1<3, 1>;
 /// A list of coordinates in the current configuration.
 pub type CurrentCoordinates<const W: usize> = TensorRank1List<3, 1, W>;
 
+/// A velocity in the current configuration.
+pub type CurrentVelocity = TensorRank1<3, 1>;
+
 /// The deformation gradient $`\mathbf{F}`$.
 pub type DeformationGradient = TensorRank2<3, 1, 0>;
 
