@@ -309,42 +309,6 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses
                         )
                     )
                 }
-                #[test]
-                fn symmetry()
-                {
-                    let nodal_stiffness = get_nodal_stiffnesses(true, false);
-                    nodal_stiffness.iter()
-                    .enumerate()
-                    .for_each(|(a, nodal_stiffness_a)|
-                        nodal_stiffness_a.iter()
-                        .enumerate()
-                        .for_each(|(b, nodal_stiffness_ab)|
-                            nodal_stiffness_ab.iter()
-                            .enumerate()
-                            .zip(nodal_stiffness_ab.transpose().iter())
-                            .for_each(|((i, nodal_stiffness_ab_i), nodal_stiffness_ab_j)|
-                                nodal_stiffness_ab_i.iter()
-                                .enumerate()
-                                .zip(nodal_stiffness_ab_j.iter())
-                                .for_each(|((j, nodal_stiffness_ab_ij), nodal_stiffness_ab_ji)|
-                                    if a == b
-                                    {
-                                        assert_eq_within_tols(
-                                            nodal_stiffness_ab_ij,
-                                            &nodal_stiffness_ab_ji
-                                        )
-                                    }
-                                    else if i == j
-                                    {
-                                        assert_eq_within_tols(
-                                            nodal_stiffness_ab_ij, &nodal_stiffness[b][a][i][j]
-                                        )
-                                    }
-                                )
-                            )
-                        )
-                    )
-                }
             }
             mod undeformed
             {
@@ -481,6 +445,42 @@ macro_rules! test_helmholtz_free_energy
                     finite_difference/EPSILON
                 }).collect()
             ).collect()
+        }
+        #[test]
+        fn nodal_stiffnesses_deformed_symmetry()
+        {
+            let nodal_stiffness = get_nodal_stiffnesses(true, false);
+            nodal_stiffness.iter()
+            .enumerate()
+            .for_each(|(a, nodal_stiffness_a)|
+                nodal_stiffness_a.iter()
+                .enumerate()
+                .for_each(|(b, nodal_stiffness_ab)|
+                    nodal_stiffness_ab.iter()
+                    .enumerate()
+                    .zip(nodal_stiffness_ab.transpose().iter())
+                    .for_each(|((i, nodal_stiffness_ab_i), nodal_stiffness_ab_j)|
+                        nodal_stiffness_ab_i.iter()
+                        .enumerate()
+                        .zip(nodal_stiffness_ab_j.iter())
+                        .for_each(|((j, nodal_stiffness_ab_ij), nodal_stiffness_ab_ji)|
+                            if a == b
+                            {
+                                assert_eq_within_tols(
+                                    nodal_stiffness_ab_ij,
+                                    &nodal_stiffness_ab_ji
+                                )
+                            }
+                            else if i == j
+                            {
+                                assert_eq_within_tols(
+                                    nodal_stiffness_ab_ij, &nodal_stiffness[b][a][i][j]
+                                )
+                            }
+                        )
+                    )
+                )
+            )
         }
         mod helmholtz_free_energy
         {

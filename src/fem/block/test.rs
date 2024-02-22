@@ -367,7 +367,7 @@ macro_rules! test_finite_element_block_with_elastic_constitutive_model
                 }
             }
         }
-        mod nodal_stiffness
+        mod nodal_stiffnesses
         {
             use super::*;
             mod deformed
@@ -403,46 +403,6 @@ macro_rules! test_finite_element_block_with_elastic_constitutive_model
                                     assert_eq_within_tols(
                                         nodal_stiffness_ab_ij, res_nodal_stiffness_ab_ij
                                     )
-                                )
-                            )
-                        )
-                    )
-                }
-                #[test]
-                fn symmetry()
-                {
-                    let mut block = get_block();
-                    block.set_nodal_coordinates(
-                        get_coordinates_block()
-                    );
-                    let nodal_stiffness = block.calculate_nodal_stiffnesses();
-                    nodal_stiffness.iter()
-                    .enumerate()
-                    .for_each(|(a, nodal_stiffness_a)|
-                        nodal_stiffness_a.iter()
-                        .enumerate()
-                        .for_each(|(b, nodal_stiffness_ab)|
-                            nodal_stiffness_ab.iter()
-                            .enumerate()
-                            .zip(nodal_stiffness_ab.transpose().iter())
-                            .for_each(|((i, nodal_stiffness_ab_i), nodal_stiffness_ab_j)|
-                                nodal_stiffness_ab_i.iter()
-                                .enumerate()
-                                .zip(nodal_stiffness_ab_j.iter())
-                                .for_each(|((j, nodal_stiffness_ab_ij), nodal_stiffness_ab_ji)|
-                                    if a == b
-                                    {
-                                        assert_eq_within_tols(
-                                            nodal_stiffness_ab_ij,
-                                            &nodal_stiffness_ab_ji
-                                        )
-                                    }
-                                    else if i == j
-                                    {
-                                        assert_eq_within_tols(
-                                            nodal_stiffness_ab_ij, &nodal_stiffness[b][a][i][j]
-                                        )
-                                    }
                                 )
                             )
                         )
@@ -640,6 +600,46 @@ macro_rules! test_finite_element_block_with_hyperelastic_constitutive_model
                     finite_difference/EPSILON
                 }).collect()
             ).collect()
+        }
+        #[test]
+        fn nodal_stiffnesses_deformed_symmetry()
+        {
+            let mut block = get_block();
+            block.set_nodal_coordinates(
+                get_coordinates_block()
+            );
+            let nodal_stiffness = block.calculate_nodal_stiffnesses();
+            nodal_stiffness.iter()
+            .enumerate()
+            .for_each(|(a, nodal_stiffness_a)|
+                nodal_stiffness_a.iter()
+                .enumerate()
+                .for_each(|(b, nodal_stiffness_ab)|
+                    nodal_stiffness_ab.iter()
+                    .enumerate()
+                    .zip(nodal_stiffness_ab.transpose().iter())
+                    .for_each(|((i, nodal_stiffness_ab_i), nodal_stiffness_ab_j)|
+                        nodal_stiffness_ab_i.iter()
+                        .enumerate()
+                        .zip(nodal_stiffness_ab_j.iter())
+                        .for_each(|((j, nodal_stiffness_ab_ij), nodal_stiffness_ab_ji)|
+                            if a == b
+                            {
+                                assert_eq_within_tols(
+                                    nodal_stiffness_ab_ij,
+                                    &nodal_stiffness_ab_ji
+                                )
+                            }
+                            else if i == j
+                            {
+                                assert_eq_within_tols(
+                                    nodal_stiffness_ab_ij, &nodal_stiffness[b][a][i][j]
+                                )
+                            }
+                        )
+                    )
+                )
+            )
         }
         mod helmholtz_free_energy
         {
