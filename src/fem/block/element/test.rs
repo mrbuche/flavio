@@ -21,9 +21,12 @@ macro_rules! test_finite_element
                 mechanics::test::
                 {
                     get_deformation_gradient,
+                    get_deformation_gradient_rate,
                     get_rotation_current_configuration,
+                    get_rotation_rate_current_configuration,
                     get_rotation_reference_configuration,
                     get_translation_current_configuration,
+                    get_translation_rate_current_configuration,
                     get_translation_reference_configuration
                 },
                 test::assert_eq_within_tols
@@ -144,8 +147,8 @@ macro_rules! test_finite_element_with_solid_constitutive_model
         fn get_coordinates_transformed() -> NodalCoordinates<N>
         {
             get_coordinates().iter()
-            .map(|current_coordinate|
-                get_rotation_current_configuration() * current_coordinate
+            .map(|coordinate|
+                get_rotation_current_configuration() * coordinate
                 + get_translation_current_configuration()
             ).collect()
         }
@@ -171,10 +174,6 @@ macro_rules! test_finite_element_with_solid_constitutive_model
                 get_rotation_reference_configuration() * reference_coordinate
                 + get_translation_reference_configuration()
             ).collect()
-        }
-        fn get_velocities() -> NodalVelocities<N>
-        {
-            todo!()
         }
         #[test]
         fn integration_weights_sum_to_one()
@@ -505,9 +504,13 @@ macro_rules! test_finite_element_with_elastic_constitutive_model
                                 get_reference_coordinates().convert()
                             };
                             nodal_coordinates[node_a][i] += 0.5 * EPSILON;
-                            finite_difference = element.calculate_nodal_forces(&nodal_coordinates)[node_b][j];
+                            finite_difference = element.calculate_nodal_forces(
+                                &nodal_coordinates
+                            )[node_b][j];
                             nodal_coordinates[node_a][i] -= EPSILON;
-                            finite_difference -= element.calculate_nodal_forces(&nodal_coordinates)[node_b][j];
+                            finite_difference -= element.calculate_nodal_forces(
+                                &nodal_coordinates
+                            )[node_b][j];
                             finite_difference/EPSILON
                         }).collect()
                     ).collect()
@@ -716,37 +719,128 @@ macro_rules! test_finite_element_with_viscoelastic_constitutive_model
     {
         fn get_nodal_forces(is_deformed: bool, is_rotated: bool) -> NodalForces<N>
         {
-            if is_deformed
+            if is_rotated
             {
-                get_element().calculate_nodal_forces(
-                    &get_coordinates(), &get_velocities()
-                )
+                if is_deformed
+                {
+                    get_rotation_current_configuration().transpose() *
+                    get_element_transformed().calculate_nodal_forces(
+                        &get_coordinates_transformed(), &get_velocities_transformed()
+                    )
+                }
+                else
+                {
+                    panic!()
+                }
             }
             else
             {
-                get_element().calculate_nodal_forces(
-                    &get_reference_coordinates().convert(), &NodalVelocities::zero()
-                )
+                if is_deformed
+                {
+                    get_element().calculate_nodal_forces(
+                        &get_coordinates(), &get_velocities()
+                    )
+                }
+                else
+                {
+                    get_element().calculate_nodal_forces(
+                        &get_reference_coordinates().convert(), &NodalVelocities::zero()
+                    )
+                }
             }
         }
         fn get_nodal_stiffnesses(is_deformed: bool, is_rotated: bool) -> NodalStiffnesses<N>
         {
-            if is_deformed
+            if is_rotated
             {
-                get_element().calculate_nodal_stiffnesses(
-                    &get_coordinates(), &get_velocities()
-                )
+                if is_deformed
+                {
+                    get_rotation_current_configuration().transpose() *
+                    get_element_transformed().calculate_nodal_stiffnesses(
+                        &get_coordinates_transformed(), &get_velocities_transformed()
+                    ) * get_rotation_current_configuration()
+                }
+                else
+                {
+                    let converted: TensorRank2<3, 1, 1> = get_rotation_reference_configuration().convert();
+                    converted.transpose() *
+                    get_element_transformed().calculate_nodal_stiffnesses(
+                        &get_reference_coordinates_transformed().convert(), &NodalVelocities::zero()
+                    ) * converted
+                }
             }
             else
             {
-                get_element().calculate_nodal_stiffnesses(
-                    &get_reference_coordinates().convert(), &NodalVelocities::zero()
-                )
+                if is_deformed
+                {
+                    get_element().calculate_nodal_stiffnesses(
+                        &get_coordinates(), &get_velocities()
+                    )
+                }
+                else
+                {
+                    get_element().calculate_nodal_stiffnesses(
+                        &get_reference_coordinates().convert(), &NodalVelocities::zero()
+                    )
+                }
             }
         }
         fn get_finite_difference_of_nodal_forces(is_deformed: bool) -> NodalStiffnesses<N>
         {
-            todo!()
+            let element = get_element();
+            let mut finite_difference = 0.0;
+            (0..N).map(|node_a|
+                (0..N).map(|node_b|
+                    (0..3).map(|i|
+                        (0..3).map(|j|{
+                            let nodal_coordinates = 
+                            if is_deformed
+                            {
+                                get_coordinates()
+                            }
+                            else
+                            {
+                                get_reference_coordinates().convert()
+                            };
+                            let mut nodal_velocities = 
+                            if is_deformed
+                            {
+                                get_velocities()
+                            }
+                            else
+                            {
+                                NodalVelocities::zero()
+                            };
+                            nodal_velocities[node_a][i] += 0.5 * EPSILON;
+                            finite_difference = element.calculate_nodal_forces(
+                                &nodal_coordinates, &nodal_velocities
+                            )[node_b][j];
+                            nodal_velocities[node_a][i] -= EPSILON;
+                            finite_difference -= element.calculate_nodal_forces(
+                                &nodal_coordinates, &nodal_velocities
+                            )[node_b][j];
+                            finite_difference/EPSILON
+                        }).collect()
+                    ).collect()
+                ).collect()
+            ).collect()
+        }
+        fn get_velocities() -> NodalVelocities<N>
+        {
+            get_reference_coordinates().iter()
+            .map(|reference_coordinate|
+                get_deformation_gradient_rate() * reference_coordinate
+            ).collect()
+        }
+        fn get_velocities_transformed() -> NodalVelocities<N>
+        {
+            get_coordinates().iter()
+            .zip(get_velocities().iter())
+            .map(|(coordinate, velocity)|
+                get_rotation_current_configuration() * velocity
+                + get_rotation_rate_current_configuration() * coordinate
+                + get_translation_rate_current_configuration()
+            ).collect()
         }
         crate::fem::block::element::test::test_finite_element_with_solid_constitutive_model!(
             $element, $constitutive_model, $constitutive_model_parameters
@@ -763,7 +857,17 @@ macro_rules! test_finite_element_with_hyperviscoelastic_constitutive_model
             $element, $constitutive_model, $constitutive_model_parameters
         );
         #[test]
-        fn hyperviscoelastic()
+        fn helmholtz_free_energy_tests()
+        {
+            todo!("should be able to reuse helmholtz free energy if pull out computations again")
+        }
+        #[test]
+        fn viscous_dissipation_tests()
+        {
+            todo!()
+        }
+        #[test]
+        fn dissipation_potential_tests()
         {
             todo!()
         }
