@@ -112,11 +112,11 @@ macro_rules! test_finite_element
                     test_finite_element_with_hyperelastic_constitutive_model!($element, Yeoh, YEOHPARAMETERS);
                 }
             }
-            mod viscoelastic
+            mod elastic_hyperviscous
             {
                 use crate::
                 {
-                    constitutive::solid::viscoelastic::
+                    constitutive::solid::elastic_hyperviscous::
                     {
                         AlmansiHamel,
                         test::ALMANSIHAMELPARAMETERS

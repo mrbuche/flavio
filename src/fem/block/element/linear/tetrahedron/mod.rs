@@ -101,14 +101,10 @@ where
     }
 }
 
-impl<'a, C> HyperviscoelasticFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
+impl<'a, C> ElasticHyperviscousFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
 where
-    C: Hyperviscoelastic<'a>
+    C: ElasticHyperviscous<'a>
 {
-    fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
-    {
-        self.calculate_helmholtz_free_energy_linear_element(nodal_coordinates)
-    }
     fn calculate_viscous_dissipation(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> Scalar
     {
         self.calculate_viscous_dissipation_linear_element(nodal_coordinates, nodal_velocities)
@@ -119,9 +115,24 @@ where
     }
 }
 
+impl<'a, C> HyperviscoelasticFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
+where
+    C: Hyperviscoelastic<'a>
+{
+    fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
+    {
+        self.calculate_helmholtz_free_energy_linear_element(nodal_coordinates)
+    }
+}
+
 impl<'a, C> ViscoelasticLinearFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
 where
     C: Viscoelastic<'a>
+{}
+
+impl<'a, C> ElasticHyperviscousLinearFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
+where
+    C: ElasticHyperviscous<'a>
 {}
 
 impl<'a, C> HyperviscoelasticLinearFiniteElement<'a, C, G, N> for LinearTetrahedron<C>

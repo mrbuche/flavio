@@ -125,11 +125,11 @@ macro_rules! test_finite_element_block
                     );
                 }
             }
-            mod viscoelastic
+            mod elastic_hyperviscous
             {
                 use crate::
                 {
-                    constitutive::solid::viscoelastic::
+                    constitutive::solid::elastic_hyperviscous::
                     {
                         AlmansiHamel,
                         test::ALMANSIHAMELPARAMETERS
