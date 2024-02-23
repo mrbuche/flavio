@@ -91,28 +91,33 @@ impl<'a> Viscoelastic<'a> for SaintVenantKirchoff<'a>
     }
 }
 
-/// Hyperviscoelastic constitutive model implementation of the Saint Venant-Kirchoff hyperviscoelastic constitutive model.
-impl<'a> Hyperviscoelastic<'a> for SaintVenantKirchoff<'a>
+/// Elastic-hyperviscous constitutive model implementation of the Saint Venant-Kirchoff hyperviscoelastic constitutive model.
+impl<'a> ElasticHyperviscous<'a> for SaintVenantKirchoff<'a>
 {
-    /// Calculates and returns the Helmholtz free energy density.
-    ///
-    /// ```math
-    /// a(\mathbf{F}) = \mu\,\mathrm{tr}(\mathbf{E}^2) + \left(\kappa - \frac{2}{3}\,\mu\right)\mathrm{tr}(\mathbf{E})^2
-    /// ```
-    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar
-    {
-        let strain = (self.calculate_right_cauchy_green_deformation(deformation_gradient) - RightCauchyGreenDeformation::identity())*0.5;
-        self.get_shear_modulus()*strain.squared_trace() + 0.5*(self.get_bulk_modulus() - 2.0/3.0*self.get_shear_modulus())*strain.trace().powi(2)
-    }
     /// Calculates and returns the viscous dissipation.
     ///
     /// ```math
-    /// \phi(\mathbf{F},\dot{\mathbf{F}}) = \eta\,\mathrm{tr}(\dot{\mathbf{E}}^2) + \left(\zeta - \frac{2}{3}\,\eta\right)\mathrm{tr}(\dot{\mathbf{E}})^2
+    /// \phi(\mathbf{F},\dot{\mathbf{F}}) = \eta\,\mathrm{tr}(\dot{\mathbf{E}}^2) + \frac{1}{2}\left(\zeta - \frac{2}{3}\,\eta\right)\mathrm{tr}(\dot{\mathbf{E}})^2
     /// ```
     fn calculate_viscous_dissipation(&self, deformation_gradient: &DeformationGradient, deformation_gradient_rate: &DeformationGradientRate) -> Scalar
     {
         let first_term = deformation_gradient_rate.transpose()*deformation_gradient;
         let strain_rate = (&first_term + first_term.transpose())*0.5;
         self.get_shear_viscosity()*strain_rate.squared_trace() + 0.5*(self.get_bulk_viscosity() - 2.0/3.0*self.get_shear_viscosity())*strain_rate.trace().powi(2)
+    }
+}
+
+/// Hyperviscoelastic constitutive model implementation of the Saint Venant-Kirchoff hyperviscoelastic constitutive model.
+impl<'a> Hyperviscoelastic<'a> for SaintVenantKirchoff<'a>
+{
+    /// Calculates and returns the Helmholtz free energy density.
+    ///
+    /// ```math
+    /// a(\mathbf{F}) = \mu\,\mathrm{tr}(\mathbf{E}^2) + \frac{1}{2}\left(\kappa - \frac{2}{3}\,\mu\right)\mathrm{tr}(\mathbf{E})^2
+    /// ```
+    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar
+    {
+        let strain = (self.calculate_right_cauchy_green_deformation(deformation_gradient) - RightCauchyGreenDeformation::identity())*0.5;
+        self.get_shear_modulus()*strain.squared_trace() + 0.5*(self.get_bulk_modulus() - 2.0/3.0*self.get_shear_modulus())*strain.trace().powi(2)
     }
 }

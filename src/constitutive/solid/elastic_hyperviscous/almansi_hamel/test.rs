@@ -1,7 +1,9 @@
 use super::*;
 use super::super::test::*;
 
-test_solid_viscoelastic_constitutive_model!(
+use_viscoelastic_macros!();
+
+test_solid_elastic_hyperviscous_constitutive_model!(
     AlmansiHamel, ALMANSIHAMELPARAMETERS,
     AlmansiHamel::new(ALMANSIHAMELPARAMETERS)
 );

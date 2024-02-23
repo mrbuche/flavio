@@ -1,7 +1,7 @@
 use super::*;
 use super::super::test::*;
 
-use_viscoelastic_macros!();
+use_elastic_hyperviscous_macros!();
 
 test_solid_hyperviscoelastic_constitutive_model!(
     SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS,

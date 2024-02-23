@@ -26,6 +26,7 @@ pub use saint_venant_kirchoff::SaintVenantKirchoff;
 use super::
 {
     *,
+    elastic_hyperviscous::ElasticHyperviscous,
     viscoelastic::Viscoelastic,
     super::fluid::viscous::Viscous
 };
@@ -33,7 +34,7 @@ use super::
 /// Required methods for hyperviscoelastic constitutive models.
 pub trait Hyperviscoelastic<'a>
 where
-    Self: Viscoelastic<'a>
+    Self: ElasticHyperviscous<'a>
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///
@@ -41,19 +42,4 @@ where
     /// a = a(\mathbf{F})
     /// ```
     fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar;
-    /// Calculates and returns the dissipation potential.
-    ///
-    /// ```math
-    /// \dot{a}(\mathbf{F}) + \phi(\mathbf{F},\dot{\mathbf{F}})
-    /// ```
-    fn calculate_dissipation_potential(&self, deformation_gradient: &DeformationGradient, deformation_gradient_rate: &DeformationGradientRate) -> Scalar
-    {
-        self.calculate_first_piola_kirchoff_stress(deformation_gradient, &DeformationGradientRate::zero()).full_contraction(deformation_gradient_rate) + self.calculate_viscous_dissipation(deformation_gradient, deformation_gradient_rate)
-    }
-    /// Calculates and returns the viscous dissipation.
-    ///
-    /// ```math
-    /// \phi = \phi(\mathbf{F},\dot{\mathbf{F}})
-    /// ```
-    fn calculate_viscous_dissipation(&self, deformation_gradient: &DeformationGradient, deformation_gradient_rate: &DeformationGradientRate) -> Scalar;
 }
