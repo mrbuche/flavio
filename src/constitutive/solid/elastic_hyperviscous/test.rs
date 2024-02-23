@@ -387,15 +387,6 @@ macro_rules! test_solid_elastic_hyperviscous_specifics
                             )
                         )
                     }
-                    #[test]
-                    fn positive()
-                    {
-                        assert!(
-                            calculate_dissipation_potential_from_deformation_gradient_and_deformation_gradient_rate!(
-                                $constitutive_model_constructed, &get_deformation_gradient(), &get_deformation_gradient_rate()
-                            ) > 0.0
-                        )
-                    }
                 }
                 mod undeformed
                 {

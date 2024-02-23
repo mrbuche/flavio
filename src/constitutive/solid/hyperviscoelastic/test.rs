@@ -51,6 +51,15 @@ macro_rules! test_solid_hyperviscoelastic_constitutive_model
             $constitutive_model_parameters,
             $constitutive_model_constructed
         );
+        #[test]
+        fn dissipation_potential_deformed_positive()
+        {
+            assert!(
+                calculate_dissipation_potential_from_deformation_gradient_and_deformation_gradient_rate!(
+                    $constitutive_model_constructed, &get_deformation_gradient(), &get_deformation_gradient_rate()
+                ) > 0.0
+            )
+        }
     }
 }
 pub(crate) use test_solid_hyperviscoelastic_constitutive_model;

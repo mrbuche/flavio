@@ -11,7 +11,7 @@ macro_rules! test_finite_element
                 {
                     test_finite_element_with_elastic_constitutive_model,
                     test_finite_element_with_hyperelastic_constitutive_model,
-                    test_finite_element_with_viscoelastic_constitutive_model,
+                    test_finite_element_with_elastic_hyperviscous_constitutive_model,
                     test_finite_element_with_hyperviscoelastic_constitutive_model
                 },
                 math::
@@ -126,7 +126,7 @@ macro_rules! test_finite_element
                 mod almansi_hamel
                 {
                     use super::*;
-                    test_finite_element_with_viscoelastic_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
+                    test_finite_element_with_elastic_hyperviscous_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
                 }
             }
             mod hyperviscoelastic
@@ -927,14 +927,11 @@ macro_rules! test_finite_element_with_viscoelastic_constitutive_model
 }
 pub(crate) use test_finite_element_with_viscoelastic_constitutive_model;
 
-macro_rules! test_finite_element_with_hyperviscoelastic_constitutive_model
+macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model
 {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
     {
         crate::fem::block::element::test::test_finite_element_with_viscoelastic_constitutive_model!(
-            $element, $constitutive_model, $constitutive_model_parameters
-        );
-        crate::fem::block::element::test::test_helmholtz_free_energy!(
             $element, $constitutive_model, $constitutive_model_parameters
         );
         fn get_viscous_dissipation(is_deformed: bool, is_rotated: bool) -> Scalar
@@ -1263,13 +1260,6 @@ macro_rules! test_finite_element_with_hyperviscoelastic_constitutive_model
                         &get_dissipation_potential(true, true)
                     )
                 }
-                #[test]
-                fn positive()
-                {
-                    assert!(
-                        get_dissipation_potential(true, false) > 0.0
-                    )
-                }
             }
             mod undeformed
             {
@@ -1326,6 +1316,27 @@ macro_rules! test_finite_element_with_hyperviscoelastic_constitutive_model
                     )
                 }
             }
+        }
+    }
+}
+pub(crate) use test_finite_element_with_elastic_hyperviscous_constitutive_model;
+
+macro_rules! test_finite_element_with_hyperviscoelastic_constitutive_model
+{
+    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
+    {
+        crate::fem::block::element::test::test_finite_element_with_elastic_hyperviscous_constitutive_model!(
+            $element, $constitutive_model, $constitutive_model_parameters
+        );
+        crate::fem::block::element::test::test_helmholtz_free_energy!(
+            $element, $constitutive_model, $constitutive_model_parameters
+        );
+        #[test]
+        fn dissipation_potential_deformed_positive()
+        {
+            assert!(
+                get_dissipation_potential(true, false) > 0.0
+            )
         }
     }
 }
