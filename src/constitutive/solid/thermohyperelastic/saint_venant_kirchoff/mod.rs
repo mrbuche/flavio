@@ -56,7 +56,7 @@ impl<'a> Thermoelastic<'a> for SaintVenantKirchoff<'a>
     /// Calculates and returns the second Piola-Kirchoff stress.
     ///
     /// ```math
-    /// \mathbf{S}(\mathbf{F}, T) = 2\mu\mathbf{E}' + \kappa\Big[\mathrm{tr}(\mathbf{E}) - 3\alpha(T - T_\mathrm{ref})\Big]\mathbf{1}
+    /// \mathbf{S}(\mathbf{F}, T) = 2\mu\mathbf{E}' + \kappa\,\mathrm{tr}(\mathbf{E})\mathbf{1} - 3\alpha\kappa(T - T_\mathrm{ref})\mathbf{1}
     /// ```
     fn calculate_second_piola_kirchoff_stress(&self, deformation_gradient: &DeformationGradient, temperature: &Scalar) -> SecondPiolaKirchoffStress
     {
