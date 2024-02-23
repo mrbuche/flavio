@@ -87,7 +87,7 @@ impl<'a> Viscoelastic<'a> for SaintVenantKirchoff<'a>
     {
         let identity = SecondPiolaKirchoffStress::identity();
         let scaled_deformation_gradient_transpose = deformation_gradient.transpose()*self.get_shear_viscosity();
-        SecondPiolaKirchoffTangentStiffness::dyad_ik_jl(&scaled_deformation_gradient_transpose, &identity) + SecondPiolaKirchoffTangentStiffness::dyad_il_jk(&identity, &scaled_deformation_gradient_transpose) + SecondPiolaKirchoffTangentStiffness::dyad_ij_kl(&(identity*(self.get_bulk_viscosity() - 2.0/3.0*self.get_shear_viscosity())), deformation_gradient)
+        SecondPiolaKirchoffRateTangentStiffness::dyad_ik_jl(&scaled_deformation_gradient_transpose, &identity) + SecondPiolaKirchoffRateTangentStiffness::dyad_il_jk(&identity, &scaled_deformation_gradient_transpose) + SecondPiolaKirchoffRateTangentStiffness::dyad_ij_kl(&(identity*(self.get_bulk_viscosity() - 2.0/3.0*self.get_shear_viscosity())), deformation_gradient)
     }
 }
 

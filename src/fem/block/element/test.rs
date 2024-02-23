@@ -11,6 +11,7 @@ macro_rules! test_finite_element
                 {
                     test_finite_element_with_elastic_constitutive_model,
                     test_finite_element_with_hyperelastic_constitutive_model,
+                    test_finite_element_with_viscoelastic_constitutive_model,
                     test_finite_element_with_hyperviscoelastic_constitutive_model
                 },
                 math::
@@ -34,17 +35,17 @@ macro_rules! test_finite_element
             use super::*;
             mod elastic
             {
+                use crate::
+                {
+                    constitutive::solid::elastic::
+                    {
+                        AlmansiHamel,
+                        test::ALMANSIHAMELPARAMETERS
+                    }
+                };
                 use super::*;
                 mod almansi_hamel
                 {
-                    use crate::
-                    {
-                        constitutive::solid::elastic::
-                        {
-                            AlmansiHamel,
-                            test::ALMANSIHAMELPARAMETERS
-                        }
-                    };
                     use super::*;
                     test_finite_element_with_elastic_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
                 }
@@ -109,6 +110,23 @@ macro_rules! test_finite_element
                 {
                     use super::*;
                     test_finite_element_with_hyperelastic_constitutive_model!($element, Yeoh, YEOHPARAMETERS);
+                }
+            }
+            mod viscoelastic
+            {
+                use crate::
+                {
+                    constitutive::solid::viscoelastic::
+                    {
+                        AlmansiHamel,
+                        test::ALMANSIHAMELPARAMETERS
+                    }
+                };
+                use super::*;
+                mod almansi_hamel
+                {
+                    use super::*;
+                    test_finite_element_with_viscoelastic_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
                 }
             }
             mod hyperviscoelastic

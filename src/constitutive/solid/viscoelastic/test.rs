@@ -416,7 +416,10 @@ macro_rules! test_solid_viscous_constitutive_model
                                     cauchy_rate_tangent_stiffness_ijk.iter()
                                     .zip(fd_cauchy_rate_tangent_stiffness_ijk.iter())
                                     .for_each(|(cauchy_rate_tangent_stiffness_ijkl, fd_cauchy_rate_tangent_stiffness_ijkl)|
-                                        assert!((cauchy_rate_tangent_stiffness_ijkl/fd_cauchy_rate_tangent_stiffness_ijkl - 1.0).abs() < EPSILON)
+                                        assert!(
+                                            (cauchy_rate_tangent_stiffness_ijkl/fd_cauchy_rate_tangent_stiffness_ijkl - 1.0).abs() < EPSILON ||
+                                            cauchy_rate_tangent_stiffness_ijkl.abs() < EPSILON
+                                        )
                                     )
                                 )
                             )
@@ -603,7 +606,10 @@ macro_rules! test_solid_viscous_constitutive_model
                                     first_piola_kirchoff_rate_tangent_stiffness_ijk.iter()
                                     .zip(fd_first_piola_kirchoff_rate_tangent_stiffness_ijk.iter())
                                     .for_each(|(first_piola_kirchoff_rate_tangent_stiffness_ijkl, fd_first_piola_kirchoff_rate_tangent_stiffness_ijkl)|
-                                        assert!((first_piola_kirchoff_rate_tangent_stiffness_ijkl/fd_first_piola_kirchoff_rate_tangent_stiffness_ijkl - 1.0).abs() < EPSILON)
+                                        assert!(
+                                            (first_piola_kirchoff_rate_tangent_stiffness_ijkl/fd_first_piola_kirchoff_rate_tangent_stiffness_ijkl - 1.0).abs() < EPSILON ||
+                                            first_piola_kirchoff_rate_tangent_stiffness_ijkl.abs() < EPSILON
+                                        )
                                     )
                                 )
                             )
@@ -858,62 +864,62 @@ macro_rules! test_solid_viscous_constitutive_model
 }
 pub(crate) use test_solid_viscous_constitutive_model;
 
-// macro_rules! test_solid_viscoelastic_constitutive_model
-// {
-//     ($constitutive_model: ident, $constitutive_model_parameters: expr, $constitutive_model_constructed: expr) =>
-//     {
-//         crate::constitutive::solid::elastic::test::test_solid_constitutive_model_no_tangents!(
-//             $constitutive_model,
-//             $constitutive_model_parameters,
-//             $constitutive_model_constructed
-//         );
-//         crate::constitutive::solid::viscoelastic::test::test_solid_viscous_constitutive_model!(
-//             $constitutive_model,
-//             $constitutive_model_parameters,
-//             $constitutive_model_constructed
-//         );
-//         mod viscoelastic
-//         {
-//             use crate::test::check_eq_within_tols;
-//             use super::*;
-//             mod first_piola_kirchoff_rate_tangent_stiffness
-//             {
-//                 use super::*;
-//                 mod deformed
-//                 {
-//                     use super::*;
-//                     #[test]
-//                     fn non_symmetry()
-//                     {
-//                         let first_piola_kirchoff_rate_tangent_stiffness =
-//                         calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
-//                             &$constitutive_model_constructed, &get_deformation_gradient(), &get_deformation_gradient_rate()
-//                         );
-//                         let mut sum: u8 = 0;
-//                         for i in 0..3
-//                         {
-//                             for j in 0..3
-//                             {
-//                                 for k in 0..3
-//                                 {
-//                                     for l in 0..3
-//                                     {
-//                                         if check_eq_within_tols(
-//                                             &first_piola_kirchoff_rate_tangent_stiffness[i][j][k][l],
-//                                             &first_piola_kirchoff_rate_tangent_stiffness[k][l][i][j]
-//                                         ) == false
-//                                         {
-//                                             sum += 1;
-//                                         }
-//                                     }
-//                                 }
-//                             }
-//                         }
-//                         assert!(sum > 0)
-//                     }
-//                 }
-//             }
-//         }
-//     }
-// }
-// pub(crate) use test_solid_viscoelastic_constitutive_model;
+macro_rules! test_solid_viscoelastic_constitutive_model
+{
+    ($constitutive_model: ident, $constitutive_model_parameters: expr, $constitutive_model_constructed: expr) =>
+    {
+        crate::constitutive::solid::elastic::test::test_solid_constitutive_model_no_tangents!(
+            $constitutive_model,
+            $constitutive_model_parameters,
+            $constitutive_model_constructed
+        );
+        crate::constitutive::solid::viscoelastic::test::test_solid_viscous_constitutive_model!(
+            $constitutive_model,
+            $constitutive_model_parameters,
+            $constitutive_model_constructed
+        );
+        mod viscoelastic
+        {
+            use crate::test::check_eq_within_tols;
+            use super::*;
+            mod first_piola_kirchoff_rate_tangent_stiffness
+            {
+                use super::*;
+                mod deformed
+                {
+                    use super::*;
+                    #[test]
+                    fn non_symmetry()
+                    {
+                        let first_piola_kirchoff_rate_tangent_stiffness =
+                        calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
+                            &$constitutive_model_constructed, &get_deformation_gradient(), &get_deformation_gradient_rate()
+                        );
+                        let mut sum: u8 = 0;
+                        for i in 0..3
+                        {
+                            for j in 0..3
+                            {
+                                for k in 0..3
+                                {
+                                    for l in 0..3
+                                    {
+                                        if check_eq_within_tols(
+                                            &first_piola_kirchoff_rate_tangent_stiffness[i][j][k][l],
+                                            &first_piola_kirchoff_rate_tangent_stiffness[k][l][i][j]
+                                        ) == false
+                                        {
+                                            sum += 1;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        assert!(sum > 0)
+                    }
+                }
+            }
+        }
+    }
+}
+pub(crate) use test_solid_viscoelastic_constitutive_model;

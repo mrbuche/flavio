@@ -11,6 +11,10 @@
 #[cfg(test)]
 pub mod test;
 
+mod almansi_hamel;
+
+pub use almansi_hamel::AlmansiHamel;
+
 use super::
 {
     *, super::fluid::viscous::Viscous

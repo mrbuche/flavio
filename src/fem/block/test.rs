@@ -11,6 +11,7 @@ macro_rules! test_finite_element_block
                 {
                     test_finite_element_block_with_elastic_constitutive_model,
                     test_finite_element_block_with_hyperelastic_constitutive_model,
+                    test_finite_element_block_with_viscoelastic_constitutive_model,
                     test_finite_element_block_with_hyperviscoelastic_constitutive_model
                 },
                 math::
@@ -32,17 +33,17 @@ macro_rules! test_finite_element_block
             use super::*;
             mod elastic
             {
+                use crate::
+                {
+                    constitutive::solid::elastic::
+                    {
+                        AlmansiHamel,
+                        test::ALMANSIHAMELPARAMETERS
+                    }
+                };
                 use super::*;
                 mod almansi_hamel
                 {
-                    use crate::
-                    {
-                        constitutive::solid::elastic::
-                        {
-                            AlmansiHamel,
-                            test::ALMANSIHAMELPARAMETERS
-                        }
-                    };
                     use super::*;
                     test_finite_element_block_with_elastic_constitutive_model!(
                         ElasticBlock, $element, AlmansiHamel, ALMANSIHAMELPARAMETERS
@@ -121,6 +122,25 @@ macro_rules! test_finite_element_block
                     use super::*;
                     test_finite_element_block_with_hyperelastic_constitutive_model!(
                         ElasticBlock, $element, Yeoh, YEOHPARAMETERS
+                    );
+                }
+            }
+            mod viscoelastic
+            {
+                use crate::
+                {
+                    constitutive::solid::viscoelastic::
+                    {
+                        AlmansiHamel,
+                        test::ALMANSIHAMELPARAMETERS
+                    }
+                };
+                use super::*;
+                mod almansi_hamel
+                {
+                    use super::*;
+                    test_finite_element_block_with_viscoelastic_constitutive_model!(
+                        ViscoelasticBlock, $element, AlmansiHamel, ALMANSIHAMELPARAMETERS
                     );
                 }
             }
@@ -775,63 +795,6 @@ macro_rules! test_finite_element_block_with_viscoelastic_constitutive_model
 {
     ($block: ident, $element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
     {
-        fn get_finite_difference_of_nodal_forces(is_deformed: bool) -> NodalStiffnesses<D>
-        {
-            let mut block = get_block();
-            if is_deformed
-            {
-                block.set_nodal_coordinates(get_coordinates_block());
-            }
-            else
-            {
-                block.set_nodal_coordinates(get_reference_coordinates_block().convert());
-            }
-            let mut finite_difference = 0.0;
-            (0..D).map(|node_a|
-                (0..D).map(|node_b|
-                    (0..3).map(|i|
-                        (0..3).map(|j|{
-                            let mut nodal_velocities = 
-                            if is_deformed
-                            {
-                                get_velocities_block()
-                            }
-                            else
-                            {
-                                NodalVelocities::zero()
-                            };
-                            nodal_velocities[node_a][i] += 0.5 * EPSILON;
-                            block.set_nodal_velocities(nodal_velocities);
-                            finite_difference = block.calculate_nodal_forces()[node_b][j];
-                            let mut nodal_velocities = 
-                            if is_deformed
-                            {
-                                get_velocities_block()
-                            }
-                            else
-                            {
-                                NodalVelocities::zero()
-                            };
-                            nodal_velocities[node_a][i] -= 0.5 * EPSILON;
-                            block.set_nodal_velocities(nodal_velocities);
-                            finite_difference -= block.calculate_nodal_forces()[node_b][j];
-                            finite_difference/EPSILON
-                        }).collect()
-                    ).collect()
-                ).collect()
-            ).collect()
-        }
-        crate::fem::block::test::test_nodal_forces_and_nodal_stiffnesses!(
-            $block, $element, $constitutive_model, $constitutive_model_parameters
-        );
-    }
-}
-pub(crate) use test_finite_element_block_with_viscoelastic_constitutive_model;
-
-macro_rules! test_finite_element_block_with_hyperviscoelastic_constitutive_model
-{
-    ($block: ident, $element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
-    {
         fn get_velocities_transformed_block() -> NodalCoordinates<D>
         {
             get_coordinates_block().iter()
@@ -840,93 +803,6 @@ macro_rules! test_finite_element_block_with_hyperviscoelastic_constitutive_model
                 get_rotation_current_configuration() * velocity
                 + get_rotation_rate_current_configuration() * coordinate
                 + get_translation_rate_current_configuration()
-            ).collect()
-        }
-        crate::fem::block::test::test_finite_element_block_with_viscoelastic_constitutive_model!(
-            $block, $element, $constitutive_model, $constitutive_model_parameters
-        );
-        fn get_finite_difference_of_viscous_dissipation(is_deformed: bool) -> NodalForces<D>
-        {
-            let mut block = get_block();
-            if is_deformed
-            {
-                block.set_nodal_coordinates(get_coordinates_block());
-            }
-            else
-            {
-                block.set_nodal_coordinates(get_reference_coordinates_block().convert());
-            }
-            let mut finite_difference = 0.0;
-            (0..D).map(|node|
-                (0..3).map(|i|{
-                    let mut nodal_velocities = 
-                    if is_deformed
-                    {
-                        get_velocities_block()
-                    }
-                    else
-                    {
-                        NodalVelocities::zero()
-                    };
-                    nodal_velocities[node][i] += 0.5 * EPSILON;
-                    block.set_nodal_velocities(nodal_velocities);
-                    finite_difference = block.calculate_viscous_dissipation();
-                    let mut nodal_velocities = 
-                    if is_deformed
-                    {
-                        get_velocities_block()
-                    }
-                    else
-                    {
-                        NodalVelocities::zero()
-                    };
-                    nodal_velocities[node][i] -= 0.5 * EPSILON;
-                    block.set_nodal_velocities(nodal_velocities);
-                    finite_difference -= block.calculate_viscous_dissipation();
-                    finite_difference/EPSILON
-                }).collect()
-            ).collect()
-        }
-        fn get_finite_difference_of_dissipation_potential(is_deformed: bool) -> NodalForces<D>
-        {
-            let mut block = get_block();
-            if is_deformed
-            {
-                block.set_nodal_coordinates(get_coordinates_block());
-            }
-            else
-            {
-                block.set_nodal_coordinates(get_reference_coordinates_block().convert());
-            }
-            let mut finite_difference = 0.0;
-            (0..D).map(|node|
-                (0..3).map(|i|{
-                    let mut nodal_velocities = 
-                    if is_deformed
-                    {
-                        get_velocities_block()
-                    }
-                    else
-                    {
-                        NodalVelocities::zero()
-                    };
-                    nodal_velocities[node][i] += 0.5 * EPSILON;
-                    block.set_nodal_velocities(nodal_velocities);
-                    finite_difference = block.calculate_dissipation_potential();
-                    let mut nodal_velocities = 
-                    if is_deformed
-                    {
-                        get_velocities_block()
-                    }
-                    else
-                    {
-                        NodalVelocities::zero()
-                    };
-                    nodal_velocities[node][i] -= 0.5 * EPSILON;
-                    block.set_nodal_velocities(nodal_velocities);
-                    finite_difference -= block.calculate_dissipation_potential();
-                    finite_difference/EPSILON
-                }).collect()
             ).collect()
         }
         fn get_nodal_forces(is_deformed: bool, is_rotated: bool) -> NodalForces<D>
@@ -1014,6 +890,150 @@ macro_rules! test_finite_element_block_with_hyperviscoelastic_constitutive_model
                     get_block().calculate_nodal_stiffnesses()
                 }
             }
+        }
+        fn get_finite_difference_of_nodal_forces(is_deformed: bool) -> NodalStiffnesses<D>
+        {
+            let mut block = get_block();
+            if is_deformed
+            {
+                block.set_nodal_coordinates(get_coordinates_block());
+            }
+            else
+            {
+                block.set_nodal_coordinates(get_reference_coordinates_block().convert());
+            }
+            let mut finite_difference = 0.0;
+            (0..D).map(|node_a|
+                (0..D).map(|node_b|
+                    (0..3).map(|i|
+                        (0..3).map(|j|{
+                            let mut nodal_velocities = 
+                            if is_deformed
+                            {
+                                get_velocities_block()
+                            }
+                            else
+                            {
+                                NodalVelocities::zero()
+                            };
+                            nodal_velocities[node_a][i] += 0.5 * EPSILON;
+                            block.set_nodal_velocities(nodal_velocities);
+                            finite_difference = block.calculate_nodal_forces()[node_b][j];
+                            let mut nodal_velocities = 
+                            if is_deformed
+                            {
+                                get_velocities_block()
+                            }
+                            else
+                            {
+                                NodalVelocities::zero()
+                            };
+                            nodal_velocities[node_a][i] -= 0.5 * EPSILON;
+                            block.set_nodal_velocities(nodal_velocities);
+                            finite_difference -= block.calculate_nodal_forces()[node_b][j];
+                            finite_difference/EPSILON
+                        }).collect()
+                    ).collect()
+                ).collect()
+            ).collect()
+        }
+        crate::fem::block::test::test_nodal_forces_and_nodal_stiffnesses!(
+            $block, $element, $constitutive_model, $constitutive_model_parameters
+        );
+    }
+}
+pub(crate) use test_finite_element_block_with_viscoelastic_constitutive_model;
+
+macro_rules! test_finite_element_block_with_hyperviscoelastic_constitutive_model
+{
+    ($block: ident, $element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
+    {
+        crate::fem::block::test::test_finite_element_block_with_viscoelastic_constitutive_model!(
+            $block, $element, $constitutive_model, $constitutive_model_parameters
+        );
+        fn get_finite_difference_of_viscous_dissipation(is_deformed: bool) -> NodalForces<D>
+        {
+            let mut block = get_block();
+            if is_deformed
+            {
+                block.set_nodal_coordinates(get_coordinates_block());
+            }
+            else
+            {
+                block.set_nodal_coordinates(get_reference_coordinates_block().convert());
+            }
+            let mut finite_difference = 0.0;
+            (0..D).map(|node|
+                (0..3).map(|i|{
+                    let mut nodal_velocities = 
+                    if is_deformed
+                    {
+                        get_velocities_block()
+                    }
+                    else
+                    {
+                        NodalVelocities::zero()
+                    };
+                    nodal_velocities[node][i] += 0.5 * EPSILON;
+                    block.set_nodal_velocities(nodal_velocities);
+                    finite_difference = block.calculate_viscous_dissipation();
+                    let mut nodal_velocities = 
+                    if is_deformed
+                    {
+                        get_velocities_block()
+                    }
+                    else
+                    {
+                        NodalVelocities::zero()
+                    };
+                    nodal_velocities[node][i] -= 0.5 * EPSILON;
+                    block.set_nodal_velocities(nodal_velocities);
+                    finite_difference -= block.calculate_viscous_dissipation();
+                    finite_difference/EPSILON
+                }).collect()
+            ).collect()
+        }
+        fn get_finite_difference_of_dissipation_potential(is_deformed: bool) -> NodalForces<D>
+        {
+            let mut block = get_block();
+            if is_deformed
+            {
+                block.set_nodal_coordinates(get_coordinates_block());
+            }
+            else
+            {
+                block.set_nodal_coordinates(get_reference_coordinates_block().convert());
+            }
+            let mut finite_difference = 0.0;
+            (0..D).map(|node|
+                (0..3).map(|i|{
+                    let mut nodal_velocities = 
+                    if is_deformed
+                    {
+                        get_velocities_block()
+                    }
+                    else
+                    {
+                        NodalVelocities::zero()
+                    };
+                    nodal_velocities[node][i] += 0.5 * EPSILON;
+                    block.set_nodal_velocities(nodal_velocities);
+                    finite_difference = block.calculate_dissipation_potential();
+                    let mut nodal_velocities = 
+                    if is_deformed
+                    {
+                        get_velocities_block()
+                    }
+                    else
+                    {
+                        NodalVelocities::zero()
+                    };
+                    nodal_velocities[node][i] -= 0.5 * EPSILON;
+                    block.set_nodal_velocities(nodal_velocities);
+                    finite_difference -= block.calculate_dissipation_potential();
+                    finite_difference/EPSILON
+                }).collect()
+            ).collect()
         }
         crate::fem::block::test::test_helmholtz_free_energy!(
             $block, $element, $constitutive_model, $constitutive_model_parameters
