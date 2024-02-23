@@ -56,7 +56,7 @@ impl<'a> Thermoelastic<'a> for AlmansiHamel<'a>
     /// Calculates and returns the Cauchy stress.
     ///
     /// ```math
-    /// \boldsymbol{\sigma}(\mathbf{F}, T) = \frac{2\mu}{J}\,\mathbf{e}' + \frac{\kappa}{J}\Big[\mathrm{tr}(\mathbf{e}) - 3\alpha(T - T_\mathrm{ref})\Big]\mathbf{1}
+    /// \boldsymbol{\sigma}(\mathbf{F}, T) = \frac{2\mu}{J}\,\mathbf{e}' + \frac{\kappa}{J}\,\mathrm{tr}(\mathbf{e})\mathbf{1} - \frac{3\alpha\kappa}{J}(T - T_\mathrm{ref})\mathbf{1}
     /// ```
     fn calculate_cauchy_stress(&self, deformation_gradient: &DeformationGradient, temperature: &Scalar) -> CauchyStress
     {

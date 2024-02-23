@@ -10,6 +10,7 @@ use self::element::
     ElasticFiniteElement,
     HyperelasticFiniteElement,
     ViscoelasticFiniteElement,
+    ElasticHyperviscousFiniteElement,
     HyperviscoelasticFiniteElement
 };
 use std::array::from_fn;
@@ -72,15 +73,23 @@ where
     fn set_nodal_velocities(&mut self, nodal_velocities: NodalVelocities<D>);
 }
 
+pub trait ElasticHyperviscousFiniteElementBlock<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
+where
+    C: ElasticHyperviscous<'a>,
+    F: ElasticHyperviscousFiniteElement<'a, C, G, N>,
+    Self: ViscoelasticFiniteElementBlock<'a, C, D, E, F, G, N>
+{
+    fn calculate_viscous_dissipation(&self) -> Scalar;
+    fn calculate_dissipation_potential(&self) -> Scalar;
+}
+
 pub trait HyperviscoelasticFiniteElementBlock<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
 where
     C: Hyperviscoelastic<'a>,
     F: HyperviscoelasticFiniteElement<'a, C, G, N>,
-    Self: ViscoelasticFiniteElementBlock<'a, C, D, E, F, G, N>
+    Self: ElasticHyperviscousFiniteElementBlock<'a, C, D, E, F, G, N>
 {
     fn calculate_helmholtz_free_energy(&self) -> Scalar;
-    fn calculate_viscous_dissipation(&self) -> Scalar;
-    fn calculate_dissipation_potential(&self) -> Scalar;
 }
 
 impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
@@ -341,25 +350,13 @@ where
 }
 
 impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
-    HyperviscoelasticFiniteElementBlock<'a, C, D, E, F, G, N>
+    ElasticHyperviscousFiniteElementBlock<'a, C, D, E, F, G, N>
     for ViscoelasticBlock<D, E, F, G, N>
 where
-    C: Hyperviscoelastic<'a>,
-    F: HyperviscoelasticFiniteElement<'a, C, G, N>,
+    C: ElasticHyperviscous<'a>,
+    F: ElasticHyperviscousFiniteElement<'a, C, G, N>,
     Self: ViscoelasticFiniteElementBlock<'a, C, D, E, F, G, N>
 {
-    fn calculate_helmholtz_free_energy(&self) -> Scalar
-    {
-        self.get_elements().iter()
-        .zip(self.get_connectivity().iter())
-        .map(|(element, element_connectivity)|
-            element.calculate_helmholtz_free_energy(
-                &self.calculate_nodal_coordinates_element(
-                    element_connectivity
-                )
-            )
-        ).sum()
-    }
     fn calculate_viscous_dissipation(&self) -> Scalar
     {
         self.get_elements().iter()
@@ -385,6 +382,28 @@ where
                     element_connectivity
                 ),
                 &self.calculate_nodal_velocities_element(
+                    element_connectivity
+                )
+            )
+        ).sum()
+    }
+}
+
+impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
+    HyperviscoelasticFiniteElementBlock<'a, C, D, E, F, G, N>
+    for ViscoelasticBlock<D, E, F, G, N>
+where
+    C: Hyperviscoelastic<'a>,
+    F: HyperviscoelasticFiniteElement<'a, C, G, N>,
+    Self: ElasticHyperviscousFiniteElementBlock<'a, C, D, E, F, G, N>
+{
+    fn calculate_helmholtz_free_energy(&self) -> Scalar
+    {
+        self.get_elements().iter()
+        .zip(self.get_connectivity().iter())
+        .map(|(element, element_connectivity)|
+            element.calculate_helmholtz_free_energy(
+                &self.calculate_nodal_coordinates_element(
                     element_connectivity
                 )
             )

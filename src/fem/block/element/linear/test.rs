@@ -24,17 +24,17 @@ macro_rules! test_linear_finite_element
             use super::*;
             mod elastic
             {
+                use crate::
+                {
+                    constitutive::solid::elastic::
+                    {
+                        AlmansiHamel,
+                        test::ALMANSIHAMELPARAMETERS
+                    }
+                };
                 use super::*;
                 mod almansi_hamel
                 {
-                    use crate::
-                    {
-                        constitutive::solid::elastic::
-                        {
-                            AlmansiHamel,
-                            test::ALMANSIHAMELPARAMETERS
-                        }
-                    };
                     use super::*;
                     test_linear_finite_element_with_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
                 }
@@ -99,6 +99,23 @@ macro_rules! test_linear_finite_element
                 {
                     use super::*;
                     test_linear_finite_element_with_constitutive_model!($element, Yeoh, YEOHPARAMETERS);
+                }
+            }
+            mod elastic_hyperviscous
+            {
+                use crate::
+                {
+                    constitutive::solid::elastic_hyperviscous::
+                    {
+                        AlmansiHamel,
+                        test::ALMANSIHAMELPARAMETERS
+                    }
+                };
+                use super::*;
+                mod almansi_hamel
+                {
+                    use super::*;
+                    test_linear_finite_element_with_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
                 }
             }
             mod hyperviscoelastic

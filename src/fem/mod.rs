@@ -44,6 +44,7 @@ use crate::
             elastic::Elastic,
             hyperelastic::Hyperelastic,
             viscoelastic::Viscoelastic,
+            elastic_hyperviscous::ElasticHyperviscous,
             hyperviscoelastic::Hyperviscoelastic
         }
     },

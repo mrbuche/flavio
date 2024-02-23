@@ -137,22 +137,11 @@ where
     }
 }
 
-pub trait HyperviscoelasticLinearFiniteElement<'a, C, const G: usize, const N: usize>
+pub trait ElasticHyperviscousLinearFiniteElement<'a, C, const G: usize, const N: usize>
 where
-    C: Hyperviscoelastic<'a>,
+    C: ElasticHyperviscous<'a>,
     Self: ViscoelasticLinearFiniteElement<'a, C, G, N>
 {
-    fn calculate_helmholtz_free_energy_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
-    {
-        let deformation_gradient = self.calculate_deformation_gradient(nodal_coordinates);
-        self.get_constitutive_models().iter()
-        .zip(self.get_integration_weights().iter())
-        .map(|(constitutive_model, integration_weight)|
-            constitutive_model.calculate_helmholtz_free_energy_density(
-                &deformation_gradient
-            ) * integration_weight
-        ).sum()
-    }
     fn calculate_viscous_dissipation_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> Scalar
     {
         let deformation_gradient = self.calculate_deformation_gradient(nodal_coordinates);
@@ -174,6 +163,24 @@ where
         .map(|(constitutive_model, integration_weight)|
             constitutive_model.calculate_dissipation_potential(
                 &deformation_gradient, &deformation_gradient_rate
+            ) * integration_weight
+        ).sum()
+    }
+}
+
+pub trait HyperviscoelasticLinearFiniteElement<'a, C, const G: usize, const N: usize>
+where
+    C: Hyperviscoelastic<'a>,
+    Self: ElasticHyperviscousLinearFiniteElement<'a, C, G, N>
+{
+    fn calculate_helmholtz_free_energy_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
+    {
+        let deformation_gradient = self.calculate_deformation_gradient(nodal_coordinates);
+        self.get_constitutive_models().iter()
+        .zip(self.get_integration_weights().iter())
+        .map(|(constitutive_model, integration_weight)|
+            constitutive_model.calculate_helmholtz_free_energy_density(
+                &deformation_gradient
             ) * integration_weight
         ).sum()
     }

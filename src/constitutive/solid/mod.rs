@@ -1,6 +1,7 @@
 //! Solid constitutive models.
 
 pub mod elastic;
+pub mod elastic_hyperviscous;
 pub mod hyperelastic;
 pub mod hyperviscoelastic;
 pub mod thermoelastic;

@@ -58,6 +58,15 @@ mod public
             let _: Yeoh;
         }
     }
+    mod elastic_hyperviscous
+    {
+        use flavio::constitutive::solid::elastic_hyperviscous::AlmansiHamel;
+        #[test]
+        fn almansi_hamel()
+        {
+            let _: AlmansiHamel;
+        }
+    }
     mod hyperviscoelastic
     {
         use flavio::constitutive::solid::hyperviscoelastic::SaintVenantKirchoff;

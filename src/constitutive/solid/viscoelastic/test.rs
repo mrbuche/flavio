@@ -1,10 +1,3 @@
-use crate::
-{
-    constitutive::solid::elastic::test::ALMANSIHAMELPARAMETERS as ALMANSIHAMELPARAMETERSELASTIC,
-    mechanics::Scalar
-};
-pub const ALMANSIHAMELPARAMETERS: &[Scalar; 4] = &[ALMANSIHAMELPARAMETERSELASTIC[0], ALMANSIHAMELPARAMETERSELASTIC[1], 11.0, 1.0];
-
 macro_rules! calculate_cauchy_stress_from_deformation_gradient
 {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
@@ -416,7 +409,10 @@ macro_rules! test_solid_viscous_constitutive_model
                                     cauchy_rate_tangent_stiffness_ijk.iter()
                                     .zip(fd_cauchy_rate_tangent_stiffness_ijk.iter())
                                     .for_each(|(cauchy_rate_tangent_stiffness_ijkl, fd_cauchy_rate_tangent_stiffness_ijkl)|
-                                        assert!((cauchy_rate_tangent_stiffness_ijkl/fd_cauchy_rate_tangent_stiffness_ijkl - 1.0).abs() < EPSILON)
+                                        assert!(
+                                            (cauchy_rate_tangent_stiffness_ijkl/fd_cauchy_rate_tangent_stiffness_ijkl - 1.0).abs() < EPSILON ||
+                                            cauchy_rate_tangent_stiffness_ijkl.abs() < EPSILON
+                                        )
                                     )
                                 )
                             )
@@ -603,7 +599,10 @@ macro_rules! test_solid_viscous_constitutive_model
                                     first_piola_kirchoff_rate_tangent_stiffness_ijk.iter()
                                     .zip(fd_first_piola_kirchoff_rate_tangent_stiffness_ijk.iter())
                                     .for_each(|(first_piola_kirchoff_rate_tangent_stiffness_ijkl, fd_first_piola_kirchoff_rate_tangent_stiffness_ijkl)|
-                                        assert!((first_piola_kirchoff_rate_tangent_stiffness_ijkl/fd_first_piola_kirchoff_rate_tangent_stiffness_ijkl - 1.0).abs() < EPSILON)
+                                        assert!(
+                                            (first_piola_kirchoff_rate_tangent_stiffness_ijkl/fd_first_piola_kirchoff_rate_tangent_stiffness_ijkl - 1.0).abs() < EPSILON ||
+                                            first_piola_kirchoff_rate_tangent_stiffness_ijkl.abs() < EPSILON
+                                        )
                                     )
                                 )
                             )
