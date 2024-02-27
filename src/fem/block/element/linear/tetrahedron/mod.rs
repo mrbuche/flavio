@@ -39,6 +39,11 @@ impl<'a, C> LinearFiniteElement<'a, C, G, M, N> for Tetrahedron<C>
 where
     C: Constitutive<'a>
 {
+    fn calculate_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> GradientVectors<N>
+    {
+        let standard_gradient_operator = Self::calculate_standard_gradient_operator();
+        (reference_nodal_coordinates * &standard_gradient_operator).inverse_transpose() * standard_gradient_operator
+    }
     fn calculate_standard_gradient_operator() -> StandardGradientOperator<M, N>
     {
         StandardGradientOperator::new([

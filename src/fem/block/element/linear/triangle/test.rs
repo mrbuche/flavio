@@ -17,6 +17,28 @@ fn get_reference_coordinates() -> ReferenceNodalCoordinates<N>
     ])
 }
 
+use crate::constitutive::solid::hyperelastic::
+{
+    NeoHookean,
+    test::NEOHOOKEANPARAMETERS
+};
+
+#[test]
+fn temporary_1()
+{
+    let element = Triangle::<NeoHookean>::new(
+        NEOHOOKEANPARAMETERS,
+        get_reference_coordinates()
+    );
+    element.calculate_deformation_gradient(
+        &get_reference_coordinates().convert()
+    ).iter().for_each(|f_i|
+        f_i.iter().for_each(|f_ij|
+            println!("{}", f_ij)
+        )
+    );
+}
+
 #[test]
 fn test_finite_element()
 {
