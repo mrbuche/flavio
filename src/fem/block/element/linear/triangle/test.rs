@@ -51,8 +51,7 @@ fn temporary_1()
 {
     let element = Triangle::<NeoHookean>::new(
         NEOHOOKEANPARAMETERS,
-        get_reference_coordinates(),
-        &1.0
+        get_reference_coordinates()
     );
     element.calculate_deformation_gradient(
         &(get_deformation_gradient_surface()*get_reference_coordinates())

@@ -17,15 +17,6 @@ where
     fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>) -> Self;
 }
 
-pub trait SurfaceElement<'a, C, const G: usize, const N: usize>
-where
-    C: Constitutive<'a>
-{
-    fn get_constitutive_models(&self) -> &[C; G];
-    fn get_integration_weights(&self) -> IntegrationWeights<G>;
-    fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>, thickness: &'a Scalar) -> Self;
-}
-
 pub trait ElasticFiniteElement<'a, C, const G: usize, const N: usize>
 where
     C: Elastic<'a>,

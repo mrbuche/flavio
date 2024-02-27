@@ -41,7 +41,7 @@ where
 pub trait LinearSurfaceElement<'a, C, const G: usize, const M: usize, const N: usize>
 where
     C: Constitutive<'a>,
-    Self: SurfaceElement<'a, C, G, N>
+    Self: FiniteElement<'a, C, G, N>
 {
     fn calculate_basis_vectors(&self, nodal_coordinates: &NodalCoordinates<N>) -> BasisVectors
     {
@@ -140,7 +140,7 @@ where
 pub trait ElasticLinearSurfaceElement<'a, C, const G: usize, const M: usize, const N: usize>
 where
     C: Elastic<'a>,
-    Self: SurfaceElement<'a, C, G, N>
+    Self: FiniteElement<'a, C, G, N>
 {
     fn calculate_nodal_forces_linear_surface_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
     {

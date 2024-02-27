@@ -14,7 +14,7 @@ pub struct Triangle<'a, C>
     thickness: &'a Scalar
 }
 
-impl<'a, C> SurfaceElement<'a, C, G, N> for Triangle<'a, C>
+impl<'a, C> FiniteElement<'a, C, G, N> for Triangle<'a, C>
 where
     C: Constitutive<'a>
 {
@@ -26,13 +26,15 @@ where
     {
         IntegrationWeights::new([1.0; G])
     }
-    fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>, thickness: &'a Scalar) -> Self
+    fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>) -> Self
     {
         Self
         {
             constitutive_models: std::array::from_fn(|_| <C>::new(constitutive_model_parameters)),
             reference_basis_vectors: Self::calculate_reference_basis_vectors(&reference_nodal_coordinates),
-            thickness
+            thickness: &1.23
+            // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            // use a set_thickness() thing?
         }
     }
 }
