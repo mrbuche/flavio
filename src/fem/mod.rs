@@ -26,7 +26,7 @@ pub use block::
             HyperviscoelasticLinearFiniteElement,
             tetrahedron::
             {
-                LinearTetrahedron
+                Tetrahedron
             }
         }
     }

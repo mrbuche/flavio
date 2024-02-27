@@ -115,6 +115,6 @@ fn get_reference_coordinates_block() -> ReferenceNodalCoordinates<D>
     ])
 }
 
-test_finite_element!(LinearTetrahedron);
-test_finite_element_block!(LinearTetrahedron);
-test_linear_finite_element!(LinearTetrahedron);
+test_finite_element!(Tetrahedron);
+test_finite_element_block!(Tetrahedron);
+test_linear_finite_element!(Tetrahedron);

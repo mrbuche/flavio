@@ -4,34 +4,16 @@ mod test;
 use super::*;
 
 const G: usize = 1;
+const M: usize = 3;
 const N: usize = 4;
 
-pub struct LinearTetrahedron<C>
+pub struct Tetrahedron<C>
 {
     constitutive_models: [C; G],
     gradient_vectors: GradientVectors<N>
 }
 
-impl<'a, C> LinearFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
-where
-    C: Constitutive<'a>
-{
-    fn calculate_standard_gradient_operator() -> StandardGradientOperator<N>
-    {
-        StandardGradientOperator::new([
-            [-1.0, -1.0, -1.0],
-            [ 1.0,  0.0,  0.0],
-            [ 0.0,  1.0,  0.0],
-            [ 0.0,  0.0,  1.0]
-        ])
-    }
-    fn get_gradient_vectors(&self) -> &GradientVectors<N>
-    {
-        &self.gradient_vectors
-    }
-}
-
-impl<'a, C> FiniteElement<'a, C, G, N> for LinearTetrahedron<C>
+impl<'a, C> FiniteElement<'a, C, G, N> for Tetrahedron<C>
 where
     C: Constitutive<'a>
 {
@@ -53,7 +35,26 @@ where
     }
 }
 
-impl<'a, C> ElasticFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
+impl<'a, C> LinearFiniteElement<'a, C, G, M, N> for Tetrahedron<C>
+where
+    C: Constitutive<'a>
+{
+    fn calculate_standard_gradient_operator() -> StandardGradientOperator<M, N>
+    {
+        StandardGradientOperator::new([
+            [-1.0, -1.0, -1.0],
+            [ 1.0,  0.0,  0.0],
+            [ 0.0,  1.0,  0.0],
+            [ 0.0,  0.0,  1.0]
+        ])
+    }
+    fn get_gradient_vectors(&self) -> &GradientVectors<N>
+    {
+        &self.gradient_vectors
+    }
+}
+
+impl<'a, C> ElasticFiniteElement<'a, C, G, N> for Tetrahedron<C>
 where
     C: Elastic<'a>
 {
@@ -67,7 +68,7 @@ where
     }
 }
 
-impl<'a, C> HyperelasticFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
+impl<'a, C> HyperelasticFiniteElement<'a, C, G, N> for Tetrahedron<C>
 where
     C: Hyperelastic<'a>
 {
@@ -77,17 +78,17 @@ where
     }
 }
 
-impl<'a, C> ElasticLinearFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
+impl<'a, C> ElasticLinearFiniteElement<'a, C, G, M, N> for Tetrahedron<C>
 where
     C: Elastic<'a>
 {}
 
-impl<'a, C> HyperelasticLinearFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
+impl<'a, C> HyperelasticLinearFiniteElement<'a, C, G, M, N> for Tetrahedron<C>
 where
     C: Hyperelastic<'a>
 {}
 
-impl<'a, C> ViscoelasticFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
+impl<'a, C> ViscoelasticFiniteElement<'a, C, G, N> for Tetrahedron<C>
 where
     C: Viscoelastic<'a>
 {
@@ -101,7 +102,7 @@ where
     }
 }
 
-impl<'a, C> ElasticHyperviscousFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
+impl<'a, C> ElasticHyperviscousFiniteElement<'a, C, G, N> for Tetrahedron<C>
 where
     C: ElasticHyperviscous<'a>
 {
@@ -115,7 +116,7 @@ where
     }
 }
 
-impl<'a, C> HyperviscoelasticFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
+impl<'a, C> HyperviscoelasticFiniteElement<'a, C, G, N> for Tetrahedron<C>
 where
     C: Hyperviscoelastic<'a>
 {
@@ -125,17 +126,17 @@ where
     }
 }
 
-impl<'a, C> ViscoelasticLinearFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
+impl<'a, C> ViscoelasticLinearFiniteElement<'a, C, G, M, N> for Tetrahedron<C>
 where
     C: Viscoelastic<'a>
 {}
 
-impl<'a, C> ElasticHyperviscousLinearFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
+impl<'a, C> ElasticHyperviscousLinearFiniteElement<'a, C, G, M, N> for Tetrahedron<C>
 where
     C: ElasticHyperviscous<'a>
 {}
 
-impl<'a, C> HyperviscoelasticLinearFiniteElement<'a, C, G, N> for LinearTetrahedron<C>
+impl<'a, C> HyperviscoelasticLinearFiniteElement<'a, C, G, M, N> for Tetrahedron<C>
 where
     C: Hyperviscoelastic<'a>
 {}

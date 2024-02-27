@@ -2,10 +2,15 @@
 mod test;
 
 pub mod tetrahedron;
+pub mod triangle;
+
+use crate::math::TensorRank1List;
 
 use super::*;
 
-pub trait LinearFiniteElement<'a, C, const G: usize, const N: usize>
+type StandardGradientOperator<const M: usize, const N: usize> = TensorRank1List<M, 9, N>;
+
+pub trait LinearFiniteElement<'a, C, const G: usize, const M: usize, const N: usize>
 where
     C: Constitutive<'a>,
     Self: FiniteElement<'a, C, G, N>
@@ -31,14 +36,14 @@ where
         let standard_gradient_operator = Self::calculate_standard_gradient_operator();
         (reference_nodal_coordinates * &standard_gradient_operator).inverse_transpose() * standard_gradient_operator
     }
-    fn calculate_standard_gradient_operator() -> StandardGradientOperator<N>;
+    fn calculate_standard_gradient_operator() -> StandardGradientOperator<M, N>;
     fn get_gradient_vectors(&self) -> &GradientVectors<N>;
 }
 
-pub trait ElasticLinearFiniteElement<'a, C, const G: usize, const N: usize>
+pub trait ElasticLinearFiniteElement<'a, C, const G: usize, const M: usize, const N: usize>
 where
     C: Elastic<'a>,
-    Self: LinearFiniteElement<'a, C, G, N>
+    Self: LinearFiniteElement<'a, C, G, M, N>
 {
     fn calculate_nodal_forces_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
     {
@@ -76,10 +81,10 @@ where
     }
 }
 
-pub trait HyperelasticLinearFiniteElement<'a, C, const G: usize, const N: usize>
+pub trait HyperelasticLinearFiniteElement<'a, C, const G: usize, const M: usize, const N: usize>
 where
     C: Hyperelastic<'a>,
-    Self: ElasticLinearFiniteElement<'a, C, G, N>
+    Self: ElasticLinearFiniteElement<'a, C, G, M, N>
 {
     fn calculate_helmholtz_free_energy_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
     {
@@ -94,10 +99,10 @@ where
     }
 }
 
-pub trait ViscoelasticLinearFiniteElement<'a, C, const G: usize, const N: usize>
+pub trait ViscoelasticLinearFiniteElement<'a, C, const G: usize, const M: usize, const N: usize>
 where
     C: Viscoelastic<'a>,
-    Self: LinearFiniteElement<'a, C, G, N>
+    Self: LinearFiniteElement<'a, C, G, M, N>
 {
     fn calculate_nodal_forces_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalForces<N>
     {
@@ -137,10 +142,10 @@ where
     }
 }
 
-pub trait ElasticHyperviscousLinearFiniteElement<'a, C, const G: usize, const N: usize>
+pub trait ElasticHyperviscousLinearFiniteElement<'a, C, const G: usize, const M: usize, const N: usize>
 where
     C: ElasticHyperviscous<'a>,
-    Self: ViscoelasticLinearFiniteElement<'a, C, G, N>
+    Self: ViscoelasticLinearFiniteElement<'a, C, G, M, N>
 {
     fn calculate_viscous_dissipation_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> Scalar
     {
@@ -168,10 +173,10 @@ where
     }
 }
 
-pub trait HyperviscoelasticLinearFiniteElement<'a, C, const G: usize, const N: usize>
+pub trait HyperviscoelasticLinearFiniteElement<'a, C, const G: usize, const M: usize, const N: usize>
 where
     C: Hyperviscoelastic<'a>,
-    Self: ElasticHyperviscousLinearFiniteElement<'a, C, G, N>
+    Self: ElasticHyperviscousLinearFiniteElement<'a, C, G, M, N>
 {
     fn calculate_helmholtz_free_energy_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
     {
