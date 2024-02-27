@@ -300,6 +300,12 @@ fn norm()
 }
 
 #[test]
+fn normalized()
+{
+    assert_eq!(get_tensor_rank_1().normalized().norm(), 0.9999999999999999);
+}
+
+#[test]
 fn size()
 {
     assert_eq!(

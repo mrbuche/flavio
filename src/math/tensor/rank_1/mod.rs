@@ -50,14 +50,18 @@ impl<const D: usize, const I: usize> TensorRank1<D, I>
 }
 
 /// Required methods for rank-1 tensors.
-pub trait TensorRank1Trait<const D: usize>
+pub trait TensorRank1Trait<const D: usize, const I: usize>
 {
     /// Returns the rank-1 tensor as an array.
     fn as_array(&self) -> [TensorRank0; D];
+    /// Returns the cross product with another rank-1 tensor.
+    fn cross(&self, tensor_rank_1: &Self) -> Self;
     /// Returns a rank-1 tensor given an array.
     fn new(array: [TensorRank0; D]) -> Self;
     /// Returns the rank-1 tensor norm.
     fn norm(&self) -> TensorRank0;
+    /// Returns the rank-1 tensor normalized.
+    fn normalized(&self) -> Self;
     /// Returns the rank-1 tensor in the current configuration.
     fn to_current_configuration(self) -> TensorRank1<D, 1>;
     /// Returns the rank-1 tensor in the intermediate configuration.
@@ -69,11 +73,26 @@ pub trait TensorRank1Trait<const D: usize>
 }
 
 /// Implementation of [`TensorRank1Trait`] for [`TensorRank1`].
-impl<const D: usize, const I: usize> TensorRank1Trait<D> for TensorRank1<D, I>
+impl<const D: usize, const I: usize> TensorRank1Trait<D, I> for TensorRank1<D, I>
 {
     fn as_array(&self) -> [TensorRank0; D]
     {
         self.0
+    }
+    fn cross(&self, tensor_rank_1: &Self) -> Self
+    {
+        if D == 3
+        {
+            let mut output = TensorRank1::<D, I>::zero();
+            output[0] = self[1]*tensor_rank_1[2] - self[2]*tensor_rank_1[1];
+            output[1] = self[2]*tensor_rank_1[0] - self[0]*tensor_rank_1[2];
+            output[2] = self[0]*tensor_rank_1[1] - self[1]*tensor_rank_1[0];
+            output
+        }
+        else
+        {
+            panic!()
+        }
     }
     fn new(array: [TensorRank0; D]) -> Self
     {
@@ -82,6 +101,10 @@ impl<const D: usize, const I: usize> TensorRank1Trait<D> for TensorRank1<D, I>
     fn norm(&self) -> TensorRank0
     {
         (self * self).sqrt()
+    }
+    fn normalized(&self) -> Self
+    {
+        self / self.norm()
     }
     fn to_current_configuration(self) -> TensorRank1<D, 1>
     {

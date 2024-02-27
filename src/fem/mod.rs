@@ -20,10 +20,10 @@ pub use block::
         HyperviscoelasticFiniteElement,
         linear::
         {
-            LinearFiniteElement,
-            HyperelasticLinearFiniteElement,
-            ViscoelasticLinearFiniteElement,
-            HyperviscoelasticLinearFiniteElement,
+            LinearElement,
+            HyperelasticLinearElement,
+            ViscoelasticLinearElement,
+            HyperviscoelasticLinearElement,
             tetrahedron::
             {
                 Tetrahedron
@@ -53,6 +53,7 @@ use crate::
         ContractSecondFourthIndicesWithFirstIndicesOf,
         Convert,
         TensorRank0ListTrait,
+        TensorRank1Trait,
         TensorRank1ListTrait,
         TensorRank2Trait,
         TensorRank2List2DTrait

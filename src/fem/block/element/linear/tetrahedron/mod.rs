@@ -35,7 +35,7 @@ where
     }
 }
 
-impl<'a, C> LinearFiniteElement<'a, C, G, M, N> for Tetrahedron<C>
+impl<'a, C> LinearElement<'a, C, G, M, N> for Tetrahedron<C>
 where
     C: Constitutive<'a>
 {
@@ -83,12 +83,12 @@ where
     }
 }
 
-impl<'a, C> ElasticLinearFiniteElement<'a, C, G, M, N> for Tetrahedron<C>
+impl<'a, C> ElasticLinearElement<'a, C, G, M, N> for Tetrahedron<C>
 where
     C: Elastic<'a>
 {}
 
-impl<'a, C> HyperelasticLinearFiniteElement<'a, C, G, M, N> for Tetrahedron<C>
+impl<'a, C> HyperelasticLinearElement<'a, C, G, M, N> for Tetrahedron<C>
 where
     C: Hyperelastic<'a>
 {}
@@ -131,17 +131,17 @@ where
     }
 }
 
-impl<'a, C> ViscoelasticLinearFiniteElement<'a, C, G, M, N> for Tetrahedron<C>
+impl<'a, C> ViscoelasticLinearElement<'a, C, G, M, N> for Tetrahedron<C>
 where
     C: Viscoelastic<'a>
 {}
 
-impl<'a, C> ElasticHyperviscousLinearFiniteElement<'a, C, G, M, N> for Tetrahedron<C>
+impl<'a, C> ElasticHyperviscousLinearElement<'a, C, G, M, N> for Tetrahedron<C>
 where
     C: ElasticHyperviscous<'a>
 {}
 
-impl<'a, C> HyperviscoelasticLinearFiniteElement<'a, C, G, M, N> for Tetrahedron<C>
+impl<'a, C> HyperviscoelasticLinearElement<'a, C, G, M, N> for Tetrahedron<C>
 where
     C: Hyperviscoelastic<'a>
 {}
