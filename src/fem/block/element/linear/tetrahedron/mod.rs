@@ -73,6 +73,11 @@ where
     }
 }
 
+impl<'a, C> ElasticLinearElement<'a, C, G, M, N> for Tetrahedron<C>
+where
+    C: Elastic<'a>
+{}
+
 impl<'a, C> HyperelasticFiniteElement<'a, C, G, N> for Tetrahedron<C>
 where
     C: Hyperelastic<'a>
@@ -82,11 +87,6 @@ where
         self.calculate_helmholtz_free_energy_linear_element(nodal_coordinates)
     }
 }
-
-impl<'a, C> ElasticLinearElement<'a, C, G, M, N> for Tetrahedron<C>
-where
-    C: Elastic<'a>
-{}
 
 impl<'a, C> HyperelasticLinearElement<'a, C, G, M, N> for Tetrahedron<C>
 where

@@ -43,7 +43,7 @@ where
 pub trait LinearSurfaceElement<'a, C, const G: usize, const M: usize, const N: usize>
 where
     C: Constitutive<'a>,
-    Self: FiniteElement<'a, C, G, N>
+    Self: LinearElement<'a, C, G, M, N>
 {
     fn calculate_basis_vectors(&self, nodal_coordinates: &NodalCoordinates<N>) -> Basis
     {
@@ -59,7 +59,7 @@ where
             ).collect()
         ).sum()
     }
-    fn calculate_deformation_gradient(&self, nodal_coordinates: &NodalCoordinates<N>) -> DeformationGradient
+    fn calculate_deformation_gradient_linear_surface_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> DeformationGradient
     {
         nodal_coordinates.iter()
         .zip(self.get_gradient_vectors().iter())
@@ -69,7 +69,7 @@ where
             &self.calculate_normal(nodal_coordinates), self.get_reference_normal()
         )
     }
-    fn calculate_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> GradientVectors<N>
+    fn calculate_gradient_vectors_linear_surface_element(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> GradientVectors<N>
     {
         Self::calculate_standard_gradient_operator().iter()
         .map(|standard_gradient_operator_a|
@@ -123,8 +123,6 @@ where
             ).sum()
         ).collect()
     }
-    fn calculate_standard_gradient_operator() -> StandardGradientOperator<M, N>;
-    fn get_gradient_vectors(&self) -> &GradientVectors<N>;
     fn get_reference_normal(&self) -> &ReferenceNormal;
     fn get_thickness(&self) -> &Scalar;
 }
@@ -196,7 +194,7 @@ where
     C: Elastic<'a>,
     Self: LinearSurfaceElement<'a, C, G, M, N>
 {
-    fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
+    fn calculate_nodal_forces_linear_surface_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
     {
         let first_piola_kirchoff_stress = self.get_constitutive_models()[0]
         .calculate_first_piola_kirchoff_stress(
@@ -206,9 +204,9 @@ where
             &first_piola_kirchoff_stress * gradient_vector
         ).collect::<NodalForces<N>>() * self.get_thickness()
 
-        // + other crazy part
+        // + other crazy part (multiply that by thickness too)
     }
-    fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
+    fn calculate_nodal_stiffnesses_linear_surface_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
     {
         todo!()
     }
@@ -231,7 +229,9 @@ where
         // ).sum()
         self.get_constitutive_models()[0]
         .calculate_helmholtz_free_energy_density(
-            &self.calculate_deformation_gradient(nodal_coordinates)
+            &self.calculate_deformation_gradient(
+                nodal_coordinates
+            )
         )
     }
 }
@@ -243,8 +243,11 @@ where
 {
     fn calculate_helmholtz_free_energy_linear_surface_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
     {
-        self.get_constitutive_models()[0].calculate_helmholtz_free_energy_density(
-            &self.calculate_deformation_gradient(nodal_coordinates)
+        self.get_constitutive_models()[0]
+        .calculate_helmholtz_free_energy_density(
+            &self.calculate_deformation_gradient_linear_surface_element(
+                nodal_coordinates
+            )
         ) * self.get_thickness()
     }
 }
