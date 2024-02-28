@@ -8,8 +8,10 @@ use crate::math::TensorRank1List;
 
 use super::*;
 
-type BasisVectors = Vectors<1, 3>;
-type ReferenceBasisVectors = Vectors<0, 3>;
+type Basis = Vectors<1, 2>;
+type Normal = Vector<1>;
+type ReferenceBasis = Vectors<0, 2>;
+type ReferenceNormal = Vector<0>;
 type StandardGradientOperator<const M: usize, const N: usize> = TensorRank1List<M, 9, N>;
 
 pub trait LinearElement<'a, C, const G: usize, const M: usize, const N: usize>
@@ -43,56 +45,87 @@ where
     C: Constitutive<'a>,
     Self: FiniteElement<'a, C, G, N>
 {
-    fn calculate_basis_vectors(&self, nodal_coordinates: &NodalCoordinates<N>) -> BasisVectors
+    fn calculate_basis_vectors(&self, nodal_coordinates: &NodalCoordinates<N>) -> Basis
     {
-        let basis_vectors_surface: Vectors<1, 2> =
-            Self::calculate_standard_gradient_operator().iter()
-            .zip(nodal_coordinates.iter())
-            .map(|(standard_gradient_operator_a, nodal_coordinates_a)|
-                standard_gradient_operator_a.iter()
-                .map(|standard_gradient_operator_a_m|
-                    nodal_coordinates_a.iter()
-                    .map(|nodal_coordinates_a_i|
-                        nodal_coordinates_a_i*standard_gradient_operator_a_m
-                    ).collect()
+        Self::calculate_standard_gradient_operator().iter()
+        .zip(nodal_coordinates.iter())
+        .map(|(standard_gradient_operator_a, nodal_coordinates_a)|
+            standard_gradient_operator_a.iter()
+            .map(|standard_gradient_operator_a_m|
+                nodal_coordinates_a.iter()
+                .map(|nodal_coordinates_a_i|
+                    nodal_coordinates_a_i*standard_gradient_operator_a_m
                 ).collect()
-            ).sum();
-        BasisVectors::new([
-            basis_vectors_surface[0].as_array(),
-            basis_vectors_surface[1].as_array(),
-            basis_vectors_surface[0].cross(&basis_vectors_surface[1]).normalized().as_array()
-        ])
+            ).collect()
+        ).sum()
     }
     fn calculate_deformation_gradient(&self, nodal_coordinates: &NodalCoordinates<N>) -> DeformationGradient
     {
-        self.calculate_basis_vectors(nodal_coordinates).iter()
-        .zip(self.get_reference_basis_vectors().iter())
-        .map(|(basis_vector, reference_basis_vector)|
-            DeformationGradient::dyad(basis_vector, reference_basis_vector)
-        ).sum::<DeformationGradient>()
+        nodal_coordinates.iter()
+        .zip(self.get_gradient_vectors().iter())
+        .map(|(nodal_coordinate, gradient_vector)|
+            DeformationGradient::dyad(nodal_coordinate, gradient_vector)
+        ).sum::<DeformationGradient>() + DeformationGradient::dyad(
+            &self.calculate_normal(nodal_coordinates), self.get_reference_normal()
+        )
     }
-    fn calculate_reference_basis_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> ReferenceBasisVectors
+    fn calculate_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> GradientVectors<N>
     {
-        let reference_basis_vectors_surface: Vectors<0, 2> =
-            Self::calculate_standard_gradient_operator().iter()
-            .zip(reference_nodal_coordinates.iter())
-            .map(|(standard_gradient_operator_a, reference_nodal_coordinates_a)|
-                standard_gradient_operator_a.iter()
-                .map(|standard_gradient_operator_a_m|
-                    reference_nodal_coordinates_a.iter()
-                    .map(|reference_nodal_coordinates_a_i|
-                        reference_nodal_coordinates_a_i*standard_gradient_operator_a_m
-                    ).collect()
+        Self::calculate_standard_gradient_operator().iter()
+        .map(|standard_gradient_operator_a|
+            standard_gradient_operator_a.iter()
+            .zip(Self::calculate_reference_dual_basis_vectors(reference_nodal_coordinates).iter())
+            .map(|(standard_gradient_operator_a_m, dual_reference_basis_vector_m)|
+                dual_reference_basis_vector_m*standard_gradient_operator_a_m
+            ).sum()
+        ).collect()
+    }
+    fn calculate_normal(&self, nodal_coordinates: &NodalCoordinates<N>) -> Normal
+    {
+        let basis_vectors = self.calculate_basis_vectors(nodal_coordinates);
+        basis_vectors[0].cross(&basis_vectors[1]).normalized()
+    }
+    fn calculate_reference_basis_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> ReferenceBasis
+    {
+        Self::calculate_standard_gradient_operator().iter()
+        .zip(reference_nodal_coordinates.iter())
+        .map(|(standard_gradient_operator_a, reference_nodal_coordinates_a)|
+            standard_gradient_operator_a.iter()
+            .map(|standard_gradient_operator_a_m|
+                reference_nodal_coordinates_a.iter()
+                .map(|reference_nodal_coordinates_a_i|
+                    reference_nodal_coordinates_a_i*standard_gradient_operator_a_m
                 ).collect()
-            ).sum();
-        ReferenceBasisVectors::new([
-            reference_basis_vectors_surface[0].as_array(),
-            reference_basis_vectors_surface[1].as_array(),
-            reference_basis_vectors_surface[0].cross(&reference_basis_vectors_surface[1]).normalized().as_array()
-        ])
+            ).collect()
+        ).sum()
+    }
+    fn calculate_reference_normal(reference_dual_basis_vectors: &ReferenceBasis) -> ReferenceNormal
+    {
+        reference_dual_basis_vectors[0].cross(&reference_dual_basis_vectors[1]).normalized()
+    }
+    fn calculate_reference_dual_basis_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> ReferenceBasis
+    {
+        let reference_basis_vectors_surface = Self::calculate_reference_basis_vectors(reference_nodal_coordinates);
+        reference_basis_vectors_surface.iter()
+        .map(|reference_basis_vectors_surface_m|
+            reference_basis_vectors_surface.iter()
+            .map(|reference_basis_vectors_surface_n|
+                reference_basis_vectors_surface_m*reference_basis_vectors_surface_n
+            ).collect()
+        ).collect::<TensorRank2<2, 0, 0>>()
+        .inverse()
+        .iter()
+        .map(|reference_metric_tensor_m|
+            reference_metric_tensor_m.iter()
+            .zip(reference_basis_vectors_surface.iter())
+            .map(|(reference_metric_tensor_mn, reference_basis_vectors_surface_n)|
+            reference_basis_vectors_surface_n*reference_metric_tensor_mn
+            ).sum()
+        ).collect()
     }
     fn calculate_standard_gradient_operator() -> StandardGradientOperator<M, N>;
-    fn get_reference_basis_vectors(&self) -> &ReferenceBasisVectors;
+    fn get_gradient_vectors(&self) -> &GradientVectors<N>;
+    fn get_reference_normal(&self) -> &ReferenceNormal;
     fn get_thickness(&self) -> &Scalar;
 }
 
@@ -103,32 +136,53 @@ where
 {
     fn calculate_nodal_forces_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
     {
-        let deformation_gradient = self.calculate_deformation_gradient(nodal_coordinates);
-        self.get_gradient_vectors().iter()
-        .map(|gradient_vector|
-            self.get_constitutive_models().iter()
-            .zip(self.get_integration_weights().iter())
-            .map(|(constitutive_model, integration_weight)|
-                constitutive_model.calculate_first_piola_kirchoff_stress(
-                    &deformation_gradient
-                ) * integration_weight
-            ).sum::<FirstPiolaKirchoffStress>() * gradient_vector
+        // let deformation_gradient = self.calculate_deformation_gradient(nodal_coordinates);
+        // self.get_gradient_vectors().iter()
+        // .map(|gradient_vector|
+        //     self.get_constitutive_models().iter()
+        //     .zip(self.get_integration_weights().iter())
+        //     .map(|(constitutive_model, integration_weight)|
+        //         constitutive_model.calculate_first_piola_kirchoff_stress(
+        //             &deformation_gradient
+        //         ) * integration_weight
+        //     ).sum::<FirstPiolaKirchoffStress>() * gradient_vector
+        // ).collect()
+        let first_piola_kirchoff_stress = self.get_constitutive_models()[0]
+        .calculate_first_piola_kirchoff_stress(
+            &self.calculate_deformation_gradient(nodal_coordinates)
+        );
+        self.get_gradient_vectors().iter().map(|gradient_vector|
+            &first_piola_kirchoff_stress * gradient_vector
         ).collect()
     }
     fn calculate_nodal_stiffnesses_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
     {
-        let deformation_gradient = self.calculate_deformation_gradient(nodal_coordinates);
+        // let deformation_gradient = self.calculate_deformation_gradient(nodal_coordinates);
+        // self.get_gradient_vectors().iter()
+        // .map(|gradient_vector_a|
+        //     self.get_gradient_vectors().iter()
+        //     .map(|gradient_vector_b|
+        //         self.get_constitutive_models().iter()
+        //         .zip(self.get_integration_weights().iter())
+        //         .map(|(constitutive_model, integration_weight)|
+        //             constitutive_model.calculate_first_piola_kirchoff_tangent_stiffness(
+        //                 &deformation_gradient
+        //             ) * integration_weight
+        //         ).sum::<FirstPiolaKirchoffTangentStiffness>()
+        //         .contract_second_fourth_indices_with_first_indices_of(
+        //             gradient_vector_b, gradient_vector_a
+        //         ).transpose()
+        //     ).collect()
+        // ).collect()
+        let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_models()[0]
+        .calculate_first_piola_kirchoff_tangent_stiffness(
+            &self.calculate_deformation_gradient(nodal_coordinates)
+        );
         self.get_gradient_vectors().iter()
         .map(|gradient_vector_a|
             self.get_gradient_vectors().iter()
             .map(|gradient_vector_b|
-                self.get_constitutive_models().iter()
-                .zip(self.get_integration_weights().iter())
-                .map(|(constitutive_model, integration_weight)|
-                    constitutive_model.calculate_first_piola_kirchoff_tangent_stiffness(
-                        &deformation_gradient
-                    ) * integration_weight
-                ).sum::<FirstPiolaKirchoffTangentStiffness>()
+                first_piola_kirchoff_tangent_stiffness
                 .contract_second_fourth_indices_with_first_indices_of(
                     gradient_vector_b, gradient_vector_a
                 ).transpose()
@@ -140,13 +194,21 @@ where
 pub trait ElasticLinearSurfaceElement<'a, C, const G: usize, const M: usize, const N: usize>
 where
     C: Elastic<'a>,
-    Self: FiniteElement<'a, C, G, N>
+    Self: LinearSurfaceElement<'a, C, G, M, N>
 {
-    fn calculate_nodal_forces_linear_surface_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
+    fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
     {
-        todo!()
+        let first_piola_kirchoff_stress = self.get_constitutive_models()[0]
+        .calculate_first_piola_kirchoff_stress(
+            &self.calculate_deformation_gradient(nodal_coordinates)
+        );
+        self.get_gradient_vectors().iter().map(|gradient_vector|
+            &first_piola_kirchoff_stress * gradient_vector
+        ).collect::<NodalForces<N>>() * self.get_thickness()
+
+        // + other crazy part
     }
-    fn calculate_nodal_stiffnesses_linear_surface_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
+    fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
     {
         todo!()
     }
@@ -159,14 +221,31 @@ where
 {
     fn calculate_helmholtz_free_energy_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
     {
-        let deformation_gradient = self.calculate_deformation_gradient(nodal_coordinates);
-        self.get_constitutive_models().iter()
-        .zip(self.get_integration_weights().iter())
-        .map(|(constitutive_model, integration_weight)|
-            constitutive_model.calculate_helmholtz_free_energy_density(
-                &deformation_gradient
-            ) * integration_weight
-        ).sum()
+        // let deformation_gradient = self.calculate_deformation_gradient(nodal_coordinates);
+        // self.get_constitutive_models().iter()
+        // .zip(self.get_integration_weights().iter())
+        // .map(|(constitutive_model, integration_weight)|
+        //     constitutive_model.calculate_helmholtz_free_energy_density(
+        //         &deformation_gradient
+        //     ) * integration_weight
+        // ).sum()
+        self.get_constitutive_models()[0]
+        .calculate_helmholtz_free_energy_density(
+            &self.calculate_deformation_gradient(nodal_coordinates)
+        )
+    }
+}
+
+pub trait HyperelasticLinearSurfaceElement<'a, C, const G: usize, const M: usize, const N: usize>
+where
+    C: Hyperelastic<'a>,
+    Self: ElasticLinearSurfaceElement<'a, C, G, M, N>
+{
+    fn calculate_helmholtz_free_energy_linear_surface_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
+    {
+        self.get_constitutive_models()[0].calculate_helmholtz_free_energy_density(
+            &self.calculate_deformation_gradient(nodal_coordinates)
+        ) * self.get_thickness()
     }
 }
 

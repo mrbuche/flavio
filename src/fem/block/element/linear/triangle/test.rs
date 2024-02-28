@@ -56,9 +56,9 @@ fn temporary_1()
     element.calculate_deformation_gradient(
         &(get_deformation_gradient_surface()*get_reference_coordinates())
     ).iter().zip(get_deformation_gradient_surface().iter()).for_each(|(f_i, ff_i)|
-        f_i.iter().zip(ff_i.iter()).for_each(|(f_i, ff_i)|{
-            assert!((f_i/ff_i - 1.0).abs() < 1e-8);
-        })
+        f_i.iter().zip(ff_i.iter()).for_each(|(f_ij, ff_ij)|
+            assert!((f_ij/ff_ij - 1.0).abs() < 1e-8)
+        )
     );
 }
 

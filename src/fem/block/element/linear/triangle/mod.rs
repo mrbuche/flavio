@@ -10,7 +10,8 @@ const N: usize = 3;
 pub struct Triangle<'a, C>
 {
     constitutive_models: [C; G],
-    reference_basis_vectors: ReferenceBasisVectors,
+    gradient_vectors: GradientVectors<N>,
+    reference_normal: ReferenceNormal,
     thickness: &'a Scalar
 }
 
@@ -31,7 +32,8 @@ where
         Self
         {
             constitutive_models: std::array::from_fn(|_| <C>::new(constitutive_model_parameters)),
-            reference_basis_vectors: Self::calculate_reference_basis_vectors(&reference_nodal_coordinates),
+            gradient_vectors: Self::calculate_gradient_vectors(&reference_nodal_coordinates),
+            reference_normal: Self::calculate_reference_normal(&Self::calculate_reference_dual_basis_vectors(&reference_nodal_coordinates)),
             thickness: &1.23
             // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             // use a set_thickness() thing?
@@ -51,9 +53,13 @@ where
             [ 0.0,  1.0]
         ])
     }
-    fn get_reference_basis_vectors(&self) -> &ReferenceBasisVectors
+    fn get_gradient_vectors(&self) -> &GradientVectors<N>
     {
-        &self.reference_basis_vectors
+        &self.gradient_vectors
+    }
+    fn get_reference_normal(&self) -> &ReferenceNormal
+    {
+        &self.reference_normal
     }
     fn get_thickness(&self) -> &Scalar
     {

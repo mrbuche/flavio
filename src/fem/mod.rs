@@ -55,6 +55,7 @@ use crate::
         TensorRank0ListTrait,
         TensorRank1Trait,
         TensorRank1ListTrait,
+        TensorRank2,
         TensorRank2Trait,
         TensorRank2List2DTrait
     },
@@ -70,6 +71,7 @@ use crate::
         Scalar,
         Scalars,
         Stiffnesses,
+        Vector,
         Vectors
     }
 };
