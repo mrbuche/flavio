@@ -19,17 +19,6 @@ macro_rules! test_finite_element
                     Convert,
                     TensorRank2
                 },
-                mechanics::test::
-                {
-                    get_deformation_gradient,
-                    get_deformation_gradient_rate,
-                    get_rotation_current_configuration,
-                    get_rotation_rate_current_configuration,
-                    get_rotation_reference_configuration,
-                    get_translation_current_configuration,
-                    get_translation_rate_current_configuration,
-                    get_translation_reference_configuration
-                },
                 test::assert_eq_within_tols
             };
             use super::*;
@@ -151,17 +140,19 @@ macro_rules! test_finite_element
 }
 pub(crate) use test_finite_element;
 
-macro_rules! test_nodal_forces_and_nodal_stiffnesses
+macro_rules! setup_for_element_tests_any_element
 {
-    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
+    ($element: ident) =>
     {
-        fn get_coordinates() -> NodalCoordinates<N>
+        use crate::mechanics::test::
         {
-            get_reference_coordinates().iter()
-            .map(|reference_coordinate|
-                get_deformation_gradient() * reference_coordinate
-            ).collect()
-        }
+            get_rotation_current_configuration,
+            get_rotation_reference_configuration,
+            get_rotation_rate_current_configuration,
+            get_translation_current_configuration,
+            get_translation_reference_configuration,
+            get_translation_rate_current_configuration
+        };
         fn get_coordinates_transformed() -> NodalCoordinates<N>
         {
             get_coordinates().iter()
@@ -170,6 +161,123 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses
                 + get_translation_current_configuration()
             ).collect()
         }
+        fn get_reference_coordinates_transformed() -> ReferenceNodalCoordinates<N>
+        {
+            get_reference_coordinates().iter()
+            .map(|reference_coordinate|
+                get_rotation_reference_configuration() * reference_coordinate
+                + get_translation_reference_configuration()
+            ).collect()
+        }
+        fn get_velocities_transformed() -> NodalVelocities<N>
+        {
+            get_coordinates().iter()
+            .zip(get_velocities().iter())
+            .map(|(coordinate, velocity)|
+                get_rotation_current_configuration() * velocity
+                + get_rotation_rate_current_configuration() * coordinate
+                + get_translation_rate_current_configuration()
+            ).collect()
+        }
+    }
+}
+pub(crate) use setup_for_element_tests_any_element;
+
+macro_rules! setup_for_elements
+{
+    ($element: ident) =>
+    {
+        use crate::
+        {
+            constitutive::solid::elastic::AlmansiHamel,
+            mechanics::test::
+            {
+                get_deformation_gradient,
+                get_deformation_gradient_rate
+            }
+        };
+        fn get_coordinates() -> NodalCoordinates<N>
+        {
+            get_deformation_gradient() * get_reference_coordinates()
+        }
+        fn get_velocities() -> NodalVelocities<N>
+        {
+            get_deformation_gradient_rate() * get_reference_coordinates()
+        }
+        #[test]
+        fn size()
+        {
+            assert_eq!(
+                std::mem::size_of::<Tetrahedron::<AlmansiHamel>>(),
+                std::mem::size_of::<AlmansiHamel>()
+                + std::mem::size_of::<GradientVectors<N>>()
+            )
+        }
+        crate::fem::block::element::test::setup_for_element_tests_any_element!($element);
+    }
+}
+pub(crate) use setup_for_elements;
+
+macro_rules! setup_for_surface_elements
+{
+    ($element: ident) =>
+    {
+        use crate::constitutive::solid::elastic::AlmansiHamel;
+        fn get_coordinates() -> NodalCoordinates<N>
+        {
+            get_deformation_gradient() * get_reference_coordinates()
+        }
+        fn get_deformation_gradient() -> DeformationGradient
+        {
+            get_deformation_gradient_rotation() * get_deformation_gradient_planar()
+        }
+        fn get_deformation_gradient_planar() -> DeformationGradient
+        {
+            DeformationGradient::new([
+                [0.62, 0.20, 0.00],
+                [0.32, 0.98, 0.00],
+                [0.00, 0.00, 1.00]
+            ])
+        }
+        fn get_deformation_gradient_rate() -> DeformationGradientRate
+        {
+            get_deformation_gradient_rotation_rate() * get_deformation_gradient_planar()
+        }
+        fn get_deformation_gradient_rotation() -> RotationCurrentConfiguration
+        {
+            crate::mechanics::test::get_rotation_reference_configuration().convert().transpose()
+        }
+        fn get_deformation_gradient_rotation_rate() -> crate::mechanics::RotationRateCurrentConfiguration
+        {
+            crate::mechanics::FrameSpin::new([
+                [ 0.0, -0.3,  0.1],
+                [ 0.3,  0.0,  0.5],
+                [-0.1, -0.5,  0.0]
+            ]) * get_deformation_gradient_rotation()
+        }
+        fn get_velocities() -> NodalVelocities<N>
+        {
+            get_deformation_gradient_rate() * get_reference_coordinates()
+        }
+        #[test]
+        fn size()
+        {
+            assert_eq!(
+                std::mem::size_of::<Tetrahedron::<AlmansiHamel>>(),
+                std::mem::size_of::<AlmansiHamel>()
+                + std::mem::size_of::<GradientVectors<N>>()
+                + std::mem::size_of::<ReferenceNormal>()
+            )
+        }
+        crate::fem::block::element::test::setup_for_element_tests_any_element!($element);
+    }
+}
+pub(crate) use setup_for_surface_elements;
+
+macro_rules! test_nodal_forces_and_nodal_stiffnesses
+{
+    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
+    {
         fn get_element<'a>() -> $element<$constitutive_model<'a>>
         {
             $element::new(
@@ -184,14 +292,6 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses
                 $constitutive_model_parameters,
                 get_reference_coordinates_transformed()
             )
-        }
-        fn get_reference_coordinates_transformed() -> ReferenceNodalCoordinates<N>
-        {
-            get_reference_coordinates().iter()
-            .map(|reference_coordinate|
-                get_rotation_reference_configuration() * reference_coordinate
-                + get_translation_reference_configuration()
-            ).collect()
         }
         #[test]
         fn integration_weights_sum_to_one()
@@ -901,23 +1001,6 @@ macro_rules! test_finite_element_with_viscoelastic_constitutive_model
                         }).collect()
                     ).collect()
                 ).collect()
-            ).collect()
-        }
-        fn get_velocities() -> NodalVelocities<N>
-        {
-            get_reference_coordinates().iter()
-            .map(|reference_coordinate|
-                get_deformation_gradient_rate() * reference_coordinate
-            ).collect()
-        }
-        fn get_velocities_transformed() -> NodalVelocities<N>
-        {
-            get_coordinates().iter()
-            .zip(get_velocities().iter())
-            .map(|(coordinate, velocity)|
-                get_rotation_current_configuration() * velocity
-                + get_rotation_rate_current_configuration() * coordinate
-                + get_translation_rate_current_configuration()
             ).collect()
         }
         crate::fem::block::element::test::test_nodal_forces_and_nodal_stiffnesses!(

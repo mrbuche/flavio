@@ -80,7 +80,7 @@ where
         .zip(self.get_gradient_vectors().iter())
         .map(|(nodal_velocity, gradient_vector)|
             DeformationGradient::dyad(nodal_velocity, gradient_vector)
-        ).sum::<DeformationGradient>() + DeformationGradient::dyad(
+        ).sum::<DeformationGradient>() + DeformationGradientRate::dyad(
             &self.calculate_normal_rate(nodal_coordinates, nodal_velocities), self.get_reference_normal()
         )
     }
@@ -164,7 +164,7 @@ where
             reference_metric_tensor_m.iter()
             .zip(reference_basis_vectors_surface.iter())
             .map(|(reference_metric_tensor_mn, reference_basis_vectors_surface_n)|
-            reference_basis_vectors_surface_n*reference_metric_tensor_mn
+                reference_basis_vectors_surface_n*reference_metric_tensor_mn
             ).sum()
         ).collect()
     }

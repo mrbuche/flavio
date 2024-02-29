@@ -1,11 +1,4 @@
-use crate::fem::block::element::
-{
-    test::test_finite_element,
-    linear::
-    {
-        test::test_linear_finite_element
-    }
-};
+use crate::fem::block::element::linear::test::test_linear_surface_element;
 use super::*;
 
 fn get_reference_coordinates() -> ReferenceNodalCoordinates<N>
@@ -17,19 +10,19 @@ fn get_reference_coordinates() -> ReferenceNodalCoordinates<N>
     ])
 }
 
-test_finite_element!(Triangle);
-test_linear_finite_element!(Triangle);
-
-use crate::constitutive::solid::elastic::AlmansiHamel;
+test_linear_surface_element!(Triangle);
 
 #[test]
-fn size()
+fn temporary_5()
 {
-    assert_eq!(
-        std::mem::size_of::<Tetrahedron::<AlmansiHamel>>(),
-        std::mem::size_of::<AlmansiHamel>()
-        + std::mem::size_of::<GradientVectors<N>>()
-        + std::mem::size_of::<ReferenceNormal>()
+    get_element_crazy().calculate_normal_rate(
+        &get_coordinates_crazy(), &get_velocities_crazy()
+    ).iter()
+    .zip(get_normal_rate_from_finite_difference().iter())
+    .for_each(|(normal_rate_i, fd_normal_rate_i)|
+        assert!(
+            (normal_rate_i/fd_normal_rate_i - 1.0).abs() < EPSILON
+        )
     )
 }
 
@@ -69,7 +62,7 @@ fn get_deformation_gradient_surface() -> DeformationGradient
     rotation * deformation_gradient
 }
 
-fn get_coordinates() -> NodalCoordinates<N>
+fn get_coordinatesss() -> NodalCoordinates<N>
 {
     get_deformation_gradient_surface()*get_reference_coordinates()
 }
@@ -91,7 +84,7 @@ fn get_finite_difference_of_helmholtz_free_energy(is_deformed: bool) -> NodalFor
             let mut nodal_coordinates = 
             if is_deformed
             {
-                get_coordinates()
+                get_coordinatesss()
             }
             else
             {
@@ -114,7 +107,7 @@ fn get_finite_difference_of_helmholtz_free_energy(is_deformed: bool) -> NodalFor
 fn temporary_1()
 {
     get_element().calculate_deformation_gradient(
-        &get_coordinates()
+        &get_coordinatesss()
     ).iter().zip(get_deformation_gradient_surface().iter()).for_each(|(f_i, ff_i)|
         f_i.iter().zip(ff_i.iter()).for_each(|(f_ij, ff_ij)|
             assert!((f_ij/ff_ij - 1.0).abs() < 1e-8)
@@ -126,7 +119,7 @@ fn temporary_1()
 fn temporary_2()
 {
     get_element().calculate_nodal_forces(
-        &get_coordinates()
+        &get_coordinatesss()
     ).iter()
     .zip(get_finite_difference_of_helmholtz_free_energy(true).iter())
     .for_each(|(f_a, fd_a)|
@@ -301,18 +294,4 @@ fn get_normal_rate_from_finite_difference() -> Normal
             }).sum::<Scalar>()
         ).sum()
     ).collect()
-}
-
-#[test]
-fn temporary_5()
-{
-    get_element_crazy().calculate_normal_rate(
-        &get_coordinates_crazy(), &get_velocities_crazy()
-    ).iter()
-    .zip(get_normal_rate_from_finite_difference().iter())
-    .for_each(|(normal_rate_i, fd_normal_rate_i)|
-        assert!(
-            (normal_rate_i/fd_normal_rate_i - 1.0).abs() < EPSILON
-        )
-    )
 }

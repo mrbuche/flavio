@@ -1,27 +1,37 @@
-macro_rules! test_linear_finite_element
+macro_rules! test_linear_element
 {
     ($element: ident) =>
     {
+        crate::fem::block::element::test::setup_for_elements!($element);
+        crate::fem::block::element::linear::test::test_linear_element_inner!($element);
+    }
+}
+pub(crate) use test_linear_element;
+
+macro_rules! test_linear_surface_element
+{
+    ($element: ident) =>
+    {
+        crate::fem::block::element::test::setup_for_surface_elements!($element);
+        crate::fem::block::element::linear::test::test_linear_element_inner!($element);
+    }
+}
+pub(crate) use test_linear_surface_element;
+
+macro_rules! test_linear_element_inner
+{
+    ($element: ident) =>
+    {
+        crate::fem::block::element::test::test_finite_element!($element);
         mod linear_element
         {
             use crate::
             {
                 fem::block::element::linear::test::
                 {
-                    test_linear_finite_element_with_constitutive_model
+                    test_linear_element_with_constitutive_model
                 },
                 math::Convert,
-                mechanics::test::
-                {
-                    get_deformation_gradient,
-                    get_deformation_gradient_rate,
-                    get_rotation_current_configuration,
-                    get_rotation_rate_current_configuration,
-                    get_rotation_reference_configuration,
-                    get_translation_current_configuration,
-                    get_translation_rate_current_configuration,
-                    get_translation_reference_configuration
-                },
                 test::assert_eq_within_tols
             };
             use super::*;
@@ -39,7 +49,7 @@ macro_rules! test_linear_finite_element
                 mod almansi_hamel
                 {
                     use super::*;
-                    test_linear_finite_element_with_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
+                    test_linear_element_with_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
                 }
             }
             mod hyperelastic
@@ -71,37 +81,37 @@ macro_rules! test_linear_finite_element
                 mod arruda_boyce
                 {
                     use super::*;
-                    test_linear_finite_element_with_constitutive_model!($element, ArrudaBoyce, ARRUDABOYCEPARAMETERS);
+                    test_linear_element_with_constitutive_model!($element, ArrudaBoyce, ARRUDABOYCEPARAMETERS);
                 }
                 mod fung
                 {
                     use super::*;
-                    test_linear_finite_element_with_constitutive_model!($element, Fung, FUNGPARAMETERS);
+                    test_linear_element_with_constitutive_model!($element, Fung, FUNGPARAMETERS);
                 }
                 mod gent
                 {
                     use super::*;
-                    test_linear_finite_element_with_constitutive_model!($element, Gent, GENTPARAMETERS);
+                    test_linear_element_with_constitutive_model!($element, Gent, GENTPARAMETERS);
                 }
                 mod mooney_rivlin
                 {
                     use super::*;
-                    test_linear_finite_element_with_constitutive_model!($element, MooneyRivlin, MOONEYRIVLINPARAMETERS);
+                    test_linear_element_with_constitutive_model!($element, MooneyRivlin, MOONEYRIVLINPARAMETERS);
                 }
                 mod neo_hookean
                 {
                     use super::*;
-                    test_linear_finite_element_with_constitutive_model!($element, NeoHookean, NEOHOOKEANPARAMETERS);
+                    test_linear_element_with_constitutive_model!($element, NeoHookean, NEOHOOKEANPARAMETERS);
                 }
                 mod saint_venant_kirchoff
                 {
                     use super::*;
-                    test_linear_finite_element_with_constitutive_model!($element, SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS);
+                    test_linear_element_with_constitutive_model!($element, SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS);
                 }
                 mod yeoh
                 {
                     use super::*;
-                    test_linear_finite_element_with_constitutive_model!($element, Yeoh, YEOHPARAMETERS);
+                    test_linear_element_with_constitutive_model!($element, Yeoh, YEOHPARAMETERS);
                 }
             }
             mod elastic_hyperviscous
@@ -118,7 +128,7 @@ macro_rules! test_linear_finite_element
                 mod almansi_hamel
                 {
                     use super::*;
-                    test_linear_finite_element_with_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
+                    test_linear_element_with_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
                 }
             }
             mod hyperviscoelastic
@@ -135,33 +145,18 @@ macro_rules! test_linear_finite_element
                 mod saint_venant_kirchoff
                 {
                     use super::*;
-                    test_linear_finite_element_with_constitutive_model!($element, SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS);
+                    test_linear_element_with_constitutive_model!($element, SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS);
                 }
             }
         }
     }
 }
-pub(crate) use test_linear_finite_element;
+pub(crate) use test_linear_element_inner;
 
-macro_rules! test_linear_finite_element_with_constitutive_model
+macro_rules! test_linear_element_with_constitutive_model
 {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
     {
-        fn get_coordinates() -> NodalCoordinates<N>
-        {
-            get_reference_coordinates().iter()
-            .map(|reference_coordinate|
-                get_deformation_gradient() * reference_coordinate
-            ).collect()
-        }
-        fn get_coordinates_transformed() -> NodalCoordinates<N>
-        {
-            get_coordinates().iter()
-            .map(|current_coordinate|
-                get_rotation_current_configuration() * current_coordinate
-                + get_translation_current_configuration()
-            ).collect()
-        }
         fn get_element<'a>() -> $element<$constitutive_model<'a>>
         {
             $element::new(
@@ -176,31 +171,6 @@ macro_rules! test_linear_finite_element_with_constitutive_model
                 $constitutive_model_parameters,
                 get_reference_coordinates_transformed()
             )
-        }
-        fn get_reference_coordinates_transformed() -> ReferenceNodalCoordinates<N>
-        {
-            get_reference_coordinates().iter()
-            .map(|reference_coordinate|
-                get_rotation_reference_configuration() * reference_coordinate
-                + get_translation_reference_configuration()
-            ).collect()
-        }
-        fn get_velocities() -> NodalVelocities<N>
-        {
-            get_reference_coordinates().iter()
-            .map(|reference_coordinate|
-                get_deformation_gradient_rate() * reference_coordinate
-            ).collect()
-        }
-        fn get_velocities_transformed() -> NodalVelocities<N>
-        {
-            get_coordinates().iter()
-            .zip(get_velocities().iter())
-            .map(|(coordinate, velocity)|
-                get_rotation_current_configuration() * velocity
-                + get_rotation_rate_current_configuration() * coordinate
-                + get_translation_rate_current_configuration()
-            ).collect()
         }
         mod deformation_gradient
         {
@@ -437,4 +407,4 @@ macro_rules! test_linear_finite_element_with_constitutive_model
         }
     }
 }
-pub(crate) use test_linear_finite_element_with_constitutive_model;
+pub(crate) use test_linear_element_with_constitutive_model;
