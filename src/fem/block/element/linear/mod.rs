@@ -4,7 +4,11 @@ mod test;
 pub mod tetrahedron;
 pub mod triangle;
 
-use crate::math::TensorRank1List;
+use crate::math::
+{
+    TensorRank1List,
+    levi_civita
+};
 
 use super::*;
 
@@ -98,7 +102,33 @@ where
     }
     fn calculate_normal_rate(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NormalRate
     {
-        todo!()
+        let basis_vectors = self.calculate_basis_vectors(nodal_coordinates);
+        let levi_civita_symbol = levi_civita::<1, 1, 1>();
+        let normalization = basis_vectors[0].cross(&basis_vectors[1]).norm();
+        let normal_vector = basis_vectors[0].cross(&basis_vectors[1])/normalization;
+        let standard_gradient_operator = Self::calculate_standard_gradient_operator();
+        DeformationGradient::identity().iter()
+        .zip(normal_vector.iter())
+        .map(|(identity_i, normal_vector_i)|
+            nodal_velocities.iter()
+            .zip(standard_gradient_operator.iter())
+            .map(|(nodal_velocity_a, standard_gradient_operator_a)|
+                levi_civita_symbol.iter()
+                .zip(nodal_velocity_a.iter())
+                .map(|(levi_civita_symbol_m, nodal_velocity_a_m)|
+                    levi_civita_symbol_m.iter()
+                    .zip(basis_vectors[0].iter().zip(basis_vectors[1].iter()))
+                    .map(|(levi_civita_symbol_mn, (basis_vector_0_n, basis_vector_1_n))|
+                        levi_civita_symbol_mn.iter()
+                        .zip(identity_i.iter().zip(normal_vector.iter()))
+                        .map(|(levi_civita_symbol_mno, (identity_io, normal_vector_o))|
+                            levi_civita_symbol_mno*(identity_io - normal_vector_i*normal_vector_o)
+                        ).sum::<Scalar>()*(standard_gradient_operator_a[0]*basis_vector_1_n
+                                         - standard_gradient_operator_a[1]*basis_vector_0_n)
+                    ).sum::<Scalar>()*nodal_velocity_a_m
+                ).sum::<Scalar>()
+            ).sum::<Scalar>()
+        ).collect::<NormalRate>()/normalization
     }
     fn calculate_reference_basis_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> ReferenceBasis
     {

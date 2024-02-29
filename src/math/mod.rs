@@ -45,7 +45,8 @@ pub use tensor::
     rank_3::
     {
         TensorRank3,
-        TensorRank3Trait
+        TensorRank3Trait,
+        levi_civita
     },
     rank_4::
     {
