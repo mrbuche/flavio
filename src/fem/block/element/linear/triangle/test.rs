@@ -8,18 +8,6 @@ use crate::fem::block::element::
 };
 use super::*;
 
-#[test]
-fn test_finite_element()
-{
-    todo!()
-}
-
-#[test]
-fn test_linear_finite_element()
-{
-    todo!()
-}
-
 fn get_reference_coordinates() -> ReferenceNodalCoordinates<N>
 {
     ReferenceNodalCoordinates::new([
@@ -28,6 +16,31 @@ fn get_reference_coordinates() -> ReferenceNodalCoordinates<N>
         [0.0, 1.0, 0.0]
     ])
 }
+
+// consider putting a deformation gradient calculation test in linear/test.rs
+// also a similar one for deformation gradient rate
+// is for displacements according to affine deformation of course
+
+test_finite_element!(Triangle);
+test_linear_finite_element!(Triangle);
+
+use crate::constitutive::solid::elastic::AlmansiHamel;
+
+#[test]
+fn size()
+{
+    assert_eq!(
+        std::mem::size_of::<Tetrahedron::<AlmansiHamel>>(),
+        std::mem::size_of::<AlmansiHamel>()
+        + std::mem::size_of::<GradientVectors<N>>()
+        + std::mem::size_of::<ReferenceNormal>()
+    )
+}
+
+
+
+
+
 
 use crate::
 {
@@ -64,7 +77,7 @@ fn get_coordinates() -> NodalCoordinates<N>
     get_deformation_gradient_surface()*get_reference_coordinates()
 }
 
-fn get_element<'a>() -> Triangle<'a, NeoHookean<'a>>
+fn get_element<'a>() -> Triangle<NeoHookean<'a>>
 {
     Triangle::<NeoHookean>::new(
         NEOHOOKEANPARAMETERS,
@@ -112,16 +125,34 @@ fn temporary_1()
     );
 }
 
+#[test]
+fn temporary_2()
+{
+    get_element().calculate_nodal_forces(
+        &get_coordinates()
+    ).iter()
+    .zip(get_finite_difference_of_helmholtz_free_energy(true).iter())
+    .for_each(|(f_a, fd_a)|
+        f_a.iter()
+        .zip(fd_a.iter())
+        .for_each(|(f_a_i, fd_a_i)|
+            assert!(
+                (f_a_i/fd_a_i - 1.0).abs() < EPSILON
+            )
+        )
+    )
+}
+
 fn get_reference_coordinates_crazy() -> ReferenceNodalCoordinates<N>
 {
     ReferenceNodalCoordinates::new([
-        [0.60728341, 0.65218218, 0.16792581],
-        [0.67789658, 0.89610824, 0.30427157],
+        [0.60728341, 0.65218218, -1.16792581],
+        [0.67789658, -2.89610824, 0.30427157],
         [0.71685949, 0.71390134, 0.17156583]
     ])
 }
 
-fn get_element_crazy<'a>() -> Triangle<'a, NeoHookean<'a>>
+fn get_element_crazy<'a>() -> Triangle<NeoHookean<'a>>
 {
     Triangle::<NeoHookean>::new(
         NEOHOOKEANPARAMETERS,
@@ -132,9 +163,9 @@ fn get_element_crazy<'a>() -> Triangle<'a, NeoHookean<'a>>
 fn get_coordinates_crazy() -> NodalCoordinates<N>
 {
     NodalCoordinates::new([
-        [0.56613414, 0.73732276, 0.81193896],
+        [1.56613414, 0.73732276, 0.81193896],
         [0.91018069, 0.82804788, 0.95319798],
-        [0.58414216, 0.76766451, 0.26952952]
+        [-2.58414216, 0.76766451, 0.26952952]
     ])
 }
 
@@ -167,35 +198,77 @@ fn get_finite_difference_of_helmholtz_free_energy_crazy(is_deformed: bool) -> No
 }
 
 #[test]
-fn temporary_2()
-{
-    get_element().calculate_nodal_forces(
-        &get_coordinates()
-    ).iter()
-    .zip(get_finite_difference_of_helmholtz_free_energy(true).iter())
-    .for_each(|(f_a, fd_a)|
-        f_a.iter()
-        .zip(fd_a.iter())
-        .for_each(|(f_a_i, fd_a_i)|
-            assert!(
-                (f_a_i/fd_a_i - 1.0).abs() < EPSILON
-            )
-        )
-    )
-}
-
-#[test]
 fn temporary_3()
 {
     get_element_crazy().calculate_nodal_forces(
         &get_coordinates_crazy()
     ).iter()
     .zip(get_finite_difference_of_helmholtz_free_energy_crazy(true).iter())
-    .for_each(|(f_a, fd_a)|
-        f_a.iter()
-        .zip(fd_a.iter())
-        .for_each(|(f_a_i, fd_a_i)|
-            println!("{:?}", (f_a_i, fd_a_i))
+    .for_each(|(nodal_force, fd_nodal_force)|
+        nodal_force.iter()
+        .zip(fd_nodal_force.iter())
+        .for_each(|(nodal_force_i, fd_nodal_force_i)|
+            assert!(
+                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON
+            )
+        )
+    )
+}
+fn get_finite_difference_of_nodal_forces_crazy(is_deformed: bool) -> NodalStiffnesses<N>
+{
+    let element = get_element_crazy();
+    let mut finite_difference = 0.0;
+    (0..N).map(|node_a|
+        (0..N).map(|node_b|
+            (0..3).map(|i|
+                (0..3).map(|j|{
+                    let mut nodal_coordinates = 
+                    if is_deformed
+                    {
+                        get_coordinates_crazy()
+                    }
+                    else
+                    {
+                        get_reference_coordinates_crazy().convert()
+                    };
+                    nodal_coordinates[node_a][i] += 0.5 * EPSILON;
+                    finite_difference = element.calculate_nodal_forces(
+                        &nodal_coordinates
+                    )[node_b][j];
+                    nodal_coordinates[node_a][i] -= EPSILON;
+                    finite_difference -= element.calculate_nodal_forces(
+                        &nodal_coordinates
+                    )[node_b][j];
+                    finite_difference/EPSILON
+                }).collect()
+            ).collect()
+        ).collect()
+    ).collect()
+}
+
+#[test]
+fn temporary_4()
+{
+    get_element_crazy().calculate_nodal_stiffnesses(
+        &get_coordinates_crazy()
+    ).iter()
+    .zip(get_finite_difference_of_nodal_forces_crazy(true).iter())
+    .for_each(|(nodal_stiffness_a, fd_nodal_stiffness_a)|
+        nodal_stiffness_a.iter()
+        .zip(fd_nodal_stiffness_a.iter())
+        .for_each(|(nodal_stiffness_ab, fd_nodal_stiffness_ab)|
+            nodal_stiffness_ab.iter()
+            .zip(fd_nodal_stiffness_ab.iter())
+            .for_each(|(nodal_stiffness_ab_i, fd_nodal_stiffness_ab_i)|
+                nodal_stiffness_ab_i.iter()
+                .zip(fd_nodal_stiffness_ab_i.iter())
+                .for_each(|(nodal_stiffness_ab_ij, fd_nodal_stiffness_ab_ij)|
+                    // assert!(
+                    //     (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < EPSILON
+                    // )
+                    println!("{:?}", (nodal_stiffness_ab_ij, fd_nodal_stiffness_ab_ij))
+                )
+            )
         )
     )
 }

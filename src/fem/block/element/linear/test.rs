@@ -299,15 +299,6 @@ macro_rules! test_linear_finite_element_with_constitutive_model
                 )
             }
         }
-        #[test]
-        fn size()
-        {
-            assert_eq!(
-                std::mem::size_of::<$element::<$constitutive_model>>(),
-                std::mem::size_of::<$constitutive_model>()
-                + std::mem::size_of::<GradientVectors<N>>()
-            )
-        }
     }
 }
 pub(crate) use test_linear_finite_element_with_constitutive_model;

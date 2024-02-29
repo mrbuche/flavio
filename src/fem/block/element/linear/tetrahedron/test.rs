@@ -118,3 +118,15 @@ fn get_reference_coordinates_block() -> ReferenceNodalCoordinates<D>
 test_finite_element!(Tetrahedron);
 test_finite_element_block!(Tetrahedron);
 test_linear_finite_element!(Tetrahedron);
+
+use crate::constitutive::solid::elastic::AlmansiHamel;
+
+#[test]
+fn size()
+{
+    assert_eq!(
+        std::mem::size_of::<Tetrahedron::<AlmansiHamel>>(),
+        std::mem::size_of::<AlmansiHamel>()
+        + std::mem::size_of::<GradientVectors<N>>()
+    )
+}

@@ -17,12 +17,6 @@ where
     fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>) -> Self;
 }
 
-pub trait SurfaceElement<'a>
-{
-    fn get_thickness(&self) -> &Scalar;
-    fn set_thickness(&mut self, thickness: &'a Scalar);
-}
-
 pub trait ElasticFiniteElement<'a, C, const G: usize, const N: usize>
 where
     C: Elastic<'a>,

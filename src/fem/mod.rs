@@ -64,8 +64,6 @@ use crate::
         CurrentCoordinates,
         DeformationGradient,
         DeformationGradientRate,
-        FirstPiolaKirchoffStress,
-        FirstPiolaKirchoffTangentStiffness,
         Forces,
         ReferenceCoordinates,
         Scalar,

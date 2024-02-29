@@ -10,6 +10,7 @@ use super::*;
 
 type Basis = Vectors<1, 2>;
 type Normal = Vector<1>;
+type NormalRate = Vector<1>;
 type ReferenceBasis = Vectors<0, 2>;
 type ReferenceNormal = Vector<0>;
 type StandardGradientOperator<const M: usize, const N: usize> = TensorRank1List<M, 9, N>;
@@ -27,7 +28,7 @@ where
             DeformationGradient::dyad(nodal_coordinate, gradient_vector)
         ).sum()
     }
-    fn calculate_deformation_gradient_rate(&self, nodal_velocities: &NodalVelocities<N>) -> DeformationGradientRate
+    fn calculate_deformation_gradient_rate(&self, _: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> DeformationGradientRate
     {
         nodal_velocities.iter()
         .zip(self.get_gradient_vectors().iter())
@@ -69,6 +70,16 @@ where
             &self.calculate_normal(nodal_coordinates), self.get_reference_normal()
         )
     }
+    fn calculate_deformation_gradient_rate_linear_surface_element(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> DeformationGradientRate
+    {
+        nodal_velocities.iter()
+        .zip(self.get_gradient_vectors().iter())
+        .map(|(nodal_velocity, gradient_vector)|
+            DeformationGradient::dyad(nodal_velocity, gradient_vector)
+        ).sum::<DeformationGradient>() + DeformationGradient::dyad(
+            &self.calculate_normal_rate(nodal_coordinates, nodal_velocities), self.get_reference_normal()
+        )
+    }
     fn calculate_gradient_vectors_linear_surface_element(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> GradientVectors<N>
     {
         Self::calculate_standard_gradient_operator().iter()
@@ -84,6 +95,10 @@ where
     {
         let basis_vectors = self.calculate_basis_vectors(nodal_coordinates);
         basis_vectors[0].cross(&basis_vectors[1]).normalized()
+    }
+    fn calculate_normal_rate(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NormalRate
+    {
+        todo!()
     }
     fn calculate_reference_basis_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> ReferenceBasis
     {
@@ -124,7 +139,6 @@ where
         ).collect()
     }
     fn get_reference_normal(&self) -> &ReferenceNormal;
-    fn get_thickness(&self) -> &Scalar;
 }
 
 pub trait ElasticLinearElement<'a, C, const G: usize, const M: usize, const N: usize>
@@ -134,17 +148,6 @@ where
 {
     fn calculate_nodal_forces_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
     {
-        // let deformation_gradient = self.calculate_deformation_gradient(nodal_coordinates);
-        // self.get_gradient_vectors().iter()
-        // .map(|gradient_vector|
-        //     self.get_constitutive_models().iter()
-        //     .zip(self.get_integration_weights().iter())
-        //     .map(|(constitutive_model, integration_weight)|
-        //         constitutive_model.calculate_first_piola_kirchoff_stress(
-        //             &deformation_gradient
-        //         ) * integration_weight
-        //     ).sum::<FirstPiolaKirchoffStress>() * gradient_vector
-        // ).collect()
         let first_piola_kirchoff_stress = self.get_constitutive_models()[0]
         .calculate_first_piola_kirchoff_stress(
             &self.calculate_deformation_gradient(nodal_coordinates)
@@ -155,23 +158,6 @@ where
     }
     fn calculate_nodal_stiffnesses_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
     {
-        // let deformation_gradient = self.calculate_deformation_gradient(nodal_coordinates);
-        // self.get_gradient_vectors().iter()
-        // .map(|gradient_vector_a|
-        //     self.get_gradient_vectors().iter()
-        //     .map(|gradient_vector_b|
-        //         self.get_constitutive_models().iter()
-        //         .zip(self.get_integration_weights().iter())
-        //         .map(|(constitutive_model, integration_weight)|
-        //             constitutive_model.calculate_first_piola_kirchoff_tangent_stiffness(
-        //                 &deformation_gradient
-        //             ) * integration_weight
-        //         ).sum::<FirstPiolaKirchoffTangentStiffness>()
-        //         .contract_second_fourth_indices_with_first_indices_of(
-        //             gradient_vector_b, gradient_vector_a
-        //         ).transpose()
-        //     ).collect()
-        // ).collect()
         let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_models()[0]
         .calculate_first_piola_kirchoff_tangent_stiffness(
             &self.calculate_deformation_gradient(nodal_coordinates)
@@ -189,29 +175,6 @@ where
     }
 }
 
-pub trait ElasticLinearSurfaceElement<'a, C, const G: usize, const M: usize, const N: usize>
-where
-    C: Elastic<'a>,
-    Self: LinearSurfaceElement<'a, C, G, M, N>
-{
-    fn calculate_nodal_forces_linear_surface_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
-    {
-        let first_piola_kirchoff_stress = self.get_constitutive_models()[0]
-        .calculate_first_piola_kirchoff_stress(
-            &self.calculate_deformation_gradient(nodal_coordinates)
-        );
-        self.get_gradient_vectors().iter().map(|gradient_vector|
-            &first_piola_kirchoff_stress * gradient_vector
-        ).collect::<NodalForces<N>>() * self.get_thickness()
-
-        // + other crazy part (multiply that by thickness too)
-    }
-    fn calculate_nodal_stiffnesses_linear_surface_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
-    {
-        todo!()
-    }
-}
-
 pub trait HyperelasticLinearElement<'a, C, const G: usize, const M: usize, const N: usize>
 where
     C: Hyperelastic<'a>,
@@ -219,36 +182,10 @@ where
 {
     fn calculate_helmholtz_free_energy_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
     {
-        // let deformation_gradient = self.calculate_deformation_gradient(nodal_coordinates);
-        // self.get_constitutive_models().iter()
-        // .zip(self.get_integration_weights().iter())
-        // .map(|(constitutive_model, integration_weight)|
-        //     constitutive_model.calculate_helmholtz_free_energy_density(
-        //         &deformation_gradient
-        //     ) * integration_weight
-        // ).sum()
         self.get_constitutive_models()[0]
         .calculate_helmholtz_free_energy_density(
-            &self.calculate_deformation_gradient(
-                nodal_coordinates
-            )
+            &self.calculate_deformation_gradient(nodal_coordinates)
         )
-    }
-}
-
-pub trait HyperelasticLinearSurfaceElement<'a, C, const G: usize, const M: usize, const N: usize>
-where
-    C: Hyperelastic<'a>,
-    Self: ElasticLinearSurfaceElement<'a, C, G, M, N>
-{
-    fn calculate_helmholtz_free_energy_linear_surface_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
-    {
-        self.get_constitutive_models()[0]
-        .calculate_helmholtz_free_energy_density(
-            &self.calculate_deformation_gradient_linear_surface_element(
-                nodal_coordinates
-            )
-        ) * self.get_thickness()
     }
 }
 
@@ -259,37 +196,30 @@ where
 {
     fn calculate_nodal_forces_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalForces<N>
     {
-        let deformation_gradient = self.calculate_deformation_gradient(nodal_coordinates);
-        let deformation_gradient_rate = self.calculate_deformation_gradient_rate(nodal_velocities);
-        self.get_gradient_vectors().iter()
-        .map(|gradient_vector|
-            self.get_constitutive_models().iter()
-            .zip(self.get_integration_weights().iter())
-            .map(|(constitutive_model, integration_weight)|
-                constitutive_model.calculate_first_piola_kirchoff_stress(
-                    &deformation_gradient, &deformation_gradient_rate
-                ) * integration_weight
-            ).sum::<FirstPiolaKirchoffStress>() * gradient_vector
+        let first_piola_kirchoff_stress = self.get_constitutive_models()[0]
+        .calculate_first_piola_kirchoff_stress(
+            &self.calculate_deformation_gradient(nodal_coordinates),
+            &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
+        );
+        self.get_gradient_vectors().iter().map(|gradient_vector|
+            &first_piola_kirchoff_stress * gradient_vector
         ).collect()
     }
     fn calculate_nodal_stiffnesses_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalStiffnesses<N>
     {
-        let deformation_gradient = self.calculate_deformation_gradient(nodal_coordinates);
-        let deformation_gradient_rate = self.calculate_deformation_gradient_rate(nodal_velocities);
+        let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_models()[0]
+        .calculate_first_piola_kirchoff_rate_tangent_stiffness(
+            &self.calculate_deformation_gradient(nodal_coordinates),
+            &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
+        );
         self.get_gradient_vectors().iter()
         .map(|gradient_vector_a|
             self.get_gradient_vectors().iter()
             .map(|gradient_vector_b|
-                self.get_constitutive_models().iter()
-                .zip(self.get_integration_weights().iter())
-                .map(|(constitutive_model, integration_weight)|
-                    constitutive_model.calculate_first_piola_kirchoff_rate_tangent_stiffness(
-                        &deformation_gradient, &deformation_gradient_rate
-                    ) * integration_weight
-                ).sum::<FirstPiolaKirchoffTangentStiffness>()
+                first_piola_kirchoff_tangent_stiffness
                 .contract_second_fourth_indices_with_first_indices_of(
-                    gradient_vector_a, gradient_vector_b
-                )
+                    gradient_vector_b, gradient_vector_a
+                ).transpose()
             ).collect()
         ).collect()
     }
@@ -302,27 +232,19 @@ where
 {
     fn calculate_viscous_dissipation_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> Scalar
     {
-        let deformation_gradient = self.calculate_deformation_gradient(nodal_coordinates);
-        let deformation_gradient_rate = self.calculate_deformation_gradient_rate(nodal_velocities);
-        self.get_constitutive_models().iter()
-        .zip(self.get_integration_weights().iter())
-        .map(|(constitutive_model, integration_weight)|
-            constitutive_model.calculate_viscous_dissipation(
-                &deformation_gradient, &deformation_gradient_rate
-            ) * integration_weight
-        ).sum()
+        self.get_constitutive_models()[0]
+        .calculate_viscous_dissipation(
+            &self.calculate_deformation_gradient(nodal_coordinates),
+            &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
+        )
     }
     fn calculate_dissipation_potential_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> Scalar
     {
-        let deformation_gradient = self.calculate_deformation_gradient(nodal_coordinates);
-        let deformation_gradient_rate = self.calculate_deformation_gradient_rate(nodal_velocities);
-        self.get_constitutive_models().iter()
-        .zip(self.get_integration_weights().iter())
-        .map(|(constitutive_model, integration_weight)|
-            constitutive_model.calculate_dissipation_potential(
-                &deformation_gradient, &deformation_gradient_rate
-            ) * integration_weight
-        ).sum()
+        self.get_constitutive_models()[0]
+        .calculate_dissipation_potential(
+            &self.calculate_deformation_gradient(nodal_coordinates),
+            &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
+        )
     }
 }
 
@@ -333,13 +255,9 @@ where
 {
     fn calculate_helmholtz_free_energy_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
     {
-        let deformation_gradient = self.calculate_deformation_gradient(nodal_coordinates);
-        self.get_constitutive_models().iter()
-        .zip(self.get_integration_weights().iter())
-        .map(|(constitutive_model, integration_weight)|
-            constitutive_model.calculate_helmholtz_free_energy_density(
-                &deformation_gradient
-            ) * integration_weight
-        ).sum()
+        self.get_constitutive_models()[0]
+        .calculate_helmholtz_free_energy_density(
+            &self.calculate_deformation_gradient(nodal_coordinates)
+        )
     }
 }
