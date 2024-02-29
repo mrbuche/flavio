@@ -209,6 +209,22 @@ macro_rules! test_linear_finite_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
+                fn calculate()
+                {
+                    get_element().calculate_deformation_gradient(
+                        &get_coordinates()
+                    ).iter().zip(get_deformation_gradient().iter())
+                    .for_each(|(calculated_deformation_gradient_i, deformation_gradient_i)|
+                        calculated_deformation_gradient_i.iter()
+                        .zip(deformation_gradient_i.iter())
+                        .for_each(|(calculated_deformation_gradient_ij, deformation_gradient_ij)|
+                            assert_eq_within_tols(
+                                calculated_deformation_gradient_ij, deformation_gradient_ij
+                            )
+                        )
+                    )
+                }
+                #[test]
                 fn objectivity()
                 {
                     get_element().calculate_deformation_gradient(
@@ -233,6 +249,26 @@ macro_rules! test_linear_finite_element_with_constitutive_model
             mod undeformed
             {
                 use super::*;
+                #[test]
+                fn calculate()
+                {
+                    get_element().calculate_deformation_gradient(
+                        &get_reference_coordinates().convert()
+                    ).iter().enumerate()
+                    .for_each(|(i, calculated_deformation_gradient_i)|
+                        calculated_deformation_gradient_i.iter().enumerate()
+                        .for_each(|(j, calculated_deformation_gradient_ij)|
+                            if i == j
+                            {
+                                assert_eq_within_tols(calculated_deformation_gradient_ij, &1.0)
+                            }
+                            else
+                            {
+                                assert_eq_within_tols(calculated_deformation_gradient_ij, &0.0)
+                            }
+                        )
+                    )
+                }
                 #[test]
                 fn objectivity()
                 {
@@ -263,6 +299,22 @@ macro_rules! test_linear_finite_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
+                fn calculate()
+                {
+                    get_element().calculate_deformation_gradient_rate(
+                        &get_coordinates(), &get_velocities()
+                    ).iter().zip(get_deformation_gradient_rate().iter())
+                    .for_each(|(calculated_deformation_gradient_rate_i, deformation_gradient_rate_i)|
+                        calculated_deformation_gradient_rate_i.iter()
+                        .zip(deformation_gradient_rate_i.iter())
+                        .for_each(|(calculated_deformation_gradient_rate_ij, deformation_gradient_rate_ij)|
+                            assert_eq_within_tols(
+                                calculated_deformation_gradient_rate_ij, deformation_gradient_rate_ij
+                            )
+                        )
+                    )
+                }
+                #[test]
                 fn objectivity()
                 {
                     get_element().calculate_deformation_gradient_rate(
@@ -292,6 +344,20 @@ macro_rules! test_linear_finite_element_with_constitutive_model
             mod undeformed
             {
                 use super::*;
+                #[test]
+                fn calculate()
+                {
+                    get_element().calculate_deformation_gradient_rate(
+                        &get_reference_coordinates().convert(),
+                        &NodalVelocities::zero().convert()
+                    ).iter()
+                    .for_each(|calculated_deformation_gradient_rate_i|
+                        calculated_deformation_gradient_rate_i.iter()
+                        .for_each(|calculated_deformation_gradient_rate_ij|
+                            assert_eq_within_tols(calculated_deformation_gradient_rate_ij, &0.0)
+                        )
+                    )
+                }
                 #[test]
                 fn objectivity()
                 {
