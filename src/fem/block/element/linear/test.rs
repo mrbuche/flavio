@@ -268,13 +268,14 @@ macro_rules! test_linear_finite_element_with_constitutive_model
                     get_element().calculate_deformation_gradient_rate(
                         &get_coordinates(), &get_velocities()
                     ).iter().zip((
-                        get_rotation_current_configuration().transpose() * 
-                        get_element_transformed().calculate_deformation_gradient_rate(
-                            &get_coordinates_transformed(), &get_velocities_transformed()
-                        ) * get_rotation_reference_configuration() -
-                        get_rotation_rate_current_configuration() *
-                        get_element_transformed().calculate_deformation_gradient(
-                            &get_coordinates_transformed()
+                        get_rotation_current_configuration().transpose() *(
+                            get_element_transformed().calculate_deformation_gradient_rate(
+                                &get_coordinates_transformed(), &get_velocities_transformed()
+                            ) * get_rotation_reference_configuration() -
+                            get_rotation_rate_current_configuration() *
+                            get_element().calculate_deformation_gradient(
+                                &get_coordinates()
+                            )
                         )
                     ).iter()
                     ).for_each(|(deformation_gradient_rate_i, res_deformation_gradient_rate_i)|

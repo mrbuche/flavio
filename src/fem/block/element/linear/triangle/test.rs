@@ -24,6 +24,12 @@ fn get_reference_coordinates() -> ReferenceNodalCoordinates<N>
 test_finite_element!(Triangle);
 test_linear_finite_element!(Triangle);
 
+#[test]
+fn normal_rate()
+{
+    todo!("test deformed/undeformed using FD")
+}
+
 use crate::constitutive::solid::elastic::AlmansiHamel;
 
 #[test]
