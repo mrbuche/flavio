@@ -17,18 +17,8 @@ fn get_reference_coordinates() -> ReferenceNodalCoordinates<N>
     ])
 }
 
-// consider putting a deformation gradient calculation test in linear/test.rs
-// also a similar one for deformation gradient rate
-// is for displacements according to affine deformation of course
-
 test_finite_element!(Triangle);
 test_linear_finite_element!(Triangle);
-
-#[test]
-fn normal_rate()
-{
-    todo!("test deformed/undeformed using FD")
-}
 
 use crate::constitutive::solid::elastic::AlmansiHamel;
 
@@ -42,6 +32,7 @@ fn size()
         + std::mem::size_of::<ReferenceNormal>()
     )
 }
+
 
 
 
@@ -275,6 +266,53 @@ fn temporary_4()
                     println!("{:?}", (nodal_stiffness_ab_ij, fd_nodal_stiffness_ab_ij))
                 )
             )
+        )
+    )
+}
+
+fn get_velocities_crazy() -> NodalVelocities<N>
+{
+    NodalCoordinates::new([
+        [0.66274468, 0.89534708, 0.57483187],
+        [0.95089345, 0.69117897, 0.61825823],
+        [0.73568878, 0.92012536, 0.16592095]
+    ])
+}
+
+fn get_normal_rate_from_finite_difference() -> Normal
+{
+    let element = get_element_crazy();
+    let mut finite_difference = 0.0;
+    (0..3).map(|i|
+        get_velocities_crazy().iter().enumerate()
+        .map(|(a, velocity_a)|
+            velocity_a.iter().enumerate()
+            .map(|(k, velocity_a_k)|{
+                let mut coordinates = get_coordinates_crazy();
+                coordinates[a][k] += 0.5 * EPSILON;
+                finite_difference = element.calculate_normal(
+                    &coordinates
+                )[i];
+                coordinates[a][k] -= EPSILON;
+                finite_difference -= element.calculate_normal(
+                    &coordinates
+                )[i];
+                finite_difference/EPSILON * velocity_a_k
+            }).sum::<Scalar>()
+        ).sum()
+    ).collect()
+}
+
+#[test]
+fn temporary_5()
+{
+    get_element_crazy().calculate_normal_rate(
+        &get_coordinates_crazy(), &get_velocities_crazy()
+    ).iter()
+    .zip(get_normal_rate_from_finite_difference().iter())
+    .for_each(|(normal_rate_i, fd_normal_rate_i)|
+        assert!(
+            (normal_rate_i/fd_normal_rate_i - 1.0).abs() < EPSILON
         )
     )
 }

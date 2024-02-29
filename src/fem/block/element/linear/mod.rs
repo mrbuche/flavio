@@ -107,7 +107,7 @@ where
         let normalization = basis_vectors[0].cross(&basis_vectors[1]).norm();
         let normal_vector = basis_vectors[0].cross(&basis_vectors[1])/normalization;
         let standard_gradient_operator = Self::calculate_standard_gradient_operator();
-        DeformationGradient::identity().iter()
+        TensorRank2::<3, 1, 1>::identity().iter()
         .zip(normal_vector.iter())
         .map(|(identity_i, normal_vector_i)|
             nodal_velocities.iter()
@@ -127,7 +127,7 @@ where
                                          - standard_gradient_operator_a[1]*basis_vector_0_n)
                     ).sum::<Scalar>()*nodal_velocity_a_m
                 ).sum::<Scalar>()
-            ).sum::<Scalar>()
+            ).sum()
         ).collect::<NormalRate>()/normalization
     }
     fn calculate_reference_basis_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> ReferenceBasis
