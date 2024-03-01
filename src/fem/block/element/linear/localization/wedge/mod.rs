@@ -5,16 +5,17 @@ use super::*;
 
 const G: usize = 1;
 const M: usize = 2;
-const N: usize = 3;
+const N: usize = 6;
+const O: usize = 3;
 
-pub struct Triangle<C>
+pub struct Wedge<C>
 {
     constitutive_models: [C; G],
-    gradient_vectors: GradientVectors<N>,
+    gradient_vectors: GradientVectors<O>,
     reference_normal: ReferenceNormal
 }
 
-impl<'a, C> FiniteElement<'a, C, G, N> for Triangle<C>
+impl<'a, C> FiniteElement<'a, C, G, N> for Wedge<C>
 where
     C: Constitutive<'a>
 {
@@ -37,37 +38,39 @@ where
     }
 }
 
-impl<'a, C> LinearElement<'a, C, G, M, N> for Triangle<C>
+impl<'a, C> LinearElement<'a, C, G, M, N, O> for Wedge<C>
 where
     C: Constitutive<'a>
 {
     fn calculate_deformation_gradient(&self, nodal_coordinates: &NodalCoordinates<N>) -> DeformationGradient
     {
-        self.calculate_deformation_gradient_linear_surface_element(nodal_coordinates)
+        self.calculate_deformation_gradient_linear_localization_element(nodal_coordinates)
     }
     fn calculate_deformation_gradient_rate(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> DeformationGradientRate
     {
-        self.calculate_deformation_gradient_rate_linear_surface_element(nodal_coordinates, nodal_velocities)
+        self.calculate_deformation_gradient_rate_linear_localization_element(nodal_coordinates, nodal_velocities)
     }
-    fn calculate_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> GradientVectors<N>
+    fn calculate_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> GradientVectors<O>
     {
         Self::calculate_gradient_vectors_linear_surface_element(reference_nodal_coordinates)
     }
-    fn calculate_standard_gradient_operator() -> StandardGradientOperator<M, N>
+    fn calculate_standard_gradient_operator() -> StandardGradientOperator<M, O>
     {
         StandardGradientOperator::new([
             [-1.0, -1.0],
             [ 1.0,  0.0],
             [ 0.0,  1.0]
+            // you have have 6 basis functions since you have 6 nodes
+            // how many gradient vectors do you have?
         ])
     }
-    fn get_gradient_vectors(&self) -> &GradientVectors<N>
+    fn get_gradient_vectors(&self) -> &GradientVectors<O>
     {
         &self.gradient_vectors
     }
 }
 
-impl<'a, C> LinearSurfaceElement<'a, C, G, M, N> for Triangle<C>
+impl<'a, C> LinearSurfaceElement<'a, C, G, M, N, O> for Wedge<C>
 where
     C: Constitutive<'a>
 {
@@ -77,7 +80,12 @@ where
     }
 }
 
-impl<'a, C> ElasticFiniteElement<'a, C, G, N> for Triangle<C>
+impl<'a, C> LinearLocalizationElement<'a, C, G, M, N, O> for Wedge<C>
+where
+    C: Constitutive<'a>
+{}
+
+impl<'a, C> ElasticFiniteElement<'a, C, G, N> for Wedge<C>
 where
     C: Elastic<'a>
 {
@@ -91,12 +99,12 @@ where
     }
 }
 
-impl<'a, C> ElasticLinearElement<'a, C, G, M, N> for Triangle<C>
+impl<'a, C> ElasticLinearElement<'a, C, G, M, N, O> for Wedge<C>
 where
     C: Elastic<'a>
 {}
 
-impl<'a, C> HyperelasticFiniteElement<'a, C, G, N> for Triangle<C>
+impl<'a, C> HyperelasticFiniteElement<'a, C, G, N> for Wedge<C>
 where
     C: Hyperelastic<'a>
 {
@@ -106,12 +114,12 @@ where
     }
 }
 
-impl<'a, C> HyperelasticLinearElement<'a, C, G, M, N> for Triangle<C>
+impl<'a, C> HyperelasticLinearElement<'a, C, G, M, N, O> for Wedge<C>
 where
     C: Hyperelastic<'a>
 {}
 
-impl<'a, C> ViscoelasticFiniteElement<'a, C, G, N> for Triangle<C>
+impl<'a, C> ViscoelasticFiniteElement<'a, C, G, N> for Wedge<C>
 where
     C: Viscoelastic<'a>
 {
@@ -125,7 +133,12 @@ where
     }
 }
 
-impl<'a, C> ElasticHyperviscousFiniteElement<'a, C, G, N> for Triangle<C>
+impl<'a, C> ViscoelasticLinearElement<'a, C, G, M, N, O> for Wedge<C>
+where
+    C: Viscoelastic<'a>
+{}
+
+impl<'a, C> ElasticHyperviscousFiniteElement<'a, C, G, N> for Wedge<C>
 where
     C: ElasticHyperviscous<'a>
 {
@@ -139,7 +152,12 @@ where
     }
 }
 
-impl<'a, C> HyperviscoelasticFiniteElement<'a, C, G, N> for Triangle<C>
+impl<'a, C> ElasticHyperviscousLinearElement<'a, C, G, M, N, O> for Wedge<C>
+where
+    C: ElasticHyperviscous<'a>
+{}
+
+impl<'a, C> HyperviscoelasticFiniteElement<'a, C, G, N> for Wedge<C>
 where
     C: Hyperviscoelastic<'a>
 {
@@ -149,17 +167,7 @@ where
     }
 }
 
-impl<'a, C> ViscoelasticLinearElement<'a, C, G, M, N> for Triangle<C>
-where
-    C: Viscoelastic<'a>
-{}
-
-impl<'a, C> ElasticHyperviscousLinearElement<'a, C, G, M, N> for Triangle<C>
-where
-    C: ElasticHyperviscous<'a>
-{}
-
-impl<'a, C> HyperviscoelasticLinearElement<'a, C, G, M, N> for Triangle<C>
+impl<'a, C> HyperviscoelasticLinearElement<'a, C, G, M, N, O> for Wedge<C>
 where
     C: Hyperviscoelastic<'a>
 {}

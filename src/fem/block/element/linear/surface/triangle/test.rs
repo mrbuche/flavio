@@ -1,4 +1,4 @@
-use crate::fem::block::element::linear::test::test_linear_surface_element;
+use crate::fem::block::element::linear::surface::test::test_linear_surface_element;
 use super::*;
 
 fn get_reference_coordinates() -> ReferenceNodalCoordinates<N>
