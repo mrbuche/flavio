@@ -13,10 +13,10 @@ use crate::math::
 
 use super::*;
 
-type Basis = Vectors<1, 2>;
-type Normal = Vector<1>;
+type Basis<const I: usize> = Vectors<I, 2>;
+type Jump = Vector<1>;
+type Normal<const I: usize> = Vector<I>;
 type NormalRate = Vector<1>;
-type ReferenceBasis = Vectors<0, 2>;
 type ReferenceNormal = Vector<0>;
 type StandardGradientOperator<const M: usize, const O: usize> = TensorRank1List<M, 9, O>;
 
@@ -41,9 +41,9 @@ where
             DeformationGradientRate::dyad(nodal_velocity, gradient_vector)
         ).sum()
     }
-    fn calculate_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> GradientVectors<O>;
+    fn calculate_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> GradientVectors<N>;
     fn calculate_standard_gradient_operator() -> StandardGradientOperator<M, O>;
-    fn get_gradient_vectors(&self) -> &GradientVectors<O>;
+    fn get_gradient_vectors(&self) -> &GradientVectors<N>;
 }
 
 pub trait ElasticLinearElement<'a, C, const G: usize, const M: usize, const N: usize, const O: usize>
@@ -57,7 +57,8 @@ where
         .calculate_first_piola_kirchoff_stress(
             &self.calculate_deformation_gradient(nodal_coordinates)
         );
-        self.get_gradient_vectors().iter().map(|gradient_vector|
+        self.get_gradient_vectors().iter()
+        .map(|gradient_vector|
             &first_piola_kirchoff_stress * gradient_vector
         ).collect()
     }

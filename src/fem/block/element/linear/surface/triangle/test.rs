@@ -75,6 +75,18 @@ fn get_element<'a>() -> Triangle<NeoHookean<'a>>
     )
 }
 
+#[test]
+fn temporary_1()
+{
+    get_element().calculate_deformation_gradient(
+        &get_coordinatesss()
+    ).iter().zip(get_deformation_gradient_surface().iter()).for_each(|(f_i, ff_i)|
+        f_i.iter().zip(ff_i.iter()).for_each(|(f_ij, ff_ij)|
+            assert!((f_ij/ff_ij - 1.0).abs() < 1e-8)
+        )
+    );
+}
+
 fn get_finite_difference_of_helmholtz_free_energy(is_deformed: bool) -> NodalForces<N>
 {
     let element = get_element();
@@ -101,18 +113,6 @@ fn get_finite_difference_of_helmholtz_free_energy(is_deformed: bool) -> NodalFor
             finite_difference/EPSILON
         }).collect()
     ).collect()
-}
-
-#[test]
-fn temporary_1()
-{
-    get_element().calculate_deformation_gradient(
-        &get_coordinatesss()
-    ).iter().zip(get_deformation_gradient_surface().iter()).for_each(|(f_i, ff_i)|
-        f_i.iter().zip(ff_i.iter()).for_each(|(f_ij, ff_ij)|
-            assert!((f_ij/ff_ij - 1.0).abs() < 1e-8)
-        )
-    );
 }
 
 #[test]
@@ -204,6 +204,7 @@ fn temporary_3()
         )
     )
 }
+
 fn get_finite_difference_of_nodal_forces_crazy(is_deformed: bool) -> NodalStiffnesses<N>
 {
     let element = get_element_crazy();
@@ -272,9 +273,8 @@ fn get_velocities_crazy() -> NodalVelocities<N>
     ])
 }
 
-fn get_normal_rate_from_finite_difference() -> Normal
+fn get_normal_rate_from_finite_difference() -> Normal<1>
 {
-    let element = get_element_crazy();
     let mut finite_difference = 0.0;
     (0..3).map(|i|
         get_velocities_crazy().iter().enumerate()
@@ -283,11 +283,11 @@ fn get_normal_rate_from_finite_difference() -> Normal
             .map(|(k, velocity_a_k)|{
                 let mut coordinates = get_coordinates_crazy();
                 coordinates[a][k] += 0.5 * EPSILON;
-                finite_difference = element.calculate_normal(
+                finite_difference = Triangle::<NeoHookean>::calculate_normal(
                     &coordinates
                 )[i];
                 coordinates[a][k] -= EPSILON;
-                finite_difference -= element.calculate_normal(
+                finite_difference -= Triangle::<NeoHookean>::calculate_normal(
                     &coordinates
                 )[i];
                 finite_difference/EPSILON * velocity_a_k

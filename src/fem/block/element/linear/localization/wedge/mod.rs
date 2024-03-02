@@ -11,7 +11,7 @@ const O: usize = 3;
 pub struct Wedge<C>
 {
     constitutive_models: [C; G],
-    gradient_vectors: GradientVectors<O>,
+    gradient_vectors: GradientVectors<N>,
     reference_normal: ReferenceNormal
 }
 
@@ -33,7 +33,7 @@ where
         {
             constitutive_models: std::array::from_fn(|_| <C>::new(constitutive_model_parameters)),
             gradient_vectors: Self::calculate_gradient_vectors(&reference_nodal_coordinates),
-            reference_normal: Self::calculate_reference_normal(&Self::calculate_reference_dual_basis_vectors(&reference_nodal_coordinates))
+            reference_normal: Self::calculate_normal(&Self::calculate_midplane_coordinates(&reference_nodal_coordinates))
         }
     }
 }
@@ -50,9 +50,28 @@ where
     {
         self.calculate_deformation_gradient_rate_linear_localization_element(nodal_coordinates, nodal_velocities)
     }
-    fn calculate_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> GradientVectors<O>
+    fn calculate_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> GradientVectors<N>
     {
-        Self::calculate_gradient_vectors_linear_surface_element(reference_nodal_coordinates)
+        let reference_nodal_coordinates_midplane = Self::calculate_midplane_coordinates(&reference_nodal_coordinates);
+        let reference_dual_basis_vectors = Self::calculate_dual_basis(&reference_nodal_coordinates_midplane);
+        let reference_normal = Self::calculate_normal(&reference_nodal_coordinates_midplane);
+        let gradient_vectors_midplane = Self::calculate_standard_gradient_operator().iter()
+        .map(|standard_gradient_operator_a|
+            standard_gradient_operator_a.iter()
+            .zip(reference_dual_basis_vectors.iter())
+            .map(|(standard_gradient_operator_a_m, dual_reference_basis_vector_m)|
+                dual_reference_basis_vector_m*standard_gradient_operator_a_m
+            ).sum()
+        ).collect::<GradientVectors<O>>();
+        let mut gradient_vectors = GradientVectors::zero();
+        (0..2).for_each(|bottom_or_top|
+            (0..O).zip(gradient_vectors_midplane.iter())
+            .for_each(|(a, gradient_vectors_midplane_a)|
+                gradient_vectors[a + O*bottom_or_top] = gradient_vectors_midplane_a * 0.5
+                    + &reference_normal * (2.0*(bottom_or_top as f64) - 1.0) / 3.0
+            )
+        );
+        gradient_vectors
     }
     fn calculate_standard_gradient_operator() -> StandardGradientOperator<M, O>
     {
@@ -60,11 +79,9 @@ where
             [-1.0, -1.0],
             [ 1.0,  0.0],
             [ 0.0,  1.0]
-            // you have have 6 basis functions since you have 6 nodes
-            // how many gradient vectors do you have?
         ])
     }
-    fn get_gradient_vectors(&self) -> &GradientVectors<O>
+    fn get_gradient_vectors(&self) -> &GradientVectors<N>
     {
         &self.gradient_vectors
     }
@@ -83,7 +100,28 @@ where
 impl<'a, C> LinearLocalizationElement<'a, C, G, M, N, O> for Wedge<C>
 where
     C: Constitutive<'a>
-{}
+{
+    fn calculate_jump(nodal_coordinates: &NodalCoordinates<N>) -> Jump
+    {
+        (0..O).map(|a|
+            nodal_coordinates[a + O].iter()
+            .zip(nodal_coordinates[a].iter())
+            .map(|(nodal_coordinates_ap3, nodal_coordinates_a)|
+                (nodal_coordinates_ap3 - nodal_coordinates_a)
+            ).collect()
+        ).sum::<Jump>() / 3.0
+    }
+    fn calculate_midplane_coordinates<const I: usize>(nodal_coordinates: &Coordinates<I, N>) -> Coordinates<I, O>
+    {
+        (0..O).map(|a|
+            nodal_coordinates[a + O].iter()
+            .zip(nodal_coordinates[a].iter())
+            .map(|(nodal_coordinates_ap3, nodal_coordinates_a)|
+                (nodal_coordinates_ap3 + nodal_coordinates_a) * 0.5
+            ).collect()
+        ).collect()
+    }
+}
 
 impl<'a, C> ElasticFiniteElement<'a, C, G, N> for Wedge<C>
 where

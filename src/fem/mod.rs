@@ -61,6 +61,7 @@ use crate::
     },
     mechanics::
     {
+        Coordinates,
         CurrentCoordinates,
         DeformationGradient,
         DeformationGradientRate,
