@@ -167,3 +167,98 @@ where
         )
     }
 }
+
+macro_rules! linear_element_boilerplate
+{
+    ($element: ident) =>
+    {
+
+        impl<'a, C> ElasticFiniteElement<'a, C, G, N> for $element<C>
+        where
+            C: Elastic<'a>
+        {
+            fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
+            {
+                self.calculate_nodal_forces_linear_element(nodal_coordinates)
+            }
+            fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
+            {
+                self.calculate_nodal_stiffnesses_linear_element(nodal_coordinates)
+            }
+        }
+        
+        impl<'a, C> ElasticLinearElement<'a, C, G, M, N, O> for $element<C>
+        where
+            C: Elastic<'a>
+        {}
+        
+        impl<'a, C> HyperelasticFiniteElement<'a, C, G, N> for $element<C>
+        where
+            C: Hyperelastic<'a>
+        {
+            fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
+            {
+                self.calculate_helmholtz_free_energy_linear_element(nodal_coordinates)
+            }
+        }
+        
+        impl<'a, C> HyperelasticLinearElement<'a, C, G, M, N, O> for $element<C>
+        where
+            C: Hyperelastic<'a>
+        {}
+        
+        impl<'a, C> ViscoelasticFiniteElement<'a, C, G, N> for $element<C>
+        where
+            C: Viscoelastic<'a>
+        {
+            fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalForces<N>
+            {
+                self.calculate_nodal_forces_linear_element(nodal_coordinates, nodal_velocities)
+            }
+            fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalStiffnesses<N>
+            {
+                self.calculate_nodal_stiffnesses_linear_element(nodal_coordinates, nodal_velocities)
+            }
+        }
+        
+        impl<'a, C> ViscoelasticLinearElement<'a, C, G, M, N, O> for $element<C>
+        where
+            C: Viscoelastic<'a>
+        {}
+        
+        impl<'a, C> ElasticHyperviscousFiniteElement<'a, C, G, N> for $element<C>
+        where
+            C: ElasticHyperviscous<'a>
+        {
+            fn calculate_viscous_dissipation(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> Scalar
+            {
+                self.calculate_viscous_dissipation_linear_element(nodal_coordinates, nodal_velocities)
+            }
+            fn calculate_dissipation_potential(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> Scalar
+            {
+                self.calculate_dissipation_potential_linear_element(nodal_coordinates, nodal_velocities)
+            }
+        }
+        
+        impl<'a, C> ElasticHyperviscousLinearElement<'a, C, G, M, N, O> for $element<C>
+        where
+            C: ElasticHyperviscous<'a>
+        {}
+        
+        impl<'a, C> HyperviscoelasticFiniteElement<'a, C, G, N> for $element<C>
+        where
+            C: Hyperviscoelastic<'a>
+        {
+            fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
+            {
+                self.calculate_helmholtz_free_energy_linear_element(nodal_coordinates)
+            }
+        }
+        
+        impl<'a, C> HyperviscoelasticLinearElement<'a, C, G, M, N, O> for $element<C>
+        where
+            C: Hyperviscoelastic<'a>
+        {}
+    }
+}
+pub(crate) use linear_element_boilerplate;

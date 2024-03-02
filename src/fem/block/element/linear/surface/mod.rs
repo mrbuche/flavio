@@ -113,3 +113,21 @@ where
     }
     fn get_reference_normal(&self) -> &ReferenceNormal;
 }
+
+macro_rules! linear_surface_element_boilerplate
+{
+    ($element: ident) =>
+    {
+        crate::fem::block::element::linear::linear_element_boilerplate!($element);
+        impl<'a, C> LinearSurfaceElement<'a, C, G, M, N, O> for $element<C>
+        where
+            C: Constitutive<'a>
+        {
+            fn get_reference_normal(&self) -> &ReferenceNormal
+            {
+                &self.reference_normal
+            }
+        }
+    }
+}
+pub(crate) use linear_surface_element_boilerplate;

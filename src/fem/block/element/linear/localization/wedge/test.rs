@@ -14,8 +14,6 @@ fn get_reference_coordinates() -> ReferenceNodalCoordinates<N>
 
 // Do not forget the actual tests!
 
-// test that nodal forces are always equal for localization elements
-
 // should use random ref/curr coords for element/block tests
 // and should apply surface/localiz. block tests of course
 
