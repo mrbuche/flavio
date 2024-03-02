@@ -91,7 +91,7 @@ impl<'a, C> LinearLocalizationElement<'a, C, G, M, N, O> for Wedge<C>
 where
     C: Constitutive<'a>
 {
-    fn calculate_jump(nodal_coordinates: &NodalCoordinates<N>) -> Jump
+    fn calculate_jump<const I: usize>(nodal_coordinates: &NodalCoordinates<N>) -> Jump<I>
     {
         (0..O).map(|a|
             nodal_coordinates[a + O].iter()
@@ -99,7 +99,7 @@ where
             .map(|(nodal_coordinates_ap3, nodal_coordinates_a)|
                 (nodal_coordinates_ap3 - nodal_coordinates_a)
             ).collect()
-        ).sum::<Jump>() / 3.0
+        ).sum::<Jump<I>>() / 3.0
     }
     fn calculate_midplane_coordinates<const I: usize>(nodal_coordinates: &Coordinates<I, N>) -> Coordinates<I, O>
     {

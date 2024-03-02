@@ -31,7 +31,8 @@ where
         .map(|(nodal_coordinate, gradient_vector)|
             DeformationGradient::dyad(nodal_coordinate, gradient_vector)
         ).sum::<DeformationGradient>() + DeformationGradient::dyad(
-            &Self::calculate_normal(nodal_coordinates), self.get_reference_normal()
+            &Self::calculate_normal(nodal_coordinates),
+            self.get_reference_normal()
         )
     }
     fn calculate_deformation_gradient_rate_linear_surface_element(&self, nodal_coordinates: &NodalCoordinates<O>, nodal_velocities: &NodalVelocities<O>) -> DeformationGradientRate
@@ -39,9 +40,10 @@ where
         nodal_velocities.iter()
         .zip(self.get_gradient_vectors().iter())
         .map(|(nodal_velocity, gradient_vector)|
-            DeformationGradient::dyad(nodal_velocity, gradient_vector)
-        ).sum::<DeformationGradient>() + DeformationGradientRate::dyad(
-            &self.calculate_normal_rate(nodal_coordinates, nodal_velocities), self.get_reference_normal()
+            DeformationGradientRate::dyad(nodal_velocity, gradient_vector)
+        ).sum::<DeformationGradientRate>() + DeformationGradientRate::dyad(
+            &self.calculate_normal_rate(nodal_coordinates, nodal_velocities),
+            self.get_reference_normal()
         )
     }
     fn calculate_dual_basis<const I: usize>(nodal_coordinates: &Coordinates<I, O>) -> Basis<I>

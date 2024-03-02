@@ -54,10 +54,12 @@ use crate::
         Convert,
         TensorRank0ListTrait,
         TensorRank1Trait,
+        TensorRank1List,
         TensorRank1ListTrait,
         TensorRank2,
         TensorRank2Trait,
-        TensorRank2List2DTrait
+        TensorRank2List2DTrait,
+        levi_civita
     },
     mechanics::
     {
@@ -76,6 +78,7 @@ use crate::
 };
 
 type Connectivity<const E: usize, const N: usize> = [[usize; N]; E];
+type IntegrationWeights<const G: usize> = Scalars<G>;
 type NodalCoordinates<const D: usize> = CurrentCoordinates<D>;
 type NodalForces<const D: usize> = Forces<D>;
 type NodalStiffnesses<const D: usize> = Stiffnesses<D>;

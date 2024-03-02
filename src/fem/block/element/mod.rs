@@ -5,9 +5,6 @@ pub mod linear;
 
 use super::*;
 
-type GradientVectors<const N: usize> = Vectors<0, N>;
-type IntegrationWeights<const G: usize> = Scalars<G>;
-
 pub trait FiniteElement<'a, C, const G: usize, const N: usize>
 where
     C: Constitutive<'a>

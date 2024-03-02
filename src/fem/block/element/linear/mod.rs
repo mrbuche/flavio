@@ -5,16 +5,11 @@ pub mod localization;
 pub mod surface;
 pub mod tetrahedron;
 
-use crate::math::
-{
-    TensorRank1List,
-    levi_civita
-};
-
 use super::*;
 
 type Basis<const I: usize> = Vectors<I, 2>;
-type Jump = Vector<1>;
+type GradientVectors<const N: usize> = Vectors<0, N>;
+type Jump<const I: usize> = Vector<I>;
 type Normal<const I: usize> = Vector<I>;
 type NormalRate = Vector<1>;
 type ReferenceNormal = Vector<0>;
