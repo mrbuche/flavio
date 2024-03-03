@@ -218,36 +218,37 @@ macro_rules! setup_for_elements
 }
 pub(crate) use setup_for_elements;
 
-macro_rules! setup_for_surface_elements
+macro_rules! setup_for_surface_or_localization_elements
 {
     ($element: ident) =>
     {
-        use crate::constitutive::solid::elastic::AlmansiHamel;
+        use crate::
+        {
+            constitutive::solid::elastic::AlmansiHamel,
+            mechanics::
+            {
+                RotationCurrentConfiguration,
+                RotationRateCurrentConfiguration
+            },
+            EPSILON
+        };
         fn get_coordinates() -> NodalCoordinates<N>
         {
             get_deformation_gradient() * get_reference_coordinates()
         }
         fn get_deformation_gradient() -> DeformationGradient
         {
-            get_deformation_gradient_rotation() * get_deformation_gradient_planar()
-        }
-        fn get_deformation_gradient_planar() -> DeformationGradient
-        {
-            DeformationGradient::new([
-                [0.62, 0.20, 0.00],
-                [0.32, 0.98, 0.00],
-                [0.00, 0.00, 1.00]
-            ])
+            get_deformation_gradient_rotation() * get_deformation_gradient_special()
         }
         fn get_deformation_gradient_rate() -> DeformationGradientRate
         {
-            get_deformation_gradient_rotation_rate() * get_deformation_gradient_planar()
+            get_deformation_gradient_rotation_rate() * get_deformation_gradient_special()
         }
         fn get_deformation_gradient_rotation() -> RotationCurrentConfiguration
         {
             crate::mechanics::test::get_rotation_reference_configuration().convert().transpose()
         }
-        fn get_deformation_gradient_rotation_rate() -> crate::mechanics::RotationRateCurrentConfiguration
+        fn get_deformation_gradient_rotation_rate() -> RotationRateCurrentConfiguration
         {
             crate::mechanics::FrameSpin::new([
                 [ 0.0, -0.3,  0.1],
@@ -263,7 +264,7 @@ macro_rules! setup_for_surface_elements
         fn size()
         {
             assert_eq!(
-                std::mem::size_of::<Tetrahedron::<AlmansiHamel>>(),
+                std::mem::size_of::<$element::<AlmansiHamel>>(),
                 std::mem::size_of::<AlmansiHamel>()
                 + std::mem::size_of::<GradientVectors<N>>()
                 + std::mem::size_of::<ReferenceNormal>()
@@ -272,7 +273,41 @@ macro_rules! setup_for_surface_elements
         crate::fem::block::element::test::setup_for_element_tests_any_element!($element);
     }
 }
+pub(crate) use setup_for_surface_or_localization_elements;
+
+macro_rules! setup_for_surface_elements
+{
+    ($element: ident) =>
+    {
+        fn get_deformation_gradient_special() -> DeformationGradient
+        {
+            DeformationGradient::new([
+                [0.62, 0.20, 0.00],
+                [0.32, 0.98, 0.00],
+                [0.00, 0.00, 1.00]
+            ])
+        }
+        crate::fem::block::element::test::setup_for_surface_or_localization_elements!($element);
+    }
+}
 pub(crate) use setup_for_surface_elements;
+
+macro_rules! setup_for_localization_elements
+{
+    ($element: ident) =>
+    {
+        fn get_deformation_gradient_special() -> DeformationGradient
+        {
+            DeformationGradient::new([
+                [0.62, 0.20, 0.00],
+                [0.32, 0.98, 0.00],
+                [0.00, 0.00, 1.33]
+            ])
+        }
+        crate::fem::block::element::test::setup_for_surface_or_localization_elements!($element);
+    }
+}
+pub(crate) use setup_for_localization_elements;
 
 macro_rules! test_nodal_forces_and_nodal_stiffnesses
 {

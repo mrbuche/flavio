@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod test;
+pub mod test;
 
 pub mod triangle;
 
@@ -42,7 +42,7 @@ where
         .map(|(nodal_velocity, gradient_vector)|
             DeformationGradientRate::dyad(nodal_velocity, gradient_vector)
         ).sum::<DeformationGradientRate>() + DeformationGradientRate::dyad(
-            &self.calculate_normal_rate(nodal_coordinates, nodal_velocities),
+            &Self::calculate_normal_rate(nodal_coordinates, nodal_velocities),
             self.get_reference_normal()
         )
     }
@@ -83,7 +83,11 @@ where
         let basis_vectors = Self::calculate_basis(nodal_coordinates);
         basis_vectors[0].cross(&basis_vectors[1]).normalized()
     }
-    fn calculate_normal_rate(&self, nodal_coordinates: &NodalCoordinates<O>, nodal_velocities: &NodalVelocities<O>) -> NormalRate
+    fn calculate_normal_gradients(nodal_coordinates: &Coordinates<1, N>) -> NormalGradients<N>
+    {
+        todo!()
+    }
+    fn calculate_normal_rate(nodal_coordinates: &NodalCoordinates<O>, nodal_velocities: &NodalVelocities<O>) -> NormalRate
     {
         let basis_vectors = Self::calculate_basis(nodal_coordinates);
         let levi_civita_symbol = levi_civita::<1, 1, 1>();

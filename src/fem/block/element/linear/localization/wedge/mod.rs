@@ -33,7 +33,7 @@ where
         {
             constitutive_models: std::array::from_fn(|_| <C>::new(constitutive_model_parameters)),
             gradient_vectors: Self::calculate_gradient_vectors(&reference_nodal_coordinates),
-            reference_normal: Self::calculate_normal(&Self::calculate_midplane_coordinates(&reference_nodal_coordinates))
+            reference_normal: Self::calculate_normal(&Self::calculate_midplane(&reference_nodal_coordinates))
         }
     }
 }
@@ -52,7 +52,7 @@ where
     }
     fn calculate_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> GradientVectors<N>
     {
-        let reference_nodal_coordinates_midplane = Self::calculate_midplane_coordinates(&reference_nodal_coordinates);
+        let reference_nodal_coordinates_midplane = Self::calculate_midplane(&reference_nodal_coordinates);
         let reference_dual_basis_vectors = Self::calculate_dual_basis(&reference_nodal_coordinates_midplane);
         let reference_normal = Self::calculate_normal(&reference_nodal_coordinates_midplane);
         let gradient_vectors_midplane = Self::calculate_standard_gradient_operator().iter()
@@ -64,12 +64,15 @@ where
             ).sum()
         ).collect::<GradientVectors<O>>();
         let mut gradient_vectors = GradientVectors::zero();
-        (0..2).for_each(|bottom_or_top|
-            (0..O).zip(gradient_vectors_midplane.iter())
-            .for_each(|(a, gradient_vectors_midplane_a)|
-                gradient_vectors[a + O*bottom_or_top] = gradient_vectors_midplane_a * 0.5
-                    + &reference_normal * (2.0*(bottom_or_top as f64) - 1.0) / 3.0
-            )
+        gradient_vectors.iter_mut().take(O)
+        .zip(gradient_vectors_midplane.iter())
+        .for_each(|(gradient_vector_a, gradient_vector_midplane_a)|
+            *gradient_vector_a = gradient_vector_midplane_a * 0.5 - &reference_normal / 3.0
+        );
+        gradient_vectors.iter_mut().skip(O)
+        .zip(gradient_vectors_midplane.iter())
+        .for_each(|(gradient_vector_a, gradient_vector_midplane_a)|
+            *gradient_vector_a = gradient_vector_midplane_a * 0.5 + &reference_normal / 3.0
         );
         gradient_vectors
     }
@@ -91,23 +94,15 @@ impl<'a, C> LinearLocalizationElement<'a, C, G, M, N, O> for Wedge<C>
 where
     C: Constitutive<'a>
 {
-    fn calculate_jump<const I: usize>(nodal_coordinates: &NodalCoordinates<N>) -> Jump<I>
+    fn calculate_midplane<const I: usize>(nodal_coordinates: &Coordinates<I, N>) -> Coordinates<I, O>
     {
-        (0..O).map(|a|
-            nodal_coordinates[a + O].iter()
-            .zip(nodal_coordinates[a].iter())
-            .map(|(nodal_coordinates_ap3, nodal_coordinates_a)|
-                (nodal_coordinates_ap3 - nodal_coordinates_a)
-            ).collect()
-        ).sum::<Jump<I>>() / 3.0
-    }
-    fn calculate_midplane_coordinates<const I: usize>(nodal_coordinates: &Coordinates<I, N>) -> Coordinates<I, O>
-    {
-        (0..O).map(|a|
-            nodal_coordinates[a + O].iter()
-            .zip(nodal_coordinates[a].iter())
-            .map(|(nodal_coordinates_ap3, nodal_coordinates_a)|
-                (nodal_coordinates_ap3 + nodal_coordinates_a) * 0.5
+        nodal_coordinates.iter().skip(O)
+        .zip(nodal_coordinates.iter().take(O))
+        .map(|(nodal_coordinates_top, nodal_coordinates_bottom)|
+            nodal_coordinates_top.iter()
+            .zip(nodal_coordinates_bottom.iter())
+            .map(|(nodal_coordinates_top_i, nodal_coordinates_bottom_i)|
+                (nodal_coordinates_top_i + nodal_coordinates_bottom_i) * 0.5
             ).collect()
         ).collect()
     }

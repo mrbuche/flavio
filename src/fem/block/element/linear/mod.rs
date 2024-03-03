@@ -9,8 +9,8 @@ use super::*;
 
 type Basis<const I: usize> = Vectors<I, 2>;
 type GradientVectors<const N: usize> = Vectors<0, N>;
-type Jump<const I: usize> = Vector<I>;
 type Normal<const I: usize> = Vector<I>;
+type NormalGradients<const O: usize> = TensorRank2List<3, 1, 1, O>;
 type NormalRate = Vector<1>;
 type ReferenceNormal = Vector<0>;
 type StandardGradientOperator<const M: usize, const O: usize> = TensorRank1List<M, 9, O>;

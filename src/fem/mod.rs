@@ -57,6 +57,7 @@ use crate::
         TensorRank1List,
         TensorRank1ListTrait,
         TensorRank2,
+        TensorRank2List,
         TensorRank2Trait,
         TensorRank2List2DTrait,
         levi_civita
