@@ -13,34 +13,78 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
 {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
     {
-        fn get_basis(is_deformed: bool) -> Basis<1>
+        fn get_basis(is_deformed: bool, is_transformed: bool) -> Basis<1>
         {
-            if is_deformed
+            if is_transformed
             {
-                $element::<$constitutive_model>::calculate_basis(
-                    &$element::<$constitutive_model>::calculate_midplane(&get_coordinates())
-                )
+                if is_deformed
+                {
+                    $element::<$constitutive_model>::calculate_basis(
+                        &$element::<$constitutive_model>::calculate_midplane(
+                            &(get_rotation_current_configuration() * get_coordinates())
+                        )
+                    )
+                }
+                else
+                {
+                    $element::<$constitutive_model>::calculate_basis(
+                        &$element::<$constitutive_model>::calculate_midplane(
+                            &(get_rotation_reference_configuration() * get_reference_coordinates())
+                        ).convert()
+                    )
+                }
             }
             else
             {
-                $element::<$constitutive_model>::calculate_basis(
-                    &$element::<$constitutive_model>::calculate_midplane(&get_reference_coordinates()).convert()
-                )
+                if is_deformed
+                {
+                    $element::<$constitutive_model>::calculate_basis(
+                        &$element::<$constitutive_model>::calculate_midplane(&get_coordinates())
+                    )
+                }
+                else
+                {
+                    $element::<$constitutive_model>::calculate_basis(
+                        &$element::<$constitutive_model>::calculate_midplane(&get_reference_coordinates()).convert()
+                    )
+                }
             }
         }
-        fn get_dual_basis(is_deformed: bool) -> Basis<0>
+        fn get_dual_basis(is_deformed: bool, is_transformed: bool) -> Basis<1>
         {
-            if is_deformed
+            if is_transformed
             {
-                $element::<$constitutive_model>::calculate_dual_basis(
-                    &$element::<$constitutive_model>::calculate_midplane(&get_coordinates().convert())
-                )
+                if is_deformed
+                {
+                    $element::<$constitutive_model>::calculate_dual_basis(
+                        &$element::<$constitutive_model>::calculate_midplane(
+                            &(get_rotation_current_configuration() * get_coordinates())
+                        )
+                    )
+                }
+                else
+                {
+                    $element::<$constitutive_model>::calculate_dual_basis(
+                        &$element::<$constitutive_model>::calculate_midplane(
+                            &(get_rotation_reference_configuration() * get_reference_coordinates())
+                        ).convert()
+                    )
+                }
             }
             else
             {
-                $element::<$constitutive_model>::calculate_dual_basis(
-                    &$element::<$constitutive_model>::calculate_midplane(&get_reference_coordinates())
-                )
+                if is_deformed
+                {
+                    $element::<$constitutive_model>::calculate_dual_basis(
+                        &$element::<$constitutive_model>::calculate_midplane(&get_coordinates())
+                    )
+                }
+                else
+                {
+                    $element::<$constitutive_model>::calculate_dual_basis(
+                        &$element::<$constitutive_model>::calculate_midplane(&get_reference_coordinates()).convert()
+                    )
+                }
             }
         }
         fn get_normal(is_deformed: bool, is_transformed: bool) -> NormalRate

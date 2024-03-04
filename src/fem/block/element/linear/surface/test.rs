@@ -146,34 +146,70 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
 {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
     {
-        fn get_basis(is_deformed: bool) -> Basis<1>
+        fn get_basis(is_deformed: bool, is_transformed: bool) -> Basis<1>
         {
-            if is_deformed
+            if is_transformed
             {
-                $element::<$constitutive_model>::calculate_basis(
-                    &get_coordinates()
-                )
+                if is_deformed
+                {
+                    $element::<$constitutive_model>::calculate_basis(
+                        &(get_rotation_current_configuration() * get_coordinates())
+                    )
+                }
+                else
+                {
+                    $element::<$constitutive_model>::calculate_basis(
+                        &(get_rotation_reference_configuration() * get_reference_coordinates()).convert()
+                    )
+                }
             }
             else
             {
-                $element::<$constitutive_model>::calculate_basis(
-                    &get_reference_coordinates().convert()
-                )
+                if is_deformed
+                {
+                    $element::<$constitutive_model>::calculate_basis(
+                        &get_coordinates()
+                    )
+                }
+                else
+                {
+                    $element::<$constitutive_model>::calculate_basis(
+                        &get_reference_coordinates().convert()
+                    )
+                }
             }
         }
-        fn get_dual_basis(is_deformed: bool) -> Basis<0>
+        fn get_dual_basis(is_deformed: bool, is_transformed: bool) -> Basis<1>
         {
-            if is_deformed
+            if is_transformed
             {
-                $element::<$constitutive_model>::calculate_dual_basis(
-                    &get_coordinates().convert()
-                )
+                if is_deformed
+                {
+                    $element::<$constitutive_model>::calculate_dual_basis(
+                        &(get_rotation_current_configuration() * get_coordinates())
+                    )
+                }
+                else
+                {
+                    $element::<$constitutive_model>::calculate_dual_basis(
+                        &(get_rotation_reference_configuration() * get_reference_coordinates()).convert()
+                    )
+                }
             }
             else
             {
-                $element::<$constitutive_model>::calculate_dual_basis(
-                    &get_reference_coordinates()
-                )
+                if is_deformed
+                {
+                    $element::<$constitutive_model>::calculate_dual_basis(
+                        &get_coordinates()
+                    )
+                }
+                else
+                {
+                    $element::<$constitutive_model>::calculate_dual_basis(
+                        &get_reference_coordinates().convert()
+                    )
+                }
             }
         }
         fn get_normal(is_deformed: bool, is_transformed: bool) -> Normal<1>
@@ -297,18 +333,42 @@ macro_rules! test_linear_surface_element_with_constitutive_model
             use super::*;
             mod deformed
             {
+                use super::*;
                 #[test]
                 fn objectivity()
                 {
-                    todo!()
+                    get_basis(true, false).iter()
+                    .zip(get_basis(true, true).iter())
+                    .for_each(|(basis_m, res_basis_m)|
+                        basis_m.iter()
+                        .zip((
+                            get_rotation_current_configuration().transpose() *
+                            res_basis_m
+                        ).iter())
+                        .for_each(|(basis_m_i, res_basis_m_i)|
+                            assert_eq_within_tols(basis_m_i, res_basis_m_i)
+                        )
+                    )
                 }
             }
             mod undeformed
             {
+                use super::*;
                 #[test]
                 fn objectivity()
                 {
-                    todo!()
+                    get_basis(false, false).iter()
+                    .zip(get_basis(false, true).iter())
+                    .for_each(|(basis_m, res_basis_m)|
+                        basis_m.iter()
+                        .zip((
+                            get_rotation_reference_configuration().transpose() *
+                            res_basis_m.convert()
+                        ).iter())
+                        .for_each(|(basis_m_i, res_basis_m_i)|
+                            assert_eq_within_tols(basis_m_i, res_basis_m_i)
+                        )
+                    )
                 }
             }
         }
@@ -317,28 +377,74 @@ macro_rules! test_linear_surface_element_with_constitutive_model
             use super::*;
             mod deformed
             {
+                use super::*;
                 #[test]
                 fn basis()
                 {
-                    todo!("test g_m g^n = delta_m^n")
+                    get_basis(true, false).iter()
+                    .enumerate()
+                    .for_each(|(m, basis_m)|
+                        get_dual_basis(true, false).iter()
+                        .enumerate()
+                        .for_each(|(n, dual_basis_n)|
+                            assert_eq_within_tols(
+                                &(basis_m * dual_basis_n), 
+                                &((m == n) as u8 as Scalar)
+                            )
+                        )
+                    )
                 }
                 #[test]
                 fn objectivity()
                 {
-                    todo!()
+                    get_dual_basis(true, false).iter()
+                    .zip(get_dual_basis(true, true).iter())
+                    .for_each(|(basis_m, res_basis_m)|
+                        basis_m.iter()
+                        .zip((
+                            get_rotation_current_configuration().transpose() *
+                            res_basis_m
+                        ).iter())
+                        .for_each(|(basis_m_i, res_basis_m_i)|
+                            assert_eq_within_tols(basis_m_i, res_basis_m_i)
+                        )
+                    )
                 }
             }
             mod undeformed
             {
+                use super::*;
                 #[test]
                 fn basis()
                 {
-                    todo!("test G_m G^n = delta_m^n")
+                    get_basis(false, false).iter()
+                    .enumerate()
+                    .for_each(|(m, basis_m)|
+                        get_dual_basis(false, false).iter()
+                        .enumerate()
+                        .for_each(|(n, dual_basis_n)|
+                            assert_eq_within_tols(
+                                &(basis_m * dual_basis_n), 
+                                &((m == n) as u8 as Scalar)
+                            )
+                        )
+                    )
                 }
                 #[test]
                 fn objectivity()
                 {
-                    todo!()
+                    get_dual_basis(false, false).iter()
+                    .zip(get_dual_basis(false, true).iter())
+                    .for_each(|(basis_m, res_basis_m)|
+                        basis_m.iter()
+                        .zip((
+                            get_rotation_reference_configuration().transpose() *
+                            res_basis_m.convert()
+                        ).iter())
+                        .for_each(|(basis_m_i, res_basis_m_i)|
+                            assert_eq_within_tols(basis_m_i, res_basis_m_i)
+                        )
+                    )
                 }
             }
         }
@@ -356,7 +462,7 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                 #[test]
                 fn normal()
                 {
-                    let basis = get_basis(true);
+                    let basis = get_basis(true, false);
                     let normal = get_normal(true, false);
                     assert_eq_within_tols(
                         &(&basis[0] * &normal), &0.0
@@ -396,7 +502,7 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                 #[test]
                 fn normal()
                 {
-                    let basis = get_basis(false);
+                    let basis = get_basis(false, false);
                     let normal = get_normal(false, false);
                     assert_eq_within_tols(
                         &(&basis[0] * &normal), &0.0
@@ -431,6 +537,7 @@ macro_rules! test_linear_surface_element_with_constitutive_model
             use super::*;
             mod deformed
             {
+                use super::*;
                 #[test]
                 fn objectivity()
                 {
@@ -439,6 +546,7 @@ macro_rules! test_linear_surface_element_with_constitutive_model
             }
             mod undeformed
             {
+                use super::*;
                 #[test]
                 fn objectivity()
                 {
@@ -513,13 +621,13 @@ macro_rules! test_linear_surface_element_with_constitutive_model
             #[test]
             fn normal()
             {
-                let basis = get_dual_basis(false);
+                let basis = get_dual_basis(false, false);
                 let element = get_element();
                 assert_eq_within_tols(
-                    &(&basis[0] * element.get_reference_normal()), &0.0
+                    &(&basis[0].convert() * element.get_reference_normal()), &0.0
                 );
                 assert_eq_within_tols(
-                    &(&basis[1] * element.get_reference_normal()), &0.0
+                    &(&basis[1].convert() * element.get_reference_normal()), &0.0
                 );
             }
             #[test]
