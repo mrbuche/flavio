@@ -1,4 +1,8 @@
-use crate::fem::block::element::linear::localization::test::test_linear_localization_element;
+use crate::fem::block::element::linear::localization::test::
+{
+    setup_for_test_linear_surface_element_with_constitutive_model,
+    test_linear_localization_element
+};
 use super::*;
 
 fn get_reference_coordinates() -> ReferenceNodalCoordinates<N>
@@ -14,47 +18,6 @@ fn get_reference_coordinates() -> ReferenceNodalCoordinates<N>
 }
 
 test_linear_localization_element!(Wedge);
-
-fn get_normal_rate_from_finite_difference() -> Normal<1>
-{
-    let mut finite_difference = 0.0;
-    (0..3).map(|i|
-        Wedge::<AlmansiHamel>::calculate_midplane(&get_velocities()).iter().enumerate()
-        .map(|(a, velocity_a)|
-            velocity_a.iter().enumerate()
-            .map(|(k, velocity_a_k)|{
-                let mut coordinates = Wedge::<AlmansiHamel>::calculate_midplane(&get_coordinates());
-                coordinates[a][k] += 0.5 * EPSILON;
-                finite_difference = Wedge::<AlmansiHamel>::calculate_normal(
-                    &coordinates
-                )[i];
-                coordinates[a][k] -= EPSILON;
-                finite_difference -= Wedge::<AlmansiHamel>::calculate_normal(
-                    &coordinates
-                )[i];
-                finite_difference/EPSILON * velocity_a_k
-            }).sum::<Scalar>()
-        ).sum()
-    ).collect()
-}
-
-fn get_normal_rate(is_deformed: bool) -> NormalRate
-{
-    if is_deformed
-    {
-        Wedge::<AlmansiHamel>::calculate_normal_rate(
-            &Wedge::<AlmansiHamel>::calculate_midplane(&get_coordinates()),
-            &Wedge::<AlmansiHamel>::calculate_midplane(&get_velocities())
-        )
-    }
-    else
-    {
-        Wedge::<AlmansiHamel>::calculate_normal_rate(
-            &Wedge::<AlmansiHamel>::calculate_midplane(&get_reference_coordinates()).convert(),
-            &NodalVelocities::zero()
-        )
-    }
-}
 
 // Do not forget the actual tests!
 

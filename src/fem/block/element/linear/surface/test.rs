@@ -20,7 +20,8 @@ macro_rules! test_linear_surface_element_inner
                 fem::block::element::linear::surface::test::
                 {
                     test_linear_surface_element_with_constitutive_model
-                }
+                },
+                test::assert_eq_within_tols
             };
             use super::*;
             mod elastic
@@ -39,10 +40,101 @@ macro_rules! test_linear_surface_element_inner
                     use super::*;
                     test_linear_surface_element_with_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
                 }
-                #[test]
-                fn other_constitutive_models()
+            }
+            mod hyperelastic
+            {
+                use crate::
                 {
-                    todo!()
+                    constitutive::solid::hyperelastic::
+                    {
+                        ArrudaBoyce,
+                        Fung,
+                        Gent,
+                        MooneyRivlin,
+                        NeoHookean,
+                        SaintVenantKirchoff,
+                        Yeoh,
+                        test::
+                        {
+                            ARRUDABOYCEPARAMETERS,
+                            FUNGPARAMETERS,
+                            GENTPARAMETERS,
+                            MOONEYRIVLINPARAMETERS,
+                            NEOHOOKEANPARAMETERS,
+                            SAINTVENANTKIRCHOFFPARAMETERS,
+                            YEOHPARAMETERS
+                        }
+                    }
+                };
+                use super::*;
+                mod arruda_boyce
+                {
+                    use super::*;
+                    test_linear_surface_element_with_constitutive_model!($element, ArrudaBoyce, ARRUDABOYCEPARAMETERS);
+                }
+                mod fung
+                {
+                    use super::*;
+                    test_linear_surface_element_with_constitutive_model!($element, Fung, FUNGPARAMETERS);
+                }
+                mod gent
+                {
+                    use super::*;
+                    test_linear_surface_element_with_constitutive_model!($element, Gent, GENTPARAMETERS);
+                }
+                mod mooney_rivlin
+                {
+                    use super::*;
+                    test_linear_surface_element_with_constitutive_model!($element, MooneyRivlin, MOONEYRIVLINPARAMETERS);
+                }
+                mod neo_hookean
+                {
+                    use super::*;
+                    test_linear_surface_element_with_constitutive_model!($element, NeoHookean, NEOHOOKEANPARAMETERS);
+                }
+                mod saint_venant_kirchoff
+                {
+                    use super::*;
+                    test_linear_surface_element_with_constitutive_model!($element, SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS);
+                }
+                mod yeoh
+                {
+                    use super::*;
+                    test_linear_surface_element_with_constitutive_model!($element, Yeoh, YEOHPARAMETERS);
+                }
+            }
+            mod elastic_hyperviscous
+            {
+                use crate::
+                {
+                    constitutive::solid::elastic_hyperviscous::
+                    {
+                        AlmansiHamel,
+                        test::ALMANSIHAMELPARAMETERS
+                    }
+                };
+                use super::*;
+                mod almansi_hamel
+                {
+                    use super::*;
+                    test_linear_surface_element_with_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
+                }
+            }
+            mod hyperviscoelastic
+            {
+                use crate::
+                {
+                    constitutive::solid::hyperviscoelastic::
+                    {
+                        SaintVenantKirchoff,
+                        test::SAINTVENANTKIRCHOFFPARAMETERS
+                    }
+                };
+                use super::*;
+                mod saint_venant_kirchoff
+                {
+                    use super::*;
+                    test_linear_surface_element_with_constitutive_model!($element, SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS);
                 }
             }
         }
@@ -50,10 +142,206 @@ macro_rules! test_linear_surface_element_inner
 }
 pub(crate) use test_linear_surface_element_inner;
 
+macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
+{
+    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
+    {
+        fn get_basis(is_deformed: bool) -> Basis<1>
+        {
+            if is_deformed
+            {
+                $element::<$constitutive_model>::calculate_basis(
+                    &get_coordinates()
+                )
+            }
+            else
+            {
+                $element::<$constitutive_model>::calculate_basis(
+                    &get_reference_coordinates().convert()
+                )
+            }
+        }
+        fn get_dual_basis(is_deformed: bool) -> Basis<0>
+        {
+            if is_deformed
+            {
+                $element::<$constitutive_model>::calculate_dual_basis(
+                    &get_coordinates().convert()
+                )
+            }
+            else
+            {
+                $element::<$constitutive_model>::calculate_dual_basis(
+                    &get_reference_coordinates()
+                )
+            }
+        }
+        fn get_normal(is_deformed: bool, is_transformed: bool) -> Normal<1>
+        {
+            if is_transformed
+            {
+                if is_deformed
+                {
+                    $element::<$constitutive_model>::calculate_normal(
+                        &(get_rotation_current_configuration() * get_coordinates())
+                    )
+                }
+                else
+                {
+                    $element::<$constitutive_model>::calculate_normal(
+                        &(get_rotation_reference_configuration() * get_reference_coordinates()).convert()
+                    )
+                }
+            }
+            else
+            {
+                if is_deformed
+                {
+                    $element::<$constitutive_model>::calculate_normal(
+                        &get_coordinates()
+                    )
+                }
+                else
+                {
+                    $element::<$constitutive_model>::calculate_normal(
+                        &get_reference_coordinates().convert()
+                    )
+                }
+            }
+        }
+        fn get_normal_rate(is_deformed: bool, is_transformed: bool) -> NormalRate
+        {
+            if is_transformed
+            {
+                if is_deformed
+                {
+                    $element::<$constitutive_model>::calculate_normal_rate(
+                        &(get_rotation_current_configuration() * get_coordinates()),
+                        &(get_rotation_current_configuration() * get_velocities() + get_rotation_rate_current_configuration() * get_coordinates())
+                    )
+                }
+                else
+                {
+                    $element::<$constitutive_model>::calculate_normal_rate(
+                        &(get_rotation_reference_configuration() * get_reference_coordinates()).convert(),
+                        &NodalVelocities::zero()
+                    )
+                }
+            }
+            else
+            {
+                if is_deformed
+                {
+                    $element::<$constitutive_model>::calculate_normal_rate(
+                        &get_coordinates(),
+                        &get_velocities()
+                    )
+                }
+                else
+                {
+                    $element::<$constitutive_model>::calculate_normal_rate(
+                        &get_reference_coordinates().convert(),
+                        &NodalVelocities::zero()
+                    )
+                }
+            }
+        }
+        fn get_normal_rate_from_finite_difference() -> Normal<1>
+        {
+            let mut finite_difference = 0.0;
+            (0..3).map(|i|
+                get_velocities().iter().enumerate()
+                .map(|(a, velocity_a)|
+                    velocity_a.iter().enumerate()
+                    .map(|(k, velocity_a_k)|{
+                        let mut coordinates = get_coordinates();
+                        coordinates[a][k] += 0.5 * EPSILON;
+                        finite_difference = $element::<$constitutive_model>::calculate_normal(
+                            &coordinates
+                        )[i];
+                        coordinates[a][k] -= EPSILON;
+                        finite_difference -= $element::<$constitutive_model>::calculate_normal(
+                            &coordinates
+                        )[i];
+                        finite_difference/EPSILON * velocity_a_k
+                    }).sum::<Scalar>()
+                ).sum()
+            ).collect()
+        }
+    }
+}
+pub(crate) use setup_for_test_linear_surface_element_with_constitutive_model;
+
 macro_rules! test_linear_surface_element_with_constitutive_model
 {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
     {
+        fn get_element<'a>() -> $element<$constitutive_model<'a>>
+        {
+            $element::new(
+                $constitutive_model_parameters,
+                get_reference_coordinates()
+            )
+        }
+        fn get_element_transformed<'a>() -> $element<$constitutive_model<'a>>
+        {
+            $element::<$constitutive_model>::new
+            (
+                $constitutive_model_parameters,
+                get_reference_coordinates_transformed()
+            )
+        }
+        setup_for_test_linear_surface_element_with_constitutive_model!($element, $constitutive_model, $constitutive_model_parameters);
+        mod basis
+        {
+            use super::*;
+            mod deformed
+            {
+                #[test]
+                fn objectivity()
+                {
+                    todo!()
+                }
+            }
+            mod undeformed
+            {
+                #[test]
+                fn objectivity()
+                {
+                    todo!()
+                }
+            }
+        }
+        mod dual_basis
+        {
+            use super::*;
+            mod deformed
+            {
+                #[test]
+                fn basis()
+                {
+                    todo!("test g_m g^n = delta_m^n")
+                }
+                #[test]
+                fn objectivity()
+                {
+                    todo!()
+                }
+            }
+            mod undeformed
+            {
+                #[test]
+                fn basis()
+                {
+                    todo!("test G_m G^n = delta_m^n")
+                }
+                #[test]
+                fn objectivity()
+                {
+                    todo!()
+                }
+            }
+        }
         mod normal
         {
             use super::*;
@@ -68,12 +356,33 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                 #[test]
                 fn normal()
                 {
-                    todo!("normal to surface basis")
+                    let basis = get_basis(true);
+                    let normal = get_normal(true, false);
+                    assert_eq_within_tols(
+                        &(&basis[0] * &normal), &0.0
+                    );
+                    assert_eq_within_tols(
+                        &(&basis[1] * &normal), &0.0
+                    );
+                }
+                #[test]
+                fn normalized()
+                {
+                    assert_eq_within_tols(
+                        &get_normal(true, false).norm(), &1.0
+                    )
                 }
                 #[test]
                 fn objectivity()
                 {
-                    todo!()
+                    get_normal(true, false).iter()
+                    .zip((
+                        get_rotation_current_configuration().transpose() *
+                        get_normal(true, true)
+                    ).iter())
+                    .for_each(|(normal_i, res_normal_i)|
+                        assert_eq_within_tols(normal_i, res_normal_i)
+                    )
                 }
             }
             mod undeformed
@@ -87,12 +396,33 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                 #[test]
                 fn normal()
                 {
-                    todo!()
+                    let basis = get_basis(false);
+                    let normal = get_normal(false, false);
+                    assert_eq_within_tols(
+                        &(&basis[0] * &normal), &0.0
+                    );
+                    assert_eq_within_tols(
+                        &(&basis[1] * &normal), &0.0
+                    );
+                }
+                #[test]
+                fn normalized()
+                {
+                    assert_eq_within_tols(
+                        &get_normal(false, false).norm(), &1.0
+                    )
                 }
                 #[test]
                 fn objectivity()
                 {
-                    todo!()
+                    get_normal(false, false).iter()
+                    .zip((
+                        get_rotation_reference_configuration().transpose() *
+                        get_normal(false, true).convert()
+                    ).iter())
+                    .for_each(|(normal_i, res_normal_i)|
+                        assert_eq_within_tols(normal_i, res_normal_i)
+                    )
                 }
             }
         }
@@ -125,7 +455,7 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                 #[test]
                 fn finite_difference()
                 {
-                    get_normal_rate(true).iter()
+                    get_normal_rate(true, false).iter()
                     .zip(get_normal_rate_from_finite_difference().iter())
                     .for_each(|(normal_rate_i, fd_normal_rate_i)|
                         assert!(
@@ -136,7 +466,16 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    todo!()
+                    get_normal_rate(true, false).iter()
+                    .zip((
+                        get_rotation_current_configuration().transpose() *
+                        get_normal_rate(true, true) + 
+                        get_rotation_rate_current_configuration().transpose() *
+                        get_normal(true, true)
+                    ).iter())
+                    .for_each(|(normal_rate_i, res_normal_rate_i)|
+                        assert_eq_within_tols(normal_rate_i, res_normal_rate_i)
+                    )
                 }
             }
             mod undeformed
@@ -145,7 +484,7 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                 #[test]
                 fn finite_difference()
                 {
-                    get_normal_rate(false).iter()
+                    get_normal_rate(false, false).iter()
                     .zip(get_normal_rate_from_finite_difference().iter())
                     .for_each(|(normal_rate_i, fd_normal_rate_i)|
                         assert!(
@@ -157,40 +496,43 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    todo!()
+                    get_normal_rate(false, false).iter()
+                    .zip((
+                        get_rotation_reference_configuration().transpose() *
+                        get_normal_rate(false, true).convert()
+                    ).iter())
+                    .for_each(|(normal_rate_i, res_normal_rate_i)|
+                        assert_eq_within_tols(normal_rate_i, res_normal_rate_i)
+                    )
                 }
             }
         }
         mod reference_normal
         {
             use super::*;
-            mod deformed
+            #[test]
+            fn normal()
             {
-                use super::*;
-                #[test]
-                fn normal()
-                {
-                    todo!()
-                }
-                #[test]
-                fn objectivity()
-                {
-                    todo!()
-                }
+                let basis = get_dual_basis(false);
+                let element = get_element();
+                assert_eq_within_tols(
+                    &(&basis[0] * element.get_reference_normal()), &0.0
+                );
+                assert_eq_within_tols(
+                    &(&basis[1] * element.get_reference_normal()), &0.0
+                );
             }
-            mod undeformed
+            #[test]
+            fn objectivity()
             {
-                use super::*;
-                #[test]
-                fn normal()
-                {
-                    todo!()
-                }
-                #[test]
-                fn objectivity()
-                {
-                    todo!()
-                }
+                get_element().get_reference_normal().iter()
+                .zip((
+                    get_rotation_reference_configuration().transpose() *
+                    get_element_transformed().get_reference_normal()
+                ).iter())
+                .for_each(|(normal_i, res_normal_i)|
+                    assert_eq_within_tols(normal_i, res_normal_i)
+                )
             }
         }
     }

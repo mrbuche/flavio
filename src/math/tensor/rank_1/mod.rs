@@ -19,6 +19,7 @@ use std::ops::
 
 use super::
 {
+    Convert,
     rank_0::TensorRank0
 };
 
@@ -121,6 +122,16 @@ impl<const D: usize, const I: usize> TensorRank1Trait<D, I> for TensorRank1<D, I
     fn zero() -> Self
     {
         Self([0.0; D])
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize> Convert<TensorRank1<D, J>> for TensorRank1<D, I>
+{
+    fn convert(&self) -> TensorRank1<D, J>
+    {
+        self.iter().map(|self_i|
+            *self_i
+        ).collect()
     }
 }
 
