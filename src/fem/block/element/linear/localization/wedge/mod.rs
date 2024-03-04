@@ -114,19 +114,27 @@ where
 {
     fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
     {
-        self.calculate_nodal_forces_linear_surface_element(nodal_coordinates)
-        // let first_piola_kirchoff_stress = self.get_constitutive_models()[0]
-        // .calculate_first_piola_kirchoff_stress(
-        //     &self.calculate_deformation_gradient(nodal_coordinates)
-        // );
-        // self.get_gradient_vectors().iter()
-        // .zip(Self::calculate_normal_gradients(
-        //     &Self::calculate_midplane(nodal_coordinates)
-        // ).iter()) this is only for half of a (is O) so need to get twice?
-        // .map(|(gradient_vector_a, normal_gradient_a)|
-        //     &first_piola_kirchoff_stress * gradient_vector_a +
-        //     normal_gradient_a * (&first_piola_kirchoff_stress * self.get_reference_normal())
-        // ).collect()
+        // self.calculate_nodal_forces_linear_surface_element(nodal_coordinates)
+
+        let first_piola_kirchoff_stress = self.get_constitutive_models()[0]
+        .calculate_first_piola_kirchoff_stress(
+            &self.calculate_deformation_gradient(nodal_coordinates)
+        );
+        let normal_gradients = Self::calculate_normal_gradients(
+            &Self::calculate_midplane(nodal_coordinates)
+        );
+        let traction = &first_piola_kirchoff_stress * self.get_reference_normal();
+        self.get_gradient_vectors().iter()
+        .zip(normal_gradients.iter().chain(normal_gradients.iter()))
+        .map(|(gradient_vector_a, normal_gradient_a)|
+            &first_piola_kirchoff_stress * gradient_vector_a + normal_gradient_a * &traction
+        ).collect()
+
+        // dummy convert wont work because standard grad operator in calculation is O
+        // thats why trying to use chain...
+
+
+        // TODO!!! need to achieve separation in element tests to actually see if tests like FD of a(F) pass or not
     }
     fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
     {

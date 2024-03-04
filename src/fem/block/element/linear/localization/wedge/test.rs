@@ -261,6 +261,7 @@ fn temporary_4()
             assert!(
                 (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON
             )
+            // println!("{:?}", (nodal_force_i, fd_nodal_force_i))
         )
     )
 }

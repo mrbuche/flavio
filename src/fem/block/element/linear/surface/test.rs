@@ -245,6 +245,67 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 }
             }
         }
+        fn get_normal_gradients(is_deformed: bool, is_transformed: bool) -> NormalGradients<O>
+        {
+            if is_transformed
+            {
+                if is_deformed
+                {
+                    $element::<$constitutive_model>::calculate_normal_gradients(
+                        &(get_rotation_current_configuration() * get_coordinates())
+                    )
+                }
+                else
+                {
+                    $element::<$constitutive_model>::calculate_normal_gradients(
+                        &(get_rotation_reference_configuration() * get_reference_coordinates()).convert()
+                    )
+                }
+            }
+            else
+            {
+                if is_deformed
+                {
+                    $element::<$constitutive_model>::calculate_normal_gradients(
+                        &get_coordinates()
+                    )
+                }
+                else
+                {
+                    $element::<$constitutive_model>::calculate_normal_gradients(
+                        &get_reference_coordinates().convert()
+                    )
+                }
+            }
+        }
+        fn get_normal_gradients_from_finite_difference(is_deformed: bool) -> NormalGradients<O>
+        {
+            let mut finite_difference = 0.0;
+            (0..O).map(|a|
+                (0..3).map(|i|
+                    (0..3).map(|j|{
+                        let mut nodal_coordinates = 
+                        if is_deformed
+                        {
+                            get_coordinates()
+                        }
+                        else
+                        {
+                            get_reference_coordinates().convert()
+                        };
+                        nodal_coordinates[a][i] += 0.5 * EPSILON;
+                        finite_difference = $element::<$constitutive_model>::calculate_normal(
+                            &nodal_coordinates
+                        )[j];
+                        nodal_coordinates[a][i] -= EPSILON;
+                        finite_difference -= $element::<$constitutive_model>::calculate_normal(
+                            &nodal_coordinates
+                        )[j];
+                        finite_difference/EPSILON
+                    }).collect()
+                ).collect()
+            ).collect()
+        }
         fn get_normal_rate(is_deformed: bool, is_transformed: bool) -> NormalRate
         {
             if is_transformed
@@ -282,7 +343,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 }
             }
         }
-        fn get_normal_rate_from_finite_difference() -> Normal<1>
+        fn get_normal_rate_from_finite_difference(is_deformed: bool) -> Normal<1>
         {
             let mut finite_difference = 0.0;
             (0..3).map(|i|
@@ -290,14 +351,22 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 .map(|(a, velocity_a)|
                     velocity_a.iter().enumerate()
                     .map(|(k, velocity_a_k)|{
-                        let mut coordinates = get_coordinates();
-                        coordinates[a][k] += 0.5 * EPSILON;
+                        let mut nodal_coordinates = 
+                        if is_deformed
+                        {
+                            get_coordinates()
+                        }
+                        else
+                        {
+                            get_reference_coordinates().convert()
+                        };
+                        nodal_coordinates[a][k] += 0.5 * EPSILON;
                         finite_difference = $element::<$constitutive_model>::calculate_normal(
-                            &coordinates
+                            &nodal_coordinates
                         )[i];
-                        coordinates[a][k] -= EPSILON;
+                        nodal_coordinates[a][k] -= EPSILON;
                         finite_difference -= $element::<$constitutive_model>::calculate_normal(
-                            &coordinates
+                            &nodal_coordinates
                         )[i];
                         finite_difference/EPSILON * velocity_a_k
                     }).sum::<Scalar>()
@@ -457,7 +526,21 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                 #[test]
                 fn finite_difference()
                 {
-                    todo!("test the normal gradients")
+                    get_normal_gradients(true, false).iter()
+                    .zip(get_normal_gradients_from_finite_difference(true).iter())
+                    .for_each(|(normal_gradient_a, fd_normal_gradient_a)|
+                        normal_gradient_a.iter()
+                        .zip(fd_normal_gradient_a.iter())
+                        .for_each(|(normal_gradient_a_i, fd_normal_gradient_a_i)|
+                            normal_gradient_a_i.iter()
+                            .zip(fd_normal_gradient_a_i.iter())
+                            .for_each(|(normal_gradient_a_i_j, fd_normal_gradient_a_i_j)|
+                                assert!(
+                                    (normal_gradient_a_i_j/fd_normal_gradient_a_i_j - 1.0).abs() < EPSILON
+                                )
+                            )
+                        )
+                    )
                 }
                 #[test]
                 fn normal()
@@ -497,7 +580,22 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                 #[test]
                 fn finite_difference()
                 {
-                    todo!()
+                    get_normal_gradients(true, false).iter()
+                    .zip(get_normal_gradients_from_finite_difference(true).iter())
+                    .for_each(|(normal_gradient_a, fd_normal_gradient_a)|
+                        normal_gradient_a.iter()
+                        .zip(fd_normal_gradient_a.iter())
+                        .for_each(|(normal_gradient_a_i, fd_normal_gradient_a_i)|
+                            normal_gradient_a_i.iter()
+                            .zip(fd_normal_gradient_a_i.iter())
+                            .for_each(|(normal_gradient_a_i_j, fd_normal_gradient_a_i_j)|
+                                assert!(
+                                    (normal_gradient_a_i_j/fd_normal_gradient_a_i_j - 1.0).abs() < EPSILON ||
+                                    normal_gradient_a_i_j.abs() < EPSILON
+                                )
+                            )
+                        )
+                    )
                 }
                 #[test]
                 fn normal()
@@ -541,7 +639,23 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    todo!()
+                    get_normal_gradients(true, false).iter()
+                    .zip(get_normal_gradients(true, true).iter())
+                    .for_each(|(normal_gradient_a, res_normal_gradient_a)|
+                        normal_gradient_a.iter()
+                        .zip((
+                            get_rotation_current_configuration().transpose() *
+                            res_normal_gradient_a *
+                            get_rotation_current_configuration()
+                        ).iter())
+                        .for_each(|(normal_gradient_a_i, res_normal_gradient_a_i)|
+                            normal_gradient_a_i.iter()
+                            .zip(res_normal_gradient_a_i.iter())
+                            .for_each(|(normal_gradient_a_i_j, res_normal_gradient_a_i_j)|
+                                assert_eq_within_tols(normal_gradient_a_i_j, res_normal_gradient_a_i_j)
+                            )
+                        )
+                    )
                 }
             }
             mod undeformed
@@ -550,7 +664,23 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    todo!()
+                    get_normal_gradients(false, false).iter()
+                    .zip(get_normal_gradients(false, true).iter())
+                    .for_each(|(normal_gradient_a, res_normal_gradient_a)|
+                        normal_gradient_a.iter()
+                        .zip((
+                            get_rotation_reference_configuration().transpose() *
+                            res_normal_gradient_a.convert() *
+                            get_rotation_reference_configuration()
+                        ).iter())
+                        .for_each(|(normal_gradient_a_i, res_normal_gradient_a_i)|
+                            normal_gradient_a_i.iter()
+                            .zip(res_normal_gradient_a_i.iter())
+                            .for_each(|(normal_gradient_a_i_j, res_normal_gradient_a_i_j)|
+                                assert_eq_within_tols(normal_gradient_a_i_j, res_normal_gradient_a_i_j)
+                            )
+                        )
+                    )
                 }
             }
         }
@@ -564,7 +694,7 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                 fn finite_difference()
                 {
                     get_normal_rate(true, false).iter()
-                    .zip(get_normal_rate_from_finite_difference().iter())
+                    .zip(get_normal_rate_from_finite_difference(true).iter())
                     .for_each(|(normal_rate_i, fd_normal_rate_i)|
                         assert!(
                             (normal_rate_i/fd_normal_rate_i - 1.0).abs() < EPSILON
@@ -593,7 +723,7 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                 fn finite_difference()
                 {
                     get_normal_rate(false, false).iter()
-                    .zip(get_normal_rate_from_finite_difference().iter())
+                    .zip(get_normal_rate_from_finite_difference(false).iter())
                     .for_each(|(normal_rate_i, fd_normal_rate_i)|
                         assert!(
                             (normal_rate_i/fd_normal_rate_i - 1.0).abs() < EPSILON ||

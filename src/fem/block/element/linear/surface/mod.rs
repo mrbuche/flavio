@@ -83,7 +83,7 @@ where
         let basis_vectors = Self::calculate_basis(nodal_coordinates);
         basis_vectors[0].cross(&basis_vectors[1]).normalized()
     }
-    fn calculate_normal_gradients(nodal_coordinates: &Coordinates<1, O>) -> NormalGradients<N>
+    fn calculate_normal_gradients(nodal_coordinates: &Coordinates<1, O>) -> NormalGradients<O>
     {
         let basis_vectors = Self::calculate_basis(nodal_coordinates);
         let levi_civita_symbol = levi_civita::<1, 1, 1>();
@@ -169,6 +169,7 @@ where
         // .calculate_first_piola_kirchoff_stress(
         //     &self.calculate_deformation_gradient(nodal_coordinates)
         // );
+        // let traction = first_piola_kirchoff_stress * self.get_reference_normal();
         // self.get_gradient_vectors().iter()
         // .zip(Self::calculate_normal_gradients(
         //     &Self::dummy_convert(nodal_coordinates)
