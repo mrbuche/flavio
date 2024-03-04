@@ -108,4 +108,30 @@ where
     }
 }
 
+impl<'a, C> ElasticFiniteElement<'a, C, G, N> for Wedge<C>
+where
+    C: Elastic<'a>
+{
+    fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
+    {
+        self.calculate_nodal_forces_linear_surface_element(nodal_coordinates)
+        // let first_piola_kirchoff_stress = self.get_constitutive_models()[0]
+        // .calculate_first_piola_kirchoff_stress(
+        //     &self.calculate_deformation_gradient(nodal_coordinates)
+        // );
+        // self.get_gradient_vectors().iter()
+        // .zip(Self::calculate_normal_gradients(
+        //     &Self::calculate_midplane(nodal_coordinates)
+        // ).iter()) this is only for half of a (is O) so need to get twice?
+        // .map(|(gradient_vector_a, normal_gradient_a)|
+        //     &first_piola_kirchoff_stress * gradient_vector_a +
+        //     normal_gradient_a * (&first_piola_kirchoff_stress * self.get_reference_normal())
+        // ).collect()
+    }
+    fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
+    {
+        self.calculate_nodal_stiffnesses_linear_surface_element(nodal_coordinates)
+    }
+}
+
 super::linear_surface_element_boilerplate!(Wedge);
