@@ -277,9 +277,3 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
     }
 }
 pub(crate) use setup_for_test_linear_surface_element_with_constitutive_model;
-
-#[test]
-fn test_localization_specifics()
-{
-    todo!()
-}

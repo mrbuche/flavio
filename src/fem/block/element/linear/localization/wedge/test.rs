@@ -24,7 +24,3 @@ fn do_block()
 {
     todo!()
 }
-
-// should use random ref/curr coords for element/block tests
-
-// maybe go back to CurrentNodalCoordinates and stuff and call Coordinates<I> NodalCoordinates<I>
