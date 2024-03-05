@@ -1,6 +1,9 @@
 #[cfg(test)]
 mod test;
 
+pub mod list;
+pub mod list_2d;
+
 use std::ops::
 {
     Add,

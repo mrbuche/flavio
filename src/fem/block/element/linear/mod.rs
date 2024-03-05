@@ -11,6 +11,7 @@ type Basis<const I: usize> = Vectors<I, 2>;
 type GradientVectors<const N: usize> = Vectors<0, N>;
 type Normal<const I: usize> = Vector<I>;
 type NormalGradients<const O: usize> = TensorRank2List<3, 1, 1, O>;
+type NormalTangents<const O: usize> = TensorRank3List2D<3, 1, 1, 1, O>;
 type NormalRate = Vector<1>;
 type ReferenceNormal = Vector<0>;
 type StandardGradientOperator<const M: usize, const O: usize> = TensorRank1List<M, 9, O>;
@@ -71,6 +72,8 @@ where
                 .contract_second_fourth_indices_with_first_indices_of(
                     gradient_vector_b, gradient_vector_a
                 ).transpose()
+                // think you can avoid transpose and maybe permutation if you get the order right in the FD function for test?
+                // similar questions about FD functions in normal gradients testing, observed when trying to write FD for normal tangents testing
             ).collect()
         ).collect()
     }

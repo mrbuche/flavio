@@ -60,6 +60,7 @@ use crate::
         TensorRank2List,
         TensorRank2Trait,
         TensorRank2List2DTrait,
+        TensorRank3List2D,
         levi_civita
     },
     mechanics::

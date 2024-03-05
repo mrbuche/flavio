@@ -373,6 +373,30 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 ).sum()
             ).collect()
         }
+        fn get_normal_tangents_from_finite_difference(is_deformed: bool) -> NormalTangents<O>
+        {
+            let mut finite_difference = 0.0;
+            (0..O).map(|a|
+                (0..O).map(|b|
+                    (0..3).map(|i|
+                        (0..3).map(|m|
+                            (0..3).map(|n|{
+                                let mut nodal_coordinates = 
+                                if is_deformed
+                                {
+                                    get_coordinates()
+                                }
+                                else
+                                {
+                                    get_reference_coordinates().convert()
+                                };
+                                todo!()
+                            }).collect()
+                        ).collect()
+                    ).collect()
+                ).collect()
+            ).collect()
+        }
     }
 }
 pub(crate) use setup_for_test_linear_surface_element_with_constitutive_model;
@@ -743,6 +767,14 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                         assert_eq_within_tols(normal_rate_i, res_normal_rate_i)
                     )
                 }
+            }
+        }
+        mod normal_tangents
+        {
+            #[test]
+            fn todo()
+            {
+                todo!()
             }
         }
         mod reference_normal

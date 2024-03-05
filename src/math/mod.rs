@@ -46,7 +46,17 @@ pub use tensor::
     {
         TensorRank3,
         TensorRank3Trait,
-        levi_civita
+        levi_civita,
+        list::
+        {
+            TensorRank3List,
+            TensorRank3ListTrait
+        },
+        list_2d::
+        {
+            TensorRank3List2D,
+            TensorRank3List2DTrait
+        }
     },
     rank_4::
     {

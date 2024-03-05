@@ -98,14 +98,18 @@ where
                 .zip(normal_vector.iter())
                 .map(|(identity_i, normal_vector_i)|
                     levi_civita_symbol_m.iter()
-                    .zip(basis_vectors[0].iter().zip(basis_vectors[1].iter()))
+                    .zip(basis_vectors[0].iter()
+                    .zip(basis_vectors[1].iter()))
                     .map(|(levi_civita_symbol_mn, (basis_vector_0_n, basis_vector_1_n))|
                         levi_civita_symbol_mn.iter()
-                        .zip(identity_i.iter().zip(normal_vector.iter()))
+                        .zip(identity_i.iter()
+                        .zip(normal_vector.iter()))
                         .map(|(levi_civita_symbol_mno, (identity_io, normal_vector_o))|
                             levi_civita_symbol_mno*(identity_io - normal_vector_i*normal_vector_o)
-                        ).sum::<Scalar>()*(standard_gradient_operator_a[0]*basis_vector_1_n
-                                         - standard_gradient_operator_a[1]*basis_vector_0_n)
+                        ).sum::<Scalar>()*(
+                            standard_gradient_operator_a[0]*basis_vector_1_n
+                          - standard_gradient_operator_a[1]*basis_vector_0_n
+                        )
                     ).sum::<Scalar>()/normalization
                 ).collect()
             ).collect()
@@ -128,17 +132,74 @@ where
                 .zip(nodal_velocity_a.iter())
                 .map(|(levi_civita_symbol_m, nodal_velocity_a_m)|
                     levi_civita_symbol_m.iter()
-                    .zip(basis_vectors[0].iter().zip(basis_vectors[1].iter()))
+                    .zip(basis_vectors[0].iter()
+                    .zip(basis_vectors[1].iter()))
                     .map(|(levi_civita_symbol_mn, (basis_vector_0_n, basis_vector_1_n))|
                         levi_civita_symbol_mn.iter()
-                        .zip(identity_i.iter().zip(normal_vector.iter()))
+                        .zip(identity_i.iter()
+                        .zip(normal_vector.iter()))
                         .map(|(levi_civita_symbol_mno, (identity_io, normal_vector_o))|
                             levi_civita_symbol_mno*(identity_io - normal_vector_i*normal_vector_o)
-                        ).sum::<Scalar>()*(standard_gradient_operator_a[0]*basis_vector_1_n
-                                         - standard_gradient_operator_a[1]*basis_vector_0_n)
+                        ).sum::<Scalar>()*(
+                            standard_gradient_operator_a[0]*basis_vector_1_n
+                          - standard_gradient_operator_a[1]*basis_vector_0_n
+                        )
                     ).sum::<Scalar>()*nodal_velocity_a_m
                 ).sum::<Scalar>()
             ).sum::<Scalar>()/normalization
+        ).collect()
+    }
+    fn calculate_normal_tangents(nodal_coordinates: &Coordinates<1, O>) -> NormalTangents<O>
+    {
+        let basis_vectors = Self::calculate_basis(nodal_coordinates);
+        let levi_civita_symbol = levi_civita::<1, 1, 1>();
+        let normalization = basis_vectors[0].cross(&basis_vectors[1]).norm();
+        let normal_vector = basis_vectors[0].cross(&basis_vectors[1])/normalization;
+        let standard_gradient_operator = Self::calculate_standard_gradient_operator();
+        let identity = TensorRank2::<3, 1, 1>::identity();
+        let normal_gradients = Self::calculate_normal_gradients(nodal_coordinates);
+        normal_gradients.iter()
+        .zip(standard_gradient_operator.iter())
+        .map(|(normal_gradient_a, standard_gradient_operator_a)|
+            normal_gradients.iter()
+            .map(|normal_gradient_b|
+                normal_gradient_a.iter()
+                .zip(levi_civita_symbol.iter())
+                .map(|(normal_gradient_a_m, levi_civita_symbol_m)|
+                    normal_gradient_b.iter()
+                    .map(|normal_gradient_b_n|
+                        normal_gradient_a_m.iter()
+                        .zip(normal_gradient_b_n.iter()
+                        .zip(identity.iter()
+                        .zip(normal_vector.iter())))
+                        .map(|(normal_gradient_a_m_i, (normal_gradient_b_n_i, (identity_i, normal_vector_i)))|
+                            levi_civita_symbol_m.iter()
+                            .zip(basis_vectors[0].iter()
+                            .zip(basis_vectors[1].iter()))
+                            .map(|(levi_civita_symbol_mr, (basis_vector_0_r, basis_vector_1_r))|
+                                levi_civita_symbol_mr.iter()
+                                .zip(identity_i.iter()
+                                .zip(normal_vector.iter()
+                                .zip(normal_gradient_b_n.iter()
+                                )))
+                                .map(|(levi_civita_symbol_mrs, (identity_is, (normal_vector_s, normal_gradient_b_n_s)))|
+                                    levi_civita_symbol_mrs*(identity_is - normal_vector_i*normal_vector_s)*(
+                                        normal_gradient_b_n_i * normal_vector_s
+                                      + normal_gradient_b_n_s * normal_vector_i
+                                    )
+                                ).sum::<Scalar>()*(
+                                    standard_gradient_operator_a[0]*basis_vector_1_r
+                                  - standard_gradient_operator_a[1]*basis_vector_0_r
+                                ) - normal_vector.iter()
+                                .zip(normal_gradient_b_n.iter())
+                                .map(|(normal_vector_r, normal_gradient_b_n_r)|
+                                    normal_vector_r * normal_gradient_b_n_r * normal_gradient_a_m_i
+                                ).sum::<Scalar>()
+                            ).sum::<Scalar>()/normalization
+                        ).collect()
+                    ).collect()
+                ).collect()
+            ).collect()
         ).collect()
     }
     fn get_reference_normal(&self) -> &ReferenceNormal;
