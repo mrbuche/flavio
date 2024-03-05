@@ -167,6 +167,19 @@ macro_rules! linear_element_boilerplate
 {
     ($element: ident) =>
     {
+        impl<'a, C> ElasticFiniteElement<'a, C, G, N> for $element<C>
+        where
+            C: Elastic<'a>
+        {
+            fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
+            {
+                self.calculate_nodal_forces_linear_element(nodal_coordinates)
+            }
+            fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
+            {
+                self.calculate_nodal_stiffnesses_linear_element(nodal_coordinates)
+            }
+        }
         impl<'a, C> ElasticLinearElement<'a, C, G, M, N, O> for $element<C>
         where
             C: Elastic<'a>

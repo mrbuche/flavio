@@ -68,18 +68,4 @@ where
     }
 }
 
-impl<'a, C> ElasticFiniteElement<'a, C, G, N> for Triangle<C>
-where
-    C: Elastic<'a>
-{
-    fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
-    {
-        self.calculate_nodal_forces_linear_surface_element(nodal_coordinates)
-    }
-    fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
-    {
-        self.calculate_nodal_stiffnesses_linear_surface_element(nodal_coordinates)
-    }
-}
-
 super::linear_surface_element_boilerplate!(Triangle);

@@ -141,68 +141,13 @@ where
             ).sum::<Scalar>()/normalization
         ).collect()
     }
-    // fn dummy_convert<const I: usize>(nodal_coordinates: &Coordinates<I, N>) -> Coordinates<I, O>
-    // {
-    //     nodal_coordinates.iter()
-    //     .map(|nodal_coordinate|
-    //         nodal_coordinate.iter().copied().collect()
-    //     ).collect()
-    // }
     fn get_reference_normal(&self) -> &ReferenceNormal;
-}
-
-pub trait ElasticLinearSurfaceElement<'a, C, const G: usize, const M: usize, const N: usize, const O: usize>
-where
-    C: Elastic<'a>,
-    Self: LinearSurfaceElement<'a, C, G, M, N, O>
-{
-    fn calculate_nodal_forces_linear_surface_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
-    {
-        let first_piola_kirchoff_stress = self.get_constitutive_models()[0]
-        .calculate_first_piola_kirchoff_stress(
-            &self.calculate_deformation_gradient(nodal_coordinates)
-        );
-        self.get_gradient_vectors().iter().map(|gradient_vector|
-            &first_piola_kirchoff_stress * gradient_vector
-        ).collect()
-        // let first_piola_kirchoff_stress = self.get_constitutive_models()[0]
-        // .calculate_first_piola_kirchoff_stress(
-        //     &self.calculate_deformation_gradient(nodal_coordinates)
-        // );
-        // let traction = first_piola_kirchoff_stress * self.get_reference_normal();
-        // self.get_gradient_vectors().iter()
-        // .zip(Self::calculate_normal_gradients(
-        //     &Self::dummy_convert(nodal_coordinates)
-        // ).iter())
-        // .map(|(gradient_vector_a, normal_gradient_a)|
-        //     &first_piola_kirchoff_stress * gradient_vector_a +
-        //     normal_gradient_a * (&first_piola_kirchoff_stress * self.get_reference_normal())
-        // ).collect()
-    }
-    fn calculate_nodal_stiffnesses_linear_surface_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
-    {
-        let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_models()[0]
-        .calculate_first_piola_kirchoff_tangent_stiffness(
-            &self.calculate_deformation_gradient(nodal_coordinates)
-        );
-        self.get_gradient_vectors().iter()
-        .map(|gradient_vector_a|
-            self.get_gradient_vectors().iter()
-            .map(|gradient_vector_b|
-                first_piola_kirchoff_tangent_stiffness
-                .contract_second_fourth_indices_with_first_indices_of(
-                    gradient_vector_b, gradient_vector_a
-                ).transpose()
-            ).collect()
-        ).collect()
-    }
 }
 
 macro_rules! linear_surface_element_boilerplate
 {
     ($element: ident) =>
     {
-        crate::fem::block::element::linear::linear_element_boilerplate!($element);
         impl<'a, C> LinearSurfaceElement<'a, C, G, M, N, O> for $element<C>
         where
             C: Constitutive<'a>
@@ -212,9 +157,82 @@ macro_rules! linear_surface_element_boilerplate
                 &self.reference_normal
             }
         }
-        impl<'a, C> ElasticLinearSurfaceElement<'a, C, G, M, N, O> for $element<C>
+        impl<'a, C> ElasticFiniteElement<'a, C, G, N> for $element<C>
         where
             C: Elastic<'a>
+        {
+            fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
+            {
+                self.calculate_nodal_forces_linear_element(nodal_coordinates)
+            }
+            fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
+            {
+                self.calculate_nodal_stiffnesses_linear_element(nodal_coordinates)
+            }
+        }
+        impl<'a, C> ElasticLinearElement<'a, C, G, M, N, O> for $element<C>
+        where
+            C: Elastic<'a>
+        {}
+        impl<'a, C> HyperelasticFiniteElement<'a, C, G, N> for $element<C>
+        where
+            C: Hyperelastic<'a>
+        {
+            fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
+            {
+                self.calculate_helmholtz_free_energy_linear_element(nodal_coordinates)
+            }
+        }
+        impl<'a, C> HyperelasticLinearElement<'a, C, G, M, N, O> for $element<C>
+        where
+            C: Hyperelastic<'a>
+        {}
+        impl<'a, C> ViscoelasticFiniteElement<'a, C, G, N> for $element<C>
+        where
+            C: Viscoelastic<'a>
+        {
+            fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalForces<N>
+            {
+                self.calculate_nodal_forces_linear_element(nodal_coordinates, nodal_velocities)
+            }
+            fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalStiffnesses<N>
+            {
+                self.calculate_nodal_stiffnesses_linear_element(nodal_coordinates, nodal_velocities)
+            }
+        }
+        impl<'a, C> ViscoelasticLinearElement<'a, C, G, M, N, O> for $element<C>
+        where
+            C: Viscoelastic<'a>
+        {}
+        impl<'a, C> ElasticHyperviscousFiniteElement<'a, C, G, N> for $element<C>
+        where
+            C: ElasticHyperviscous<'a>
+        {
+            fn calculate_viscous_dissipation(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> Scalar
+            {
+                self.calculate_viscous_dissipation_linear_element(nodal_coordinates, nodal_velocities)
+            }
+            fn calculate_dissipation_potential(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> Scalar
+            {
+                self.calculate_dissipation_potential_linear_element(nodal_coordinates, nodal_velocities)
+            }
+        }
+        impl<'a, C> ElasticHyperviscousLinearElement<'a, C, G, M, N, O> for $element<C>
+        where
+            C: ElasticHyperviscous<'a>
+        {}
+        impl<'a, C> HyperviscoelasticFiniteElement<'a, C, G, N> for $element<C>
+        where
+            C: Hyperviscoelastic<'a>
+        {
+            fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
+            {
+                self.calculate_helmholtz_free_energy_linear_element(nodal_coordinates)
+            }
+        }
+        impl<'a, C> HyperviscoelasticLinearElement<'a, C, G, M, N, O> for $element<C>
+        where
+            C: Hyperviscoelastic<'a>
         {}
     }
 }

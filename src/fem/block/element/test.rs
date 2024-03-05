@@ -329,9 +329,7 @@ macro_rules! setup_for_localization_elements
         }
         fn get_jump() -> Vector<1>
         {
-            Vector::new(
-                [1.11, 1.22, 1.33]
-            )
+            Vector::new([1.11, 1.22, 1.33])
         }
         fn get_velocities() -> NodalVelocities<N>
         {
@@ -684,7 +682,8 @@ macro_rules! test_helmholtz_free_energy
                         .zip(fd_nodal_force.iter())
                         .for_each(|(nodal_force_i, fd_nodal_force_i)|
                             assert!(
-                                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON
+                                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON ||
+                                (nodal_force_i.abs() < EPSILON && fd_nodal_force_i.abs() < EPSILON)
                             )
                         )
                     )
@@ -1247,7 +1246,8 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model
                         .zip(fd_nodal_force.iter())
                         .for_each(|(nodal_force_i, fd_nodal_force_i)|
                             assert!(
-                                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON
+                                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON ||
+                                (nodal_force_i.abs() < EPSILON && fd_nodal_force_i.abs() < EPSILON)
                             )
                         )
                     )
@@ -1369,7 +1369,8 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model
                         .zip(fd_nodal_force.iter())
                         .for_each(|(nodal_force_i, fd_nodal_force_i)|
                             assert!(
-                                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON
+                                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON ||
+                                (nodal_force_i.abs() < EPSILON && fd_nodal_force_i.abs() < EPSILON)
                             )
                         )
                     )

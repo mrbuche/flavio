@@ -90,6 +90,16 @@ where
     }
 }
 
+impl<'a, C> LinearSurfaceElement<'a, C, G, M, N, O> for Wedge<C>
+where
+    C: Constitutive<'a>
+{
+    fn get_reference_normal(&self) -> &ReferenceNormal
+    {
+        &self.reference_normal
+    }
+}
+
 impl<'a, C> LinearLocalizationElement<'a, C, G, M, N, O> for Wedge<C>
 where
     C: Constitutive<'a>
@@ -114,8 +124,6 @@ where
 {
     fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
     {
-        // self.calculate_nodal_forces_linear_surface_element(nodal_coordinates)
-
         let first_piola_kirchoff_stress = self.get_constitutive_models()[0]
         .calculate_first_piola_kirchoff_stress(
             &self.calculate_deformation_gradient(nodal_coordinates)
@@ -123,23 +131,44 @@ where
         let normal_gradients = Self::calculate_normal_gradients(
             &Self::calculate_midplane(nodal_coordinates)
         );
-        let traction = &first_piola_kirchoff_stress * self.get_reference_normal();
+        let traction = (&first_piola_kirchoff_stress * self.get_reference_normal()) * 0.5;
         self.get_gradient_vectors().iter()
         .zip(normal_gradients.iter().chain(normal_gradients.iter()))
         .map(|(gradient_vector_a, normal_gradient_a)|
             &first_piola_kirchoff_stress * gradient_vector_a + normal_gradient_a * &traction
         ).collect()
-
-        // dummy convert wont work because standard grad operator in calculation is O
-        // thats why trying to use chain...
-
-
-        // TODO!!! need to achieve separation in element tests to actually see if tests like FD of a(F) pass or not
     }
     fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
     {
-        self.calculate_nodal_stiffnesses_linear_surface_element(nodal_coordinates)
+        self.calculate_nodal_stiffnesses_linear_element(nodal_coordinates)
     }
 }
 
-super::linear_surface_element_boilerplate!(Wedge);
+impl<'a, C> ViscoelasticFiniteElement<'a, C, G, N> for Wedge<C>
+where
+    C: Viscoelastic<'a>
+{
+    fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalForces<N>
+    {
+        let first_piola_kirchoff_stress = self.get_constitutive_models()[0]
+        .calculate_first_piola_kirchoff_stress(
+            &self.calculate_deformation_gradient(nodal_coordinates),
+            &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
+        );
+        let normal_gradients = Self::calculate_normal_gradients(
+            &Self::calculate_midplane(nodal_coordinates)
+        );
+        let traction = (&first_piola_kirchoff_stress * self.get_reference_normal()) * 0.5;
+        self.get_gradient_vectors().iter()
+        .zip(normal_gradients.iter().chain(normal_gradients.iter()))
+        .map(|(gradient_vector_a, normal_gradient_a)|
+            &first_piola_kirchoff_stress * gradient_vector_a + normal_gradient_a * &traction
+        ).collect()
+    }
+    fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalStiffnesses<N>
+    {
+        self.calculate_nodal_stiffnesses_linear_element(nodal_coordinates, nodal_velocities)
+    }
+}
+
+super::linear_localization_element_boilerplate!(Triangle);
