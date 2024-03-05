@@ -232,10 +232,6 @@ macro_rules! setup_for_surface_or_localization_elements
             },
             EPSILON
         };
-        fn get_coordinates() -> NodalCoordinates<N>
-        {
-            get_deformation_gradient() * get_reference_coordinates()
-        }
         fn get_deformation_gradient() -> DeformationGradient
         {
             get_deformation_gradient_rotation() * get_deformation_gradient_special()
@@ -256,10 +252,6 @@ macro_rules! setup_for_surface_or_localization_elements
                 [-0.1, -0.5,  0.0]
             ]) * get_deformation_gradient_rotation()
         }
-        fn get_velocities() -> NodalVelocities<N>
-        {
-            get_deformation_gradient_rate() * get_reference_coordinates()
-        }
         #[test]
         fn size()
         {
@@ -279,6 +271,10 @@ macro_rules! setup_for_surface_elements
 {
     ($element: ident) =>
     {
+        fn get_coordinates() -> NodalCoordinates<N>
+        {
+            get_deformation_gradient() * get_reference_coordinates()
+        }
         fn get_deformation_gradient_special() -> DeformationGradient
         {
             DeformationGradient::new([
@@ -286,6 +282,10 @@ macro_rules! setup_for_surface_elements
                 [0.32, 0.98, 0.00],
                 [0.00, 0.00, 1.00]
             ])
+        }
+        fn get_velocities() -> NodalVelocities<N>
+        {
+            get_deformation_gradient_rate() * get_reference_coordinates()
         }
         crate::fem::block::element::test::setup_for_surface_or_localization_elements!($element);
     }
@@ -296,13 +296,46 @@ macro_rules! setup_for_localization_elements
 {
     ($element: ident) =>
     {
+        fn get_coordinates() -> NodalCoordinates<N>
+        {
+            get_deformation_gradient_rotation() * get_coordinates_unrotated()
+        }
+        fn get_coordinates_unrotated() -> NodalCoordinates<N>
+        {
+            let jump = get_jump();
+            let mut coordinates = get_deformation_gradient_surface() * get_reference_coordinates();
+            coordinates.iter_mut().skip(O)
+            .for_each(|coordinate_top_a|
+                *coordinate_top_a += &jump
+            );
+            coordinates
+        }
         fn get_deformation_gradient_special() -> DeformationGradient
+        {
+            let jump = get_jump();
+            let mut deformation_gradient = get_deformation_gradient_surface();
+            deformation_gradient[0][2] = jump[0];
+            deformation_gradient[1][2] = jump[1];
+            deformation_gradient[2][2] = jump[2] + 1.0;
+            deformation_gradient
+        }
+        fn get_deformation_gradient_surface() -> DeformationGradient
         {
             DeformationGradient::new([
                 [0.62, 0.20, 0.00],
                 [0.32, 0.98, 0.00],
-                [0.00, 0.00, 1.33]
+                [0.00, 0.00, 1.00]
             ])
+        }
+        fn get_jump() -> Vector<1>
+        {
+            Vector::new(
+                [1.11, 1.22, 1.33]
+            )
+        }
+        fn get_velocities() -> NodalVelocities<N>
+        {
+            get_deformation_gradient_rotation_rate() * get_coordinates_unrotated()
         }
         crate::fem::block::element::test::setup_for_surface_or_localization_elements!($element);
     }

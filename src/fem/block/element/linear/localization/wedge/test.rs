@@ -19,6 +19,12 @@ fn get_reference_coordinates() -> ReferenceNodalCoordinates<N>
 
 test_linear_localization_element!(Wedge);
 
+#[test]
+fn do_block()
+{
+    todo!()
+}
+
 // Do not forget the actual tests!
 
 // should use random ref/curr coords for element/block tests
@@ -47,7 +53,7 @@ fn get_element<'a>() -> Wedge<NeoHookean<'a>>
     )
 }
 
-fn get_deformation_gradient_surface() -> DeformationGradient
+fn get_deformation_gradient_surfacee() -> DeformationGradient
 {
     // needs to be simplified and precise most likely to get tests to pass
     let rotation = RotationCurrentConfiguration::new([
@@ -65,7 +71,7 @@ fn get_deformation_gradient_surface() -> DeformationGradient
 
 fn get_coordinatesss() -> NodalCoordinates<N>
 {
-    get_deformation_gradient_surface()*get_reference_coordinates()
+    get_deformation_gradient_surfacee()*get_reference_coordinates()
 }
 
 #[test]
@@ -73,7 +79,7 @@ fn temporary_1()
 {
     get_element().calculate_deformation_gradient(
         &get_coordinatesss()
-    ).iter().zip(get_deformation_gradient_surface().iter()).for_each(|(f_i, ff_i)|
+    ).iter().zip(get_deformation_gradient_surfacee().iter()).for_each(|(f_i, ff_i)|
         f_i.iter().zip(ff_i.iter()).for_each(|(f_ij, ff_ij)|
             assert!((f_ij/ff_ij - 1.0).abs() < 1e-8)
         )
