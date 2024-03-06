@@ -274,6 +274,14 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 ).sum()
             ).collect()
         }
+        fn get_normal_tangents(is_deformed: bool, is_transformed: bool) -> NormalTangents<O>
+        {
+            todo!()
+        }
+        fn get_normal_tangents_from_finite_difference(is_deformed: bool) -> NormalTangents<O>
+        {
+            todo!()
+        }
     }
 }
 pub(crate) use setup_for_test_linear_surface_element_with_constitutive_model;

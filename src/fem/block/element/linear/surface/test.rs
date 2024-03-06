@@ -373,6 +373,39 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 ).sum()
             ).collect()
         }
+        fn get_normal_tangents(is_deformed: bool, is_transformed: bool) -> NormalTangents<O>
+        {
+            if is_transformed
+            {
+                if is_deformed
+                {
+                    $element::<$constitutive_model>::calculate_normal_tangents(
+                        &(get_rotation_current_configuration() * get_coordinates())
+                    )
+                }
+                else
+                {
+                    $element::<$constitutive_model>::calculate_normal_tangents(
+                        &(get_rotation_reference_configuration() * get_reference_coordinates()).convert()
+                    )
+                }
+            }
+            else
+            {
+                if is_deformed
+                {
+                    $element::<$constitutive_model>::calculate_normal_tangents(
+                        &get_coordinates()
+                    )
+                }
+                else
+                {
+                    $element::<$constitutive_model>::calculate_normal_tangents(
+                        &get_reference_coordinates().convert()
+                    )
+                }
+            }
+        }
         fn get_normal_tangents_from_finite_difference(is_deformed: bool) -> NormalTangents<O>
         {
             let mut finite_difference = 0.0;
@@ -390,7 +423,15 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                                 {
                                     get_reference_coordinates().convert()
                                 };
-                                todo!()
+                                nodal_coordinates[b][n] += 0.5 * EPSILON;
+                                finite_difference = $element::<$constitutive_model>::calculate_normal_gradients(
+                                    &nodal_coordinates
+                                )[a][i][m];
+                                nodal_coordinates[b][n] -= EPSILON;
+                                finite_difference -= $element::<$constitutive_model>::calculate_normal_gradients(
+                                    &nodal_coordinates
+                                )[a][i][m];
+                                finite_difference/EPSILON
                             }).collect()
                         ).collect()
                     ).collect()
@@ -615,7 +656,7 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                             .for_each(|(normal_gradient_a_i_j, fd_normal_gradient_a_i_j)|
                                 assert!(
                                     (normal_gradient_a_i_j/fd_normal_gradient_a_i_j - 1.0).abs() < EPSILON ||
-                                    normal_gradient_a_i_j.abs() < EPSILON
+                                    (normal_gradient_a_i_j.abs() < EPSILON && fd_normal_gradient_a_i_j.abs() < EPSILON)
                                 )
                             )
                         )
@@ -661,6 +702,33 @@ macro_rules! test_linear_surface_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
+                fn finite_difference()
+                {
+                    get_normal_tangents(true, false).iter()
+                    .zip(get_normal_tangents_from_finite_difference(true).iter())
+                    .for_each(|(normal_tangent_a, fd_normal_tangent_a)|
+                        normal_tangent_a.iter()
+                        .zip(fd_normal_tangent_a.iter())
+                        .for_each(|(normal_tangent_ab, fd_normal_tangent_ab)|
+                            normal_tangent_ab.iter()
+                            .zip(fd_normal_tangent_ab.iter())
+                            .for_each(|(normal_tangent_ab_i, fd_normal_tangent_ab_i)|
+                                normal_tangent_ab_i.iter()
+                                .zip(fd_normal_tangent_ab_i.iter())
+                                .for_each(|(normal_tangent_ab_i_m, fd_normal_tangent_ab_i_m)|
+                                    normal_tangent_ab_i_m.iter()
+                                    .zip(fd_normal_tangent_ab_i_m.iter())
+                                    .for_each(|(normal_tangent_ab_i_mn, fd_normal_tangent_ab_i_mn)|
+                                        assert!(
+                                            (normal_tangent_ab_i_mn/fd_normal_tangent_ab_i_mn - 1.0).abs() < EPSILON
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                }
+                #[test]
                 fn objectivity()
                 {
                     get_normal_gradients(true, false).iter()
@@ -685,6 +753,34 @@ macro_rules! test_linear_surface_element_with_constitutive_model
             mod undeformed
             {
                 use super::*;
+                #[test]
+                fn finite_difference()
+                {
+                    get_normal_tangents(false, false).iter()
+                    .zip(get_normal_tangents_from_finite_difference(false).iter())
+                    .for_each(|(normal_tangent_a, fd_normal_tangent_a)|
+                        normal_tangent_a.iter()
+                        .zip(fd_normal_tangent_a.iter())
+                        .for_each(|(normal_tangent_ab, fd_normal_tangent_ab)|
+                            normal_tangent_ab.iter()
+                            .zip(fd_normal_tangent_ab.iter())
+                            .for_each(|(normal_tangent_ab_i, fd_normal_tangent_ab_i)|
+                                normal_tangent_ab_i.iter()
+                                .zip(fd_normal_tangent_ab_i.iter())
+                                .for_each(|(normal_tangent_ab_i_m, fd_normal_tangent_ab_i_m)|
+                                    normal_tangent_ab_i_m.iter()
+                                    .zip(fd_normal_tangent_ab_i_m.iter())
+                                    .for_each(|(normal_tangent_ab_i_mn, fd_normal_tangent_ab_i_mn)|
+                                        assert!(
+                                            (normal_tangent_ab_i_mn/fd_normal_tangent_ab_i_mn - 1.0).abs() < EPSILON ||
+                                            (normal_tangent_ab_i_mn.abs() < EPSILON && fd_normal_tangent_ab_i_mn.abs() < EPSILON)
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                }
                 #[test]
                 fn objectivity()
                 {
@@ -771,10 +867,24 @@ macro_rules! test_linear_surface_element_with_constitutive_model
         }
         mod normal_tangents
         {
-            #[test]
-            fn todo()
+            use super::*;
+            mod deformed
             {
-                todo!()
+                use super::*;
+                #[test]
+                fn objectivity()
+                {
+                    todo!()
+                }
+            }
+            mod undeformed
+            {
+                use super::*;
+                #[test]
+                fn objectivity()
+                {
+                    todo!()
+                }
             }
         }
         mod reference_normal

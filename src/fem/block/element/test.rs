@@ -871,8 +871,8 @@ macro_rules! test_finite_element_with_elastic_constitutive_model
         {
             let element = get_element();
             let mut finite_difference = 0.0;
-            (0..N).map(|node_a|
-                (0..N).map(|node_b|
+            (0..N).map(|a|
+                (0..N).map(|b|
                     (0..3).map(|i|
                         (0..3).map(|j|{
                             let mut nodal_coordinates = 
@@ -884,14 +884,14 @@ macro_rules! test_finite_element_with_elastic_constitutive_model
                             {
                                 get_reference_coordinates().convert()
                             };
-                            nodal_coordinates[node_b][j] += 0.5 * EPSILON;
+                            nodal_coordinates[b][j] += 0.5 * EPSILON;
                             finite_difference = element.calculate_nodal_forces(
                                 &nodal_coordinates
-                            )[node_a][i];
-                            nodal_coordinates[node_b][j] -= EPSILON;
+                            )[a][i];
+                            nodal_coordinates[b][j] -= EPSILON;
                             finite_difference -= element.calculate_nodal_forces(
                                 &nodal_coordinates
-                            )[node_a][i];
+                            )[a][i];
                             finite_difference/EPSILON
                         }).collect()
                     ).collect()

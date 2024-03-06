@@ -187,9 +187,9 @@ where
                                         normal_gradient_b_n_i * normal_vector_s
                                       + normal_gradient_b_n_s * normal_vector_i
                                     )
-                                ).sum::<Scalar>()*(
-                                    standard_gradient_operator_a[0]*basis_vector_1_r
-                                  - standard_gradient_operator_a[1]*basis_vector_0_r
+                                ).sum::<Scalar>()*( // check the order of this, flipped to make sign change?
+                                    standard_gradient_operator_a[1]*basis_vector_0_r
+                                  - standard_gradient_operator_a[0]*basis_vector_1_r
                                 ) - normal_vector.iter()
                                 .zip(normal_gradient_b_n.iter())
                                 .map(|(normal_vector_r, normal_gradient_b_n_r)|
