@@ -70,10 +70,8 @@ where
             .map(|gradient_vector_b|
                 first_piola_kirchoff_tangent_stiffness
                 .contract_second_fourth_indices_with_first_indices_of(
-                    gradient_vector_b, gradient_vector_a
-                ).transpose()
-                // think you can avoid transpose and maybe permutation if you get the order right in the FD function for test?
-                // similar questions about FD functions in normal gradients testing, observed when trying to write FD for normal tangents testing
+                    gradient_vector_a, gradient_vector_b
+                )
             ).collect()
         ).collect()
     }
@@ -122,8 +120,8 @@ where
             .map(|gradient_vector_b|
                 first_piola_kirchoff_tangent_stiffness
                 .contract_second_fourth_indices_with_first_indices_of(
-                    gradient_vector_b, gradient_vector_a
-                ).transpose()
+                    gradient_vector_a, gradient_vector_b
+                )
             ).collect()
         ).collect()
     }

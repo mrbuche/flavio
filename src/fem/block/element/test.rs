@@ -884,14 +884,14 @@ macro_rules! test_finite_element_with_elastic_constitutive_model
                             {
                                 get_reference_coordinates().convert()
                             };
-                            nodal_coordinates[node_a][i] += 0.5 * EPSILON;
+                            nodal_coordinates[node_b][j] += 0.5 * EPSILON;
                             finite_difference = element.calculate_nodal_forces(
                                 &nodal_coordinates
-                            )[node_b][j];
-                            nodal_coordinates[node_a][i] -= EPSILON;
+                            )[node_a][i];
+                            nodal_coordinates[node_b][j] -= EPSILON;
                             finite_difference -= element.calculate_nodal_forces(
                                 &nodal_coordinates
-                            )[node_b][j];
+                            )[node_a][i];
                             finite_difference/EPSILON
                         }).collect()
                     ).collect()

@@ -675,9 +675,9 @@ macro_rules! test_finite_element_block_with_elastic_constitutive_model
                             {
                                 get_reference_coordinates_block().convert()
                             };
-                            nodal_coordinates[node_a][i] += 0.5 * EPSILON;
+                            nodal_coordinates[node_b][j] += 0.5 * EPSILON;
                             block.set_nodal_coordinates(nodal_coordinates);
-                            finite_difference = block.calculate_nodal_forces()[node_b][j];
+                            finite_difference = block.calculate_nodal_forces()[node_a][i];
                             let mut nodal_coordinates = 
                             if is_deformed
                             {
@@ -687,9 +687,9 @@ macro_rules! test_finite_element_block_with_elastic_constitutive_model
                             {
                                 get_reference_coordinates_block().convert()
                             };
-                            nodal_coordinates[node_a][i] -= 0.5 * EPSILON;
+                            nodal_coordinates[node_b][j] -= 0.5 * EPSILON;
                             block.set_nodal_coordinates(nodal_coordinates);
-                            finite_difference -= block.calculate_nodal_forces()[node_b][j];
+                            finite_difference -= block.calculate_nodal_forces()[node_a][i];
                             finite_difference/EPSILON
                         }).collect()
                     ).collect()
