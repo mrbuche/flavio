@@ -67,7 +67,7 @@ pub type Force = TensorRank1<3, 1>;
 /// A list of forces.
 pub type Forces<const W: usize> = TensorRank1List<3, 1, W>;
 
-/// The frame spin $`\boldsymbol{\Omega}=\dot{\mathbf{Q}}\cdot\mathbf{Q}^T`$.
+/// The frame spin $`\mathbf{\Omega}=\dot{\mathbf{Q}}\cdot\mathbf{Q}^T`$.
 pub type FrameSpin = TensorRank2<3, 1, 1>;
 
 /// The heat flux.
