@@ -282,8 +282,8 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
         {
             let mut finite_difference = 0.0;
             (0..O).map(|a|
-                (0..3).map(|i|
-                    (0..3).map(|j|{
+                (0..3).map(|m|
+                    (0..3).map(|i|{
                         let mut nodal_coordinates = 
                         if is_deformed
                         {
@@ -293,14 +293,14 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                         {
                             get_reference_coordinates().convert()
                         };
-                        nodal_coordinates[a][i] += 0.5 * EPSILON;
+                        nodal_coordinates[a][m] += 0.5 * EPSILON;
                         finite_difference = $element::<$constitutive_model>::calculate_normal(
                             &nodal_coordinates
-                        )[j];
-                        nodal_coordinates[a][i] -= EPSILON;
+                        )[i];
+                        nodal_coordinates[a][m] -= EPSILON;
                         finite_difference -= $element::<$constitutive_model>::calculate_normal(
                             &nodal_coordinates
-                        )[j];
+                        )[i];
                         finite_difference/EPSILON
                     }).collect()
                 ).collect()
@@ -411,9 +411,9 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
             let mut finite_difference = 0.0;
             (0..O).map(|a|
                 (0..O).map(|b|
-                    (0..3).map(|i|
-                        (0..3).map(|m|
-                            (0..3).map(|n|{
+                    (0..3).map(|m|
+                        (0..3).map(|n|
+                            (0..3).map(|i|{
                                 let mut nodal_coordinates = 
                                 if is_deformed
                                 {
@@ -426,11 +426,11 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                                 nodal_coordinates[b][n] += 0.5 * EPSILON;
                                 finite_difference = $element::<$constitutive_model>::calculate_normal_gradients(
                                     &nodal_coordinates
-                                )[a][i][m];
+                                )[a][m][i];
                                 nodal_coordinates[b][n] -= EPSILON;
                                 finite_difference -= $element::<$constitutive_model>::calculate_normal_gradients(
                                     &nodal_coordinates
-                                )[a][i][m];
+                                )[a][m][i];
                                 finite_difference/EPSILON
                             }).collect()
                         ).collect()
@@ -596,12 +596,12 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                     .for_each(|(normal_gradient_a, fd_normal_gradient_a)|
                         normal_gradient_a.iter()
                         .zip(fd_normal_gradient_a.iter())
-                        .for_each(|(normal_gradient_a_i, fd_normal_gradient_a_i)|
-                            normal_gradient_a_i.iter()
-                            .zip(fd_normal_gradient_a_i.iter())
-                            .for_each(|(normal_gradient_a_i_j, fd_normal_gradient_a_i_j)|
+                        .for_each(|(normal_gradient_a_m, fd_normal_gradient_a_m)|
+                            normal_gradient_a_m.iter()
+                            .zip(fd_normal_gradient_a_m.iter())
+                            .for_each(|(normal_gradient_a_m_i, fd_normal_gradient_a_m_i)|
                                 assert!(
-                                    (normal_gradient_a_i_j/fd_normal_gradient_a_i_j - 1.0).abs() < EPSILON
+                                    (normal_gradient_a_m_i/fd_normal_gradient_a_m_i - 1.0).abs() < EPSILON
                                 )
                             )
                         )
@@ -712,17 +712,18 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                         .for_each(|(normal_tangent_ab, fd_normal_tangent_ab)|
                             normal_tangent_ab.iter()
                             .zip(fd_normal_tangent_ab.iter())
-                            .for_each(|(normal_tangent_ab_i, fd_normal_tangent_ab_i)|
-                                normal_tangent_ab_i.iter()
-                                .zip(fd_normal_tangent_ab_i.iter())
-                                .for_each(|(normal_tangent_ab_i_m, fd_normal_tangent_ab_i_m)|
-                                    normal_tangent_ab_i_m.iter()
-                                    .zip(fd_normal_tangent_ab_i_m.iter())
-                                    .for_each(|(normal_tangent_ab_i_mn, fd_normal_tangent_ab_i_mn)|
+                            .for_each(|(normal_tangent_ab_m, fd_normal_tangent_ab_m)|
+                                normal_tangent_ab_m.iter()
+                                .zip(fd_normal_tangent_ab_m.iter())
+                                .for_each(|(normal_tangent_ab_m_i, fd_normal_tangent_ab_m_i)|
+                                    normal_tangent_ab_m_i.iter()
+                                    .zip(fd_normal_tangent_ab_m_i.iter())
+                                    .for_each(|(normal_tangent_ab_mn_i, fd_normal_tangent_ab_mn_i)|{
+                                        println!("{:?}", (normal_tangent_ab_mn_i, fd_normal_tangent_ab_mn_i));
                                         assert!(
-                                            (normal_tangent_ab_i_mn/fd_normal_tangent_ab_i_mn - 1.0).abs() < EPSILON
-                                        )
-                                    )
+                                            (normal_tangent_ab_mn_i/fd_normal_tangent_ab_mn_i - 1.0).abs() < EPSILON
+                                        );
+                                    })
                                 )
                             )
                         )
