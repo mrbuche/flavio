@@ -217,6 +217,17 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize> MulAssign<&
     }
 }
 
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> Mul<TensorRank2<D, K, L>> for &TensorRank3<D, I, J, K>
+{
+    type Output = TensorRank3<D, I, J, L>;
+    fn mul(self, tensor_rank_2: TensorRank2<D, K, L>) -> Self::Output
+    {
+        self.iter().map(|self_i|
+            self_i * &tensor_rank_2
+        ).collect()
+    }
+}
+
 impl<const D: usize, const I: usize, const J: usize, const K: usize> Add for TensorRank3<D, I, J, K>
 {
     type Output = Self;

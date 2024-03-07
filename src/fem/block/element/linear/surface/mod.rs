@@ -114,6 +114,9 @@ where
                 ).collect()
             ).collect()
         ).collect()
+// think you wrapped this wrong
+// be more careful and check with where its used
+// might help with normal tangents
     }
     fn calculate_normal_rate(nodal_coordinates: &NodalCoordinates<O>, nodal_velocities: &NodalVelocities<O>) -> NormalRate
     {

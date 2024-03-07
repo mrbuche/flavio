@@ -874,7 +874,34 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    todo!()
+                    get_normal_tangents(true, false).iter()
+                    .zip(get_normal_tangents(true, true).iter())
+                    .for_each(|(normal_tangent_a, res_normal_tangent_a)|
+                        normal_tangent_a.iter()
+                        .zip(res_normal_tangent_a.iter())
+                        .for_each(|(normal_tangent_ab, res_normal_tangent_ab)|
+                            normal_tangent_ab.iter()
+                            .zip((
+                                res_normal_tangent_ab *
+                                get_rotation_current_configuration()
+                            ).iter())
+                            .for_each(|(normal_tangent_ab_i, res_normal_tangent_ab_i)|
+                                normal_tangent_ab_i.iter()
+                                .zip((
+                                    get_rotation_current_configuration().transpose() *
+                                    res_normal_tangent_ab_i *
+                                    get_rotation_current_configuration()
+                                ).iter())
+                                .for_each(|(normal_tangent_ab_i_m, res_normal_tangent_ab_i_m)|
+                                    normal_tangent_ab_i_m.iter()
+                                    .zip(res_normal_tangent_ab_i_m.iter())
+                                    .for_each(|(normal_tangent_ab_i_mn, res_normal_tangent_ab_i_mn)|
+                                        assert_eq_within_tols(normal_tangent_ab_i_mn, res_normal_tangent_ab_i_mn)
+                                    )
+                                )
+                            )
+                        )
+                    )
                 }
             }
             mod undeformed
