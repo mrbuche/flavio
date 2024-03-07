@@ -276,11 +276,80 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
         }
         fn get_normal_tangents(is_deformed: bool, is_transformed: bool) -> NormalTangents<O>
         {
-            todo!()
+            if is_transformed
+            {
+                if is_deformed
+                {
+                    $element::<$constitutive_model>::calculate_normal_tangents(
+                        &$element::<$constitutive_model>::calculate_midplane(
+                            &(get_rotation_current_configuration() * get_coordinates())
+                        )
+                    )
+                }
+                else
+                {
+                    $element::<$constitutive_model>::calculate_normal_tangents(
+                        &$element::<$constitutive_model>::calculate_midplane(
+                            &(get_rotation_reference_configuration() * get_reference_coordinates())
+                        ).convert()
+                    )
+                }
+            }
+            else
+            {
+                if is_deformed
+                {
+                    $element::<$constitutive_model>::calculate_normal_tangents(
+                        &$element::<$constitutive_model>::calculate_midplane(
+                            &get_coordinates()
+                        )
+                    )
+                }
+                else
+                {
+                    $element::<$constitutive_model>::calculate_normal_tangents(
+                        &$element::<$constitutive_model>::calculate_midplane(
+                            &get_reference_coordinates()
+                        ).convert()
+                    )
+                }
+            }
         }
         fn get_normal_tangents_from_finite_difference(is_deformed: bool) -> NormalTangents<O>
         {
-            todo!()
+            let mut finite_difference = 0.0;
+            (0..O).map(|a|
+                (0..O).map(|b|
+                    (0..3).map(|m|
+                        (0..3).map(|n|
+                            (0..3).map(|i|{
+                                let mut nodal_coordinates = 
+                                if is_deformed
+                                {
+                                    $element::<$constitutive_model>::calculate_midplane(
+                                        &get_coordinates()
+                                    )
+                                }
+                                else
+                                {
+                                    $element::<$constitutive_model>::calculate_midplane(
+                                        &get_reference_coordinates()
+                                    ).convert()
+                                };
+                                nodal_coordinates[b][n] += 0.5 * EPSILON;
+                                finite_difference = $element::<$constitutive_model>::calculate_normal_gradients(
+                                    &nodal_coordinates
+                                )[a][m][i];
+                                nodal_coordinates[b][n] -= EPSILON;
+                                finite_difference -= $element::<$constitutive_model>::calculate_normal_gradients(
+                                    &nodal_coordinates
+                                )[a][m][i];
+                                finite_difference/EPSILON
+                            }).collect()
+                        ).collect()
+                    ).collect()
+                ).collect()
+            ).collect()
         }
     }
 }

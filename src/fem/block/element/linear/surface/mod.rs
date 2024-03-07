@@ -157,6 +157,7 @@ where
         let normal_vector = basis_vectors[0].cross(&basis_vectors[1])/normalization;
         let standard_gradient_operator = Self::calculate_standard_gradient_operator();
         let normal_gradients = Self::calculate_normal_gradients(nodal_coordinates);
+        let identity = TensorRank2::<3, 1, 1>::identity();
         normal_gradients.iter()
         .zip(standard_gradient_operator.iter())
         .map(|(normal_gradient_a, standard_gradient_operator_a)|
@@ -167,13 +168,15 @@ where
                 .zip(levi_civita_symbol.iter())
                 .map(|(normal_gradient_a_m, levi_civita_symbol_m)|
                     normal_gradient_b.iter()
-                    .zip(levi_civita_symbol.iter())
-                    .map(|(normal_gradient_b_n, levi_civita_symbol_n)|
+                    .zip(levi_civita_symbol.iter()
+                    .zip(levi_civita_symbol_m.iter()))
+                    .map(|(normal_gradient_b_n, (levi_civita_symbol_n, levi_civita_symbol_mn))|
                         normal_gradient_a_m.iter()
                         .zip(normal_gradient_b_n.iter()
-                        .zip(normal_vector.iter()))
-                        .map(|(normal_gradient_a_m_i, (normal_gradient_b_n_i, normal_vector_i))|
-                            levi_civita_symbol_m.iter()
+                        .zip(normal_vector.iter()
+                        .zip(identity.iter())))
+                        .map(|(normal_gradient_a_m_i, (normal_gradient_b_n_i, (normal_vector_i, identity_i)))|
+                            (levi_civita_symbol_m.iter()
                             .zip(levi_civita_symbol_n.iter()
                             .zip(basis_vectors[0].iter()
                             .zip(basis_vectors[1].iter())))
@@ -186,7 +189,7 @@ where
                                         normal_gradient_b_n_i * normal_vector_s
                                       + normal_gradient_b_n_s * normal_vector_i
                                     )
-                                ).sum::<Scalar>()*(
+                                ).sum::<Scalar>() * (
                                     standard_gradient_operator_a[1]*basis_vector_0_r
                                   - standard_gradient_operator_a[0]*basis_vector_1_r
                                 ) +
@@ -198,7 +201,13 @@ where
                                     standard_gradient_operator_b[1]*basis_vector_0_r
                                   - standard_gradient_operator_b[0]*basis_vector_1_r
                                 )
-                            ).sum::<Scalar>()/normalization
+                            ).sum::<Scalar>() +
+                            levi_civita_symbol_mn * (
+                                identity_i - &normal_vector*normal_vector_i
+                            ) * (
+                                standard_gradient_operator_a[0]*standard_gradient_operator_b[1]
+                              - standard_gradient_operator_a[1]*standard_gradient_operator_b[0]
+                            ))/normalization
                         ).collect()
                     ).collect()
                 ).collect()
