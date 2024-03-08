@@ -874,7 +874,53 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    todo!()
+                    let rotation_transpose = get_rotation_current_configuration().transpose();
+                    get_normal_tangents(true, false).iter()
+                    .zip(get_normal_tangents(true, true).iter())
+                    .for_each(|(normal_tangent_a, res_normal_tangent_a)|
+                        normal_tangent_a.iter()
+                        .zip(res_normal_tangent_a.iter())
+                        .for_each(|(normal_tangent_ab, res_normal_tangent_ab)|
+                            rotation_transpose.iter()
+                            .map(|rotation_transpose_m|
+                                rotation_transpose.iter()
+                                .map(|rotation_transpose_n|
+                                    rotation_transpose.iter()
+                                    .map(|rotation_transpose_k|
+                                        rotation_transpose_m.iter()
+                                        .zip(res_normal_tangent_ab.iter())
+                                        .map(|(rotation_transpose_mo, res_normal_tangent_ab_o)|
+                                            rotation_transpose_n.iter()
+                                            .zip(res_normal_tangent_ab_o.iter())
+                                            .map(|(rotation_transpose_np, res_normal_tangent_ab_op)|
+                                                rotation_transpose_k.iter()
+                                                .zip(res_normal_tangent_ab_op.iter())
+                                                .map(|(rotation_transpose_kq, res_normal_tangent_ab_opq)|
+                                                    res_normal_tangent_ab_opq * rotation_transpose_mo *
+                                                    rotation_transpose_np * rotation_transpose_kq
+                                                ).sum::<Scalar>()
+                                            ).sum::<Scalar>()
+                                        ).sum()
+                                    ).collect()
+                                ).collect()
+                            ).collect::<crate::math::TensorRank3<3, 1, 1, 1>>()
+                            .iter()
+                            .zip(normal_tangent_ab.iter())
+                            .for_each(|(rez_normal_tangent_ab_m, normal_tangent_ab_m)|
+                                normal_tangent_ab_m.iter()
+                                .zip(rez_normal_tangent_ab_m.iter())
+                                .for_each(|(normal_tangent_ab_mn, rez_normal_tangent_ab_mn)|
+                                    normal_tangent_ab_mn.iter()
+                                    .zip(rez_normal_tangent_ab_mn.iter())
+                                    .for_each(|(normal_tangent_ab_mn_k, rez_normal_tangent_ab_mn_k)|
+                                        assert_eq_within_tols(
+                                            normal_tangent_ab_mn_k, rez_normal_tangent_ab_mn_k
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
                 }
             }
             mod undeformed
@@ -883,7 +929,53 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                 #[test]
                 fn objectivity()
                 {
-                    todo!()
+                    let rotation_transpose = get_rotation_reference_configuration().transpose();
+                    get_normal_tangents(false, false).iter()
+                    .zip(get_normal_tangents(false, true).iter())
+                    .for_each(|(normal_tangent_a, res_normal_tangent_a)|
+                        normal_tangent_a.iter()
+                        .zip(res_normal_tangent_a.iter())
+                        .for_each(|(normal_tangent_ab, res_normal_tangent_ab)|
+                            rotation_transpose.iter()
+                            .map(|rotation_transpose_m|
+                                rotation_transpose.iter()
+                                .map(|rotation_transpose_n|
+                                    rotation_transpose.iter()
+                                    .map(|rotation_transpose_k|
+                                        rotation_transpose_m.iter()
+                                        .zip(res_normal_tangent_ab.iter())
+                                        .map(|(rotation_transpose_mo, res_normal_tangent_ab_o)|
+                                            rotation_transpose_n.iter()
+                                            .zip(res_normal_tangent_ab_o.iter())
+                                            .map(|(rotation_transpose_np, res_normal_tangent_ab_op)|
+                                                rotation_transpose_k.iter()
+                                                .zip(res_normal_tangent_ab_op.iter())
+                                                .map(|(rotation_transpose_kq, res_normal_tangent_ab_opq)|
+                                                    res_normal_tangent_ab_opq * rotation_transpose_mo *
+                                                    rotation_transpose_np * rotation_transpose_kq
+                                                ).sum::<Scalar>()
+                                            ).sum::<Scalar>()
+                                        ).sum()
+                                    ).collect()
+                                ).collect()
+                            ).collect::<crate::math::TensorRank3<3, 1, 1, 1>>()
+                            .iter()
+                            .zip(normal_tangent_ab.iter())
+                            .for_each(|(rez_normal_tangent_ab_m, normal_tangent_ab_m)|
+                                normal_tangent_ab_m.iter()
+                                .zip(rez_normal_tangent_ab_m.iter())
+                                .for_each(|(normal_tangent_ab_mn, rez_normal_tangent_ab_mn)|
+                                    normal_tangent_ab_mn.iter()
+                                    .zip(rez_normal_tangent_ab_mn.iter())
+                                    .for_each(|(normal_tangent_ab_mn_k, rez_normal_tangent_ab_mn_k)|
+                                        assert_eq_within_tols(
+                                            normal_tangent_ab_mn_k, rez_normal_tangent_ab_mn_k
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
                 }
             }
         }

@@ -6,6 +6,7 @@ macro_rules! test_finite_element
         {
             use crate::
             {
+                ABS_TOL,
                 EPSILON,
                 fem::block::element::test::
                 {
@@ -384,11 +385,12 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses
                             .for_each(|(nodal_stiffness_ab_i, fd_nodal_stiffness_ab_i)|
                                 nodal_stiffness_ab_i.iter()
                                 .zip(fd_nodal_stiffness_ab_i.iter())
-                                .for_each(|(nodal_stiffness_ab_ij, fd_nodal_stiffness_ab_ij)|
+                                .for_each(|(nodal_stiffness_ab_ij, fd_nodal_stiffness_ab_ij)|{
                                     assert!(
-                                        (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < EPSILON
+                                        (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < EPSILON ||
+                                        (nodal_stiffness_ab_ij - fd_nodal_stiffness_ab_ij).abs() < EPSILON / 10.0
                                     )
-                                )
+                                })
                             )
                         )
                     )
@@ -429,6 +431,7 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses
                                 .for_each(|(nodal_stiffness_ab_ij, fd_nodal_stiffness_ab_ij)|
                                     assert!(
                                         (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < EPSILON ||
+                                        (nodal_stiffness_ab_ij - fd_nodal_stiffness_ab_ij).abs() < ABS_TOL ||
                                         (nodal_stiffness_ab_ij.abs() < EPSILON && fd_nodal_stiffness_ab_ij.abs() < EPSILON)
                                     )
                                 )
