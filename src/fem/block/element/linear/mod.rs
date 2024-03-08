@@ -104,7 +104,8 @@ where
             &self.calculate_deformation_gradient(nodal_coordinates),
             &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
         );
-        self.get_gradient_vectors().iter().map(|gradient_vector|
+        self.get_gradient_vectors().iter()
+        .map(|gradient_vector|
             &first_piola_kirchoff_stress * gradient_vector
         ).collect()
     }
