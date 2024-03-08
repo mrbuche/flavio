@@ -140,7 +140,78 @@ where
     }
     fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
     {
-        self.calculate_nodal_stiffnesses_linear_element(nodal_coordinates)
+        let first_piola_kirchoff_stress = self.get_constitutive_models()[0]
+        .calculate_first_piola_kirchoff_stress(
+            &self.calculate_deformation_gradient(nodal_coordinates)
+        );
+        let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_models()[0]
+        .calculate_first_piola_kirchoff_tangent_stiffness(
+            &self.calculate_deformation_gradient(nodal_coordinates)
+        );
+        let gradient_vectors = self.get_gradient_vectors();
+        let identity = TensorRank2::<3, 1, 1>::identity();
+        let normal_gradients = Self::calculate_normal_gradients(
+            &Self::calculate_midplane(nodal_coordinates)
+        );
+        let normal_tangents = Self::calculate_normal_tangents(
+            &Self::calculate_midplane(nodal_coordinates)
+        );
+        let reference_normal = self.get_reference_normal() * 0.5;
+        let traction = (first_piola_kirchoff_stress * &reference_normal) * 0.5;
+        gradient_vectors.iter()
+        .zip(normal_gradients.iter().chain(normal_gradients.iter()))
+        .map(|(gradient_vector_a, normal_gradient_a)|
+            gradient_vectors.iter()
+            .zip(normal_gradients.iter().chain(normal_gradients.iter()))
+            .map(|(gradient_vector_b, normal_gradient_b)|
+                identity.iter()
+                .zip(normal_gradient_a.iter())
+                .map(|(identity_m, normal_gradient_a_m)|
+                    identity.iter()
+                    .zip(normal_gradient_b.iter())
+                    .map(|(identity_n, normal_gradient_b_n)|
+                        first_piola_kirchoff_tangent_stiffness.iter()
+                        .zip(identity_m.iter()
+                        .zip(normal_gradient_a_m.iter()))
+                        .map(|(first_piola_kirchoff_tangent_stiffness_i, (identity_mi, normal_gradient_a_m_i))|
+                            first_piola_kirchoff_tangent_stiffness_i.iter()
+                            .zip(gradient_vector_a.iter()
+                            .zip(reference_normal.iter()))
+                            .map(|(first_piola_kirchoff_tangent_stiffness_ij, (gradient_vector_a_j, reference_normal_j))|
+                                first_piola_kirchoff_tangent_stiffness_ij.iter()
+                                .zip(identity_n.iter()
+                                .zip(normal_gradient_b_n.iter()))
+                                .map(|(first_piola_kirchoff_tangent_stiffness_ijk, (identity_nk, normal_gradient_b_n_k))|
+                                    first_piola_kirchoff_tangent_stiffness_ijk.iter()
+                                    .zip(gradient_vector_b.iter()
+                                    .zip(reference_normal.iter()))
+                                    .map(|(first_piola_kirchoff_tangent_stiffness_ijkl, (gradient_vector_b_l, reference_normal_l))|
+                                        first_piola_kirchoff_tangent_stiffness_ijkl * (
+                                            identity_mi * gradient_vector_a_j + normal_gradient_a_m_i * reference_normal_j
+                                        ) * (
+                                            identity_nk * gradient_vector_b_l + normal_gradient_b_n_k * reference_normal_l
+                                        )
+                                    ).sum::<Scalar>()
+                                ).sum::<Scalar>()
+                            ).sum::<Scalar>()
+                        ).sum::<Scalar>()
+                    ).collect()
+                ).collect()
+            ).collect()
+        ).collect::<NodalStiffnesses<N>>() +
+        normal_tangents.iter().chain(normal_tangents.iter())
+        .map(|normal_tangent_a|
+            normal_tangent_a.iter().chain(normal_tangent_a.iter())
+            .map(|normal_tangent_ab|
+                normal_tangent_ab.iter()
+                .map(|normal_tangent_ab_m|
+                    normal_tangent_ab_m.iter()
+                    .map(|normal_tangent_ab_mn|
+                        normal_tangent_ab_mn * &traction
+                    ).collect()
+                ).collect()
+            ).collect()
+        ).collect::<NodalStiffnesses<N>>()
     }
 }
 
@@ -167,25 +238,58 @@ where
     }
     fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalStiffnesses<N>
     {
-        // f_m^a = P_iJ (b_J^a delta_im + dn_i/dx_m^a N_J)
-        // K_mn^ab = P_iJ dn_i/dx_m^a.dx_n^b N_J + C_iJkL (b_J^a delta_im + dn_i/dx_m^a N_J) (b_L^b delta_in + dn_k/dx_n^b N_L)
-        // have fun with PEMDAS...
-        self.calculate_nodal_stiffnesses_linear_element(nodal_coordinates, nodal_velocities)
-        // let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_models()[0]
-        // .calculate_first_piola_kirchoff_rate_tangent_stiffness(
-        //     &self.calculate_deformation_gradient(nodal_coordinates),
-        //     &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
-        // );
-        // self.get_gradient_vectors().iter()
-        // .map(|gradient_vector_a|
-        //     self.get_gradient_vectors().iter()
-        //     .map(|gradient_vector_b|
-        //         first_piola_kirchoff_tangent_stiffness
-        //         .contract_second_fourth_indices_with_first_indices_of(
-        //             gradient_vector_a, gradient_vector_b
-        //         )
-        //     ).collect()
-        // ).collect()
+        let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_models()[0]
+        .calculate_first_piola_kirchoff_rate_tangent_stiffness(
+            &self.calculate_deformation_gradient(nodal_coordinates),
+            &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
+        );
+        let gradient_vectors = self.get_gradient_vectors();
+        let identity = TensorRank2::<3, 1, 1>::identity();
+        let normal_gradients = Self::calculate_normal_gradients(
+            &Self::calculate_midplane(nodal_coordinates)
+        );
+        let reference_normal = self.get_reference_normal() * 0.5;
+        gradient_vectors.iter()
+        .zip(normal_gradients.iter().chain(normal_gradients.iter()))
+        .map(|(gradient_vector_a, normal_gradient_a)|
+            gradient_vectors.iter()
+            .zip(normal_gradients.iter().chain(normal_gradients.iter()))
+            .map(|(gradient_vector_b, normal_gradient_b)|
+                identity.iter()
+                .zip(normal_gradient_a.iter())
+                .map(|(identity_m, normal_gradient_a_m)|
+                    identity.iter()
+                    .zip(normal_gradient_b.iter())
+                    .map(|(identity_n, normal_gradient_b_n)|
+                        first_piola_kirchoff_tangent_stiffness.iter()
+                        .zip(identity_m.iter()
+                        .zip(normal_gradient_a_m.iter()))
+                        .map(|(first_piola_kirchoff_tangent_stiffness_i, (identity_mi, normal_gradient_a_m_i))|
+                            first_piola_kirchoff_tangent_stiffness_i.iter()
+                            .zip(gradient_vector_a.iter()
+                            .zip(reference_normal.iter()))
+                            .map(|(first_piola_kirchoff_tangent_stiffness_ij, (gradient_vector_a_j, reference_normal_j))|
+                                first_piola_kirchoff_tangent_stiffness_ij.iter()
+                                .zip(identity_n.iter()
+                                .zip(normal_gradient_b_n.iter()))
+                                .map(|(first_piola_kirchoff_tangent_stiffness_ijk, (identity_nk, normal_gradient_b_n_k))|
+                                    first_piola_kirchoff_tangent_stiffness_ijk.iter()
+                                    .zip(gradient_vector_b.iter()
+                                    .zip(reference_normal.iter()))
+                                    .map(|(first_piola_kirchoff_tangent_stiffness_ijkl, (gradient_vector_b_l, reference_normal_l))|
+                                        first_piola_kirchoff_tangent_stiffness_ijkl * (
+                                            identity_mi * gradient_vector_a_j + normal_gradient_a_m_i * reference_normal_j
+                                        ) * (
+                                            identity_nk * gradient_vector_b_l + normal_gradient_b_n_k * reference_normal_l
+                                        )
+                                    ).sum::<Scalar>()
+                                ).sum::<Scalar>()
+                            ).sum::<Scalar>()
+                        ).sum::<Scalar>()
+                    ).collect()
+                ).collect()
+            ).collect()
+        ).collect::<NodalStiffnesses<N>>()
     }
 }
 

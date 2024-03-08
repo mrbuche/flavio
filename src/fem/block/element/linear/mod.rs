@@ -64,9 +64,10 @@ where
         .calculate_first_piola_kirchoff_tangent_stiffness(
             &self.calculate_deformation_gradient(nodal_coordinates)
         );
-        self.get_gradient_vectors().iter()
+        let gradient_vectors = self.get_gradient_vectors();
+        gradient_vectors.iter()
         .map(|gradient_vector_a|
-            self.get_gradient_vectors().iter()
+            gradient_vectors.iter()
             .map(|gradient_vector_b|
                 first_piola_kirchoff_tangent_stiffness
                 .contract_second_fourth_indices_with_first_indices_of(
@@ -114,9 +115,10 @@ where
             &self.calculate_deformation_gradient(nodal_coordinates),
             &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
         );
-        self.get_gradient_vectors().iter()
+        let gradient_vectors = self.get_gradient_vectors();
+        gradient_vectors.iter()
         .map(|gradient_vector_a|
-            self.get_gradient_vectors().iter()
+            gradient_vectors.iter()
             .map(|gradient_vector_b|
                 first_piola_kirchoff_tangent_stiffness
                 .contract_second_fourth_indices_with_first_indices_of(

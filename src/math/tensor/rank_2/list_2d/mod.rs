@@ -3,6 +3,8 @@ mod test;
 
 use std::ops::
 {
+    Add,
+    AddAssign,
     Index,
     IndexMut,
     Mul
@@ -143,5 +145,57 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: us
                 self_tensor_rank_2 * tensor_rank_2
             ).collect()
         ).collect()
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const W: usize> Add for TensorRank2List2D<D, I, J, W>
+{
+    type Output = Self;
+    fn add(mut self, tensor_rank_2_list_2d: Self) -> Self::Output
+    {
+        self += tensor_rank_2_list_2d;
+        self
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const W: usize> Add<&Self> for TensorRank2List2D<D, I, J, W>
+{
+    type Output = Self;
+    fn add(mut self, tensor_rank_2_list_2d: &Self) -> Self::Output
+    {
+        self += tensor_rank_2_list_2d;
+        self
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const W: usize> Add<TensorRank2List2D<D, I, J, W>> for &TensorRank2List2D<D, I, J, W>
+{
+    type Output = TensorRank2List2D<D, I, J, W>;
+    fn add(self, mut tensor_rank_2_list_2d: TensorRank2List2D<D, I, J, W>) -> Self::Output
+    {
+        tensor_rank_2_list_2d += self;
+        tensor_rank_2_list_2d
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const W: usize> AddAssign for TensorRank2List2D<D, I, J, W>
+{
+    fn add_assign(&mut self, tensor_rank_2_list_2d: Self)
+    {
+        self.iter_mut().zip(tensor_rank_2_list_2d.iter())
+        .for_each(|(self_entry, tensor_rank_2_list)|
+            *self_entry += tensor_rank_2_list
+        );
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const W: usize> AddAssign<&Self> for TensorRank2List2D<D, I, J, W>
+{
+    fn add_assign(&mut self, tensor_rank_2_list_2d: &Self)
+    {
+        self.iter_mut().zip(tensor_rank_2_list_2d.iter())
+        .for_each(|(self_entry, tensor_rank_2_list)|
+            *self_entry += tensor_rank_2_list
+        );
     }
 }

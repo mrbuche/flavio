@@ -240,7 +240,45 @@ macro_rules! linear_surface_element_boilerplate
             }
             fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
             {
-                self.calculate_nodal_stiffnesses_linear_element(nodal_coordinates)
+                let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_models()[0]
+                .calculate_first_piola_kirchoff_tangent_stiffness(
+                    &self.calculate_deformation_gradient(nodal_coordinates)
+                );
+                let gradient_vectors = self.get_gradient_vectors();
+                let identity = TensorRank2::<3, 1, 1>::identity();
+                let normal_gradients = Self::calculate_normal_gradients(nodal_coordinates);
+                let reference_normal = self.get_reference_normal();
+                gradient_vectors.iter()
+                .map(|gradient_vector_a|
+                    gradient_vectors.iter()
+                    .zip(normal_gradients.iter())
+                    .map(|(gradient_vector_b, normal_gradient_b)|
+                        first_piola_kirchoff_tangent_stiffness.iter()
+                        .map(|first_piola_kirchoff_tangent_stiffness_m|
+                            identity.iter()
+                            .zip(normal_gradient_b.iter())
+                            .map(|(identity_n, normal_gradient_b_n)|
+                                first_piola_kirchoff_tangent_stiffness_m.iter()
+                                .zip(gradient_vector_a.iter())
+                                .map(|(first_piola_kirchoff_tangent_stiffness_mj, gradient_vector_a_j)|
+                                    first_piola_kirchoff_tangent_stiffness_mj.iter()
+                                    .zip(identity_n.iter()
+                                    .zip(normal_gradient_b_n.iter()))
+                                    .map(|(first_piola_kirchoff_tangent_stiffness_mjk, (identity_nk, normal_gradient_b_n_k))|
+                                        first_piola_kirchoff_tangent_stiffness_mjk.iter()
+                                        .zip(gradient_vector_b.iter()
+                                        .zip(reference_normal.iter()))
+                                        .map(|(first_piola_kirchoff_tangent_stiffness_mjkl, (gradient_vector_b_l, reference_normal_l))|
+                                            first_piola_kirchoff_tangent_stiffness_mjkl * gradient_vector_a_j * (
+                                                identity_nk * gradient_vector_b_l + normal_gradient_b_n_k * reference_normal_l
+                                            )
+                                        ).sum::<Scalar>()
+                                    ).sum::<Scalar>()
+                                ).sum::<Scalar>()
+                            ).collect()
+                        ).collect()
+                    ).collect()
+                ).collect()
             }
         }
         impl<'a, C> ElasticLinearElement<'a, C, G, M, N, O> for $element<C>
@@ -270,7 +308,46 @@ macro_rules! linear_surface_element_boilerplate
             }
             fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalStiffnesses<N>
             {
-                self.calculate_nodal_stiffnesses_linear_element(nodal_coordinates, nodal_velocities)
+                let first_piola_kirchoff_rate_tangent_stiffness = self.get_constitutive_models()[0]
+                .calculate_first_piola_kirchoff_rate_tangent_stiffness(
+                    &self.calculate_deformation_gradient(nodal_coordinates),
+                    &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
+                );
+                let gradient_vectors = self.get_gradient_vectors();
+                let identity = TensorRank2::<3, 1, 1>::identity();
+                let normal_gradients = Self::calculate_normal_gradients(nodal_coordinates);
+                let reference_normal = self.get_reference_normal();
+                gradient_vectors.iter()
+                .map(|gradient_vector_a|
+                    gradient_vectors.iter()
+                    .zip(normal_gradients.iter())
+                    .map(|(gradient_vector_b, normal_gradient_b)|
+                        first_piola_kirchoff_rate_tangent_stiffness.iter()
+                        .map(|first_piola_kirchoff_rate_tangent_stiffness_m|
+                            identity.iter()
+                            .zip(normal_gradient_b.iter())
+                            .map(|(identity_n, normal_gradient_b_n)|
+                                first_piola_kirchoff_rate_tangent_stiffness_m.iter()
+                                .zip(gradient_vector_a.iter())
+                                .map(|(first_piola_kirchoff_rate_tangent_stiffness_mj, gradient_vector_a_j)|
+                                    first_piola_kirchoff_rate_tangent_stiffness_mj.iter()
+                                    .zip(identity_n.iter()
+                                    .zip(normal_gradient_b_n.iter()))
+                                    .map(|(first_piola_kirchoff_rate_tangent_stiffness_mjk, (identity_nk, normal_gradient_b_n_k))|
+                                        first_piola_kirchoff_rate_tangent_stiffness_mjk.iter()
+                                        .zip(gradient_vector_b.iter()
+                                        .zip(reference_normal.iter()))
+                                        .map(|(first_piola_kirchoff_rate_tangent_stiffness_mjkl, (gradient_vector_b_l, reference_normal_l))|
+                                            first_piola_kirchoff_rate_tangent_stiffness_mjkl * gradient_vector_a_j * (
+                                                identity_nk * gradient_vector_b_l + normal_gradient_b_n_k * reference_normal_l
+                                            )
+                                        ).sum::<Scalar>()
+                                    ).sum::<Scalar>()
+                                ).sum::<Scalar>()
+                            ).collect()
+                        ).collect()
+                    ).collect()
+                ).collect()
             }
         }
         impl<'a, C> ViscoelasticLinearElement<'a, C, G, M, N, O> for $element<C>
