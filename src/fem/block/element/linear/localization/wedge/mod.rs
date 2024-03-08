@@ -52,7 +52,7 @@ where
     }
     fn calculate_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> GradientVectors<N>
     {
-        let reference_nodal_coordinates_midplane = Self::calculate_midplane(&reference_nodal_coordinates);
+        let reference_nodal_coordinates_midplane = Self::calculate_midplane(reference_nodal_coordinates);
         let reference_dual_basis_vectors = Self::calculate_dual_basis(&reference_nodal_coordinates_midplane);
         let reference_normal = Self::calculate_normal(&reference_nodal_coordinates_midplane);
         let gradient_vectors_midplane = Self::calculate_standard_gradient_operator().iter()
@@ -169,6 +169,7 @@ where
     {
         // f_m^a = P_iJ (b_J^a delta_im + dn_i/dx_m^a N_J)
         // K_mn^ab = P_iJ dn_i/dx_m^a.dx_n^b N_J + C_iJkL (b_J^a delta_im + dn_i/dx_m^a N_J) (b_L^b delta_in + dn_k/dx_n^b N_L)
+        // have fun with PEMDAS...
         self.calculate_nodal_stiffnesses_linear_element(nodal_coordinates, nodal_velocities)
         // let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_models()[0]
         // .calculate_first_piola_kirchoff_rate_tangent_stiffness(

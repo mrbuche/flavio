@@ -38,8 +38,6 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: us
 /// Required methods for rank-3 tensor lists.
 pub trait TensorRank3ListTrait<const D: usize, const W: usize>
 {
-    /// Returns the rank-3 tensor list as an array.
-    fn as_array(&self) -> [[[[TensorRank0; D]; D]; D]; W];
     /// Returns a list of rank-3 tensors given an array.
     fn new(array: [[[[TensorRank0; D]; D]; D]; W]) -> Self;
     /// Returns a list of rank-3 zero tensors.
@@ -49,16 +47,6 @@ pub trait TensorRank3ListTrait<const D: usize, const W: usize>
 /// Implementation of [`TensorRank3ListTrait`] for [`TensorRank3List`].
 impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize> TensorRank3ListTrait<D, W> for TensorRank3List<D, I, J, K, W>
 {
-    fn as_array(&self) -> [[[[TensorRank0; D]; D]; D]; W]
-    {
-        let mut array = [[[[0.0; D]; D]; D]; W];
-        array.iter_mut()
-        .zip(self.iter())
-        .for_each(|(entry_rank_3, tensor_rank_3)|
-            *entry_rank_3 = tensor_rank_3.as_array()
-        );
-        array
-    }
     fn new(array: [[[[TensorRank0; D]; D]; D]; W]) -> Self
     {
         array.iter().map(|array_i|

@@ -129,9 +129,7 @@ impl<const D: usize, const I: usize, const J: usize> Convert<TensorRank1<D, J>> 
 {
     fn convert(&self) -> TensorRank1<D, J>
     {
-        self.iter().map(|self_i|
-            *self_i
-        ).collect()
+        self.iter().copied().collect()
     }
 }
 
