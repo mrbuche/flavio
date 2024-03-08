@@ -1,11 +1,7 @@
 use super::
 {
     TensorRank0,
-    super::
-    {
-        TensorRank3,
-        TensorRank3Trait
-    },
+    super::TensorRank3,
     TensorRank3List2D,
     TensorRank3List2DTrait
 };
