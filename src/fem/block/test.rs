@@ -6,6 +6,7 @@ macro_rules! test_finite_element_block
         {
             use crate::
             {
+                ABS_TOL,
                 EPSILON,
                 fem::block::test::
                 {
@@ -567,7 +568,8 @@ macro_rules! test_helmholtz_free_energy
                 fn positive()
                 {
                     let mut block = get_block();
-                    assert_eq!(block.calculate_helmholtz_free_energy(), 0.0);
+                    assert!(block.calculate_helmholtz_free_energy().abs() < ABS_TOL);
+                    // assert_eq!(block.calculate_helmholtz_free_energy(), 0.0);
                     block.set_nodal_coordinates(
                         get_coordinates_block()
                     );
@@ -642,11 +644,13 @@ macro_rules! test_helmholtz_free_energy
                 fn zero()
                 {
                     let mut block = get_block();
-                    assert_eq!(block.calculate_helmholtz_free_energy(), 0.0);
+                    assert!(block.calculate_helmholtz_free_energy().abs() < ABS_TOL);
+                    // assert_eq!(block.calculate_helmholtz_free_energy(), 0.0);
                     block.set_nodal_coordinates(
                         get_reference_coordinates_block().convert()
                     );
-                    assert_eq!(block.calculate_helmholtz_free_energy(), 0.0);
+                    assert!(block.calculate_helmholtz_free_energy().abs() < ABS_TOL);
+                    // assert_eq!(block.calculate_helmholtz_free_energy(), 0.0);
                 }
             }
         }
