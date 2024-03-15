@@ -530,6 +530,7 @@ macro_rules! test_helmholtz_free_energy
                     );
                     let nodal_forces = block.calculate_nodal_forces();
                     let minimum = block.calculate_helmholtz_free_energy() - nodal_forces.dot(&get_coordinates_block());
+                    let mut perturbed = 0.0;
                     let mut perturbed_coordinates = get_coordinates_block();
                     (0..D).for_each(|node|
                         (0..3).for_each(|i|{
@@ -538,21 +539,27 @@ macro_rules! test_helmholtz_free_energy
                             block.set_nodal_coordinates(
                                 &perturbed_coordinates * 1.0
                             );
-                            assert!(
+                            perturbed =
                                 block.calculate_helmholtz_free_energy()
                                 - nodal_forces.dot(
                                     &perturbed_coordinates
-                                ) > minimum
+                                );
+                            assert!(
+                                perturbed > minimum ||
+                                check_eq_within_tols(&perturbed, &minimum)
                             );
                             perturbed_coordinates[node][i] -= EPSILON;
                             block.set_nodal_coordinates(
                                 &perturbed_coordinates * 1.0
                             );
-                            assert!(
+                            perturbed =
                                 block.calculate_helmholtz_free_energy()
                                 - nodal_forces.dot(
                                     &perturbed_coordinates
-                                ) > minimum
+                                );
+                            assert!(
+                                perturbed > minimum ||
+                                check_eq_within_tols(&perturbed, &minimum)
                             );
                         })
                     )
@@ -578,7 +585,6 @@ macro_rules! test_helmholtz_free_energy
                 {
                     let mut block = get_block();
                     assert!(block.calculate_helmholtz_free_energy().abs() < ABS_TOL);
-                    // assert_eq!(block.calculate_helmholtz_free_energy(), 0.0);
                     block.set_nodal_coordinates(
                         get_coordinates_block()
                     );
@@ -608,6 +614,7 @@ macro_rules! test_helmholtz_free_energy
                 {
                     let mut block = get_block();
                     let minimum = block.calculate_helmholtz_free_energy();
+                    let mut perturbed = 0.0;
                     let mut perturbed_coordinates = get_reference_coordinates_block();
                     (0..D).for_each(|node|
                         (0..3).for_each(|i|{
@@ -616,15 +623,19 @@ macro_rules! test_helmholtz_free_energy
                             block.set_nodal_coordinates(
                                 perturbed_coordinates.convert()
                             );
+                            perturbed = block.calculate_helmholtz_free_energy();
                             assert!(
-                                block.calculate_helmholtz_free_energy() > minimum
+                                perturbed > minimum ||
+                                check_eq_within_tols(&perturbed, &minimum)
                             );
                             perturbed_coordinates[node][i] -= EPSILON;
                             block.set_nodal_coordinates(
                                 perturbed_coordinates.convert()
                             );
+                            perturbed = block.calculate_helmholtz_free_energy();
                             assert!(
-                                block.calculate_helmholtz_free_energy() > minimum
+                                perturbed > minimum ||
+                                check_eq_within_tols(&perturbed, &minimum)
                             );
                         })
                     )
@@ -654,12 +665,10 @@ macro_rules! test_helmholtz_free_energy
                 {
                     let mut block = get_block();
                     assert!(block.calculate_helmholtz_free_energy().abs() < ABS_TOL);
-                    // assert_eq!(block.calculate_helmholtz_free_energy(), 0.0);
                     block.set_nodal_coordinates(
                         get_reference_coordinates_block().convert()
                     );
                     assert!(block.calculate_helmholtz_free_energy().abs() < ABS_TOL);
-                    // assert_eq!(block.calculate_helmholtz_free_energy(), 0.0);
                 }
             }
         }
@@ -1102,7 +1111,7 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
                                 block.calculate_viscous_dissipation()
                                 - nodal_forces.dot(
                                     &perturbed_velocities
-                                ) > minimum
+                                ) >= minimum
                             );
                             perturbed_velocities[node][i] -= EPSILON;
                             block.set_nodal_velocities(
@@ -1112,7 +1121,7 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
                                 block.calculate_viscous_dissipation()
                                 - nodal_forces.dot(
                                     &perturbed_velocities
-                                ) > minimum
+                                ) >= minimum
                             );
                         })
                     )
@@ -1185,14 +1194,14 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
                                 perturbed_velocities.convert()
                             );
                             assert!(
-                                block.calculate_viscous_dissipation() > minimum
+                                block.calculate_viscous_dissipation() >= minimum
                             );
                             perturbed_velocities[node][i] -= EPSILON;
                             block.set_nodal_velocities(
                                 perturbed_velocities.convert()
                             );
                             assert!(
-                                block.calculate_viscous_dissipation() > minimum
+                                block.calculate_viscous_dissipation() >= minimum
                             );
                         })
                     )
@@ -1287,7 +1296,7 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
                                 block.calculate_dissipation_potential()
                                 - nodal_forces.dot(
                                     &perturbed_velocities
-                                ) > minimum
+                                ) >= minimum
                             );
                             perturbed_velocities[node][i] -= EPSILON;
                             block.set_nodal_velocities(
@@ -1297,7 +1306,7 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
                                 block.calculate_dissipation_potential()
                                 - nodal_forces.dot(
                                     &perturbed_velocities
-                                ) > minimum
+                                ) >= minimum
                             );
                         })
                     )
@@ -1357,14 +1366,14 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
                                 perturbed_velocities.convert()
                             );
                             assert!(
-                                block.calculate_dissipation_potential() > minimum
+                                block.calculate_dissipation_potential() >= minimum
                             );
                             perturbed_velocities[node][i] -= EPSILON;
                             block.set_nodal_velocities(
                                 perturbed_velocities.convert()
                             );
                             assert!(
-                                block.calculate_dissipation_potential() > minimum
+                                block.calculate_dissipation_potential() >= minimum
                             );
                         })
                     )

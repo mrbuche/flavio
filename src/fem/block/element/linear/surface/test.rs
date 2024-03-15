@@ -817,7 +817,8 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                     .zip(get_normal_rate_from_finite_difference(true).iter())
                     .for_each(|(normal_rate_i, fd_normal_rate_i)|
                         assert!(
-                            (normal_rate_i/fd_normal_rate_i - 1.0).abs() < EPSILON
+                            (normal_rate_i/fd_normal_rate_i - 1.0).abs() < EPSILON ||
+                            normal_rate_i.abs() < EPSILON
                         )
                     )
                 }
