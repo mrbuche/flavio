@@ -3,7 +3,8 @@ use super::
     TensorRank0,
     TensorRank2,
     TensorRank3,
-    TensorRank3Trait
+    TensorRank3Trait,
+    levi_civita
 };
 
 fn get_array() -> [[[TensorRank0; 4]; 4]; 4]
@@ -353,6 +354,39 @@ fn iter_mut()
             )
         )
     );
+}
+
+#[test]
+fn levi_civita_cases()
+{
+    let levi_civita_symbol = levi_civita::<1, 1, 1>();
+    assert_eq!(levi_civita_symbol[0][0][0], 0.0);
+    assert_eq!(levi_civita_symbol[0][0][1], 0.0);
+    assert_eq!(levi_civita_symbol[0][0][2], 0.0);
+    assert_eq!(levi_civita_symbol[0][1][0], 0.0);
+    assert_eq!(levi_civita_symbol[0][1][1], 0.0);
+    assert_eq!(levi_civita_symbol[0][1][2], 1.0);
+    assert_eq!(levi_civita_symbol[0][2][0], 0.0);
+    assert_eq!(levi_civita_symbol[0][2][1], -1.0);
+    assert_eq!(levi_civita_symbol[0][2][2], 0.0);
+    assert_eq!(levi_civita_symbol[1][0][0], 0.0);
+    assert_eq!(levi_civita_symbol[1][0][1], 0.0);
+    assert_eq!(levi_civita_symbol[1][0][2], -1.0);
+    assert_eq!(levi_civita_symbol[1][1][0], 0.0);
+    assert_eq!(levi_civita_symbol[1][1][1], 0.0);
+    assert_eq!(levi_civita_symbol[1][1][2], 0.0);
+    assert_eq!(levi_civita_symbol[1][2][0], 1.0);
+    assert_eq!(levi_civita_symbol[1][2][1], 0.0);
+    assert_eq!(levi_civita_symbol[1][2][2], 0.0);
+    assert_eq!(levi_civita_symbol[2][0][0], 0.0);
+    assert_eq!(levi_civita_symbol[2][0][1], 1.0);
+    assert_eq!(levi_civita_symbol[2][0][2], 0.0);
+    assert_eq!(levi_civita_symbol[2][1][0], -1.0);
+    assert_eq!(levi_civita_symbol[2][1][1], 0.0);
+    assert_eq!(levi_civita_symbol[2][1][2], 0.0);
+    assert_eq!(levi_civita_symbol[2][2][0], 0.0);
+    assert_eq!(levi_civita_symbol[2][2][1], 0.0);
+    assert_eq!(levi_civita_symbol[2][2][2], 0.0);
 }
 
 #[test]

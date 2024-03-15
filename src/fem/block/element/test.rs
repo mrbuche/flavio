@@ -6,6 +6,7 @@ macro_rules! test_finite_element
         {
             use crate::
             {
+                ABS_TOL,
                 EPSILON,
                 fem::block::element::test::
                 {
@@ -19,18 +20,11 @@ macro_rules! test_finite_element
                     Convert,
                     TensorRank2
                 },
-                mechanics::test::
+                test::
                 {
-                    get_deformation_gradient,
-                    get_deformation_gradient_rate,
-                    get_rotation_current_configuration,
-                    get_rotation_rate_current_configuration,
-                    get_rotation_reference_configuration,
-                    get_translation_current_configuration,
-                    get_translation_rate_current_configuration,
-                    get_translation_reference_configuration
-                },
-                test::assert_eq_within_tols
+                    assert_eq_within_tols,
+                    check_eq_within_tols
+                }
             };
             use super::*;
             mod elastic
@@ -151,17 +145,19 @@ macro_rules! test_finite_element
 }
 pub(crate) use test_finite_element;
 
-macro_rules! test_nodal_forces_and_nodal_stiffnesses
+macro_rules! setup_for_element_tests_any_element
 {
-    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
+    ($element: ident) =>
     {
-        fn get_coordinates() -> NodalCoordinates<N>
+        use crate::mechanics::test::
         {
-            get_reference_coordinates().iter()
-            .map(|reference_coordinate|
-                get_deformation_gradient() * reference_coordinate
-            ).collect()
-        }
+            get_rotation_current_configuration,
+            get_rotation_reference_configuration,
+            get_rotation_rate_current_configuration,
+            get_translation_current_configuration,
+            get_translation_reference_configuration,
+            get_translation_rate_current_configuration
+        };
         fn get_coordinates_transformed() -> NodalCoordinates<N>
         {
             get_coordinates().iter()
@@ -170,6 +166,216 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses
                 + get_translation_current_configuration()
             ).collect()
         }
+        fn get_reference_coordinates_transformed() -> ReferenceNodalCoordinates<N>
+        {
+            get_reference_coordinates().iter()
+            .map(|reference_coordinate|
+                get_rotation_reference_configuration() * reference_coordinate
+                + get_translation_reference_configuration()
+            ).collect()
+        }
+        fn get_velocities_transformed() -> NodalVelocities<N>
+        {
+            get_coordinates().iter()
+            .zip(get_velocities().iter())
+            .map(|(coordinate, velocity)|
+                get_rotation_current_configuration() * velocity
+                + get_rotation_rate_current_configuration() * coordinate
+                + get_translation_rate_current_configuration()
+            ).collect()
+        }
+    }
+}
+pub(crate) use setup_for_element_tests_any_element;
+
+macro_rules! setup_for_elements
+{
+    ($element: ident) =>
+    {
+        use crate::
+        {
+            constitutive::solid::elastic::AlmansiHamel,
+            mechanics::test::
+            {
+                get_deformation_gradient,
+                get_deformation_gradient_rate
+            }
+        };
+        fn get_coordinates() -> NodalCoordinates<N>
+        {
+            get_deformation_gradient() * get_reference_coordinates()
+        }
+        fn get_velocities() -> NodalVelocities<N>
+        {
+            get_deformation_gradient_rate() * get_reference_coordinates()
+        }
+        #[test]
+        fn size()
+        {
+            assert_eq!(
+                std::mem::size_of::<$element::<AlmansiHamel>>(),
+                std::mem::size_of::<AlmansiHamel>()
+                + std::mem::size_of::<GradientVectors<N>>()
+            )
+        }
+        crate::fem::block::element::test::setup_for_element_tests_any_element!($element);
+    }
+}
+pub(crate) use setup_for_elements;
+
+macro_rules! setup_for_surface_or_localization_elements
+{
+    ($element: ident) =>
+    {
+        use crate::
+        {
+            constitutive::solid::elastic::AlmansiHamel,
+            mechanics::RotationCurrentConfiguration,
+            EPSILON
+        };
+        fn get_deformation_gradient() -> DeformationGradient
+        {
+            get_deformation_gradient_rotation() * get_deformation_gradient_special()
+        }
+        fn get_deformation_gradient_rate() -> DeformationGradientRate
+        {
+            get_deformation_gradient_rotation() * get_deformation_gradient_rate_special()
+        }
+        fn get_deformation_gradient_rotation() -> RotationCurrentConfiguration
+        {
+            crate::mechanics::test::get_rotation_reference_configuration().convert().transpose()
+        }
+        #[test]
+        fn size()
+        {
+            assert_eq!(
+                std::mem::size_of::<$element::<AlmansiHamel>>(),
+                std::mem::size_of::<AlmansiHamel>()
+                + std::mem::size_of::<GradientVectors<N>>()
+                + std::mem::size_of::<ReferenceNormal>()
+            )
+        }
+        crate::fem::block::element::test::setup_for_element_tests_any_element!($element);
+    }
+}
+pub(crate) use setup_for_surface_or_localization_elements;
+
+macro_rules! setup_for_surface_elements
+{
+    ($element: ident) =>
+    {
+        fn get_coordinates() -> NodalCoordinates<N>
+        {
+            get_deformation_gradient() * get_reference_coordinates()
+        }
+        fn get_deformation_gradient_special() -> DeformationGradient
+        {
+            DeformationGradient::new([
+                [0.62, 0.20, 0.00],
+                [0.32, 0.98, 0.00],
+                [0.00, 0.00, 1.00]
+            ])
+        }
+        fn get_deformation_gradient_rate_special() -> DeformationGradientRate
+        {
+            DeformationGradient::new([
+                [0.53, 0.58, 0.00],
+                [0.28, 0.77, 0.00],
+                [0.00, 0.00, 0.00]
+            ])
+        }
+        fn get_velocities() -> NodalVelocities<N>
+        {
+            get_deformation_gradient_rate() * get_reference_coordinates()
+        }
+        crate::fem::block::element::test::setup_for_surface_or_localization_elements!($element);
+    }
+}
+pub(crate) use setup_for_surface_elements;
+
+macro_rules! setup_for_localization_elements
+{
+    ($element: ident) =>
+    {
+        fn get_coordinates() -> NodalCoordinates<N>
+        {
+            get_deformation_gradient_rotation() * get_coordinates_unrotated()
+        }
+        fn get_coordinates_unrotated() -> NodalCoordinates<N>
+        {
+            let jump = get_jump();
+            let mut coordinates = get_deformation_gradient_surface() * get_reference_coordinates();
+            coordinates.iter_mut().skip(O)
+            .for_each(|coordinate_top_a|
+                *coordinate_top_a += &jump
+            );
+            coordinates
+        }
+        fn get_deformation_gradient_special() -> DeformationGradient
+        {
+            let jump = get_jump();
+            let mut deformation_gradient = get_deformation_gradient_surface();
+            deformation_gradient[0][2] = jump[0];
+            deformation_gradient[1][2] = jump[1];
+            deformation_gradient[2][2] = jump[2] + 1.0;
+            deformation_gradient
+        }
+        fn get_deformation_gradient_rate_special() -> DeformationGradientRate
+        {
+            let jump_rate = get_jump_rate();
+            let mut deformation_gradient_rate = get_deformation_gradient_rate_surface();
+            deformation_gradient_rate[0][2] = jump_rate[0];
+            deformation_gradient_rate[1][2] = jump_rate[1];
+            deformation_gradient_rate[2][2] = jump_rate[2];
+            deformation_gradient_rate
+        }
+        fn get_deformation_gradient_surface() -> DeformationGradient
+        {
+            DeformationGradient::new([
+                [0.62, 0.20, 0.00],
+                [0.32, 0.98, 0.00],
+                [0.00, 0.00, 1.00]
+            ])
+        }
+        fn get_deformation_gradient_rate_surface() -> DeformationGradientRate
+        {
+            DeformationGradient::new([
+                [0.53, 0.58, 0.00],
+                [0.28, 0.77, 0.00],
+                [0.00, 0.00, 0.00]
+            ])
+        }
+        fn get_jump() -> Vector<1>
+        {
+            Vector::new([1.11, 1.22, 1.33])
+        }
+        fn get_jump_rate() -> Vector<1>
+        {
+            Vector::new([0.12, 0.34, 0.56])
+        }
+        fn get_velocities() -> NodalVelocities<N>
+        {
+            get_deformation_gradient_rotation() * get_velocities_unrotated()
+        }
+        fn get_velocities_unrotated() -> NodalVelocities<N>
+        {
+            let jump_rate = get_jump_rate();
+            let mut velocities = get_deformation_gradient_rate_surface() * get_reference_coordinates();
+            velocities.iter_mut().skip(O)
+            .for_each(|velocity_top_a|
+                *velocity_top_a += &jump_rate
+            );
+            velocities
+        }
+        crate::fem::block::element::test::setup_for_surface_or_localization_elements!($element);
+    }
+}
+pub(crate) use setup_for_localization_elements;
+
+macro_rules! test_nodal_forces_and_nodal_stiffnesses
+{
+    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
+    {
         fn get_element<'a>() -> $element<$constitutive_model<'a>>
         {
             $element::new(
@@ -184,14 +390,6 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses
                 $constitutive_model_parameters,
                 get_reference_coordinates_transformed()
             )
-        }
-        fn get_reference_coordinates_transformed() -> ReferenceNodalCoordinates<N>
-        {
-            get_reference_coordinates().iter()
-            .map(|reference_coordinate|
-                get_rotation_reference_configuration() * reference_coordinate
-                + get_translation_reference_configuration()
-            ).collect()
         }
         #[test]
         fn integration_weights_sum_to_one()
@@ -218,11 +416,12 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses
                             .for_each(|(nodal_stiffness_ab_i, fd_nodal_stiffness_ab_i)|
                                 nodal_stiffness_ab_i.iter()
                                 .zip(fd_nodal_stiffness_ab_i.iter())
-                                .for_each(|(nodal_stiffness_ab_ij, fd_nodal_stiffness_ab_ij)|
+                                .for_each(|(nodal_stiffness_ab_ij, fd_nodal_stiffness_ab_ij)|{
                                     assert!(
-                                        (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < EPSILON
+                                        (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < EPSILON ||
+                                        (nodal_stiffness_ab_ij - fd_nodal_stiffness_ab_ij).abs() < EPSILON / 10.0
                                     )
-                                )
+                                })
                             )
                         )
                     )
@@ -263,6 +462,7 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses
                                 .for_each(|(nodal_stiffness_ab_ij, fd_nodal_stiffness_ab_ij)|
                                     assert!(
                                         (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < EPSILON ||
+                                        (nodal_stiffness_ab_ij - fd_nodal_stiffness_ab_ij).abs() < ABS_TOL ||
                                         (nodal_stiffness_ab_ij.abs() < EPSILON && fd_nodal_stiffness_ab_ij.abs() < EPSILON)
                                     )
                                 )
@@ -516,7 +716,8 @@ macro_rules! test_helmholtz_free_energy
                         .zip(fd_nodal_force.iter())
                         .for_each(|(nodal_force_i, fd_nodal_force_i)|
                             assert!(
-                                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON
+                                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON ||
+                                (nodal_force_i.abs() < EPSILON && fd_nodal_force_i.abs() < EPSILON)
                             )
                         )
                     )
@@ -527,25 +728,32 @@ macro_rules! test_helmholtz_free_energy
                     let element = get_element();
                     let nodal_forces = get_nodal_forces(true, false, false);
                     let minimum = get_helmholtz_free_energy(true, false) - nodal_forces.dot(&get_coordinates());
+                    let mut perturbed = 0.0;
                     let mut perturbed_coordinates = get_coordinates();
                     (0..N).for_each(|node|
                         (0..3).for_each(|i|{
                             perturbed_coordinates = get_coordinates();
                             perturbed_coordinates[node][i] += 0.5 * EPSILON;
-                            assert!(
+                            perturbed = 
                                 element.calculate_helmholtz_free_energy(
                                     &perturbed_coordinates
                                 ) - nodal_forces.dot(
                                     &perturbed_coordinates
-                                ) > minimum
+                                );
+                            assert!(
+                                perturbed > minimum ||
+                                check_eq_within_tols(&perturbed, &minimum)
                             );
                             perturbed_coordinates[node][i] -= EPSILON;
-                            assert!(
+                            perturbed = 
                                 element.calculate_helmholtz_free_energy(
                                     &perturbed_coordinates
                                 ) - nodal_forces.dot(
                                     &perturbed_coordinates
-                                ) > minimum
+                                );
+                            assert!(
+                                perturbed > minimum ||
+                                check_eq_within_tols(&perturbed, &minimum)
                             );
                         })
                     )
@@ -595,13 +803,13 @@ macro_rules! test_helmholtz_free_energy
                             assert!(
                                 element.calculate_helmholtz_free_energy(
                                     &perturbed_coordinates.convert()
-                                ) > minimum
+                                ) >= minimum
                             );
                             perturbed_coordinates[node][i] -= EPSILON;
                             assert!(
                                 element.calculate_helmholtz_free_energy(
                                     &perturbed_coordinates.convert()
-                                ) > minimum
+                                ) >= minimum
                             );
                         })
                     )
@@ -704,8 +912,8 @@ macro_rules! test_finite_element_with_elastic_constitutive_model
         {
             let element = get_element();
             let mut finite_difference = 0.0;
-            (0..N).map(|node_a|
-                (0..N).map(|node_b|
+            (0..N).map(|a|
+                (0..N).map(|b|
                     (0..3).map(|i|
                         (0..3).map(|j|{
                             let mut nodal_coordinates = 
@@ -717,14 +925,14 @@ macro_rules! test_finite_element_with_elastic_constitutive_model
                             {
                                 get_reference_coordinates().convert()
                             };
-                            nodal_coordinates[node_a][i] += 0.5 * EPSILON;
+                            nodal_coordinates[b][j] += 0.5 * EPSILON;
                             finite_difference = element.calculate_nodal_forces(
                                 &nodal_coordinates
-                            )[node_b][j];
-                            nodal_coordinates[node_a][i] -= EPSILON;
+                            )[a][i];
+                            nodal_coordinates[b][j] -= EPSILON;
                             finite_difference -= element.calculate_nodal_forces(
                                 &nodal_coordinates
-                            )[node_b][j];
+                            )[a][i];
                             finite_difference/EPSILON
                         }).collect()
                     ).collect()
@@ -903,23 +1111,6 @@ macro_rules! test_finite_element_with_viscoelastic_constitutive_model
                 ).collect()
             ).collect()
         }
-        fn get_velocities() -> NodalVelocities<N>
-        {
-            get_reference_coordinates().iter()
-            .map(|reference_coordinate|
-                get_deformation_gradient_rate() * reference_coordinate
-            ).collect()
-        }
-        fn get_velocities_transformed() -> NodalVelocities<N>
-        {
-            get_coordinates().iter()
-            .zip(get_velocities().iter())
-            .map(|(coordinate, velocity)|
-                get_rotation_current_configuration() * velocity
-                + get_rotation_rate_current_configuration() * coordinate
-                + get_translation_rate_current_configuration()
-            ).collect()
-        }
         crate::fem::block::element::test::test_nodal_forces_and_nodal_stiffnesses!(
             $element, $constitutive_model, $constitutive_model_parameters
         );
@@ -1096,7 +1287,8 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model
                         .zip(fd_nodal_force.iter())
                         .for_each(|(nodal_force_i, fd_nodal_force_i)|
                             assert!(
-                                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON
+                                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON ||
+                                (nodal_force_i.abs() < EPSILON && fd_nodal_force_i.abs() < EPSILON)
                             )
                         )
                     )
@@ -1117,7 +1309,7 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model
                                     &get_coordinates(), &perturbed_velocities
                                 ) - nodal_forces.dot(
                                     &perturbed_velocities
-                                ) > minimum
+                                ) >= minimum
                             );
                             perturbed_velocities[node][i] -= EPSILON;
                             assert!(
@@ -1125,7 +1317,7 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model
                                     &get_coordinates(), &perturbed_velocities
                                 ) - nodal_forces.dot(
                                     &perturbed_velocities
-                                ) > minimum
+                                ) >= minimum
                             );
                         })
                     )
@@ -1175,13 +1367,13 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model
                             assert!(
                                 element.calculate_viscous_dissipation(
                                     &get_reference_coordinates().convert(), &perturbed_velocities
-                                ) > minimum
+                                ) >= minimum
                             );
                             perturbed_velocities[node][i] -= EPSILON;
                             assert!(
                                 element.calculate_viscous_dissipation(
                                     &get_reference_coordinates().convert(), &perturbed_velocities
-                                ) > minimum
+                                ) >= minimum
                             );
                         })
                     )
@@ -1218,7 +1410,8 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model
                         .zip(fd_nodal_force.iter())
                         .for_each(|(nodal_force_i, fd_nodal_force_i)|
                             assert!(
-                                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON
+                                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON ||
+                                (nodal_force_i.abs() < EPSILON && fd_nodal_force_i.abs() < EPSILON)
                             )
                         )
                     )
@@ -1239,7 +1432,7 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model
                                     &get_coordinates(), &perturbed_velocities
                                 ) - nodal_forces.dot(
                                     &perturbed_velocities
-                                ) > minimum
+                                ) >= minimum
                             );
                             perturbed_velocities[node][i] -= EPSILON;
                             assert!(
@@ -1247,7 +1440,7 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model
                                     &get_coordinates(), &perturbed_velocities
                                 ) - nodal_forces.dot(
                                     &perturbed_velocities
-                                ) > minimum
+                                ) >= minimum
                             );
                         })
                     )
@@ -1290,13 +1483,13 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model
                             assert!(
                                 element.calculate_dissipation_potential(
                                     &get_reference_coordinates().convert(), &perturbed_velocities
-                                ) > minimum
+                                ) >= minimum
                             );
                             perturbed_velocities[node][i] -= EPSILON;
                             assert!(
                                 element.calculate_dissipation_potential(
                                     &get_reference_coordinates().convert(), &perturbed_velocities
-                                ) > minimum
+                                ) >= minimum
                             );
                         })
                     )

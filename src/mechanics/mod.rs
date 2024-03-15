@@ -25,6 +25,9 @@ pub type CauchyTangentStiffness = TensorRank4<3, 1, 1, 1, 0>;
 /// The rate tangent stiffness associated with the Cauchy stress $`\boldsymbol{\mathcal{V}}`$.
 pub type CauchyRateTangentStiffness = TensorRank4<3, 1, 1, 1, 0>;
 
+/// A list of coordinates.
+pub type Coordinates<const I: usize, const W: usize> = TensorRank1List<3, I, W>;
+
 /// A coordinate in the current configuration.
 pub type CurrentCoordinate = TensorRank1<3, 1>;
 
@@ -64,7 +67,7 @@ pub type Force = TensorRank1<3, 1>;
 /// A list of forces.
 pub type Forces<const W: usize> = TensorRank1List<3, 1, W>;
 
-/// The frame spin $`\boldsymbol{\Omega}=\dot{\mathbf{Q}}\cdot\mathbf{Q}^T`$.
+/// The frame spin $`\mathbf{\Omega}=\dot{\mathbf{Q}}\cdot\mathbf{Q}^T`$.
 pub type FrameSpin = TensorRank2<3, 1, 1>;
 
 /// The heat flux.

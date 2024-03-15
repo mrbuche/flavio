@@ -20,13 +20,23 @@ pub use block::
         HyperviscoelasticFiniteElement,
         linear::
         {
-            LinearFiniteElement,
-            HyperelasticLinearFiniteElement,
-            ViscoelasticLinearFiniteElement,
-            HyperviscoelasticLinearFiniteElement,
+            LinearElement,
+            HyperelasticLinearElement,
+            ViscoelasticLinearElement,
+            HyperviscoelasticLinearElement,
             tetrahedron::
             {
-                LinearTetrahedron
+                Tetrahedron
+            },
+            localization::
+            {
+                LinearLocalizationElement,
+                wedge::Wedge
+            },
+            surface::
+            {
+                LinearSurfaceElement,
+                triangle::Triangle
             }
         }
     }
@@ -53,27 +63,34 @@ use crate::
         ContractSecondFourthIndicesWithFirstIndicesOf,
         Convert,
         TensorRank0ListTrait,
+        TensorRank1Trait,
+        TensorRank1List,
         TensorRank1ListTrait,
+        TensorRank2,
+        TensorRank2List,
         TensorRank2Trait,
-        TensorRank2List2DTrait
+        TensorRank2List2DTrait,
+        TensorRank3List2D,
+        levi_civita
     },
     mechanics::
     {
+        Coordinates,
         CurrentCoordinates,
         DeformationGradient,
         DeformationGradientRate,
-        FirstPiolaKirchoffStress,
-        FirstPiolaKirchoffTangentStiffness,
         Forces,
         ReferenceCoordinates,
         Scalar,
         Scalars,
         Stiffnesses,
+        Vector,
         Vectors
     }
 };
 
 type Connectivity<const E: usize, const N: usize> = [[usize; N]; E];
+type IntegrationWeights<const G: usize> = Scalars<G>;
 type NodalCoordinates<const D: usize> = CurrentCoordinates<D>;
 type NodalForces<const D: usize> = Forces<D>;
 type NodalStiffnesses<const D: usize> = Stiffnesses<D>;

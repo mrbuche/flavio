@@ -1,24 +1,27 @@
-macro_rules! test_linear_finite_element
+macro_rules! test_linear_element
 {
     ($element: ident) =>
     {
+        crate::fem::block::element::test::setup_for_elements!($element);
+        crate::fem::block::element::linear::test::test_linear_element_inner!($element);
+    }
+}
+pub(crate) use test_linear_element;
+
+macro_rules! test_linear_element_inner
+{
+    ($element: ident) =>
+    {
+        crate::fem::block::element::test::test_finite_element!($element);
         mod linear_element
         {
             use crate::
             {
                 fem::block::element::linear::test::
                 {
-                    test_linear_finite_element_with_constitutive_model
+                    test_linear_element_with_constitutive_model
                 },
                 math::Convert,
-                mechanics::test::
-                {
-                    get_deformation_gradient,
-                    get_rotation_current_configuration,
-                    get_rotation_reference_configuration,
-                    get_translation_current_configuration,
-                    get_translation_reference_configuration
-                },
                 test::assert_eq_within_tols
             };
             use super::*;
@@ -36,7 +39,7 @@ macro_rules! test_linear_finite_element
                 mod almansi_hamel
                 {
                     use super::*;
-                    test_linear_finite_element_with_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
+                    test_linear_element_with_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
                 }
             }
             mod hyperelastic
@@ -68,37 +71,37 @@ macro_rules! test_linear_finite_element
                 mod arruda_boyce
                 {
                     use super::*;
-                    test_linear_finite_element_with_constitutive_model!($element, ArrudaBoyce, ARRUDABOYCEPARAMETERS);
+                    test_linear_element_with_constitutive_model!($element, ArrudaBoyce, ARRUDABOYCEPARAMETERS);
                 }
                 mod fung
                 {
                     use super::*;
-                    test_linear_finite_element_with_constitutive_model!($element, Fung, FUNGPARAMETERS);
+                    test_linear_element_with_constitutive_model!($element, Fung, FUNGPARAMETERS);
                 }
                 mod gent
                 {
                     use super::*;
-                    test_linear_finite_element_with_constitutive_model!($element, Gent, GENTPARAMETERS);
+                    test_linear_element_with_constitutive_model!($element, Gent, GENTPARAMETERS);
                 }
                 mod mooney_rivlin
                 {
                     use super::*;
-                    test_linear_finite_element_with_constitutive_model!($element, MooneyRivlin, MOONEYRIVLINPARAMETERS);
+                    test_linear_element_with_constitutive_model!($element, MooneyRivlin, MOONEYRIVLINPARAMETERS);
                 }
                 mod neo_hookean
                 {
                     use super::*;
-                    test_linear_finite_element_with_constitutive_model!($element, NeoHookean, NEOHOOKEANPARAMETERS);
+                    test_linear_element_with_constitutive_model!($element, NeoHookean, NEOHOOKEANPARAMETERS);
                 }
                 mod saint_venant_kirchoff
                 {
                     use super::*;
-                    test_linear_finite_element_with_constitutive_model!($element, SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS);
+                    test_linear_element_with_constitutive_model!($element, SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS);
                 }
                 mod yeoh
                 {
                     use super::*;
-                    test_linear_finite_element_with_constitutive_model!($element, Yeoh, YEOHPARAMETERS);
+                    test_linear_element_with_constitutive_model!($element, Yeoh, YEOHPARAMETERS);
                 }
             }
             mod elastic_hyperviscous
@@ -115,7 +118,7 @@ macro_rules! test_linear_finite_element
                 mod almansi_hamel
                 {
                     use super::*;
-                    test_linear_finite_element_with_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
+                    test_linear_element_with_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
                 }
             }
             mod hyperviscoelastic
@@ -132,33 +135,18 @@ macro_rules! test_linear_finite_element
                 mod saint_venant_kirchoff
                 {
                     use super::*;
-                    test_linear_finite_element_with_constitutive_model!($element, SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS);
+                    test_linear_element_with_constitutive_model!($element, SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS);
                 }
             }
         }
     }
 }
-pub(crate) use test_linear_finite_element;
+pub(crate) use test_linear_element_inner;
 
-macro_rules! test_linear_finite_element_with_constitutive_model
+macro_rules! test_linear_element_with_constitutive_model
 {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
     {
-        fn get_coordinates() -> NodalCoordinates<N>
-        {
-            get_reference_coordinates().iter()
-            .map(|reference_coordinate|
-                get_deformation_gradient() * reference_coordinate
-            ).collect()
-        }
-        fn get_coordinates_transformed() -> NodalCoordinates<N>
-        {
-            get_coordinates().iter()
-            .map(|current_coordinate|
-                get_rotation_current_configuration() * current_coordinate
-                + get_translation_current_configuration()
-            ).collect()
-        }
         fn get_element<'a>() -> $element<$constitutive_model<'a>>
         {
             $element::new(
@@ -174,20 +162,28 @@ macro_rules! test_linear_finite_element_with_constitutive_model
                 get_reference_coordinates_transformed()
             )
         }
-        fn get_reference_coordinates_transformed() -> ReferenceNodalCoordinates<N>
-        {
-            get_reference_coordinates().iter()
-            .map(|reference_coordinate|
-                get_rotation_reference_configuration() * reference_coordinate
-                + get_translation_reference_configuration()
-            ).collect()
-        }
         mod deformation_gradient
         {
             use super::*;
             mod deformed
             {
                 use super::*;
+                #[test]
+                fn calculate()
+                {
+                    get_element().calculate_deformation_gradient(
+                        &get_coordinates()
+                    ).iter().zip(get_deformation_gradient().iter())
+                    .for_each(|(calculated_deformation_gradient_i, deformation_gradient_i)|
+                        calculated_deformation_gradient_i.iter()
+                        .zip(deformation_gradient_i.iter())
+                        .for_each(|(calculated_deformation_gradient_ij, deformation_gradient_ij)|
+                            assert_eq_within_tols(
+                                calculated_deformation_gradient_ij, deformation_gradient_ij
+                            )
+                        )
+                    )
+                }
                 #[test]
                 fn objectivity()
                 {
@@ -214,13 +210,31 @@ macro_rules! test_linear_finite_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
+                fn calculate()
+                {
+                    get_element().calculate_deformation_gradient(
+                        &get_reference_coordinates().convert()
+                    ).iter().enumerate()
+                    .for_each(|(i, calculated_deformation_gradient_i)|
+                        calculated_deformation_gradient_i.iter().enumerate()
+                        .for_each(|(j, calculated_deformation_gradient_ij)|
+                            if i == j
+                            {
+                                assert_eq_within_tols(calculated_deformation_gradient_ij, &1.0)
+                            }
+                            else
+                            {
+                                assert_eq_within_tols(calculated_deformation_gradient_ij, &0.0)
+                            }
+                        )
+                    )
+                }
+                #[test]
                 fn objectivity()
                 {
                     get_element_transformed().calculate_deformation_gradient(
-                        &get_reference_coordinates_transformed()
-                        .convert()
-                    ).iter()
-                    .enumerate()
+                        &get_reference_coordinates_transformed().convert()
+                    ).iter().enumerate()
                     .for_each(|(i, deformation_gradient_i)|
                         deformation_gradient_i.iter()
                         .enumerate()
@@ -233,6 +247,88 @@ macro_rules! test_linear_finite_element_with_constitutive_model
                             {
                                 assert_eq_within_tols(deformation_gradient_ij, &0.0)
                             }
+                        )
+                    )
+                }
+            }
+        }
+        mod deformation_gradient_rate
+        {
+            use super::*;
+            mod deformed
+            {
+                use super::*;
+                #[test]
+                fn calculate()
+                {
+                    get_element().calculate_deformation_gradient_rate(
+                        &get_coordinates(), &get_velocities()
+                    ).iter().zip(get_deformation_gradient_rate().iter())
+                    .for_each(|(calculated_deformation_gradient_rate_i, deformation_gradient_rate_i)|
+                        calculated_deformation_gradient_rate_i.iter()
+                        .zip(deformation_gradient_rate_i.iter())
+                        .for_each(|(calculated_deformation_gradient_rate_ij, deformation_gradient_rate_ij)|
+                            assert_eq_within_tols(
+                                calculated_deformation_gradient_rate_ij, deformation_gradient_rate_ij
+                            )
+                        )
+                    )
+                }
+                #[test]
+                fn objectivity()
+                {
+                    get_element().calculate_deformation_gradient_rate(
+                        &get_coordinates(), &get_velocities()
+                    ).iter().zip((
+                        get_rotation_current_configuration().transpose() *(
+                            get_element_transformed().calculate_deformation_gradient_rate(
+                                &get_coordinates_transformed(), &get_velocities_transformed()
+                            ) * get_rotation_reference_configuration() -
+                            get_rotation_rate_current_configuration() *
+                            get_element().calculate_deformation_gradient(
+                                &get_coordinates()
+                            )
+                        )
+                    ).iter()
+                    ).for_each(|(deformation_gradient_rate_i, res_deformation_gradient_rate_i)|
+                        deformation_gradient_rate_i.iter()
+                        .zip(res_deformation_gradient_rate_i.iter())
+                        .for_each(|(deformation_gradient_rate_ij, res_deformation_gradient_rate_ij)|
+                            assert_eq_within_tols(
+                                deformation_gradient_rate_ij, res_deformation_gradient_rate_ij
+                            )
+                        )
+                    )
+                }
+            }
+            mod undeformed
+            {
+                use super::*;
+                #[test]
+                fn calculate()
+                {
+                    get_element().calculate_deformation_gradient_rate(
+                        &get_reference_coordinates().convert(),
+                        &NodalVelocities::zero().convert()
+                    ).iter()
+                    .for_each(|calculated_deformation_gradient_rate_i|
+                        calculated_deformation_gradient_rate_i.iter()
+                        .for_each(|calculated_deformation_gradient_rate_ij|
+                            assert_eq_within_tols(calculated_deformation_gradient_rate_ij, &0.0)
+                        )
+                    )
+                }
+                #[test]
+                fn objectivity()
+                {
+                    get_element_transformed().calculate_deformation_gradient_rate(
+                        &get_reference_coordinates_transformed().convert(),
+                        &NodalVelocities::zero().convert()
+                    ).iter()
+                    .for_each(|deformation_gradient_rate_i|
+                        deformation_gradient_rate_i.iter()
+                        .for_each(|deformation_gradient_rate_ij|
+                            assert_eq_within_tols(deformation_gradient_rate_ij, &0.0)
                         )
                     )
                 }
@@ -299,15 +395,6 @@ macro_rules! test_linear_finite_element_with_constitutive_model
                 )
             }
         }
-        #[test]
-        fn size()
-        {
-            assert_eq!(
-                std::mem::size_of::<$element::<$constitutive_model>>(),
-                std::mem::size_of::<$constitutive_model>()
-                + std::mem::size_of::<GradientVectors<N>>()
-            )
-        }
     }
 }
-pub(crate) use test_linear_finite_element_with_constitutive_model;
+pub(crate) use test_linear_element_with_constitutive_model;

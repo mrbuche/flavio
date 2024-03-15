@@ -1,14 +1,7 @@
 use crate::fem::block::
 {
     test::test_finite_element_block,
-    element::
-    {
-        test::test_finite_element,
-        linear::
-        {
-            test::test_linear_finite_element
-        }
-    }
+    element::linear::test::test_linear_element
 };
 use super::*;
 
@@ -65,26 +58,6 @@ fn get_coordinates_block() -> NodalCoordinates<D>
     ])
 }
 
-fn get_velocities_block() -> NodalVelocities<D>
-{
-    NodalCoordinates::new([
-        [ 0.00888030, -0.09877116,  0.07861759],
-        [ 0.02037718, -0.09870374, -0.04739945],
-        [-0.02023814, -0.00392495,  0.00612573],
-        [ 0.08198906,  0.09420134, -0.05701550],
-        [-0.05278682,  0.02357548,  0.03048997],
-        [-0.06860257, -0.08783628, -0.07055701],
-        [-0.08624215, -0.04538965, -0.02892557],
-        [-0.09304190, -0.07169055, -0.04272249],
-        [ 0.04056852, -0.09734596,  0.00339223],
-        [-0.08708972, -0.08251380, -0.08124456],
-        [-0.03744580, -0.06003551,  0.09364016],
-        [-0.06954597,  0.06645925, -0.08261904],
-        [ 0.07740919, -0.00642660,  0.01101806],
-        [-0.04079346, -0.07283644,  0.05569305]
-    ])
-}
-
 fn get_reference_coordinates() -> ReferenceNodalCoordinates<N>
 {
     ReferenceNodalCoordinates::new([
@@ -115,6 +88,25 @@ fn get_reference_coordinates_block() -> ReferenceNodalCoordinates<D>
     ])
 }
 
-test_finite_element!(LinearTetrahedron);
-test_finite_element_block!(LinearTetrahedron);
-test_linear_finite_element!(LinearTetrahedron);
+fn get_velocities_block() -> NodalVelocities<D>
+{
+    NodalCoordinates::new([
+        [ 0.00888030, -0.09877116,  0.07861759],
+        [ 0.02037718, -0.09870374, -0.04739945],
+        [-0.02023814, -0.00392495,  0.00612573],
+        [ 0.08198906,  0.09420134, -0.05701550],
+        [-0.05278682,  0.02357548,  0.03048997],
+        [-0.06860257, -0.08783628, -0.07055701],
+        [-0.08624215, -0.04538965, -0.02892557],
+        [-0.09304190, -0.07169055, -0.04272249],
+        [ 0.04056852, -0.09734596,  0.00339223],
+        [-0.08708972, -0.08251380, -0.08124456],
+        [-0.03744580, -0.06003551,  0.09364016],
+        [-0.06954597,  0.06645925, -0.08261904],
+        [ 0.07740919, -0.00642660,  0.01101806],
+        [-0.04079346, -0.07283644,  0.05569305]
+    ])
+}
+
+test_linear_element!(Tetrahedron);
+test_finite_element_block!(Tetrahedron);

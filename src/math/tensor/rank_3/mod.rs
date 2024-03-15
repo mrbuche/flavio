@@ -1,6 +1,9 @@
 #[cfg(test)]
 mod test;
 
+pub mod list;
+pub mod list_2d;
+
 use std::ops::
 {
     Add,
@@ -24,6 +27,24 @@ use super::
         TensorRank2Trait
     }
 };
+
+/// Returns the rank-3 Levi-Civita symbol.
+pub fn levi_civita<const I: usize, const J: usize, const K: usize>() -> TensorRank3<3, I, J, K>
+{
+    TensorRank3::new([[
+        [ 0.0,  0.0,  0.0],
+        [ 0.0,  0.0,  1.0],
+        [ 0.0, -1.0,  0.0]
+    ],[
+        [ 0.0,  0.0, -1.0],
+        [ 0.0,  0.0,  0.0],
+        [ 1.0,  0.0,  0.0]
+    ],[
+        [ 0.0,  1.0,  0.0],
+        [-1.0,  0.0,  0.0],
+        [ 0.0,  0.0,  0.0]
+    ]])
+}
 
 /// A *d*-dimensional tensor of rank 3.
 ///

@@ -164,6 +164,20 @@ impl<const D: usize, const I: usize, const W: usize> IndexMut<usize> for TensorR
     }
 }
 
+impl<const D: usize, const I: usize, const W: usize> std::iter::Sum for TensorRank1List<D, I, W>
+{
+    fn sum<Ii>(iter: Ii) -> Self
+    where
+        Ii: Iterator<Item = Self>
+    {
+        let mut output = TensorRank1List::zero();
+        iter.for_each(|item|
+            output += item
+        );
+        output
+    }
+}
+
 impl<const D: usize, const I: usize, const W: usize> Div<TensorRank0> for TensorRank1List<D, I, W>
 {
     type Output = Self;

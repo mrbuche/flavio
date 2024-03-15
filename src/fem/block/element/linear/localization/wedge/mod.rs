@@ -1,0 +1,296 @@
+#[cfg(test)]
+mod test;
+
+use super::*;
+
+const G: usize = 1;
+const M: usize = 2;
+const N: usize = 6;
+const O: usize = 3;
+
+pub struct Wedge<C>
+{
+    constitutive_models: [C; G],
+    gradient_vectors: GradientVectors<N>,
+    reference_normal: ReferenceNormal
+}
+
+impl<'a, C> FiniteElement<'a, C, G, N> for Wedge<C>
+where
+    C: Constitutive<'a>
+{
+    fn get_constitutive_models(&self) -> &[C; G]
+    {
+        &self.constitutive_models
+    }
+    fn get_integration_weights(&self) -> IntegrationWeights<G>
+    {
+        IntegrationWeights::new([1.0; G])
+    }
+    fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>) -> Self
+    {
+        Self
+        {
+            constitutive_models: std::array::from_fn(|_| <C>::new(constitutive_model_parameters)),
+            gradient_vectors: Self::calculate_gradient_vectors(&reference_nodal_coordinates),
+            reference_normal: Self::calculate_normal(&Self::calculate_midplane(&reference_nodal_coordinates))
+        }
+    }
+}
+
+impl<'a, C> LinearElement<'a, C, G, M, N, O> for Wedge<C>
+where
+    C: Constitutive<'a>
+{
+    fn calculate_deformation_gradient(&self, nodal_coordinates: &NodalCoordinates<N>) -> DeformationGradient
+    {
+        self.calculate_deformation_gradient_linear_localization_element(nodal_coordinates)
+    }
+    fn calculate_deformation_gradient_rate(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> DeformationGradientRate
+    {
+        self.calculate_deformation_gradient_rate_linear_localization_element(nodal_coordinates, nodal_velocities)
+    }
+    fn calculate_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> GradientVectors<N>
+    {
+        let reference_nodal_coordinates_midplane = Self::calculate_midplane(reference_nodal_coordinates);
+        let reference_dual_basis_vectors = Self::calculate_dual_basis(&reference_nodal_coordinates_midplane);
+        let reference_normal = Self::calculate_normal(&reference_nodal_coordinates_midplane);
+        let gradient_vectors_midplane = Self::calculate_standard_gradient_operator().iter()
+        .map(|standard_gradient_operator_a|
+            standard_gradient_operator_a.iter()
+            .zip(reference_dual_basis_vectors.iter())
+            .map(|(standard_gradient_operator_a_m, dual_reference_basis_vector_m)|
+                dual_reference_basis_vector_m*standard_gradient_operator_a_m
+            ).sum()
+        ).collect::<GradientVectors<O>>();
+        let mut gradient_vectors = GradientVectors::zero();
+        gradient_vectors.iter_mut().take(O)
+        .zip(gradient_vectors_midplane.iter())
+        .for_each(|(gradient_vector_a, gradient_vector_midplane_a)|
+            *gradient_vector_a = gradient_vector_midplane_a * 0.5 - &reference_normal / 3.0
+        );
+        gradient_vectors.iter_mut().skip(O)
+        .zip(gradient_vectors_midplane.iter())
+        .for_each(|(gradient_vector_a, gradient_vector_midplane_a)|
+            *gradient_vector_a = gradient_vector_midplane_a * 0.5 + &reference_normal / 3.0
+        );
+        gradient_vectors
+    }
+    fn calculate_standard_gradient_operator() -> StandardGradientOperator<M, O>
+    {
+        StandardGradientOperator::new([
+            [-1.0, -1.0],
+            [ 1.0,  0.0],
+            [ 0.0,  1.0]
+        ])
+    }
+    fn get_gradient_vectors(&self) -> &GradientVectors<N>
+    {
+        &self.gradient_vectors
+    }
+}
+
+impl<'a, C> LinearSurfaceElement<'a, C, G, M, N, O> for Wedge<C>
+where
+    C: Constitutive<'a>
+{
+    fn get_reference_normal(&self) -> &ReferenceNormal
+    {
+        &self.reference_normal
+    }
+}
+
+impl<'a, C> LinearLocalizationElement<'a, C, G, M, N, O> for Wedge<C>
+where
+    C: Constitutive<'a>
+{
+    fn calculate_midplane<const I: usize>(nodal_coordinates: &Coordinates<I, N>) -> Coordinates<I, O>
+    {
+        nodal_coordinates.iter().skip(O)
+        .zip(nodal_coordinates.iter().take(O))
+        .map(|(nodal_coordinates_top, nodal_coordinates_bottom)|
+            nodal_coordinates_top.iter()
+            .zip(nodal_coordinates_bottom.iter())
+            .map(|(nodal_coordinates_top_i, nodal_coordinates_bottom_i)|
+                (nodal_coordinates_top_i + nodal_coordinates_bottom_i) * 0.5
+            ).collect()
+        ).collect()
+    }
+}
+
+impl<'a, C> ElasticFiniteElement<'a, C, G, N> for Wedge<C>
+where
+    C: Elastic<'a>
+{
+    fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
+    {
+        let first_piola_kirchoff_stress = self.get_constitutive_models()[0]
+        .calculate_first_piola_kirchoff_stress(
+            &self.calculate_deformation_gradient(nodal_coordinates)
+        );
+        let normal_gradients = Self::calculate_normal_gradients(
+            &Self::calculate_midplane(nodal_coordinates)
+        );
+        let traction = (&first_piola_kirchoff_stress * self.get_reference_normal()) * 0.5;
+        self.get_gradient_vectors().iter()
+        .zip(normal_gradients.iter().chain(normal_gradients.iter()))
+        .map(|(gradient_vector_a, normal_gradient_a)|
+            &first_piola_kirchoff_stress * gradient_vector_a + normal_gradient_a * &traction
+        ).collect()
+    }
+    fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
+    {
+        let first_piola_kirchoff_stress = self.get_constitutive_models()[0]
+        .calculate_first_piola_kirchoff_stress(
+            &self.calculate_deformation_gradient(nodal_coordinates)
+        );
+        let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_models()[0]
+        .calculate_first_piola_kirchoff_tangent_stiffness(
+            &self.calculate_deformation_gradient(nodal_coordinates)
+        );
+        let gradient_vectors = self.get_gradient_vectors();
+        let identity = TensorRank2::<3, 1, 1>::identity();
+        let normal_gradients = Self::calculate_normal_gradients(
+            &Self::calculate_midplane(nodal_coordinates)
+        );
+        let normal_tangents = Self::calculate_normal_tangents(
+            &Self::calculate_midplane(nodal_coordinates)
+        );
+        let reference_normal = self.get_reference_normal() * 0.5;
+        let traction = (first_piola_kirchoff_stress * &reference_normal) * 0.5;
+        gradient_vectors.iter()
+        .zip(normal_gradients.iter().chain(normal_gradients.iter()))
+        .map(|(gradient_vector_a, normal_gradient_a)|
+            gradient_vectors.iter()
+            .zip(normal_gradients.iter().chain(normal_gradients.iter()))
+            .map(|(gradient_vector_b, normal_gradient_b)|
+                identity.iter()
+                .zip(normal_gradient_a.iter())
+                .map(|(identity_m, normal_gradient_a_m)|
+                    identity.iter()
+                    .zip(normal_gradient_b.iter())
+                    .map(|(identity_n, normal_gradient_b_n)|
+                        first_piola_kirchoff_tangent_stiffness.iter()
+                        .zip(identity_m.iter()
+                        .zip(normal_gradient_a_m.iter()))
+                        .map(|(first_piola_kirchoff_tangent_stiffness_i, (identity_mi, normal_gradient_a_m_i))|
+                            first_piola_kirchoff_tangent_stiffness_i.iter()
+                            .zip(gradient_vector_a.iter()
+                            .zip(reference_normal.iter()))
+                            .map(|(first_piola_kirchoff_tangent_stiffness_ij, (gradient_vector_a_j, reference_normal_j))|
+                                first_piola_kirchoff_tangent_stiffness_ij.iter()
+                                .zip(identity_n.iter()
+                                .zip(normal_gradient_b_n.iter()))
+                                .map(|(first_piola_kirchoff_tangent_stiffness_ijk, (identity_nk, normal_gradient_b_n_k))|
+                                    first_piola_kirchoff_tangent_stiffness_ijk.iter()
+                                    .zip(gradient_vector_b.iter()
+                                    .zip(reference_normal.iter()))
+                                    .map(|(first_piola_kirchoff_tangent_stiffness_ijkl, (gradient_vector_b_l, reference_normal_l))|
+                                        first_piola_kirchoff_tangent_stiffness_ijkl * (
+                                            identity_mi * gradient_vector_a_j + normal_gradient_a_m_i * reference_normal_j
+                                        ) * (
+                                            identity_nk * gradient_vector_b_l + normal_gradient_b_n_k * reference_normal_l
+                                        )
+                                    ).sum::<Scalar>()
+                                ).sum::<Scalar>()
+                            ).sum::<Scalar>()
+                        ).sum::<Scalar>()
+                    ).collect()
+                ).collect()
+            ).collect()
+        ).collect::<NodalStiffnesses<N>>() +
+        normal_tangents.iter().chain(normal_tangents.iter())
+        .map(|normal_tangent_a|
+            normal_tangent_a.iter().chain(normal_tangent_a.iter())
+            .map(|normal_tangent_ab|
+                normal_tangent_ab.iter()
+                .map(|normal_tangent_ab_m|
+                    normal_tangent_ab_m.iter()
+                    .map(|normal_tangent_ab_mn|
+                        normal_tangent_ab_mn * &traction
+                    ).collect()
+                ).collect()
+            ).collect()
+        ).collect::<NodalStiffnesses<N>>()
+    }
+}
+
+impl<'a, C> ViscoelasticFiniteElement<'a, C, G, N> for Wedge<C>
+where
+    C: Viscoelastic<'a>
+{
+    fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalForces<N>
+    {
+        let first_piola_kirchoff_stress = self.get_constitutive_models()[0]
+        .calculate_first_piola_kirchoff_stress(
+            &self.calculate_deformation_gradient(nodal_coordinates),
+            &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
+        );
+        let normal_gradients = Self::calculate_normal_gradients(
+            &Self::calculate_midplane(nodal_coordinates)
+        );
+        let traction = (&first_piola_kirchoff_stress * self.get_reference_normal()) * 0.5;
+        self.get_gradient_vectors().iter()
+        .zip(normal_gradients.iter().chain(normal_gradients.iter()))
+        .map(|(gradient_vector_a, normal_gradient_a)|
+            &first_piola_kirchoff_stress * gradient_vector_a + normal_gradient_a * &traction
+        ).collect()
+    }
+    fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalStiffnesses<N>
+    {
+        let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_models()[0]
+        .calculate_first_piola_kirchoff_rate_tangent_stiffness(
+            &self.calculate_deformation_gradient(nodal_coordinates),
+            &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
+        );
+        let gradient_vectors = self.get_gradient_vectors();
+        let identity = TensorRank2::<3, 1, 1>::identity();
+        let normal_gradients = Self::calculate_normal_gradients(
+            &Self::calculate_midplane(nodal_coordinates)
+        );
+        let reference_normal = self.get_reference_normal() * 0.5;
+        gradient_vectors.iter()
+        .zip(normal_gradients.iter().chain(normal_gradients.iter()))
+        .map(|(gradient_vector_a, normal_gradient_a)|
+            gradient_vectors.iter()
+            .zip(normal_gradients.iter().chain(normal_gradients.iter()))
+            .map(|(gradient_vector_b, normal_gradient_b)|
+                identity.iter()
+                .zip(normal_gradient_a.iter())
+                .map(|(identity_m, normal_gradient_a_m)|
+                    identity.iter()
+                    .zip(normal_gradient_b.iter())
+                    .map(|(identity_n, normal_gradient_b_n)|
+                        first_piola_kirchoff_tangent_stiffness.iter()
+                        .zip(identity_m.iter()
+                        .zip(normal_gradient_a_m.iter()))
+                        .map(|(first_piola_kirchoff_tangent_stiffness_i, (identity_mi, normal_gradient_a_m_i))|
+                            first_piola_kirchoff_tangent_stiffness_i.iter()
+                            .zip(gradient_vector_a.iter()
+                            .zip(reference_normal.iter()))
+                            .map(|(first_piola_kirchoff_tangent_stiffness_ij, (gradient_vector_a_j, reference_normal_j))|
+                                first_piola_kirchoff_tangent_stiffness_ij.iter()
+                                .zip(identity_n.iter()
+                                .zip(normal_gradient_b_n.iter()))
+                                .map(|(first_piola_kirchoff_tangent_stiffness_ijk, (identity_nk, normal_gradient_b_n_k))|
+                                    first_piola_kirchoff_tangent_stiffness_ijk.iter()
+                                    .zip(gradient_vector_b.iter()
+                                    .zip(reference_normal.iter()))
+                                    .map(|(first_piola_kirchoff_tangent_stiffness_ijkl, (gradient_vector_b_l, reference_normal_l))|
+                                        first_piola_kirchoff_tangent_stiffness_ijkl * (
+                                            identity_mi * gradient_vector_a_j + normal_gradient_a_m_i * reference_normal_j
+                                        ) * (
+                                            identity_nk * gradient_vector_b_l + normal_gradient_b_n_k * reference_normal_l
+                                        )
+                                    ).sum::<Scalar>()
+                                ).sum::<Scalar>()
+                            ).sum::<Scalar>()
+                        ).sum::<Scalar>()
+                    ).collect()
+                ).collect()
+            ).collect()
+        ).collect::<NodalStiffnesses<N>>()
+    }
+}
+
+super::linear_localization_element_boilerplate!(Triangle);
