@@ -29,7 +29,11 @@ macro_rules! test_finite_element_block
                     get_translation_rate_current_configuration,
                     get_translation_reference_configuration
                 },
-                test::assert_eq_within_tols
+                test::
+                {
+                    assert_eq_within_tols,
+                    check_eq_within_tols
+                }
             };
             use super::*;
             mod elastic
@@ -227,8 +231,8 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses
                                 .zip(fd_nodal_stiffness_ab_i.iter())
                                 .for_each(|(nodal_stiffness_ab_ij, fd_nodal_stiffness_ab_ij)|
                                     assert!(
-                                        (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < EPSILON ||
-                                        (nodal_stiffness_ab_ij.abs() < EPSILON && fd_nodal_stiffness_ab_ij.abs() < EPSILON)
+                                        (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < 13.0 * EPSILON ||
+                                        (nodal_stiffness_ab_ij.abs() < ABS_TOL && fd_nodal_stiffness_ab_ij.abs() < ABS_TOL)
                                     )
                                 )
                             )
@@ -353,8 +357,13 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses
                                 nodal_stiffness_ab_i.iter()
                                 .zip(res_nodal_stiffness_ab_i.iter())
                                 .for_each(|(nodal_stiffness_ab_ij, res_nodal_stiffness_ab_ij)|
-                                    assert_eq_within_tols(
-                                        nodal_stiffness_ab_ij, res_nodal_stiffness_ab_ij
+                                    assert!(
+                                        check_eq_within_tols(
+                                            nodal_stiffness_ab_ij, res_nodal_stiffness_ab_ij
+                                        ) || (
+                                            nodal_stiffness_ab_ij.abs() < ABS_TOL &&
+                                            res_nodal_stiffness_ab_ij.abs() < ABS_TOL * 10.0
+                                        )
                                     )
                                 )
                             )

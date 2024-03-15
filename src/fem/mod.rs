@@ -27,6 +27,16 @@ pub use block::
             tetrahedron::
             {
                 Tetrahedron
+            },
+            localization::
+            {
+                LinearLocalizationElement,
+                wedge::Wedge
+            },
+            surface::
+            {
+                LinearSurfaceElement,
+                triangle::Triangle
             }
         }
     }
