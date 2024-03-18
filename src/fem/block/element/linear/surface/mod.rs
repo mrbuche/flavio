@@ -240,7 +240,7 @@ macro_rules! linear_surface_element_boilerplate
             }
             fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
             {
-                let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_models()[0]
+                let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_model()
                 .calculate_first_piola_kirchoff_tangent_stiffness(
                     &self.calculate_deformation_gradient(nodal_coordinates)
                 );
@@ -308,7 +308,7 @@ macro_rules! linear_surface_element_boilerplate
             }
             fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalStiffnesses<N>
             {
-                let first_piola_kirchoff_rate_tangent_stiffness = self.get_constitutive_models()[0]
+                let first_piola_kirchoff_rate_tangent_stiffness = self.get_constitutive_model()
                 .calculate_first_piola_kirchoff_rate_tangent_stiffness(
                     &self.calculate_deformation_gradient(nodal_coordinates),
                     &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)

@@ -9,6 +9,7 @@ use crate::math::
     TensorRank0List,
     TensorRank1,
     TensorRank1List,
+    TensorRank1List2D,
     TensorRank2,
     TensorRank2List,
     TensorRank2List2D,
@@ -45,6 +46,9 @@ pub type DeformationGradientRate = TensorRank2<3, 1, 0>;
 
 /// A list of deformation gradients.
 pub type DeformationGradients<const W: usize> = TensorRank2List<3, 1, 0, W>;
+
+/// A list of deformation gradient rates.
+pub type DeformationGradientRates<const W: usize> = TensorRank2List<3, 1, 0, W>;
 
 /// The first Piola-Kirchoff stress $`\mathbf{P}`$.
 pub type FirstPiolaKirchoffStress = TensorRank2<3, 1, 0>;
@@ -123,3 +127,6 @@ pub type Vector<const I: usize> = TensorRank1<3, I>;
 
 /// A list of vectors.
 pub type Vectors<const I: usize, const W: usize> = TensorRank1List<3, I, W>;
+
+/// A 2D list of vectors.
+pub type Vectors2D<const I: usize, const W: usize, const X: usize> = TensorRank1List2D<3, I, W, X>;

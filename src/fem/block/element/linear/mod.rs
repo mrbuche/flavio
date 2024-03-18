@@ -39,6 +39,7 @@ where
     }
     fn calculate_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> GradientVectors<N>;
     fn calculate_standard_gradient_operator() -> StandardGradientOperator<M, O>;
+    fn get_constitutive_model(&self) -> &C;
     fn get_gradient_vectors(&self) -> &GradientVectors<N>;
 }
 
@@ -49,7 +50,7 @@ where
 {
     fn calculate_nodal_forces_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
     {
-        let first_piola_kirchoff_stress = self.get_constitutive_models()[0]
+        let first_piola_kirchoff_stress = self.get_constitutive_model()
         .calculate_first_piola_kirchoff_stress(
             &self.calculate_deformation_gradient(nodal_coordinates)
         );
@@ -60,7 +61,7 @@ where
     }
     fn calculate_nodal_stiffnesses_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
     {
-        let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_models()[0]
+        let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_model()
         .calculate_first_piola_kirchoff_tangent_stiffness(
             &self.calculate_deformation_gradient(nodal_coordinates)
         );
@@ -85,7 +86,7 @@ where
 {
     fn calculate_helmholtz_free_energy_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
     {
-        self.get_constitutive_models()[0]
+        self.get_constitutive_model()
         .calculate_helmholtz_free_energy_density(
             &self.calculate_deformation_gradient(nodal_coordinates)
         )
@@ -99,7 +100,7 @@ where
 {
     fn calculate_nodal_forces_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalForces<N>
     {
-        let first_piola_kirchoff_stress = self.get_constitutive_models()[0]
+        let first_piola_kirchoff_stress = self.get_constitutive_model()
         .calculate_first_piola_kirchoff_stress(
             &self.calculate_deformation_gradient(nodal_coordinates),
             &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
@@ -111,7 +112,7 @@ where
     }
     fn calculate_nodal_stiffnesses_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalStiffnesses<N>
     {
-        let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_models()[0]
+        let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_model()
         .calculate_first_piola_kirchoff_rate_tangent_stiffness(
             &self.calculate_deformation_gradient(nodal_coordinates),
             &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
@@ -137,7 +138,7 @@ where
 {
     fn calculate_viscous_dissipation_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> Scalar
     {
-        self.get_constitutive_models()[0]
+        self.get_constitutive_model()
         .calculate_viscous_dissipation(
             &self.calculate_deformation_gradient(nodal_coordinates),
             &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
@@ -145,7 +146,7 @@ where
     }
     fn calculate_dissipation_potential_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> Scalar
     {
-        self.get_constitutive_models()[0]
+        self.get_constitutive_model()
         .calculate_dissipation_potential(
             &self.calculate_deformation_gradient(nodal_coordinates),
             &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
@@ -160,7 +161,7 @@ where
 {
     fn calculate_helmholtz_free_energy_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
     {
-        self.get_constitutive_models()[0]
+        self.get_constitutive_model()
         .calculate_helmholtz_free_energy_density(
             &self.calculate_deformation_gradient(nodal_coordinates)
         )

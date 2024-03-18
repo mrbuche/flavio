@@ -78,14 +78,18 @@ use crate::
         Coordinates,
         CurrentCoordinates,
         DeformationGradient,
+        DeformationGradients,
         DeformationGradientRate,
+        DeformationGradientRates,
+        FirstPiolaKirchoffStresses,
         Forces,
         ReferenceCoordinates,
         Scalar,
         Scalars,
         Stiffnesses,
         Vector,
-        Vectors
+        Vectors,
+        Vectors2D
     }
 };
 

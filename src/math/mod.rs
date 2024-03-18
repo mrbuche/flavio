@@ -25,6 +25,11 @@ pub use tensor::
         {
             TensorRank1List,
             TensorRank1ListTrait
+        },
+        list_2d::
+        {
+            TensorRank1List2D,
+            TensorRank1List2DTrait
         }
     },
     rank_2::

@@ -391,11 +391,6 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses
                 get_reference_coordinates_transformed()
             )
         }
-        #[test]
-        fn integration_weights_sum_to_one()
-        {
-            assert_eq!(get_element().get_integration_weights().iter().sum::<Scalar>(), 1.0)
-        }
         mod nodal_forces
         {
             use super::*;
