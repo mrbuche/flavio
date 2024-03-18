@@ -5,9 +5,7 @@ pub mod tetrahedron;
 
 use super::*;
 
-type ProjectedGradientVectors<const G: usize, const N: usize> = Vectors2D<0, N, G>;
-
-pub trait CompositeElement<'a, C, const G: usize, const M: usize, const N: usize, const O: usize>
+pub trait CompositeElement<'a, C, const G: usize, const M: usize, const N: usize, const O: usize, const P: usize>
 where
     C: Constitutive<'a>,
     Self: FiniteElement<'a, C, G, N>
@@ -35,25 +33,25 @@ where
         ).collect()
     }
     fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> ProjectedGradientVectors<G, N>;
+    fn calculate_standard_gradient_operators() -> StandardGradientOperators<M, O, P>;
     fn get_constitutive_models(&self) -> &[C; G];
-    fn get_integration_weights(&self) -> &IntegrationWeights<G>;
+    fn get_integration_weight(&self) -> &Scalar;
     fn get_projected_gradient_vectors(&self) -> &ProjectedGradientVectors<G, N>;
 }
 
-pub trait ElasticCompositeElement<'a, C, const G: usize, const M: usize, const N: usize, const O: usize>
+pub trait ElasticCompositeElement<'a, C, const G: usize, const M: usize, const N: usize, const O: usize, const P: usize>
 where
     C: Elastic<'a>,
-    Self: CompositeElement<'a, C, G, M, N, O>
+    Self: CompositeElement<'a, C, G, M, N, O, P>
 {
     fn calculate_nodal_forces_composite_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
     {
         self.get_constitutive_models().iter()
-        .zip(self.calculate_deformation_gradients(nodal_coordinates).iter()
-        .zip(self.get_integration_weights().iter()))
-        .map(|(constitutive_model, (deformation_gradient, integration_weight))|
+        .zip(self.calculate_deformation_gradients(nodal_coordinates).iter())
+        .map(|(constitutive_model, deformation_gradient)|
             constitutive_model.calculate_first_piola_kirchoff_stress(
                 deformation_gradient
-            ) * integration_weight
+            ) / self.get_integration_weight()
         ).collect::<FirstPiolaKirchoffStresses<G>>()
         .iter()
         .zip(self.get_projected_gradient_vectors().iter())
@@ -63,14 +61,6 @@ where
                 first_piola_kirchoff_stress * projected_gradient_vector
             ).collect()
         ).sum()
-        // let first_piola_kirchoff_stress = self.get_constitutive_models()[0]
-        // .calculate_first_piola_kirchoff_stress(
-        //     &self.calculate_deformation_gradient(nodal_coordinates)
-        // );
-        // self.get_gradient_vectors().iter()
-        // .map(|gradient_vector|
-        //     &first_piola_kirchoff_stress * gradient_vector
-        // ).collect()
     }
     fn calculate_nodal_stiffnesses_composite_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
     {
@@ -93,6 +83,23 @@ where
     }
 }
 
+pub trait HyperelasticCompositeElement<'a, C, const G: usize, const M: usize, const N: usize, const O: usize, const P: usize>
+where
+    C: Hyperelastic<'a>,
+    Self: ElasticCompositeElement<'a, C, G, M, N, O, P>
+{
+    fn calculate_helmholtz_free_energy_composite_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
+    {
+        self.get_constitutive_models().iter()
+        .zip(self.calculate_deformation_gradients(nodal_coordinates).iter())
+        .map(|(constitutive_model, deformation_gradient)|
+            constitutive_model.calculate_helmholtz_free_energy_density(
+                deformation_gradient
+            )
+        ).sum::<Scalar>() / self.get_integration_weight()
+    }
+}
+
 macro_rules! composite_element_boilerplate
 {
     ($element: ident) =>
@@ -110,9 +117,22 @@ macro_rules! composite_element_boilerplate
                 self.calculate_nodal_stiffnesses_composite_element(nodal_coordinates)
             }
         }
-        impl<'a, C> ElasticCompositeElement<'a, C, G, M, N, O> for $element<C>
+        impl<'a, C> ElasticCompositeElement<'a, C, G, M, N, O, P> for $element<C>
         where
             C: Elastic<'a>
+        {}
+        impl<'a, C> HyperelasticFiniteElement<'a, C, G, N> for $element<C>
+        where
+            C: Hyperelastic<'a>
+        {
+            fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
+            {
+                self.calculate_helmholtz_free_energy_composite_element(nodal_coordinates)
+            }
+        }
+        impl<'a, C> HyperelasticCompositeElement<'a, C, G, M, N, O, P> for $element<C>
+        where
+            C: Hyperelastic<'a>
         {}
     }
 }

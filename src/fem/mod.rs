@@ -62,10 +62,11 @@ use crate::
     {
         ContractSecondFourthIndicesWithFirstIndicesOf,
         Convert,
-        TensorRank0ListTrait,
         TensorRank1Trait,
         TensorRank1List,
         TensorRank1ListTrait,
+        TensorRank1List2D,
+        TensorRank1List2DTrait,
         TensorRank2,
         TensorRank2List,
         TensorRank2Trait,
@@ -85,7 +86,6 @@ use crate::
         Forces,
         ReferenceCoordinates,
         Scalar,
-        Scalars,
         Stiffnesses,
         Vector,
         Vectors,
@@ -93,10 +93,19 @@ use crate::
     }
 };
 
+type Basis<const I: usize> = Vectors<I, 2>;
 type Connectivity<const E: usize, const N: usize> = [[usize; N]; E];
-type IntegrationWeights<const G: usize> = Scalars<G>;
+type GradientVectors<const N: usize> = Vectors<0, N>;
 type NodalCoordinates<const D: usize> = CurrentCoordinates<D>;
 type NodalForces<const D: usize> = Forces<D>;
 type NodalStiffnesses<const D: usize> = Stiffnesses<D>;
 type NodalVelocities<const D: usize> = CurrentCoordinates<D>;
+type Normal<const I: usize> = Vector<I>;
+type NormalGradients<const O: usize> = TensorRank2List<3, 1, 1, O>;
+type NormalTangents<const O: usize> = TensorRank3List2D<3, 1, 1, 1, O>;
+type NormalRate = Vector<1>;
+type ProjectedGradientVectors<const G: usize, const N: usize> = Vectors2D<0, N, G>;
 type ReferenceNodalCoordinates<const D: usize> = ReferenceCoordinates<D>;
+type ReferenceNormal = Vector<0>;
+type StandardGradientOperator<const M: usize, const O: usize> = TensorRank1List<M, 9, O>;
+type StandardGradientOperators<const M: usize, const O: usize, const P: usize> = TensorRank1List2D<M, 9, O, P>;

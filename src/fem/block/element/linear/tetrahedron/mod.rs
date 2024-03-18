@@ -37,7 +37,7 @@ where
         let standard_gradient_operator = Self::calculate_standard_gradient_operator();
         (reference_nodal_coordinates * &standard_gradient_operator).inverse_transpose() * standard_gradient_operator
     }
-    fn calculate_standard_gradient_operator() -> StandardGradientOperator<M, N>
+    fn calculate_standard_gradient_operator() -> StandardGradientOperator<M, O>
     {
         StandardGradientOperator::new([
             [-1.0, -1.0, -1.0],

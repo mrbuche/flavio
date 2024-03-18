@@ -4,8 +4,6 @@ mod test;
 use super::
 {
     TensorRank0,
-    TensorRank1,
-    TensorRank1Trait,
     list::
     {
         TensorRank1List,
@@ -43,6 +41,8 @@ impl<const D: usize, const I: usize, const W: usize, const X: usize> TensorRank1
 /// Required methods for 2D rank-2 tensor lists.
 pub trait TensorRank1List2DTrait<const D: usize, const W: usize, const X: usize>
 {
+    /// Returns a list of rank-1 tensors given an array.
+    fn new(array: [[[TensorRank0; D]; W]; X]) -> Self;
     /// Returns a list of rank-1 zero tensors.
     fn zero() -> Self;
 }
@@ -50,8 +50,28 @@ pub trait TensorRank1List2DTrait<const D: usize, const W: usize, const X: usize>
 /// Implementation of [`TensorRank1List2DTrait`] for [`TensorRank1List2D`].
 impl<const D: usize, const I: usize, const W: usize, const X: usize> TensorRank1List2DTrait<D, W, X> for TensorRank1List2D<D, I, W, X>
 {
+    fn new(array: [[[TensorRank0; D]; W]; X]) -> Self
+    {
+        array.iter().map(|array_i|
+            TensorRank1List::new(*array_i)
+        ).collect()
+    }
     fn zero() -> Self
     {
         Self(std::array::from_fn(|_| TensorRank1List::zero()))
+    }
+}
+
+impl<const D: usize, const I: usize, const W: usize, const X: usize> FromIterator<TensorRank1List<D, I, W>> for TensorRank1List2D<D, I, W, X>
+{
+    fn from_iter<Ii: IntoIterator<Item=TensorRank1List<D, I, W>>>(into_iterator: Ii) -> Self
+    {
+        let mut tensor_rank_1_list_2d = Self::zero();
+        tensor_rank_1_list_2d.iter_mut()
+        .zip(into_iterator)
+        .for_each(|(tensor_rank_1_list, entry)|
+            *tensor_rank_1_list = entry
+        );
+        tensor_rank_1_list_2d
     }
 }
