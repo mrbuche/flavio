@@ -8,6 +8,7 @@ const M: usize = 3;
 const N: usize = 10;
 const O: usize = 10;
 const P: usize = 12;
+const Q: usize = 4;
 
 // is it 1/4, or 1/24?
 // has implications in other elements
@@ -35,12 +36,33 @@ where
     }
 }
 
-impl<'a, C> CompositeElement<'a, C, G, M, N, O, P> for Tetrahedron<C>
+impl<'a, C> CompositeElement<'a, C, G, M, N, O, P, Q> for Tetrahedron<C>
 where
     C: Constitutive<'a>
 {
     fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> ProjectedGradientVectors<G, N>
     {
+        let standard_gradient_operators = Self::calculate_standard_gradient_operators();
+        let parametric_gradient_operators =
+        standard_gradient_operators.iter()
+        .map(|standard_gradient_operator|
+            reference_nodal_coordinates * standard_gradient_operator
+        ).collect::<ParametricGradientOperators<P>>();
+        let jacobians =
+        parametric_gradient_operators.iter()
+        .map(|parametric_gradient_operator|
+            parametric_gradient_operator.determinant()
+        ).collect::<Scalars<P>>();
+        //
+        // need to loop/collect over _a of standard_gradient_operators as well
+        //
+        // Self::calculate_shape_function_integrals().iter()
+        // .zip(standard_gradient_operators.iter()
+        // .zip(parametric_gradient_operators.iter()
+        // .zip(jacobians.iter())))
+        // .map(|(shape_function_integral, (standard_gradient_operator, (parametric_gradient_operator, jacobian)))|
+        //     (standard_gradient_operator * parametric_gradient_operator.inverse_transpose()) * jacobian
+        // ).sum();
         // let gradient_operators = 
         // Self::calculate_standard_gradient_operators().iter()
         // .map(|standard_gradient_operator|
@@ -51,6 +73,87 @@ where
         // ).collect()
         todo!()
         // evaluating the lambda shape function at each integration point gives you the <G>
+    }
+    fn calculate_shape_function_integrals() -> ShapeFunctionIntegrals<P, Q>
+    {
+        ShapeFunctionIntegrals::new([
+            [200.0,  40.0,  40.0,  40.0],
+            [ 40.0, 200.0,  40.0,  40.0],
+            [ 40.0,  40.0, 200.0,  40.0],
+            [ 40.0,  40.0,  40.0, 200.0],
+            [ 30.0,  70.0,  30.0,  30.0],
+            [ 10.0,  50.0,  50.0,  50.0],
+            [ 30.0,  30.0,  30.0,  70.0],
+            [ 50.0,  50.0,  10.0,  50.0],
+            [ 50.0,  50.0,  50.0,  10.0],
+            [ 30.0,  30.0,  70.0,  30.0],
+            [ 50.0,  10.0,  50.0,  50.0],
+            [ 70.0,  30.0,  30.0,  30.0]
+        ])
+    }
+    fn calculate_shape_function_integrals_products() -> ShapeFunctionIntegralsProducts<P, Q>
+    {
+        ShapeFunctionIntegralsProducts::new([[
+            [1966080.0, 368640.0, 368640.0, 368640.0],
+            [ 368640.0, 122880.0,  61440.0,  61440.0],
+            [ 368640.0,  61440.0, 122880.0,  61440.0],
+            [ 368640.0,  61440.0,  61440.0, 122880.0]
+        ], [
+            [122880.0,  368640.0,  61440.0,  61440.0],
+            [368640.0, 1966080.0, 368640.0, 368640.0],
+            [ 61440.0,  368640.0, 122880.0,  61440.0],
+            [ 61440.0,  368640.0,  61440.0, 122880.0]
+        ], [
+            [122880.0,  61440.0,  368640.0,  61440.0],
+            [ 61440.0, 122880.0,  368640.0,  61440.0],
+            [368640.0, 368640.0, 1966080.0, 368640.0],
+            [ 61440.0,  61440.0,  368640.0, 122880.0]
+        ], [
+            [122880.0,  61440.0,  61440.0,  368640.0],
+            [ 61440.0, 122880.0,  61440.0,  368640.0],
+            [ 61440.0,  61440.0, 122880.0,  368640.0],
+            [368640.0, 368640.0, 368640.0, 1966080.0]
+        ], [
+            [107520.0, 199680.0,  76800.0,  76800.0],
+            [199680.0, 476160.0, 199680.0, 199680.0],
+            [ 76800.0, 199680.0, 107520.0,  76800.0],
+            [ 76800.0, 199680.0,  76800.0, 107520.0]
+        ], [
+            [15360.0,  46080.0,  46080.0,  46080.0],
+            [46080.0, 261120.0, 230400.0, 230400.0],
+            [46080.0, 230400.0, 261120.0, 230400.0],
+            [46080.0, 230400.0, 230400.0, 261120.0]
+        ], [
+            [107520.0,  76800.0,  76800.0, 199680.0],
+            [ 76800.0, 107520.0,  76800.0, 199680.0],
+            [ 76800.0,  76800.0, 107520.0, 199680.0],
+            [199680.0, 199680.0, 199680.0, 476160.0]
+        ], [
+            [261120.0, 230400.0, 46080.0, 230400.0],
+            [230400.0, 261120.0, 46080.0, 230400.0],
+            [ 46080.0,  46080.0, 15360.0,  46080.0],
+            [230400.0, 230400.0, 46080.0, 261120.0]
+        ], [
+            [261120.0, 230400.0, 230400.0, 46080.0],
+            [230400.0, 261120.0, 230400.0, 46080.0],
+            [230400.0, 230400.0, 261120.0, 46080.0],
+             [46080.0,  46080.0,  46080.0, 15360.0]
+        ], [
+            [107520.0,  76800.0, 199680.0,  76800.0],
+            [ 76800.0, 107520.0, 199680.0,  76800.0],
+            [199680.0, 199680.0, 476160.0, 199680.0],
+            [ 76800.0,  76800.0, 199680.0, 107520.0]
+        ], [
+            [261120.0, 46080.0, 230400.0, 230400.0],
+            [ 46080.0, 15360.0,  46080.0,  46080.0],
+            [230400.0, 46080.0, 261120.0, 230400.0],
+            [230400.0, 46080.0, 230400.0, 261120.0]
+        ], [
+            [476160.0, 199680.0, 199680.0, 199680.0],
+            [199680.0, 107520.0,  76800.0,  76800.0],
+            [199680.0,  76800.0, 107520.0,  76800.0],
+            [199680.0,  76800.0,  76800.0, 107520.0]
+        ]])
     }
     fn calculate_standard_gradient_operators() -> StandardGradientOperators<M, O, P>
     {

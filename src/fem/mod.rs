@@ -70,6 +70,7 @@ use crate::
         TensorRank2,
         TensorRank2List,
         TensorRank2Trait,
+        TensorRank2ListTrait,
         TensorRank2List2DTrait,
         TensorRank3List2D,
         levi_civita
@@ -86,6 +87,7 @@ use crate::
         Forces,
         ReferenceCoordinates,
         Scalar,
+        Scalars,
         Stiffnesses,
         Vector,
         Vectors,
@@ -104,8 +106,11 @@ type Normal<const I: usize> = Vector<I>;
 type NormalGradients<const O: usize> = TensorRank2List<3, 1, 1, O>;
 type NormalTangents<const O: usize> = TensorRank3List2D<3, 1, 1, 1, O>;
 type NormalRate = Vector<1>;
+type ParametricGradientOperators<const P: usize> = TensorRank2List<3, 0, 9, P>;
 type ProjectedGradientVectors<const G: usize, const N: usize> = Vectors2D<0, N, G>;
 type ReferenceNodalCoordinates<const D: usize> = ReferenceCoordinates<D>;
 type ReferenceNormal = Vector<0>;
+type ShapeFunctionIntegrals<const P: usize, const Q: usize> = TensorRank1List<Q, 9, P>;
+type ShapeFunctionIntegralsProducts<const P: usize, const Q: usize> = TensorRank2List<Q, 9, 9, P>;
 type StandardGradientOperator<const M: usize, const O: usize> = TensorRank1List<M, 9, O>;
 type StandardGradientOperators<const M: usize, const O: usize, const P: usize> = TensorRank1List2D<M, 9, O, P>;
