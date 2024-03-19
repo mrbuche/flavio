@@ -35,7 +35,9 @@ where
     fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> ProjectedGradientVectors<G, N>;
     fn calculate_shape_function_integrals() -> ShapeFunctionIntegrals<P, Q>;
     fn calculate_shape_function_integrals_products() -> ShapeFunctionIntegralsProducts<P, Q>;
+    fn calculate_shape_functions_at_integration_points() -> ShapeFunctionsAtIntegrationPoints<G, Q>;
     fn calculate_standard_gradient_operators() -> StandardGradientOperators<M, O, P>;
+    fn calculate_standard_gradient_operators_transposed() -> StandardGradientOperatorsTransposed<M, O, P>;
     fn get_constitutive_models(&self) -> &[C; G];
     fn get_integration_weight(&self) -> &Scalar;
     fn get_projected_gradient_vectors(&self) -> &ProjectedGradientVectors<G, N>;
@@ -53,7 +55,7 @@ where
         .map(|(constitutive_model, deformation_gradient)|
             constitutive_model.calculate_first_piola_kirchoff_stress(
                 deformation_gradient
-            ) / self.get_integration_weight()
+            )
         ).collect::<FirstPiolaKirchoffStresses<G>>()
         .iter()
         .zip(self.get_projected_gradient_vectors().iter())
@@ -62,7 +64,7 @@ where
             .map(|projected_gradient_vector|
                 first_piola_kirchoff_stress * projected_gradient_vector
             ).collect()
-        ).sum()
+        ).sum::<NodalForces<N>>() / self.get_integration_weight()
     }
     fn calculate_nodal_stiffnesses_composite_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
     {

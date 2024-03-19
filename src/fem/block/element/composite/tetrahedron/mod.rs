@@ -42,9 +42,8 @@ where
 {
     fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> ProjectedGradientVectors<G, N>
     {
-        let standard_gradient_operators = Self::calculate_standard_gradient_operators();
         let parametric_gradient_operators =
-        standard_gradient_operators.iter()
+        Self::calculate_standard_gradient_operators().iter()
         .map(|standard_gradient_operator|
             reference_nodal_coordinates * standard_gradient_operator
         ).collect::<ParametricGradientOperators<P>>();
@@ -53,26 +52,26 @@ where
         .map(|parametric_gradient_operator|
             parametric_gradient_operator.determinant()
         ).collect::<Scalars<P>>();
-        //
-        // need to loop/collect over _a of standard_gradient_operators as well
-        //
-        // Self::calculate_shape_function_integrals().iter()
-        // .zip(standard_gradient_operators.iter()
-        // .zip(parametric_gradient_operators.iter()
-        // .zip(jacobians.iter())))
-        // .map(|(shape_function_integral, (standard_gradient_operator, (parametric_gradient_operator, jacobian)))|
-        //     (standard_gradient_operator * parametric_gradient_operator.inverse_transpose()) * jacobian
-        // ).sum();
-        // let gradient_operators = 
-        // Self::calculate_standard_gradient_operators().iter()
-        // .map(|standard_gradient_operator|
-        //     (reference_nodal_coordinates * standard_gradient_operator).inverse_transpose() * standard_gradient_operator
-        // ).sum();
-        // (0..G).map(|_|
-        //     gradient_operator
-        // ).collect()
-        todo!()
-        // evaluating the lambda shape function at each integration point gives you the <G>
+        let inverse_projection_matrix =
+        Self::calculate_shape_function_integrals_products().iter()
+        .zip(jacobians.iter())
+        .map(|(shape_function_integrals_products, jacobian)|
+            shape_function_integrals_products * jacobian
+        ).sum::<ProjectionMatrix<Q>>().inverse();
+        Self::calculate_shape_functions_at_integration_points().iter()
+        .map(|shape_functions_at_integration_point|
+            Self::calculate_standard_gradient_operators_transposed().iter()
+            .map(|standard_gradient_operators_a|
+                Self::calculate_shape_function_integrals().iter()
+                .zip(standard_gradient_operators_a.iter()
+                .zip(parametric_gradient_operators.iter()
+                .zip(jacobians.iter())))
+                .map(|(shape_function_integral, (standard_gradient_operator, (parametric_gradient_operator, jacobian)))|
+                    (parametric_gradient_operator.inverse_transpose() * standard_gradient_operator) * jacobian
+                    * (shape_functions_at_integration_point * (&inverse_projection_matrix * shape_function_integral))
+                ).sum()
+            ).collect()
+        ).collect()
     }
     fn calculate_shape_function_integrals() -> ShapeFunctionIntegrals<P, Q>
     {
@@ -94,66 +93,77 @@ where
     fn calculate_shape_function_integrals_products() -> ShapeFunctionIntegralsProducts<P, Q>
     {
         ShapeFunctionIntegralsProducts::new([[
-            [1966080.0, 368640.0, 368640.0, 368640.0],
-            [ 368640.0, 122880.0,  61440.0,  61440.0],
-            [ 368640.0,  61440.0, 122880.0,  61440.0],
-            [ 368640.0,  61440.0,  61440.0, 122880.0]
+            [128.0,  24.0,  24.0,  24.0],
+            [ 24.0,   8.0,   4.0,   4.0],
+            [ 24.0,   4.0,   8.0,   4.0],
+            [ 24.0,   4.0,   4.0,   8.0]
         ], [
-            [122880.0,  368640.0,  61440.0,  61440.0],
-            [368640.0, 1966080.0, 368640.0, 368640.0],
-            [ 61440.0,  368640.0, 122880.0,  61440.0],
-            [ 61440.0,  368640.0,  61440.0, 122880.0]
+            [  8.0,  24.0,   4.0,   4.0],
+            [ 24.0, 128.0,  24.0,  24.0],
+            [  4.0,  24.0,   8.0,   4.0],
+            [  4.0,  24.0,   4.0,   8.0]
         ], [
-            [122880.0,  61440.0,  368640.0,  61440.0],
-            [ 61440.0, 122880.0,  368640.0,  61440.0],
-            [368640.0, 368640.0, 1966080.0, 368640.0],
-            [ 61440.0,  61440.0,  368640.0, 122880.0]
+            [  8.0,   4.0,  24.0,   4.0],
+            [  4.0,   8.0,  24.0,   4.0],
+            [ 24.0,  24.0, 128.0,  24.0],
+            [  4.0,   4.0,  24.0,   8.0]
         ], [
-            [122880.0,  61440.0,  61440.0,  368640.0],
-            [ 61440.0, 122880.0,  61440.0,  368640.0],
-            [ 61440.0,  61440.0, 122880.0,  368640.0],
-            [368640.0, 368640.0, 368640.0, 1966080.0]
+            [  8.0,   4.0,   4.0,  24.0],
+            [  4.0,   8.0,   4.0,  24.0],
+            [  4.0,   4.0,   8.0,  24.0],
+            [ 24.0,  24.0,  24.0, 128.0]
         ], [
-            [107520.0, 199680.0,  76800.0,  76800.0],
-            [199680.0, 476160.0, 199680.0, 199680.0],
-            [ 76800.0, 199680.0, 107520.0,  76800.0],
-            [ 76800.0, 199680.0,  76800.0, 107520.0]
+            [  7.0,  13.0,   5.0,   5.0],
+            [ 13.0,  31.0,  13.0,  13.0],
+            [  5.0,  13.0,   7.0,   5.0],
+            [  5.0,  13.0,   5.0,   7.0]
         ], [
-            [15360.0,  46080.0,  46080.0,  46080.0],
-            [46080.0, 261120.0, 230400.0, 230400.0],
-            [46080.0, 230400.0, 261120.0, 230400.0],
-            [46080.0, 230400.0, 230400.0, 261120.0]
+            [  1.0,   3.0,   3.0,   3.0],
+            [  3.0,  17.0,  15.0,  15.0],
+            [  3.0,  15.0,  17.0,  15.0],
+            [  3.0,  15.0,  15.0,  17.0]
         ], [
-            [107520.0,  76800.0,  76800.0, 199680.0],
-            [ 76800.0, 107520.0,  76800.0, 199680.0],
-            [ 76800.0,  76800.0, 107520.0, 199680.0],
-            [199680.0, 199680.0, 199680.0, 476160.0]
+            [  7.0,   5.0,   5.0,  13.0],
+            [  5.0,   7.0,   5.0,  13.0],
+            [  5.0,   5.0,   7.0,  13.0],
+            [ 13.0,  13.0,  13.0,  31.0]
         ], [
-            [261120.0, 230400.0, 46080.0, 230400.0],
-            [230400.0, 261120.0, 46080.0, 230400.0],
-            [ 46080.0,  46080.0, 15360.0,  46080.0],
-            [230400.0, 230400.0, 46080.0, 261120.0]
+            [ 17.0,  15.0,   3.0,  15.0],
+            [ 15.0,  17.0,   3.0,  15.0],
+            [  3.0,   3.0,   1.0,   3.0],
+            [ 15.0,  15.0,   3.0,  17.0]
         ], [
-            [261120.0, 230400.0, 230400.0, 46080.0],
-            [230400.0, 261120.0, 230400.0, 46080.0],
-            [230400.0, 230400.0, 261120.0, 46080.0],
-             [46080.0,  46080.0,  46080.0, 15360.0]
+            [ 17.0,  15.0,  15.0,   3.0],
+            [ 15.0,  17.0,  15.0,   3.0],
+            [ 15.0,  15.0,  17.0,   3.0],
+            [  3.0,   3.0,   3.0,   1.0]
         ], [
-            [107520.0,  76800.0, 199680.0,  76800.0],
-            [ 76800.0, 107520.0, 199680.0,  76800.0],
-            [199680.0, 199680.0, 476160.0, 199680.0],
-            [ 76800.0,  76800.0, 199680.0, 107520.0]
+            [  7.0,   5.0,  13.0,   5.0],
+            [  5.0,   7.0,  13.0,   5.0],
+            [ 13.0,  13.0,  31.0,  13.0],
+            [  5.0,   5.0,  13.0,   7.0]
         ], [
-            [261120.0, 46080.0, 230400.0, 230400.0],
-            [ 46080.0, 15360.0,  46080.0,  46080.0],
-            [230400.0, 46080.0, 261120.0, 230400.0],
-            [230400.0, 46080.0, 230400.0, 261120.0]
+            [ 17.0,   3.0,  15.0,  15.0],
+            [  3.0,   1.0,   3.0,   3.0],
+            [ 15.0,   3.0,  17.0,  15.0],
+            [ 15.0,   3.0,  15.0,  17.0]
         ], [
-            [476160.0, 199680.0, 199680.0, 199680.0],
-            [199680.0, 107520.0,  76800.0,  76800.0],
-            [199680.0,  76800.0, 107520.0,  76800.0],
-            [199680.0,  76800.0,  76800.0, 107520.0]
+            [ 31.0,  13.0,  13.0,  13.0],
+            [ 13.0,   7.0,   5.0,   5.0],
+            [ 13.0,   5.0,   7.0,   5.0],
+            [ 13.0,   5.0,   5.0,   7.0]
         ]])
+    }
+    fn calculate_shape_functions_at_integration_points() -> ShapeFunctionsAtIntegrationPoints<G, Q>
+    {
+        let diag: Scalar = 0.585_410_196_624_968_5;
+        let off: Scalar = 0.138_196_601_125_010_5;
+        ShapeFunctionsAtIntegrationPoints::new([
+            [diag,  off,  off,  off],
+            [ off, diag,  off,  off],
+            [ off,  off, diag,  off],
+            [ off,  off,  off, diag],
+        ])
     }
     fn calculate_standard_gradient_operators() -> StandardGradientOperators<M, O, P>
     {
@@ -290,6 +300,142 @@ where
             [-n43,  n23, -n43],
             [-n43, -n43,  n23],
             [ n23,  n23,  n23],
+            [ n23,  n23,  n23]
+        ]])
+    }
+    fn calculate_standard_gradient_operators_transposed() -> StandardGradientOperatorsTransposed<M, O, P>
+    {
+        let n23: Scalar = 2.0/3.0;
+        let n43: Scalar = 4.0/3.0;
+        StandardGradientOperators::new([[
+            [-2.0, -2.0, -2.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0]
+        ], [
+            [ 0.0,  0.0,  0.0],
+            [ 2.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0]
+        ], [
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  2.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0]
+        ], [
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  2.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0]
+        ], [
+            [ 2.0,  0.0,  0.0],
+            [-2.0, -2.0, -2.0],
+            [ 2.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [-n23, -2.0, -2.0],
+            [-n23, -n23, -n23],
+            [ 0.0,  0.0, -n23],
+            [ 0.0, -n43, -2.0],
+            [ 0.0, -2.0, -n43],
+            [ 0.0, -n23,  0.0],
+            [ n23,  0.0,  0.0],
+            [ n23, -n43, -n43]
+        ], [
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  2.0,  0.0],
+            [-2.0, -2.0, -2.0],
+            [ 0.0,  0.0,  0.0],
+            [ n43,  2.0,  0.0],
+            [ n43,  n43, -n23],
+            [ 0.0,  0.0, -n23],
+            [ 0.0,  n23,  0.0],
+            [ 2.0,  2.0,  n23],
+            [ 2.0,  n43,  0.0],
+            [ n23,  0.0,  0.0],
+            [ n23,  n23,  n23]
+        ], [
+            [ 0.0,  2.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [-n23,  0.0,  0.0],
+            [-n23, -n23, -n23],
+            [ 0.0,  0.0, -n23],
+            [ 0.0,  n23,  0.0],
+            [-2.0,  0.0, -n43],
+            [-2.0, -n23, -2.0],
+            [-n43,  0.0, -2.0],
+            [-n43,  n23, -n43]
+        ], [
+            [ 0.0,  0.0,  2.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [-2.0, -2.0, -2.0],
+            [-n23,  0.0,  0.0],
+            [-n23, -n23, -n23],
+            [-2.0, -2.0, -n23],
+            [-2.0, -n43,  0.0],
+            [ 0.0,  0.0,  n23],
+            [ 0.0, -n23,  0.0],
+            [-n43, -2.0,  0.0],
+            [-n43, -n43,  n23]
+        ], [
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  2.0],
+            [ 0.0,  0.0,  0.0],
+            [ 2.0,  0.0,  0.0],
+            [ n43,  0.0,  2.0],
+            [ n43, -n23,  n43],
+            [ 2.0,  0.0,  n43],
+            [ 2.0,  n23,  2.0],
+            [ 0.0,  0.0,  n23],
+            [ 0.0, -n23,  0.0],
+            [ n23,  0.0,  0.0],
+            [ n23,  n23,  n23]
+        ], [
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  2.0],
+            [ 0.0,  2.0,  0.0],
+            [-n23,  0.0,  0.0],
+            [-n23,  n43,  n43],
+            [ 0.0,  2.0,  n43],
+            [ 0.0,  n23,  0.0],
+            [ 0.0,  0.0,  n23],
+            [ 0.0,  n43,  2.0],
+            [ n23,  2.0,  2.0],
             [ n23,  n23,  n23]
         ]])
     }
