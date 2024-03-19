@@ -53,11 +53,8 @@ where
         self.get_constitutive_models().iter()
         .zip(self.calculate_deformation_gradients(nodal_coordinates).iter())
         .map(|(constitutive_model, deformation_gradient)|
-            constitutive_model.calculate_first_piola_kirchoff_stress(
-                deformation_gradient
-            )
-        ).collect::<FirstPiolaKirchoffStresses<G>>()
-        .iter()
+            constitutive_model.calculate_first_piola_kirchoff_stress(deformation_gradient)
+        ).collect::<FirstPiolaKirchoffStresses<G>>().iter()
         .zip(self.get_projected_gradient_vectors().iter())
         .map(|(first_piola_kirchoff_stress, projected_gradient_vectors)|
             projected_gradient_vectors.iter()
@@ -68,7 +65,26 @@ where
     }
     fn calculate_nodal_stiffnesses_composite_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
     {
-        todo!()
+        self.get_constitutive_models().iter()
+        .zip(self.calculate_deformation_gradients(nodal_coordinates).iter())
+        .map(|(constitutive_model, deformation_gradient)|
+            constitutive_model.calculate_first_piola_kirchoff_tangent_stiffness(deformation_gradient)
+        ).collect::<FirstPiolaKirchoffTangentStiffnesses<G>>().iter()
+        .zip(self.get_projected_gradient_vectors().iter()
+        .zip(self.get_projected_gradient_vectors().iter()))
+        .map(|(first_piola_kirchoff_tangent_stiffness, (projected_gradient_vectors_a, projected_gradient_vectors_b))|
+            projected_gradient_vectors_a.iter()
+            .map(|projected_gradient_vector_a|
+                projected_gradient_vectors_b.iter()
+                .map(|projected_gradient_vector_b|
+                    first_piola_kirchoff_tangent_stiffness
+                    .contract_second_fourth_indices_with_first_indices_of(
+                        projected_gradient_vector_a, projected_gradient_vector_b
+                    )
+                ).collect()
+            ).collect()
+        ).sum::<NodalStiffnesses<N>>() / self.get_integration_weight()
+        // todo!()
         // let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_models()[0]
         // .calculate_first_piola_kirchoff_tangent_stiffness(
         //     &self.calculate_deformation_gradient(nodal_coordinates)
@@ -101,6 +117,86 @@ where
                 deformation_gradient
             )
         ).sum::<Scalar>() / self.get_integration_weight()
+    }
+}
+
+pub trait ViscoelasticCompositeElement<'a, C, const G: usize, const M: usize, const N: usize, const O: usize, const P: usize, const Q: usize>
+where
+    C: Viscoelastic<'a>,
+    Self: CompositeElement<'a, C, G, M, N, O, P, Q>
+{
+    fn calculate_nodal_forces_composite_element(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalForces<N>
+    {
+        // let first_piola_kirchoff_stress = self.get_constitutive_model()
+        // .calculate_first_piola_kirchoff_stress(
+        //     &self.calculate_deformation_gradient(nodal_coordinates),
+        //     &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
+        // );
+        // self.get_gradient_vectors().iter()
+        // .map(|gradient_vector|
+        //     &first_piola_kirchoff_stress * gradient_vector
+        // ).collect()
+        todo!()
+    }
+    fn calculate_nodal_stiffnesses_composite_element(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalStiffnesses<N>
+    {
+        // let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_model()
+        // .calculate_first_piola_kirchoff_rate_tangent_stiffness(
+        //     &self.calculate_deformation_gradient(nodal_coordinates),
+        //     &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
+        // );
+        // let gradient_vectors = self.get_gradient_vectors();
+        // gradient_vectors.iter()
+        // .map(|gradient_vector_a|
+        //     gradient_vectors.iter()
+        //     .map(|gradient_vector_b|
+        //         first_piola_kirchoff_tangent_stiffness
+        //         .contract_second_fourth_indices_with_first_indices_of(
+        //             gradient_vector_a, gradient_vector_b
+        //         )
+        //     ).collect()
+        // ).collect()
+        todo!()
+    }
+}
+
+pub trait ElasticHyperviscousCompositeElement<'a, C, const G: usize, const M: usize, const N: usize, const O: usize, const P: usize, const Q: usize>
+where
+    C: ElasticHyperviscous<'a>,
+    Self: ViscoelasticCompositeElement<'a, C, G, M, N, O, P, Q>
+{
+    fn calculate_viscous_dissipation_composite_element(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> Scalar
+    {
+        // self.get_constitutive_model()
+        // .calculate_viscous_dissipation(
+        //     &self.calculate_deformation_gradient(nodal_coordinates),
+        //     &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
+        // )
+        todo!()
+    }
+    fn calculate_dissipation_potential_composite_element(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> Scalar
+    {
+        // self.get_constitutive_model()
+        // .calculate_dissipation_potential(
+        //     &self.calculate_deformation_gradient(nodal_coordinates),
+        //     &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
+        // )
+        todo!()
+    }
+}
+
+pub trait HyperviscoelasticCompositeElement<'a, C, const G: usize, const M: usize, const N: usize, const O: usize, const P: usize, const Q: usize>
+where
+    C: Hyperviscoelastic<'a>,
+    Self: ElasticHyperviscousCompositeElement<'a, C, G, M, N, O, P, Q>
+{
+    fn calculate_helmholtz_free_energy_composite_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
+    {
+        // self.get_constitutive_model()
+        // .calculate_helmholtz_free_energy_density(
+        //     &self.calculate_deformation_gradient(nodal_coordinates)
+        // )
+        todo!()
     }
 }
 
@@ -137,6 +233,53 @@ macro_rules! composite_element_boilerplate
         impl<'a, C> HyperelasticCompositeElement<'a, C, G, M, N, O, P, Q> for $element<C>
         where
             C: Hyperelastic<'a>
+        {}
+        impl<'a, C> ViscoelasticFiniteElement<'a, C, G, N> for $element<C>
+        where
+            C: Viscoelastic<'a>
+        {
+            fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalForces<N>
+            {
+                self.calculate_nodal_forces_composite_element(nodal_coordinates, nodal_velocities)
+            }
+            fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalStiffnesses<N>
+            {
+                self.calculate_nodal_stiffnesses_composite_element(nodal_coordinates, nodal_velocities)
+            }
+        }
+        impl<'a, C> ViscoelasticCompositeElement<'a, C, G, M, N, O, P, Q> for $element<C>
+        where
+            C: Viscoelastic<'a>
+        {}
+        impl<'a, C> ElasticHyperviscousFiniteElement<'a, C, G, N> for $element<C>
+        where
+            C: ElasticHyperviscous<'a>
+        {
+            fn calculate_viscous_dissipation(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> Scalar
+            {
+                self.calculate_viscous_dissipation_composite_element(nodal_coordinates, nodal_velocities)
+            }
+            fn calculate_dissipation_potential(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> Scalar
+            {
+                self.calculate_dissipation_potential_composite_element(nodal_coordinates, nodal_velocities)
+            }
+        }
+        impl<'a, C> ElasticHyperviscousCompositeElement<'a, C, G, M, N, O, P, Q> for $element<C>
+        where
+            C: ElasticHyperviscous<'a>
+        {}
+        impl<'a, C> HyperviscoelasticFiniteElement<'a, C, G, N> for $element<C>
+        where
+            C: Hyperviscoelastic<'a>
+        {
+            fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
+            {
+                self.calculate_helmholtz_free_energy_composite_element(nodal_coordinates)
+            }
+        }
+        impl<'a, C> HyperviscoelasticCompositeElement<'a, C, G, M, N, O, P, Q> for $element<C>
+        where
+            C: Hyperviscoelastic<'a>
         {}
     }
 }

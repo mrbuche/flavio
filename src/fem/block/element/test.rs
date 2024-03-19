@@ -819,8 +819,8 @@ macro_rules! test_helmholtz_free_energy
                 #[test]
                 fn zero()
                 {
-                    assert_eq!(
-                        get_helmholtz_free_energy(false, false), 0.0
+                    assert_eq_within_tols(
+                        &get_helmholtz_free_energy(false, false), &0.0
                     )
                 }
             }

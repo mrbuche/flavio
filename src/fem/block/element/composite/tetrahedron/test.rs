@@ -1,3 +1,26 @@
+use crate::fem::block::
+{
+    // test::test_finite_element_block,
+    // element::linear::test::test_linear_element
+    element::test::
+    {
+        setup_for_elements,
+        test_finite_element
+    }
+};
+use super::*;
+
+// const D: usize = 14;
+// const E: usize = 24;
+
+// test_linear_element!(Tetrahedron);
+// test_finite_element_block!(Tetrahedron);
+
+setup_for_elements!(Tetrahedron);
+test_finite_element!(Tetrahedron);
+
+
+
 use crate::constitutive::solid::hyperelastic::
 {
     NeoHookean,
@@ -8,7 +31,7 @@ use crate::
     EPSILON,
     test::assert_eq_within_tols
 };
-use crate::mechanics::test::get_deformation_gradient;
+// use crate::mechanics::test::get_deformation_gradient;
 use super::*;
 
 fn get_reference_coordinates() -> ReferenceNodalCoordinates<N>
@@ -34,7 +57,7 @@ fn get_element<'a>() -> Tetrahedron::<NeoHookean<'a>>
     )
 }
 
-fn get_coordinates() -> NodalCoordinates<N>
+fn get_coordinatess() -> NodalCoordinates<N>
 {
     get_deformation_gradient() * get_reference_coordinates()
 }
@@ -114,7 +137,7 @@ fn undeformed_crazy()
 fn deformed()
 {
     get_element().calculate_deformation_gradients(
-        &get_coordinates()
+        &get_coordinatess()
     ).iter()
     .for_each(|deformation_gradient_g|
         deformation_gradient_g.iter()
@@ -137,7 +160,7 @@ fn get_finite_difference_of_helmholtz_free_energy() -> NodalForces<N>
     let mut finite_difference = 0.0;
     (0..N).map(|node|
         (0..3).map(|i|{
-            let mut nodal_coordinates = get_coordinates();
+            let mut nodal_coordinates = get_coordinatess();
             nodal_coordinates[node][i] += 0.5 * EPSILON;
             finite_difference = element.calculate_helmholtz_free_energy(
                 &nodal_coordinates
@@ -155,7 +178,7 @@ fn get_finite_difference_of_helmholtz_free_energy() -> NodalForces<N>
 fn finite_difference()
 {
     get_element().calculate_nodal_forces(
-        &get_coordinates()
+        &get_coordinatess()
     ).iter()
     .zip(get_finite_difference_of_helmholtz_free_energy().iter())
     .for_each(|(nodal_force, fd_nodal_force)|

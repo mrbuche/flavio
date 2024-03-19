@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod test;
+pub mod test;
 
 pub mod localization;
 pub mod surface;

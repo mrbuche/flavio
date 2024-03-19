@@ -7,6 +7,12 @@ use super::
     TensorRank2List2DTrait
 };
 
+#[test]
+fn test_new_stuff()
+{
+    todo!()
+}
+
 fn get_array() -> [[[[TensorRank0; 3]; 3]; 2]; 2]
 {
     [[[
