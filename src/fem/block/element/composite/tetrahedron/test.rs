@@ -1,23 +1,17 @@
 use crate::fem::block::
 {
-    // test::test_finite_element_block,
-    // element::linear::test::test_linear_element
-    element::test::
-    {
-        setup_for_elements,
-        test_finite_element
-    }
+    element::composite::test::test_composite_element,
+    // test::test_finite_element_block
 };
 use super::*;
 
 // const D: usize = 14;
 // const E: usize = 24;
 
-// test_linear_element!(Tetrahedron);
+test_composite_element!(Tetrahedron);
 // test_finite_element_block!(Tetrahedron);
 
-setup_for_elements!(Tetrahedron);
-test_finite_element!(Tetrahedron);
+
 
 
 
@@ -31,8 +25,6 @@ use crate::
     EPSILON,
     test::assert_eq_within_tols
 };
-// use crate::mechanics::test::get_deformation_gradient;
-use super::*;
 
 fn get_reference_coordinates() -> ReferenceNodalCoordinates<N>
 {

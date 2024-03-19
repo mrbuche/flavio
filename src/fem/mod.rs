@@ -85,6 +85,7 @@ use crate::
         DeformationGradientRates,
         FirstPiolaKirchoffStresses,
         FirstPiolaKirchoffTangentStiffnesses,
+        FirstPiolaKirchoffRateTangentStiffnesses,
         Forces,
         ReferenceCoordinates,
         Scalar,

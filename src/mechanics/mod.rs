@@ -59,11 +59,14 @@ pub type FirstPiolaKirchoffStresses<const W: usize> = TensorRank2List<3, 1, 0, W
 /// The tangent stiffness associated with the first Piola-Kirchoff stress $`\boldsymbol{\mathcal{C}}`$.
 pub type FirstPiolaKirchoffTangentStiffness = TensorRank4<3, 1, 0, 1, 0>;
 
+/// A list of first Piola-Kirchoff tangent stiffnesses.
+pub type FirstPiolaKirchoffTangentStiffnesses<const W: usize> = TensorRank4List<3, 1, 0, 1, 0, W>;
+
 /// The rate tangent stiffness associated with the first Piola-Kirchoff stress $`\boldsymbol{\mathcal{U}}`$.
 pub type FirstPiolaKirchoffRateTangentStiffness = TensorRank4<3, 1, 0, 1, 0>;
 
-/// A list of first Piola-Kirchoff tangent stiffnesses.
-pub type FirstPiolaKirchoffTangentStiffnesses<const W: usize> = TensorRank4List<3, 1, 0, 1, 0, W>;
+/// A list of first Piola-Kirchoff rate tangent stiffnesses.
+pub type FirstPiolaKirchoffRateTangentStiffnesses<const W: usize> = TensorRank4List<3, 1, 0, 1, 0, W>;
 
 /// A force.
 pub type Force = TensorRank1<3, 1>;

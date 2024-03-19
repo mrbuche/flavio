@@ -1,7 +1,7 @@
 use crate::fem::block::
 {
-    test::test_finite_element_block,
-    element::linear::test::test_linear_element
+    element::linear::test::test_linear_element,
+    test::test_finite_element_block
 };
 use super::*;
 
