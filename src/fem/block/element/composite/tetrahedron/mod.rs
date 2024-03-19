@@ -16,8 +16,11 @@ const Q: usize = 4;
 // "The weights of a quadrature rule always sum to the volume of the reference element."
 const INTEGRATION_WEIGHT: Scalar = 1.0/24.0;
 
+// can pre-scale composite jacobians by integration weight
+
 pub struct Tetrahedron<C>
 {
+    composite_jacobians: Scalars<G>,
     constitutive_models: [C; G],
     projected_gradient_vectors: ProjectedGradientVectors<G, N>
 }
@@ -28,8 +31,16 @@ where
 {
     fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>) -> Self
     {
+        // why not closer to one?
+        // why 3rd value small and negative?
+        Self::calculate_composite_jacobian_at_integration_points(&reference_nodal_coordinates).iter()
+        .for_each(|jc|
+            println!("Jc {:?}", jc)
+        );
+        // cargo test --features fem --release -q -- --nocapture fem::block::element::composite::tetrahedron::test::element::hyperelastic::neo_hookean::nodal_forces::deformed::finite_difference
         Self
         {
+            composite_jacobians: Self::calculate_composite_jacobian_at_integration_points(&reference_nodal_coordinates),
             constitutive_models: std::array::from_fn(|_| <C>::new(constitutive_model_parameters)),
             projected_gradient_vectors: Self::calculate_projected_gradient_vectors(&reference_nodal_coordinates)
         }
@@ -40,7 +51,39 @@ impl<'a, C> CompositeElement<'a, C, G, M, N, O, P, Q> for Tetrahedron<C>
 where
     C: Constitutive<'a>
 {
-    fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> ProjectedGradientVectors<G, N>
+    fn calculate_composite_jacobian_at_integration_points(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> Scalars<G>
+    {
+        let (jacobians, _) = Self::calculate_jacobians_and_parametric_gradient_operators(reference_nodal_coordinates);
+
+        // the third jacobian is negative! what is going on?
+        jacobians.iter()
+        .for_each(|j|
+            println!("jacobian {:?}", j)
+        );
+
+        let vector = Self::calculate_inverse_normalized_projection_matrix() *
+        Self::calculate_shape_function_integrals().iter()
+        .zip(jacobians.iter())
+        .map(|(shape_function_integral, jacobian)|
+            shape_function_integral * jacobian
+        ).sum::<TensorRank1<Q, 9>>();
+        Self::calculate_shape_functions_at_integration_points().iter()
+        .map(|shape_functions_at_integration_point|
+            shape_functions_at_integration_point * &vector
+        ).collect()
+    }
+    fn calculate_inverse_normalized_projection_matrix() -> NormalizedProjectionMatrix<Q>
+    {
+        let diag: Scalar = 4.0/640.0;
+        let off: Scalar = -1.0/640.0;
+        NormalizedProjectionMatrix::new([
+            [diag,  off,  off,  off],
+            [ off, diag,  off,  off],
+            [ off,  off, diag,  off],
+            [ off,  off,  off, diag]
+        ])
+    }
+    fn calculate_jacobians_and_parametric_gradient_operators(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> (Scalars<P>, ParametricGradientOperators<P>)
     {
         let parametric_gradient_operators =
         Self::calculate_standard_gradient_operators().iter()
@@ -52,6 +95,11 @@ where
         .map(|parametric_gradient_operator|
             parametric_gradient_operator.determinant()
         ).collect::<Scalars<P>>();
+        (jacobians, parametric_gradient_operators)
+    }
+    fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> ProjectedGradientVectors<G, N>
+    {
+        let (jacobians, parametric_gradient_operators) = Self::calculate_jacobians_and_parametric_gradient_operators(reference_nodal_coordinates);
         let inverse_projection_matrix =
         Self::calculate_shape_function_integrals_products().iter()
         .zip(jacobians.iter())
@@ -162,7 +210,7 @@ where
             [diag,  off,  off,  off],
             [ off, diag,  off,  off],
             [ off,  off, diag,  off],
-            [ off,  off,  off, diag],
+            [ off,  off,  off, diag]
         ])
     }
     fn calculate_standard_gradient_operators() -> StandardGradientOperators<M, O, P>
@@ -438,6 +486,10 @@ where
             [ n23,  2.0,  2.0],
             [ n23,  n23,  n23]
         ]])
+    }
+    fn get_composite_jacobians(&self) -> &Scalars<G>
+    {
+        &self.composite_jacobians
     }
     fn get_constitutive_models(&self) -> &[C; G]
     {

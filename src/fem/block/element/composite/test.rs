@@ -56,6 +56,21 @@ macro_rules! setup_for_composite_elements
             todo!("can probably test sum of shape functions at integration points is unity as well")
         }
         #[test]
+        fn todo1()
+        {
+            todo!("also test that sum of shape function integrals inverse is that 4x4 matrix")
+        }
+        #[test]
+        fn todo2()
+        {
+            todo!("test composite jacobian somehow?")
+        }
+        #[test]
+        fn todo3()
+        {
+            todo!("and what about subtet jacobians, parameteric operators")
+        }
+        #[test]
         fn size()
         {
             assert_eq!(

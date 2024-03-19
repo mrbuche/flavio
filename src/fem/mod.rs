@@ -62,6 +62,7 @@ use crate::
     {
         ContractSecondFourthIndicesWithFirstIndicesOf,
         Convert,
+        TensorRank1,
         TensorRank1Trait,
         TensorRank1List,
         TensorRank1ListTrait,
@@ -107,6 +108,7 @@ type NodalVelocities<const D: usize> = CurrentCoordinates<D>;
 type Normal<const I: usize> = Vector<I>;
 type NormalGradients<const O: usize> = TensorRank2List<3, 1, 1, O>;
 type NormalTangents<const O: usize> = TensorRank3List2D<3, 1, 1, 1, O>;
+type NormalizedProjectionMatrix<const Q: usize> = TensorRank2<Q, 9, 9>;
 type NormalRate = Vector<1>;
 type ParametricGradientOperators<const P: usize> = TensorRank2List<3, 0, 9, P>;
 type ProjectedGradientVectors<const G: usize, const N: usize> = Vectors2D<0, N, G>;
