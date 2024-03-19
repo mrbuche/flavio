@@ -19,7 +19,8 @@ macro_rules! setup_for_composite_elements
             {
                 get_deformation_gradient,
                 get_deformation_gradient_rate
-            }
+            },
+            test::assert_eq_within_tols
         };
         fn get_coordinates() -> NodalCoordinates<N>
         {
@@ -28,6 +29,31 @@ macro_rules! setup_for_composite_elements
         fn get_velocities() -> NodalVelocities<N>
         {
             get_deformation_gradient_rate() * get_reference_coordinates()
+        }
+        #[test]
+        fn partition_of_unity<'a>()
+        {
+            $element::<AlmansiHamel>::calculate_standard_gradient_operators().iter()
+            .for_each(|standard_gradient_operator|{
+                let mut sum = [0.00_f64; 3];
+                standard_gradient_operator.iter()
+                .for_each(|row|
+                    row.iter()
+                    .zip(sum.iter_mut())
+                    .for_each(|(entry, sum_i)|
+                        *sum_i += entry
+                    )
+                );
+                sum.iter()
+                .for_each(|sum_i|
+                    assert_eq_within_tols(sum_i, &0.00)
+                )
+            })
+        }
+        #[test]
+        fn todo()
+        {
+            todo!("can probably test sum of shape functions at integration points is unity as well")
         }
         #[test]
         fn size()
@@ -42,9 +68,3 @@ macro_rules! setup_for_composite_elements
     }
 }
 pub(crate) use setup_for_composite_elements;
-
-#[test]
-fn todo()
-{
-    todo!()
-}
