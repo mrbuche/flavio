@@ -115,6 +115,11 @@ macro_rules! setup_for_composite_elements
                 + std::mem::size_of::<Scalars<G>>()
             )
         }
+        #[test]
+        fn todo()
+        {
+            todo!("Test this across constitutive models, and add similar tests to linear/test.rs.")
+        }
         crate::fem::block::element::test::setup_for_element_tests_any_element!($element);
     }
 }
