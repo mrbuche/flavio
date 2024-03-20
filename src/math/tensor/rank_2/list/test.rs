@@ -6,12 +6,6 @@ use super::
     TensorRank2ListTrait
 };
 
-#[test]
-fn test_new_stuff()
-{
-    todo!()
-}
-
 fn get_array() -> [[[TensorRank0; 3]; 3]; 8]
 {
     [[

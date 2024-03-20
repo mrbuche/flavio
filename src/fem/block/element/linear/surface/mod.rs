@@ -271,7 +271,7 @@ macro_rules! linear_surface_element_boilerplate
                                         .map(|(first_piola_kirchoff_tangent_stiffness_mjkl, (gradient_vector_b_l, reference_normal_l))|
                                             first_piola_kirchoff_tangent_stiffness_mjkl * gradient_vector_a_j * (
                                                 identity_nk * gradient_vector_b_l + normal_gradient_b_n_k * reference_normal_l
-                                            )
+                                            ) * self.get_integration_weight()
                                         ).sum::<Scalar>()
                                     ).sum::<Scalar>()
                                 ).sum::<Scalar>()
@@ -340,7 +340,7 @@ macro_rules! linear_surface_element_boilerplate
                                         .map(|(first_piola_kirchoff_rate_tangent_stiffness_mjkl, (gradient_vector_b_l, reference_normal_l))|
                                             first_piola_kirchoff_rate_tangent_stiffness_mjkl * gradient_vector_a_j * (
                                                 identity_nk * gradient_vector_b_l + normal_gradient_b_n_k * reference_normal_l
-                                            )
+                                            ) * self.get_integration_weight()
                                         ).sum::<Scalar>()
                                     ).sum::<Scalar>()
                                 ).sum::<Scalar>()

@@ -5,8 +5,6 @@ use std::ops::
 {
     Add,
     AddAssign,
-    Div,
-    DivAssign,
     Index,
     IndexMut
 };
@@ -107,82 +105,6 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> IndexMut<us
     fn index_mut(&mut self, index: usize) -> &mut Self::Output
     {
         &mut self.0[index]
-    }
-}
-
-impl<const D: usize, const I: usize, const J: usize, const W: usize> std::iter::Sum for TensorRank2List<D, I, J, W>
-{
-    fn sum<Ii>(iter: Ii) -> Self
-    where
-        Ii: Iterator<Item = Self>
-    {
-        let mut output = TensorRank2List::zero();
-        iter.for_each(|item|
-            output += item
-        );
-        output
-    }
-}
-
-impl<const D: usize, const I: usize, const J: usize, const W: usize> Div<TensorRank0> for TensorRank2List<D, I, J, W>
-{
-    type Output = Self;
-    fn div(mut self, tensor_rank_0: TensorRank0) -> Self::Output
-    {
-        self /= &tensor_rank_0;
-        self
-    }
-}
-
-impl<const D: usize, const I: usize, const J: usize, const W: usize> Div<TensorRank0> for &TensorRank2List<D, I, J, W>
-{
-    type Output = TensorRank2List<D, I, J, W>;
-    fn div(self, tensor_rank_0: TensorRank0) -> Self::Output
-    {
-        self.iter().map(|self_i|
-            self_i / tensor_rank_0
-        ).collect()
-    }
-}
-
-impl<const D: usize, const I: usize, const J: usize, const W: usize> Div<&TensorRank0> for TensorRank2List<D, I, J, W>
-{
-    type Output = Self;
-    fn div(mut self, tensor_rank_0: &TensorRank0) -> Self::Output
-    {
-        self /= tensor_rank_0;
-        self
-    }
-}
-
-impl<const D: usize, const I: usize, const J: usize, const W: usize> Div<&TensorRank0> for &TensorRank2List<D, I, J, W>
-{
-    type Output = TensorRank2List<D, I, J, W>;
-    fn div(self, tensor_rank_0: &TensorRank0) -> Self::Output
-    {
-        self.iter().map(|self_i|
-            self_i / tensor_rank_0
-        ).collect()
-    }
-}
-
-impl<const D: usize, const I: usize, const J: usize, const W: usize> DivAssign<TensorRank0> for TensorRank2List<D, I, J, W>
-{
-    fn div_assign(&mut self, tensor_rank_0: TensorRank0)
-    {
-        self.iter_mut().for_each(|entry|
-            *entry /= &tensor_rank_0
-        );
-    }
-}
-
-impl<const D: usize, const I: usize, const J: usize, const W: usize> DivAssign<&TensorRank0> for TensorRank2List<D, I, J, W>
-{
-    fn div_assign(&mut self, tensor_rank_0: &TensorRank0)
-    {
-        self.iter_mut().for_each(|entry|
-            *entry /= tensor_rank_0
-        );
     }
 }
 

@@ -380,8 +380,7 @@ macro_rules! test_linear_element_with_constitutive_model
             fn partition_of_unity<'a>()
             {
                 let mut sum = [0.0_f64; 3];
-                $element::<$constitutive_model<'a>>::calculate_standard_gradient_operator()
-                .iter()
+                $element::<$constitutive_model<'a>>::calculate_standard_gradient_operator().iter()
                 .for_each(|row|
                     row.iter()
                     .zip(sum.iter_mut())

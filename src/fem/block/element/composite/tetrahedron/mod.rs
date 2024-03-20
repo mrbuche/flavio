@@ -10,19 +10,13 @@ const O: usize = 10;
 const P: usize = 12;
 const Q: usize = 4;
 
-// is it 1/4, or 1/24?
-// has implications in other elements
-// i.e. linear tetrahedron would have weight 1/6, linear tri and localiztion wedge 1/2
-// "The weights of a quadrature rule always sum to the volume of the reference element."
 const INTEGRATION_WEIGHT: Scalar = 1.0/24.0;
-
-// can pre-scale composite jacobians by integration weight
 
 pub struct Tetrahedron<C>
 {
-    composite_jacobians: Scalars<G>,
     constitutive_models: [C; G],
-    projected_gradient_vectors: ProjectedGradientVectors<G, N>
+    projected_gradient_vectors: ProjectedGradientVectors<G, N>,
+    scaled_composite_jacobians: Scalars<G>
 }
 
 impl<'a, C> FiniteElement<'a, C, G, N> for Tetrahedron<C>
@@ -33,9 +27,9 @@ where
     {
         Self
         {
-            composite_jacobians: Self::calculate_composite_jacobian_at_integration_points(&reference_nodal_coordinates),
             constitutive_models: std::array::from_fn(|_| <C>::new(constitutive_model_parameters)),
-            projected_gradient_vectors: Self::calculate_projected_gradient_vectors(&reference_nodal_coordinates)
+            projected_gradient_vectors: Self::calculate_projected_gradient_vectors(&reference_nodal_coordinates),
+            scaled_composite_jacobians: Self::calculate_scaled_composite_jacobian_at_integration_points(&reference_nodal_coordinates)
         }
     }
 }
@@ -44,20 +38,6 @@ impl<'a, C> CompositeElement<'a, C, G, M, N, O, P, Q> for Tetrahedron<C>
 where
     C: Constitutive<'a>
 {
-    fn calculate_composite_jacobian_at_integration_points(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> Scalars<G>
-    {
-        let (jacobians, _) = Self::calculate_jacobians_and_parametric_gradient_operators(reference_nodal_coordinates);
-        let vector = Self::calculate_inverse_normalized_projection_matrix() *
-        Self::calculate_shape_function_integrals().iter()
-        .zip(jacobians.iter())
-        .map(|(shape_function_integral, jacobian)|
-            shape_function_integral * jacobian
-        ).sum::<TensorRank1<Q, 9>>();
-        Self::calculate_shape_functions_at_integration_points().iter()
-        .map(|shape_functions_at_integration_point|
-            shape_functions_at_integration_point * &vector
-        ).collect()
-    }
     fn calculate_inverse_normalized_projection_matrix() -> NormalizedProjectionMatrix<Q>
     {
         let diag: Scalar = 4.0/640.0;
@@ -105,6 +85,20 @@ where
                     * (shape_functions_at_integration_point * (&inverse_projection_matrix * shape_function_integral))
                 ).sum()
             ).collect()
+        ).collect()
+    }
+    fn calculate_scaled_composite_jacobian_at_integration_points(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> Scalars<G>
+    {
+        let (jacobians, _) = Self::calculate_jacobians_and_parametric_gradient_operators(reference_nodal_coordinates);
+        let vector = Self::calculate_inverse_normalized_projection_matrix() *
+        Self::calculate_shape_function_integrals().iter()
+        .zip(jacobians.iter())
+        .map(|(shape_function_integral, jacobian)|
+            shape_function_integral * jacobian
+        ).sum::<TensorRank1<Q, 9>>();
+        Self::calculate_shape_functions_at_integration_points().iter()
+        .map(|shape_functions_at_integration_point|
+            (shape_functions_at_integration_point * &vector) * INTEGRATION_WEIGHT
         ).collect()
     }
     fn calculate_shape_function_integrals() -> ShapeFunctionIntegrals<P, Q>
@@ -201,141 +195,21 @@ where
     }
     fn calculate_standard_gradient_operators() -> StandardGradientOperators<M, O, P>
     {
-        let n23: Scalar = 2.0/3.0;
-        let n43: Scalar = 4.0/3.0;
-        StandardGradientOperators::new([[
-            [-2.0, -2.0, -2.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 2.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  2.0,  0.0],
-            [ 0.0,  0.0,  2.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0]
-        ], [
-            [ 0.0,  0.0,  0.0],
-            [ 2.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [-2.0, -2.0, -2.0],
-            [ 0.0,  2.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  2.0],
-            [ 0.0,  0.0,  0.0]
-        ], [
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  2.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 2.0,  0.0,  0.0],
-            [-2.0, -2.0, -2.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  2.0]
-        ], [
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  2.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [-2.0, -2.0, -2.0],
-            [ 2.0,  0.0,  0.0],
-            [ 0.0,  2.0,  0.0]
-        ], [
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [-n23, -2.0, -2.0],
-            [ n43,  2.0,  0.0],
-            [-n23,  0.0,  0.0],
-            [-n23,  0.0,  0.0],
-            [ n43,  0.0,  2.0],
-            [-n23,  0.0,  0.0]
-        ], [
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [-n23, -n23, -n23],
-            [ n43,  n43, -n23],
-            [-n23, -n23, -n23],
-            [-n23, -n23, -n23],
-            [ n43, -n23,  n43],
-            [-n23,  n43,  n43]
-        ], [
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0, -n23],
-            [ 0.0,  0.0, -n23],
-            [ 0.0,  0.0, -n23],
-            [-2.0, -2.0, -n23],
-            [ 2.0,  0.0,  n43],
-            [ 0.0,  2.0,  n43]
-        ], [
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0, -n43, -2.0],
-            [ 0.0,  n23,  0.0],
-            [ 0.0,  n23,  0.0],
-            [-2.0, -n43,  0.0],
-            [ 2.0,  n23,  2.0],
-            [ 0.0,  n23,  0.0]
-        ], [
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0, -2.0, -n43],
-            [ 2.0,  2.0,  n23],
-            [-2.0,  0.0, -n43],
-            [ 0.0,  0.0,  n23],
-            [ 0.0,  0.0,  n23],
-            [ 0.0,  0.0,  n23]
-        ], [
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0, -n23,  0.0],
-            [ 2.0,  n43,  0.0],
-            [-2.0, -n23, -2.0],
-            [ 0.0, -n23,  0.0],
-            [ 0.0, -n23,  0.0],
-            [ 0.0,  n43,  2.0]
-        ], [
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ n23,  0.0,  0.0],
-            [ n23,  0.0,  0.0],
-            [-n43,  0.0, -2.0],
-            [-n43, -2.0,  0.0],
-            [ n23,  0.0,  0.0],
-            [ n23,  2.0,  2.0]
-        ], [
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ n23, -n43, -n43],
-            [ n23,  n23,  n23],
-            [-n43,  n23, -n43],
-            [-n43, -n43,  n23],
-            [ n23,  n23,  n23],
-            [ n23,  n23,  n23]
-        ]])
+        let mut standard_gradient_operators = StandardGradientOperators::zero();
+        let standard_gradient_operators_transposed = Self::calculate_standard_gradient_operators_transposed();
+        standard_gradient_operators.iter_mut().enumerate()
+        .for_each(|(e, standard_gradient_operator_e)|
+            standard_gradient_operator_e.iter_mut()
+            .zip(standard_gradient_operators_transposed.iter())
+            .for_each(|(standard_gradient_operator_e_n, standard_gradient_operator_transposed_n)|
+                standard_gradient_operator_e_n.iter_mut()
+                .zip(standard_gradient_operator_transposed_n[e].iter())
+                .for_each(|(standard_gradient_operator_e_n_i, standard_gradient_operator_transposed_n_e_i)|
+                    *standard_gradient_operator_e_n_i = *standard_gradient_operator_transposed_n_e_i
+                )
+            )
+        );
+        standard_gradient_operators
     }
     fn calculate_standard_gradient_operators_transposed() -> StandardGradientOperatorsTransposed<M, O, P>
     {
@@ -473,21 +347,17 @@ where
             [ n23,  n23,  n23]
         ]])
     }
-    fn get_composite_jacobians(&self) -> &Scalars<G>
-    {
-        &self.composite_jacobians
-    }
     fn get_constitutive_models(&self) -> &[C; G]
     {
         &self.constitutive_models
     }
-    fn get_integration_weight(&self) -> &Scalar
-    {
-        &INTEGRATION_WEIGHT
-    }
     fn get_projected_gradient_vectors(&self) -> &ProjectedGradientVectors<G, N>
     {
         &self.projected_gradient_vectors
+    }
+    fn get_scaled_composite_jacobians(&self) -> &Scalars<G>
+    {
+        &self.scaled_composite_jacobians
     }
 }
 

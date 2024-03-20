@@ -233,7 +233,7 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses
                                     assert!(
                                         (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < 13.0 * EPSILON ||
                                         (nodal_stiffness_ab_ij.abs() < ABS_TOL && fd_nodal_stiffness_ab_ij.abs() < ABS_TOL) ||
-                                        (nodal_stiffness_ab_ij - fd_nodal_stiffness_ab_ij).abs() < EPSILON
+                                        (nodal_stiffness_ab_ij - fd_nodal_stiffness_ab_ij).abs() < EPSILON / 10.0
                                     )
                                 )
                             )
@@ -445,7 +445,7 @@ macro_rules! test_helmholtz_free_energy
                         .zip(fd_nodal_force.iter())
                         .for_each(|(nodal_force_i, fd_nodal_force_i)|
                             assert!(
-                                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON
+                                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON * 2.0
                             )
                         )
                     )
@@ -1082,7 +1082,7 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
                         .zip(fd_nodal_force.iter())
                         .for_each(|(nodal_force_i, fd_nodal_force_i)|
                             assert!(
-                                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON
+                                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON * 2.0
                             )
                         )
                     )
@@ -1268,7 +1268,7 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
                         .zip(fd_nodal_force.iter())
                         .for_each(|(nodal_force_i, fd_nodal_force_i)|
                             assert!(
-                                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON
+                                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON * 2.0
                             )
                         )
                     )

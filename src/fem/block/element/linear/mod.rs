@@ -32,6 +32,7 @@ where
     fn calculate_standard_gradient_operator() -> StandardGradientOperator<M, O>;
     fn get_constitutive_model(&self) -> &C;
     fn get_gradient_vectors(&self) -> &GradientVectors<N>;
+    fn get_integration_weight(&self) -> &Scalar;
 }
 
 pub trait ElasticLinearElement<'a, C, const G: usize, const M: usize, const N: usize, const O: usize>
@@ -47,7 +48,7 @@ where
         );
         self.get_gradient_vectors().iter()
         .map(|gradient_vector|
-            &first_piola_kirchoff_stress * gradient_vector
+            (&first_piola_kirchoff_stress * gradient_vector) * self.get_integration_weight()
         ).collect()
     }
     fn calculate_nodal_stiffnesses_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
@@ -64,7 +65,7 @@ where
                 first_piola_kirchoff_tangent_stiffness
                 .contract_second_fourth_indices_with_first_indices_of(
                     gradient_vector_a, gradient_vector_b
-                )
+                ) * self.get_integration_weight()
             ).collect()
         ).collect()
     }
@@ -80,7 +81,7 @@ where
         self.get_constitutive_model()
         .calculate_helmholtz_free_energy_density(
             &self.calculate_deformation_gradient(nodal_coordinates)
-        )
+        ) * self.get_integration_weight()
     }
 }
 
@@ -98,7 +99,7 @@ where
         );
         self.get_gradient_vectors().iter()
         .map(|gradient_vector|
-            &first_piola_kirchoff_stress * gradient_vector
+            (&first_piola_kirchoff_stress * gradient_vector) * self.get_integration_weight()
         ).collect()
     }
     fn calculate_nodal_stiffnesses_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalStiffnesses<N>
@@ -116,7 +117,7 @@ where
                 first_piola_kirchoff_tangent_stiffness
                 .contract_second_fourth_indices_with_first_indices_of(
                     gradient_vector_a, gradient_vector_b
-                )
+                ) * self.get_integration_weight()
             ).collect()
         ).collect()
     }
@@ -133,7 +134,7 @@ where
         .calculate_viscous_dissipation(
             &self.calculate_deformation_gradient(nodal_coordinates),
             &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
-        )
+        ) * self.get_integration_weight()
     }
     fn calculate_dissipation_potential_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> Scalar
     {
@@ -141,7 +142,7 @@ where
         .calculate_dissipation_potential(
             &self.calculate_deformation_gradient(nodal_coordinates),
             &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
-        )
+        ) * self.get_integration_weight()
     }
 }
 
@@ -155,7 +156,7 @@ where
         self.get_constitutive_model()
         .calculate_helmholtz_free_energy_density(
             &self.calculate_deformation_gradient(nodal_coordinates)
-        )
+        ) * self.get_integration_weight()
     }
 }
 

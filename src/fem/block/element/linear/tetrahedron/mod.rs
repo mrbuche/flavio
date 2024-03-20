@@ -8,6 +8,8 @@ const M: usize = 3;
 const N: usize = 4;
 const O: usize = 4;
 
+const INTEGRATION_WEIGHT: Scalar = 1.0/6.0;
+
 pub struct Tetrahedron<C>
 {
     constitutive_model: C,
@@ -53,6 +55,10 @@ where
     fn get_gradient_vectors(&self) -> &GradientVectors<N>
     {
         &self.gradient_vectors
+    }
+    fn get_integration_weight(&self) -> &Scalar
+    {
+        &INTEGRATION_WEIGHT
     }
 }
 

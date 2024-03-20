@@ -8,6 +8,8 @@ const M: usize = 2;
 const N: usize = 6;
 const O: usize = 3;
 
+const INTEGRATION_WEIGHT: Scalar = 1.0/2.0;
+
 pub struct Wedge<C>
 {
     constitutive_model: C,
@@ -84,6 +86,10 @@ where
     {
         &self.gradient_vectors
     }
+    fn get_integration_weight(&self) -> &Scalar
+    {
+        &INTEGRATION_WEIGHT
+    }
 }
 
 impl<'a, C> LinearSurfaceElement<'a, C, G, M, N, O> for Wedge<C>
@@ -131,7 +137,7 @@ where
         self.get_gradient_vectors().iter()
         .zip(normal_gradients.iter().chain(normal_gradients.iter()))
         .map(|(gradient_vector_a, normal_gradient_a)|
-            &first_piola_kirchoff_stress * gradient_vector_a + normal_gradient_a * &traction
+            (&first_piola_kirchoff_stress * gradient_vector_a + normal_gradient_a * &traction) * self.get_integration_weight()
         ).collect()
     }
     fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
@@ -186,7 +192,7 @@ where
                                             identity_mi * gradient_vector_a_j + normal_gradient_a_m_i * reference_normal_j
                                         ) * (
                                             identity_nk * gradient_vector_b_l + normal_gradient_b_n_k * reference_normal_l
-                                        )
+                                        ) * self.get_integration_weight()
                                     ).sum::<Scalar>()
                                 ).sum::<Scalar>()
                             ).sum::<Scalar>()
@@ -203,7 +209,7 @@ where
                 .map(|normal_tangent_ab_m|
                     normal_tangent_ab_m.iter()
                     .map(|normal_tangent_ab_mn|
-                        normal_tangent_ab_mn * &traction
+                        (normal_tangent_ab_mn * &traction) * self.get_integration_weight()
                     ).collect()
                 ).collect()
             ).collect()
@@ -229,7 +235,7 @@ where
         self.get_gradient_vectors().iter()
         .zip(normal_gradients.iter().chain(normal_gradients.iter()))
         .map(|(gradient_vector_a, normal_gradient_a)|
-            &first_piola_kirchoff_stress * gradient_vector_a + normal_gradient_a * &traction
+            (&first_piola_kirchoff_stress * gradient_vector_a + normal_gradient_a * &traction) * self.get_integration_weight()
         ).collect()
     }
     fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalStiffnesses<N>
@@ -277,7 +283,7 @@ where
                                             identity_mi * gradient_vector_a_j + normal_gradient_a_m_i * reference_normal_j
                                         ) * (
                                             identity_nk * gradient_vector_b_l + normal_gradient_b_n_k * reference_normal_l
-                                        )
+                                        ) * self.get_integration_weight()
                                     ).sum::<Scalar>()
                                 ).sum::<Scalar>()
                             ).sum::<Scalar>()

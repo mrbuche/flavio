@@ -8,6 +8,8 @@ const M: usize = 2;
 const N: usize = 3;
 const O: usize = 3;
 
+const INTEGRATION_WEIGHT: Scalar = 1.0/2.0;
+
 pub struct Triangle<C>
 {
     constitutive_model: C,
@@ -61,6 +63,10 @@ where
     fn get_gradient_vectors(&self) -> &GradientVectors<N>
     {
         &self.gradient_vectors
+    }
+    fn get_integration_weight(&self) -> &Scalar
+    {
+        &INTEGRATION_WEIGHT
     }
 }
 
