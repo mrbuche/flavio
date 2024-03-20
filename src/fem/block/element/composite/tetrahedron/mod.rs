@@ -31,13 +31,6 @@ where
 {
     fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>) -> Self
     {
-        // why not closer to one?
-        // why 3rd value small and negative?
-        Self::calculate_composite_jacobian_at_integration_points(&reference_nodal_coordinates).iter()
-        .for_each(|jc|
-            println!("Jc {:?}", jc)
-        );
-        // cargo test --features fem --release -q -- --nocapture fem::block::element::composite::tetrahedron::test::element::hyperelastic::neo_hookean::nodal_forces::deformed::finite_difference
         Self
         {
             composite_jacobians: Self::calculate_composite_jacobian_at_integration_points(&reference_nodal_coordinates),
@@ -54,13 +47,6 @@ where
     fn calculate_composite_jacobian_at_integration_points(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> Scalars<G>
     {
         let (jacobians, _) = Self::calculate_jacobians_and_parametric_gradient_operators(reference_nodal_coordinates);
-
-        // the third jacobian is negative! what is going on?
-        jacobians.iter()
-        .for_each(|j|
-            println!("jacobian {:?}", j)
-        );
-
         let vector = Self::calculate_inverse_normalized_projection_matrix() *
         Self::calculate_shape_function_integrals().iter()
         .zip(jacobians.iter())
@@ -244,9 +230,9 @@ where
             [ 0.0,  0.0,  0.0],
             [ 0.0,  2.0,  0.0],
             [ 0.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
             [ 2.0,  0.0,  0.0],
             [-2.0, -2.0, -2.0],
-            [ 0.0,  0.0,  0.0],
             [ 0.0,  0.0,  0.0],
             [ 0.0,  0.0,  0.0],
             [ 0.0,  0.0,  2.0]
@@ -410,7 +396,7 @@ where
         ], [
             [ 2.0,  0.0,  0.0],
             [-2.0, -2.0, -2.0],
-            [ 2.0,  0.0,  0.0],
+            [ 0.0,  0.0,  0.0],
             [ 0.0,  0.0,  0.0],
             [-n23, -2.0, -2.0],
             [-n23, -n23, -n23],
@@ -423,7 +409,7 @@ where
         ], [
             [ 0.0,  0.0,  0.0],
             [ 0.0,  2.0,  0.0],
-            [-2.0, -2.0, -2.0],
+            [ 2.0,  0.0,  0.0],
             [ 0.0,  0.0,  0.0],
             [ n43,  2.0,  0.0],
             [ n43,  n43, -n23],
@@ -436,7 +422,7 @@ where
         ], [
             [ 0.0,  2.0,  0.0],
             [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
+            [-2.0, -2.0, -2.0],
             [ 0.0,  0.0,  0.0],
             [-n23,  0.0,  0.0],
             [-n23, -n23, -n23],
