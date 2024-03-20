@@ -372,6 +372,31 @@ macro_rules! setup_for_localization_elements
 }
 pub(crate) use setup_for_localization_elements;
 
+macro_rules! setup_for_composite_elements
+{
+    ($element: ident) =>
+    {
+        use crate::
+        {
+            mechanics::test::
+            {
+                get_deformation_gradient,
+                get_deformation_gradient_rate
+            }
+        };
+        fn get_coordinates() -> NodalCoordinates<N>
+        {
+            get_deformation_gradient() * get_reference_coordinates()
+        }
+        fn get_velocities() -> NodalVelocities<N>
+        {
+            get_deformation_gradient_rate() * get_reference_coordinates()
+        }
+        crate::fem::block::element::test::setup_for_element_tests_any_element!($element);
+    }
+}
+pub(crate) use setup_for_composite_elements;
+
 macro_rules! test_nodal_forces_and_nodal_stiffnesses
 {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
