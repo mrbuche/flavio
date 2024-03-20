@@ -29,6 +29,11 @@ pub use block::
             tetrahedron::
             {
                 Tetrahedron as CompositeTetrahedron
+            },
+            surface::
+            {
+                CompositeSurfaceElement,
+                triangle::Triangle as CompositeTriangle
             }
         },
         linear::
@@ -130,6 +135,7 @@ type ProjectedGradientVectors<const G: usize, const N: usize> = Vectors2D<0, N, 
 type ProjectionMatrix<const Q: usize> = TensorRank2<Q, 9, 9>;
 type ReferenceNodalCoordinates<const D: usize> = ReferenceCoordinates<D>;
 type ReferenceNormal = Vector<0>;
+type ReferenceNormals<const P: usize> = Vectors<0, P>;
 type ShapeFunctionIntegrals<const P: usize, const Q: usize> = TensorRank1List<Q, 9, P>;
 type ShapeFunctionIntegralsProducts<const P: usize, const Q: usize> = TensorRank2List<Q, 9, 9, P>;
 type ShapeFunctionsAtIntegrationPoints<const G: usize, const Q: usize> = TensorRank1List<Q, 9, G>;

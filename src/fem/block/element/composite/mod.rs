@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod test;
 
+pub mod surface;
 pub mod tetrahedron;
 
 use super::*;
