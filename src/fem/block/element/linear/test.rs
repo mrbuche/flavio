@@ -13,14 +13,11 @@ macro_rules! test_linear_element_inner
     ($element: ident) =>
     {
         crate::fem::block::element::test::test_finite_element!($element);
-        mod linear_element
+        mod linear
         {
             use crate::
             {
-                fem::block::element::linear::test::
-                {
-                    test_linear_element_with_constitutive_model
-                },
+                fem::block::element::linear::test::test_linear_element_with_constitutive_model,
                 math::Convert,
                 test::assert_eq_within_tols
             };
@@ -194,8 +191,8 @@ macro_rules! test_linear_element_with_constitutive_model
                         get_element_transformed().calculate_deformation_gradient(
                             &get_coordinates_transformed()
                         ) * get_rotation_reference_configuration()
-                    ).iter()
-                    ).for_each(|(deformation_gradient_i, res_deformation_gradient_i)|
+                    ).iter())
+                    .for_each(|(deformation_gradient_i, res_deformation_gradient_i)|
                         deformation_gradient_i.iter()
                         .zip(res_deformation_gradient_i.iter())
                         .for_each(|(deformation_gradient_ij, res_deformation_gradient_ij)|
@@ -280,7 +277,7 @@ macro_rules! test_linear_element_with_constitutive_model
                     get_element().calculate_deformation_gradient_rate(
                         &get_coordinates(), &get_velocities()
                     ).iter().zip((
-                        get_rotation_current_configuration().transpose() *(
+                        get_rotation_current_configuration().transpose() * (
                             get_element_transformed().calculate_deformation_gradient_rate(
                                 &get_coordinates_transformed(), &get_velocities_transformed()
                             ) * get_rotation_reference_configuration() -
@@ -289,8 +286,8 @@ macro_rules! test_linear_element_with_constitutive_model
                                 &get_coordinates()
                             )
                         )
-                    ).iter()
-                    ).for_each(|(deformation_gradient_rate_i, res_deformation_gradient_rate_i)|
+                    ).iter())
+                    .for_each(|(deformation_gradient_rate_i, res_deformation_gradient_rate_i)|
                         deformation_gradient_rate_i.iter()
                         .zip(res_deformation_gradient_rate_i.iter())
                         .for_each(|(deformation_gradient_rate_ij, res_deformation_gradient_rate_ij)|
@@ -362,8 +359,7 @@ macro_rules! test_linear_element_with_constitutive_model
                     get_rotation_reference_configuration().transpose() *
                     $element::<$constitutive_model<'a>>::calculate_gradient_vectors(
                         &get_reference_coordinates_transformed()
-                    )
-                ).iter())
+                )).iter())
                 .for_each(|(gradient_vector, res_gradient_vector)|
                     gradient_vector.iter()
                     .zip(res_gradient_vector.iter())
@@ -380,8 +376,7 @@ macro_rules! test_linear_element_with_constitutive_model
             fn partition_of_unity<'a>()
             {
                 let mut sum = [0.0_f64; 3];
-                $element::<$constitutive_model<'a>>::calculate_standard_gradient_operator()
-                .iter()
+                $element::<$constitutive_model<'a>>::calculate_standard_gradient_operator().iter()
                 .for_each(|row|
                     row.iter()
                     .zip(sum.iter_mut())

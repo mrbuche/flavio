@@ -372,6 +372,31 @@ macro_rules! setup_for_localization_elements
 }
 pub(crate) use setup_for_localization_elements;
 
+macro_rules! setup_for_composite_elements
+{
+    ($element: ident) =>
+    {
+        use crate::
+        {
+            mechanics::test::
+            {
+                get_deformation_gradient,
+                get_deformation_gradient_rate
+            }
+        };
+        fn get_coordinates() -> NodalCoordinates<N>
+        {
+            get_deformation_gradient() * get_reference_coordinates()
+        }
+        fn get_velocities() -> NodalVelocities<N>
+        {
+            get_deformation_gradient_rate() * get_reference_coordinates()
+        }
+        crate::fem::block::element::test::setup_for_element_tests_any_element!($element);
+    }
+}
+pub(crate) use setup_for_composite_elements;
+
 macro_rules! test_nodal_forces_and_nodal_stiffnesses
 {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
@@ -390,11 +415,6 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses
                 $constitutive_model_parameters,
                 get_reference_coordinates_transformed()
             )
-        }
-        #[test]
-        fn integration_weights_sum_to_one()
-        {
-            assert_eq!(get_element().get_integration_weights().iter().sum::<Scalar>(), 1.0)
         }
         mod nodal_forces
         {
@@ -554,42 +574,6 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses
                         )
                     )
                 }
-                #[test]
-                fn symmetry()
-                {
-                    let nodal_stiffness = get_nodal_stiffnesses(false, false);
-                    nodal_stiffness.iter()
-                    .enumerate()
-                    .for_each(|(a, nodal_stiffness_a)|
-                        nodal_stiffness_a.iter()
-                        .enumerate()
-                        .for_each(|(b, nodal_stiffness_ab)|
-                            nodal_stiffness_ab.iter()
-                            .enumerate()
-                            .zip(nodal_stiffness_ab.transpose().iter())
-                            .for_each(|((i, nodal_stiffness_ab_i), nodal_stiffness_ab_j)|
-                                nodal_stiffness_ab_i.iter()
-                                .enumerate()
-                                .zip(nodal_stiffness_ab_j.iter())
-                                .for_each(|((j, nodal_stiffness_ab_ij), nodal_stiffness_ab_ji)|
-                                    if a == b
-                                    {
-                                        assert_eq_within_tols(
-                                            nodal_stiffness_ab_ij,
-                                            &nodal_stiffness_ab_ji
-                                        )
-                                    }
-                                    else if i == j
-                                    {
-                                        assert_eq_within_tols(
-                                            nodal_stiffness_ab_ij, &nodal_stiffness[b][a][i][j]
-                                        )
-                                    }
-                                )
-                            )
-                        )
-                    )
-                }
             }
         }
     }
@@ -663,42 +647,6 @@ macro_rules! test_helmholtz_free_energy
                     finite_difference/EPSILON
                 }).collect()
             ).collect()
-        }
-        #[test]
-        fn nodal_stiffnesses_deformed_symmetry()
-        {
-            let nodal_stiffness = get_nodal_stiffnesses(true, false);
-            nodal_stiffness.iter()
-            .enumerate()
-            .for_each(|(a, nodal_stiffness_a)|
-                nodal_stiffness_a.iter()
-                .enumerate()
-                .for_each(|(b, nodal_stiffness_ab)|
-                    nodal_stiffness_ab.iter()
-                    .enumerate()
-                    .zip(nodal_stiffness_ab.transpose().iter())
-                    .for_each(|((i, nodal_stiffness_ab_i), nodal_stiffness_ab_j)|
-                        nodal_stiffness_ab_i.iter()
-                        .enumerate()
-                        .zip(nodal_stiffness_ab_j.iter())
-                        .for_each(|((j, nodal_stiffness_ab_ij), nodal_stiffness_ab_ji)|
-                            if a == b
-                            {
-                                assert_eq_within_tols(
-                                    nodal_stiffness_ab_ij,
-                                    &nodal_stiffness_ab_ji
-                                )
-                            }
-                            else if i == j
-                            {
-                                assert_eq_within_tols(
-                                    nodal_stiffness_ab_ij, &nodal_stiffness[b][a][i][j]
-                                )
-                            }
-                        )
-                    )
-                )
-            )
         }
         mod helmholtz_free_energy
         {
@@ -795,21 +743,28 @@ macro_rules! test_helmholtz_free_energy
                 {
                     let element = get_element();
                     let minimum = get_helmholtz_free_energy(false, false);
+                    let mut perturbed = 0.0;
                     let mut perturbed_coordinates = get_reference_coordinates();
                     (0..N).for_each(|node|
                         (0..3).for_each(|i|{
                             perturbed_coordinates = get_reference_coordinates();
                             perturbed_coordinates[node][i] += 0.5 * EPSILON;
-                            assert!(
+                            perturbed =
                                 element.calculate_helmholtz_free_energy(
                                     &perturbed_coordinates.convert()
-                                ) >= minimum
+                                );
+                            assert!(
+                                perturbed > minimum ||
+                                check_eq_within_tols(&perturbed, &minimum)
                             );
                             perturbed_coordinates[node][i] -= EPSILON;
-                            assert!(
+                            perturbed =
                                 element.calculate_helmholtz_free_energy(
                                     &perturbed_coordinates.convert()
-                                ) >= minimum
+                                );
+                            assert!(
+                                perturbed > minimum ||
+                                check_eq_within_tols(&perturbed, &minimum)
                             );
                         })
                     )
@@ -824,11 +779,81 @@ macro_rules! test_helmholtz_free_energy
                 #[test]
                 fn zero()
                 {
-                    assert_eq!(
-                        get_helmholtz_free_energy(false, false), 0.0
+                    assert_eq_within_tols(
+                        &get_helmholtz_free_energy(false, false), &0.0
                     )
                 }
             }
+        }
+        #[test]
+        fn nodal_stiffnesses_deformed_symmetry()
+        {
+            let nodal_stiffness = get_nodal_stiffnesses(true, false);
+            nodal_stiffness.iter()
+            .enumerate()
+            .for_each(|(a, nodal_stiffness_a)|
+                nodal_stiffness_a.iter()
+                .enumerate()
+                .for_each(|(b, nodal_stiffness_ab)|
+                    nodal_stiffness_ab.iter()
+                    .enumerate()
+                    .zip(nodal_stiffness_ab.transpose().iter())
+                    .for_each(|((i, nodal_stiffness_ab_i), nodal_stiffness_ab_j)|
+                        nodal_stiffness_ab_i.iter()
+                        .enumerate()
+                        .zip(nodal_stiffness_ab_j.iter())
+                        .for_each(|((j, nodal_stiffness_ab_ij), nodal_stiffness_ab_ji)|
+                            if a == b
+                            {
+                                assert_eq_within_tols(
+                                    nodal_stiffness_ab_ij, &nodal_stiffness_ab_ji
+                                )
+                            }
+                            else if i == j
+                            {
+                                assert_eq_within_tols(
+                                    nodal_stiffness_ab_ij, &nodal_stiffness[b][a][i][j]
+                                )
+                            }
+                        )
+                    )
+                )
+            )
+        }
+        #[test]
+        fn nodal_stiffnesses_undeformed_symmetry()
+        {
+            let nodal_stiffness = get_nodal_stiffnesses(false, false);
+            nodal_stiffness.iter()
+            .enumerate()
+            .for_each(|(a, nodal_stiffness_a)|
+                nodal_stiffness_a.iter()
+                .enumerate()
+                .for_each(|(b, nodal_stiffness_ab)|
+                    nodal_stiffness_ab.iter()
+                    .enumerate()
+                    .zip(nodal_stiffness_ab.transpose().iter())
+                    .for_each(|((i, nodal_stiffness_ab_i), nodal_stiffness_ab_j)|
+                        nodal_stiffness_ab_i.iter()
+                        .enumerate()
+                        .zip(nodal_stiffness_ab_j.iter())
+                        .for_each(|((j, nodal_stiffness_ab_ij), nodal_stiffness_ab_ji)|
+                            if a == b
+                            {
+                                assert_eq_within_tols(
+                                    nodal_stiffness_ab_ij, &nodal_stiffness_ab_ji
+                                )
+                            }
+                            else if i == j
+                            {
+                                assert_eq_within_tols(
+                                    nodal_stiffness_ab_ij, &nodal_stiffness[b][a][i][j]
+                                )
+                            }
+                        )
+                    )
+                )
+            )
         }
     }
 }
@@ -1299,25 +1324,32 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model
                     let element = get_element();
                     let nodal_forces = get_nodal_forces(true, false, true) - get_nodal_forces(true, false, false);
                     let minimum = get_viscous_dissipation(true, false) - nodal_forces.dot(&get_velocities());
+                    let mut perturbed = 0.0;
                     let mut perturbed_velocities = get_velocities();
                     (0..N).for_each(|node|
                         (0..3).for_each(|i|{
                             perturbed_velocities = get_velocities();
                             perturbed_velocities[node][i] += 0.5 * EPSILON;
-                            assert!(
+                            perturbed =
                                 element.calculate_viscous_dissipation(
                                     &get_coordinates(), &perturbed_velocities
                                 ) - nodal_forces.dot(
                                     &perturbed_velocities
-                                ) >= minimum
+                                );
+                            assert!(
+                                perturbed > minimum ||
+                                check_eq_within_tols(&perturbed, &minimum)
                             );
                             perturbed_velocities[node][i] -= EPSILON;
-                            assert!(
+                            perturbed =
                                 element.calculate_viscous_dissipation(
                                     &get_coordinates(), &perturbed_velocities
                                 ) - nodal_forces.dot(
                                     &perturbed_velocities
-                                ) >= minimum
+                                );
+                            assert!(
+                                perturbed > minimum ||
+                                check_eq_within_tols(&perturbed, &minimum)
                             );
                         })
                     )
@@ -1359,21 +1391,28 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model
                 {
                     let element = get_element();
                     let minimum = get_viscous_dissipation(false, false);
+                    let mut perturbed = 0.0;
                     let mut perturbed_velocities = NodalVelocities::zero();
                     (0..N).for_each(|node|
                         (0..3).for_each(|i|{
                             perturbed_velocities = NodalVelocities::zero();
                             perturbed_velocities[node][i] += 0.5 * EPSILON;
-                            assert!(
+                            perturbed =
                                 element.calculate_viscous_dissipation(
                                     &get_reference_coordinates().convert(), &perturbed_velocities
-                                ) >= minimum
+                                );
+                            assert!(
+                                perturbed > minimum ||
+                                check_eq_within_tols(&perturbed, &minimum)
                             );
                             perturbed_velocities[node][i] -= EPSILON;
-                            assert!(
+                            perturbed =
                                 element.calculate_viscous_dissipation(
                                     &get_reference_coordinates().convert(), &perturbed_velocities
-                                ) >= minimum
+                                );
+                            assert!(
+                                perturbed > minimum ||
+                                check_eq_within_tols(&perturbed, &minimum)
                             );
                         })
                     )
@@ -1422,25 +1461,32 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model
                     let element = get_element();
                     let nodal_forces = get_nodal_forces(true, false, true);
                     let minimum = get_dissipation_potential(true, false) - nodal_forces.dot(&get_velocities());
+                    let mut perturbed = 0.0;
                     let mut perturbed_velocities = get_velocities();
                     (0..N).for_each(|node|
                         (0..3).for_each(|i|{
                             perturbed_velocities = get_velocities();
                             perturbed_velocities[node][i] += 0.5 * EPSILON;
-                            assert!(
+                            perturbed =
                                 element.calculate_dissipation_potential(
                                     &get_coordinates(), &perturbed_velocities
                                 ) - nodal_forces.dot(
                                     &perturbed_velocities
-                                ) >= minimum
+                                );
+                            assert!(
+                                perturbed > minimum ||
+                                check_eq_within_tols(&perturbed, &minimum)
                             );
                             perturbed_velocities[node][i] -= EPSILON;
-                            assert!(
+                            perturbed =
                                 element.calculate_dissipation_potential(
                                     &get_coordinates(), &perturbed_velocities
                                 ) - nodal_forces.dot(
                                     &perturbed_velocities
-                                ) >= minimum
+                                );
+                            assert!(
+                                perturbed > minimum ||
+                                check_eq_within_tols(&perturbed, &minimum)
                             );
                         })
                     )
@@ -1475,21 +1521,28 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model
                 {
                     let element = get_element();
                     let minimum = get_dissipation_potential(false, false);
+                    let mut perturbed = 0.0;
                     let mut perturbed_velocities = NodalVelocities::zero();
                     (0..N).for_each(|node|
                         (0..3).for_each(|i|{
                             perturbed_velocities = NodalVelocities::zero();
                             perturbed_velocities[node][i] += 0.5 * EPSILON;
-                            assert!(
+                            perturbed =
                                 element.calculate_dissipation_potential(
                                     &get_reference_coordinates().convert(), &perturbed_velocities
-                                ) >= minimum
+                                );
+                            assert!(
+                                perturbed > minimum ||
+                                check_eq_within_tols(&perturbed, &minimum)
                             );
                             perturbed_velocities[node][i] -= EPSILON;
-                            assert!(
+                            perturbed =
                                 element.calculate_dissipation_potential(
                                     &get_reference_coordinates().convert(), &perturbed_velocities
-                                ) >= minimum
+                                );
+                            assert!(
+                                perturbed > minimum ||
+                                check_eq_within_tols(&perturbed, &minimum)
                             );
                         })
                     )

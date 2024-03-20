@@ -24,7 +24,7 @@ use super::
 
 /// A 2D list of *d*-dimensional tensors of rank 2.
 ///
-/// `D` is the dimension, `I`, `J` are the configurations `W` is the list length.
+/// `D` is the dimension, `I`, `J` are the configurations, `W` is the list length.
 pub struct TensorRank2List2D<const D: usize, const I: usize, const J: usize, const W: usize>
 (
     [TensorRank2List<D, I, J, W>; W]
@@ -119,6 +119,20 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> IndexMut<us
     fn index_mut(&mut self, index: usize) -> &mut Self::Output
     {
         &mut self.0[index]
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const W: usize> std::iter::Sum for TensorRank2List2D<D, I, J, W>
+{
+    fn sum<Ii>(iter: Ii) -> Self
+    where
+        Ii: Iterator<Item = Self>
+    {
+        let mut output = TensorRank2List2D::zero();
+        iter.for_each(|item|
+            output += item
+        );
+        output
     }
 }
 

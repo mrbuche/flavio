@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod test;
 
+pub mod composite;
 pub mod linear;
 
 use super::*;
@@ -9,8 +10,6 @@ pub trait FiniteElement<'a, C, const G: usize, const N: usize>
 where
     C: Constitutive<'a>
 {
-    fn get_constitutive_models(&self) -> &[C; G];
-    fn get_integration_weights(&self) -> IntegrationWeights<G>;
     fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>) -> Self;
 }
 

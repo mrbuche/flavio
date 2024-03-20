@@ -8,9 +8,11 @@ const M: usize = 2;
 const N: usize = 6;
 const O: usize = 3;
 
+const INTEGRATION_WEIGHT: Scalar = 1.0/2.0;
+
 pub struct Wedge<C>
 {
-    constitutive_models: [C; G],
+    constitutive_model: C,
     gradient_vectors: GradientVectors<N>,
     reference_normal: ReferenceNormal
 }
@@ -19,19 +21,11 @@ impl<'a, C> FiniteElement<'a, C, G, N> for Wedge<C>
 where
     C: Constitutive<'a>
 {
-    fn get_constitutive_models(&self) -> &[C; G]
-    {
-        &self.constitutive_models
-    }
-    fn get_integration_weights(&self) -> IntegrationWeights<G>
-    {
-        IntegrationWeights::new([1.0; G])
-    }
     fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>) -> Self
     {
         Self
         {
-            constitutive_models: std::array::from_fn(|_| <C>::new(constitutive_model_parameters)),
+            constitutive_model: <C>::new(constitutive_model_parameters),
             gradient_vectors: Self::calculate_gradient_vectors(&reference_nodal_coordinates),
             reference_normal: Self::calculate_normal(&Self::calculate_midplane(&reference_nodal_coordinates))
         }
@@ -84,9 +78,17 @@ where
             [ 0.0,  1.0]
         ])
     }
+    fn get_constitutive_model(&self) -> &C
+    {
+        &self.constitutive_model
+    }
     fn get_gradient_vectors(&self) -> &GradientVectors<N>
     {
         &self.gradient_vectors
+    }
+    fn get_integration_weight(&self) -> &Scalar
+    {
+        &INTEGRATION_WEIGHT
     }
 }
 
@@ -124,7 +126,7 @@ where
 {
     fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
     {
-        let first_piola_kirchoff_stress = self.get_constitutive_models()[0]
+        let first_piola_kirchoff_stress = self.get_constitutive_model()
         .calculate_first_piola_kirchoff_stress(
             &self.calculate_deformation_gradient(nodal_coordinates)
         );
@@ -135,16 +137,16 @@ where
         self.get_gradient_vectors().iter()
         .zip(normal_gradients.iter().chain(normal_gradients.iter()))
         .map(|(gradient_vector_a, normal_gradient_a)|
-            &first_piola_kirchoff_stress * gradient_vector_a + normal_gradient_a * &traction
+            (&first_piola_kirchoff_stress * gradient_vector_a + normal_gradient_a * &traction) * self.get_integration_weight()
         ).collect()
     }
     fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
     {
-        let first_piola_kirchoff_stress = self.get_constitutive_models()[0]
+        let first_piola_kirchoff_stress = self.get_constitutive_model()
         .calculate_first_piola_kirchoff_stress(
             &self.calculate_deformation_gradient(nodal_coordinates)
         );
-        let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_models()[0]
+        let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_model()
         .calculate_first_piola_kirchoff_tangent_stiffness(
             &self.calculate_deformation_gradient(nodal_coordinates)
         );
@@ -190,7 +192,7 @@ where
                                             identity_mi * gradient_vector_a_j + normal_gradient_a_m_i * reference_normal_j
                                         ) * (
                                             identity_nk * gradient_vector_b_l + normal_gradient_b_n_k * reference_normal_l
-                                        )
+                                        ) * self.get_integration_weight()
                                     ).sum::<Scalar>()
                                 ).sum::<Scalar>()
                             ).sum::<Scalar>()
@@ -207,7 +209,7 @@ where
                 .map(|normal_tangent_ab_m|
                     normal_tangent_ab_m.iter()
                     .map(|normal_tangent_ab_mn|
-                        normal_tangent_ab_mn * &traction
+                        (normal_tangent_ab_mn * &traction) * self.get_integration_weight()
                     ).collect()
                 ).collect()
             ).collect()
@@ -221,7 +223,7 @@ where
 {
     fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalForces<N>
     {
-        let first_piola_kirchoff_stress = self.get_constitutive_models()[0]
+        let first_piola_kirchoff_stress = self.get_constitutive_model()
         .calculate_first_piola_kirchoff_stress(
             &self.calculate_deformation_gradient(nodal_coordinates),
             &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
@@ -233,12 +235,12 @@ where
         self.get_gradient_vectors().iter()
         .zip(normal_gradients.iter().chain(normal_gradients.iter()))
         .map(|(gradient_vector_a, normal_gradient_a)|
-            &first_piola_kirchoff_stress * gradient_vector_a + normal_gradient_a * &traction
+            (&first_piola_kirchoff_stress * gradient_vector_a + normal_gradient_a * &traction) * self.get_integration_weight()
         ).collect()
     }
     fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalStiffnesses<N>
     {
-        let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_models()[0]
+        let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_model()
         .calculate_first_piola_kirchoff_rate_tangent_stiffness(
             &self.calculate_deformation_gradient(nodal_coordinates),
             &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
@@ -281,7 +283,7 @@ where
                                             identity_mi * gradient_vector_a_j + normal_gradient_a_m_i * reference_normal_j
                                         ) * (
                                             identity_nk * gradient_vector_b_l + normal_gradient_b_n_k * reference_normal_l
-                                        )
+                                        ) * self.get_integration_weight()
                                     ).sum::<Scalar>()
                                 ).sum::<Scalar>()
                             ).sum::<Scalar>()
