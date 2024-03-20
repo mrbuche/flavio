@@ -18,25 +18,40 @@ pub use block::
         HyperelasticFiniteElement,
         ViscoelasticFiniteElement,
         HyperviscoelasticFiniteElement,
+        composite::
+        {
+            CompositeElement,
+            ElasticCompositeElement,
+            HyperelasticCompositeElement,
+            ViscoelasticCompositeElement,
+            ElasticHyperviscousCompositeElement,
+            HyperviscoelasticCompositeElement,
+            tetrahedron::
+            {
+                Tetrahedron as CompositeTetrahedron
+            }
+        },
         linear::
         {
             LinearElement,
+            ElasticLinearElement,
             HyperelasticLinearElement,
             ViscoelasticLinearElement,
+            ElasticHyperviscousLinearElement,
             HyperviscoelasticLinearElement,
             tetrahedron::
             {
-                Tetrahedron
+                Tetrahedron as LinearTetrahedron
             },
             localization::
             {
                 LinearLocalizationElement,
-                wedge::Wedge
+                wedge::Wedge as LinearWedgeLocalization
             },
             surface::
             {
                 LinearSurfaceElement,
-                triangle::Triangle
+                triangle::Triangle as LinearTriangle
             }
         }
     }
