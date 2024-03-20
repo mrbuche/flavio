@@ -126,6 +126,7 @@ type NodalForces<const D: usize> = Forces<D>;
 type NodalStiffnesses<const D: usize> = Stiffnesses<D>;
 type NodalVelocities<const D: usize> = CurrentCoordinates<D>;
 type Normal<const I: usize> = Vector<I>;
+type Normals<const I: usize, const P: usize> = Vectors<I, P>;
 type NormalGradients<const O: usize> = TensorRank2List<3, 1, 1, O>;
 type NormalTangents<const O: usize> = TensorRank3List2D<3, 1, 1, 1, O>;
 type NormalizedProjectionMatrix<const Q: usize> = TensorRank2<Q, 9, 9>;
