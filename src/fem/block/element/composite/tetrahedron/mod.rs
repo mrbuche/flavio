@@ -215,7 +215,7 @@ where
     {
         let n23: Scalar = 2.0/3.0;
         let n43: Scalar = 4.0/3.0;
-        StandardGradientOperators::new([[
+        StandardGradientOperatorsTransposed::new([[
             [-2.0, -2.0, -2.0],
             [ 0.0,  0.0,  0.0],
             [ 0.0,  0.0,  0.0],

@@ -25,13 +25,25 @@ fn get_coordinates_block() -> NodalCoordinates<D>
 fn get_reference_coordinates() -> ReferenceNodalCoordinates<N>
 {
     ReferenceNodalCoordinates::new([
-        [0.0, 0.0, 0.0],
+        // [0.0, 0.0, 0.0],
+        // [1.0, 0.0, 0.0],
+        // [0.0, 1.0, 0.0],
+        // [0.0, 0.5, 0.0],
+        // [0.5, 0.5, 0.0],
+        // [0.0, 0.5, 0.0]
         [1.0, 0.0, 0.0],
         [0.0, 1.0, 0.0],
-        [0.0, 0.5, 0.0],
+        [0.0, 0.0, 0.0],
         [0.5, 0.5, 0.0],
-        [0.0, 0.5, 0.0]
+        [0.0, 0.5, 0.0],
+        [0.5, 0.0, 0.0]
     ])
+}
+
+#[test]
+fn NEED_TO_MAKE_NODE_NUMBERING_AND_SHAPE_FUNCTIONS_CONSISTENT_TO_GET_RIGHT_ANSWERS()
+{
+    todo!()
 }
 
 fn get_reference_coordinates_block() -> ReferenceNodalCoordinates<D>

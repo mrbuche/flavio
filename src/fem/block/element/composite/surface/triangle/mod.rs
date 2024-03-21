@@ -42,7 +42,13 @@ where
 {
     fn calculate_inverse_normalized_projection_matrix() -> NormalizedProjectionMatrix<Q>
     {
-        todo!("Be careful and see what you can make a default implementation in composite/mod.rs to avoid copying code.")
+        let diag: Scalar = 3.0/64.0;
+        let off: Scalar = -1.0/64.0;
+        NormalizedProjectionMatrix::new([
+            [diag,  off,  off],
+            [ off, diag,  off],
+            [ off,  off, diag]
+        ])
     }
     fn calculate_jacobians_and_parametric_gradient_operators(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> (Scalars<P>, ParametricGradientOperators<P>)
     {
@@ -58,23 +64,92 @@ where
     }
     fn calculate_shape_function_integrals() -> ShapeFunctionIntegrals<P, Q>
     {
-         todo!("Be careful and see what you can make a default implementation in composite/mod.rs to avoid copying code.")
+        ShapeFunctionIntegrals::new([
+            [32.0,  8.0,  8.0],
+            [ 8.0, 32.0,  8.0],
+            [ 8.0,  8.0, 32.0],
+            [16.0, 16.0, 16.0]
+        ])
     }
     fn calculate_shape_function_integrals_products() -> ShapeFunctionIntegralsProducts<P, Q>
     {
-         todo!("Be careful and see what you can make a default implementation in composite/mod.rs to avoid copying code.")
+        ShapeFunctionIntegralsProducts::new([[
+            [22.0,  5.0,  5.0],
+            [ 5.0,  2.0,  1.0],
+            [ 5.0,  1.0,  2.0]
+        ], [
+            [ 2.0,  5.0,  1.0],
+            [ 5.0, 22.0,  5.0],
+            [ 1.0,  5.0,  2.0]
+        ], [
+            [ 2.0,  1.0,  5.0],
+            [ 1.0,  2.0,  5.0],
+            [ 5.0,  5.0, 22.0]
+        ], [
+            [ 6.0,  5.0,  5.0],
+            [ 5.0,  6.0,  5.0],
+            [ 5.0,  5.0,  6.0]
+        ]])
     }
     fn calculate_shape_functions_at_integration_points() -> ShapeFunctionsAtIntegrationPoints<G, Q>
     {
-         todo!("Be careful and see what you can make a default implementation in composite/mod.rs to avoid copying code.")
+        let diag: Scalar = 0.666_666_666_666_666_6;
+        let off: Scalar = 0.166_666_666_666_666_7;
+        ShapeFunctionsAtIntegrationPoints::new([
+            [diag,  off,  off],
+            [ off, diag,  off],
+            [ off,  off, diag]
+        ])
     }
     fn calculate_standard_gradient_operators() -> StandardGradientOperators<M, O, P>
     {
-         todo!("Be careful and see what you can make a default implementation in composite/mod.rs to avoid copying code.")
+        StandardGradientOperators::new([[
+            [ 2.0,  0.0],
+            [ 0.0,  0.0],
+            [ 0.0,  0.0],
+            [ 0.0,  2.0],
+            [ 0.0,  0.0],
+            [-2.0, -2.0]
+        ], [
+            [ 0.0,  0.0],
+            [ 0.0,  2.0],
+            [ 0.0,  0.0],
+            [ 2.0,  0.0],
+            [-2.0, -2.0],
+            [ 0.0,  0.0]
+        ], [
+            [ 0.0,  0.0],
+            [ 0.0,  0.0],
+            [-2.0, -2.0],
+            [ 0.0,  0.0],
+            [ 0.0,  2.0],
+            [ 2.0,  0.0]
+        ], [
+            [ 0.0,  0.0],
+            [ 0.0,  0.0],
+            [ 0.0,  0.0],
+            [ 2.0,  2.0],
+            [-2.0,  0.0],
+            [ 0.0, -2.0]
+        ]])
     }
     fn calculate_standard_gradient_operators_transposed() -> StandardGradientOperatorsTransposed<M, O, P>
     {
-         todo!("Be careful and see what you can make a default implementation in composite/mod.rs to avoid copying code.")
+        let standard_gradient_operators = Self::calculate_standard_gradient_operators();
+        let mut standard_gradient_operators_transposed = StandardGradientOperatorsTransposed::zero();
+        standard_gradient_operators_transposed.iter_mut().enumerate()
+        .for_each(|(n, standard_gradient_operators_transposed_n)|
+            standard_gradient_operators_transposed_n.iter_mut()
+            .zip(standard_gradient_operators.iter())
+            .for_each(|(standard_gradient_operators_transposed_n_e, standard_gradient_operators_e)|
+                standard_gradient_operators_transposed_n_e.iter_mut()
+                .zip(standard_gradient_operators_e[n].iter())
+                .for_each(|(standard_gradient_operators_transposed_n_e_i, standard_gradient_operators_e_n_i)|
+                    *standard_gradient_operators_transposed_n_e_i = *standard_gradient_operators_e_n_i
+                )
+            )
+        );
+        standard_gradient_operators_transposed
     }
     fn get_constitutive_models(&self) -> &[C; G]
     {
