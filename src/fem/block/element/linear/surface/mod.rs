@@ -19,7 +19,7 @@ where
             .map(|standard_gradient_operator_a_m|
                 nodal_coordinates_a.iter()
                 .map(|nodal_coordinates_a_i|
-                    nodal_coordinates_a_i*standard_gradient_operator_a_m
+                    nodal_coordinates_a_i * standard_gradient_operator_a_m
                 ).collect()
             ).collect()
         ).sum()
@@ -53,7 +53,7 @@ where
         .map(|basis_vectors_m|
             basis_vectors.iter()
             .map(|basis_vectors_n|
-                basis_vectors_m*basis_vectors_n
+                basis_vectors_m * basis_vectors_n
             ).collect()
         ).collect::<TensorRank2<M, I, I>>()
         .inverse()
@@ -62,7 +62,7 @@ where
             metric_tensor_m.iter()
             .zip(basis_vectors.iter())
             .map(|(metric_tensor_mn, basis_vectors_n)|
-                basis_vectors_n*metric_tensor_mn
+                basis_vectors_n * metric_tensor_mn
             ).sum()
         ).collect()
     }
@@ -74,7 +74,7 @@ where
             standard_gradient_operator_a.iter()
             .zip(reference_dual_basis_vectors.iter())
             .map(|(standard_gradient_operator_a_m, dual_reference_basis_vector_m)|
-                dual_reference_basis_vector_m*standard_gradient_operator_a_m
+                dual_reference_basis_vector_m * standard_gradient_operator_a_m
             ).sum()
         ).collect()
     }

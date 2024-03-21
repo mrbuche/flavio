@@ -13,7 +13,7 @@ use super::
 
 /// A 2D list of *d*-dimensional tensors of rank 3.
 ///
-/// `D` is the dimension, `I`, `J`, `K` are the configurations `W` is the list length.
+/// `D` is the dimension, `I`, `J`, `K` are the configurations `W` and `X` are the list lengths.
 pub struct TensorRank3List2D<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize>
 (
     [TensorRank3List<D, I, J, K, W>; W]

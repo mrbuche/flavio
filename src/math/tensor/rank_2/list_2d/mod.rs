@@ -24,14 +24,14 @@ use super::
 
 /// A 2D list of *d*-dimensional tensors of rank 2.
 ///
-/// `D` is the dimension, `I`, `J` are the configurations, `W` is the list length.
-pub struct TensorRank2List2D<const D: usize, const I: usize, const J: usize, const W: usize>
+/// `D` is the dimension, `I`, `J` are the configurations, `W` and `X` are the list lengths.
+pub struct TensorRank2List2D<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize>
 (
-    [TensorRank2List<D, I, J, W>; W]
+    [TensorRank2List<D, I, J, W>; X]
 );
 
 /// Inherent implementation of [`TensorRank2List2D`].
-impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2List2D<D, I, J, W>
+impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize> TensorRank2List2D<D, I, J, W, X>
 {
     /// Returns an iterator.
     ///
@@ -50,22 +50,22 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2
 }
 
 /// Required methods for 2D rank-2 tensor lists.
-pub trait TensorRank2List2DTrait<const D: usize, const W: usize>
+pub trait TensorRank2List2DTrait<const D: usize, const W: usize, const X: usize>
 {
     /// Returns the 2D rank-2 tensor list as an array.
-    fn as_array(&self) -> [[[[TensorRank0; D]; D]; W]; W];
+    fn as_array(&self) -> [[[[TensorRank0; D]; D]; W]; X];
     /// Returns a list of rank-2 tensors given an array.
-    fn new(array: [[[[TensorRank0; D]; D]; W]; W]) -> Self;
+    fn new(array: [[[[TensorRank0; D]; D]; W]; X]) -> Self;
     /// Returns a list of rank-2 zero tensors.
     fn zero() -> Self;
 }
 
 /// Implementation of [`TensorRank2List2DTrait`] for [`TensorRank2List2D`].
-impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2List2DTrait<D, W> for TensorRank2List2D<D, I, J, W>
+impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize> TensorRank2List2DTrait<D, W, X> for TensorRank2List2D<D, I, J, W, X>
 {
-    fn as_array(&self) -> [[[[TensorRank0; D]; D]; W]; W]
+    fn as_array(&self) -> [[[[TensorRank0; D]; D]; W]; X]
     {
-        let mut array = [[[[0.0; D]; D]; W]; W];
+        let mut array = [[[[0.0; D]; D]; W]; X];
         array.iter_mut()
         .zip(self.iter())
         .for_each(|(entry, array_entry)|
@@ -81,7 +81,7 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2
         );
         array
     }
-    fn new(array: [[[[TensorRank0; D]; D]; W]; W]) -> Self
+    fn new(array: [[[[TensorRank0; D]; D]; W]; X]) -> Self
     {
         array.iter().map(|array_i|
             TensorRank2List::new(*array_i)
@@ -93,7 +93,7 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2
     }
 }
 
-impl<const D: usize, const I: usize, const J: usize, const W: usize> FromIterator<TensorRank2List<D, I, J, W>> for TensorRank2List2D<D, I, J, W>
+impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize> FromIterator<TensorRank2List<D, I, J, W>> for TensorRank2List2D<D, I, J, W, X>
 {
     fn from_iter<Ii: IntoIterator<Item=TensorRank2List<D, I, J, W>>>(into_iterator: Ii) -> Self
     {
@@ -105,7 +105,7 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> FromIterato
     }
 }
 
-impl<const D: usize, const I: usize, const J: usize, const W: usize> Index<usize> for TensorRank2List2D<D, I, J, W>
+impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize> Index<usize> for TensorRank2List2D<D, I, J, W, X>
 {
     type Output = TensorRank2List<D, I, J, W>;
     fn index(&self, index: usize) -> &Self::Output
@@ -114,7 +114,7 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> Index<usize
     }
 }
 
-impl<const D: usize, const I: usize, const J: usize, const W: usize> IndexMut<usize> for TensorRank2List2D<D, I, J, W>
+impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize> IndexMut<usize> for TensorRank2List2D<D, I, J, W, X>
 {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output
     {
@@ -122,7 +122,7 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> IndexMut<us
     }
 }
 
-impl<const D: usize, const I: usize, const J: usize, const W: usize> std::iter::Sum for TensorRank2List2D<D, I, J, W>
+impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize> std::iter::Sum for TensorRank2List2D<D, I, J, W, X>
 {
     fn sum<Ii>(iter: Ii) -> Self
     where
@@ -136,9 +136,9 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> std::iter::
     }
 }
 
-impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize> Mul<TensorRank2<D, J, K>> for TensorRank2List2D<D, I, J, W>
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize, const X: usize> Mul<TensorRank2<D, J, K>> for TensorRank2List2D<D, I, J, W, X>
 {
-    type Output = TensorRank2List2D<D, I, K, W>;
+    type Output = TensorRank2List2D<D, I, K, W, X>;
     fn mul(self, tensor_rank_2: TensorRank2<D, J, K>) -> Self::Output
     {
         self.iter().map(|self_entry|
@@ -149,9 +149,9 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: us
     }
 }
 
-impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize> Mul<&TensorRank2<D, J, K>> for TensorRank2List2D<D, I, J, W>
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize, const X: usize> Mul<&TensorRank2<D, J, K>> for TensorRank2List2D<D, I, J, W, X>
 {
-    type Output = TensorRank2List2D<D, I, K, W>;
+    type Output = TensorRank2List2D<D, I, K, W, X>;
     fn mul(self, tensor_rank_2: &TensorRank2<D, J, K>) -> Self::Output
     {
         self.iter().map(|self_entry|
@@ -162,7 +162,7 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: us
     }
 }
 
-impl<const D: usize, const I: usize, const J: usize, const W: usize> Add for TensorRank2List2D<D, I, J, W>
+impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize> Add for TensorRank2List2D<D, I, J, W, X>
 {
     type Output = Self;
     fn add(mut self, tensor_rank_2_list_2d: Self) -> Self::Output
@@ -172,7 +172,7 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> Add for Ten
     }
 }
 
-impl<const D: usize, const I: usize, const J: usize, const W: usize> Add<&Self> for TensorRank2List2D<D, I, J, W>
+impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize> Add<&Self> for TensorRank2List2D<D, I, J, W, X>
 {
     type Output = Self;
     fn add(mut self, tensor_rank_2_list_2d: &Self) -> Self::Output
@@ -182,17 +182,17 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> Add<&Self> 
     }
 }
 
-impl<const D: usize, const I: usize, const J: usize, const W: usize> Add<TensorRank2List2D<D, I, J, W>> for &TensorRank2List2D<D, I, J, W>
+impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize> Add<TensorRank2List2D<D, I, J, W, X>> for &TensorRank2List2D<D, I, J, W, X>
 {
-    type Output = TensorRank2List2D<D, I, J, W>;
-    fn add(self, mut tensor_rank_2_list_2d: TensorRank2List2D<D, I, J, W>) -> Self::Output
+    type Output = TensorRank2List2D<D, I, J, W, X>;
+    fn add(self, mut tensor_rank_2_list_2d: TensorRank2List2D<D, I, J, W, X>) -> Self::Output
     {
         tensor_rank_2_list_2d += self;
         tensor_rank_2_list_2d
     }
 }
 
-impl<const D: usize, const I: usize, const J: usize, const W: usize> AddAssign for TensorRank2List2D<D, I, J, W>
+impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize> AddAssign for TensorRank2List2D<D, I, J, W, X>
 {
     fn add_assign(&mut self, tensor_rank_2_list_2d: Self)
     {
@@ -203,7 +203,7 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> AddAssign f
     }
 }
 
-impl<const D: usize, const I: usize, const J: usize, const W: usize> AddAssign<&Self> for TensorRank2List2D<D, I, J, W>
+impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize> AddAssign<&Self> for TensorRank2List2D<D, I, J, W, X>
 {
     fn add_assign(&mut self, tensor_rank_2_list_2d: &Self)
     {

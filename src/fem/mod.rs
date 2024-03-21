@@ -92,8 +92,10 @@ use crate::
         TensorRank2List,
         TensorRank2Trait,
         TensorRank2ListTrait,
+        TensorRank2List2D,
         TensorRank2List2DTrait,
         TensorRank3List2D,
+        TensorRank3List3D,
         levi_civita
     },
     mechanics::
@@ -119,6 +121,7 @@ use crate::
 };
 
 type Basis<const I: usize> = Vectors<I, 2>;
+type Bases<const I: usize, const P: usize> = TensorRank1List2D<3, I, 2, P>;
 type Connectivity<const E: usize, const N: usize> = [[usize; N]; E];
 type GradientVectors<const N: usize> = Vectors<0, N>;
 type NodalCoordinates<const D: usize> = CurrentCoordinates<D>;
@@ -128,9 +131,12 @@ type NodalVelocities<const D: usize> = CurrentCoordinates<D>;
 type Normal<const I: usize> = Vector<I>;
 type Normals<const I: usize, const P: usize> = Vectors<I, P>;
 type NormalGradients<const O: usize> = TensorRank2List<3, 1, 1, O>;
-type NormalTangents<const O: usize> = TensorRank3List2D<3, 1, 1, 1, O>;
+type NormalGradientss<const G: usize, const O: usize> = TensorRank2List2D<3, 1, 1, O, G>;
 type NormalizedProjectionMatrix<const Q: usize> = TensorRank2<Q, 9, 9>;
 type NormalRate = Vector<1>;
+type NormalRates<const G: usize> = Vectors<1, G>;
+type NormalTangents<const O: usize> = TensorRank3List2D<3, 1, 1, 1, O>;
+type NormalTangentss<const G: usize, const O: usize> = TensorRank3List3D<3, 1, 1, 1, O, G>;
 type ParametricGradientOperators<const P: usize> = TensorRank2List<3, 0, 9, P>;
 type ProjectedGradientVectors<const G: usize, const N: usize> = Vectors2D<0, N, G>;
 type ProjectionMatrix<const Q: usize> = TensorRank2<Q, 9, 9>;

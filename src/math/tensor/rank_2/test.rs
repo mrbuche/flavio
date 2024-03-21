@@ -167,7 +167,7 @@ fn get_tensor_rank_1_list() -> TensorRank1List<3, 1, 8>
     ])
 }
 
-fn get_tensor_rank_2_list_2d() -> TensorRank2List2D<3, 1, 1, 2>
+fn get_tensor_rank_2_list_2d() -> TensorRank2List2D<3, 1, 1, 2, 2>
 {
     TensorRank2List2D::new([[[
         [1.0, 4.0, 6.0],
@@ -188,7 +188,7 @@ fn get_tensor_rank_2_list_2d() -> TensorRank2List2D<3, 1, 1, 2>
     ]]])
 }
 
-fn get_tensor_rank_2_mul_tensor_rank_2_list_2d() -> TensorRank2List2D<3, 1, 1, 2>
+fn get_tensor_rank_2_mul_tensor_rank_2_list_2d() -> TensorRank2List2D<3, 1, 1, 2, 2>
 {
     TensorRank2List2D::new([[[
         [83.0, 60.0,  44.0],

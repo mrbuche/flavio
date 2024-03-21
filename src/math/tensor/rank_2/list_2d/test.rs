@@ -28,7 +28,7 @@ fn get_array() -> [[[[TensorRank0; 3]; 3]; 2]; 2]
     ]]]
 }
 
-fn get_tensor_rank_2_list_2d() -> TensorRank2List2D<3, 1, 1, 2>
+fn get_tensor_rank_2_list_2d() -> TensorRank2List2D<3, 1, 1, 2, 2>
 {
     TensorRank2List2D::new(get_array())
 }
@@ -42,7 +42,7 @@ fn get_tensor_rank_2() -> TensorRank2<3, 1, 1>
     ])
 }
 
-fn get_tensor_rank_2_list_2d_mul_tensor_rank_2() -> TensorRank2List2D<3, 1, 1, 2>
+fn get_tensor_rank_2_list_2d_mul_tensor_rank_2() -> TensorRank2List2D<3, 1, 1, 2, 2>
 {
     TensorRank2List2D::new([[[
         [83.0, 60.0,  44.0],
@@ -89,7 +89,7 @@ fn as_array()
 fn from_iter()
 {
     let into_iterator = get_tensor_rank_2_list_2d().0.into_iter();
-    let tensor_rank_2_list_2d = TensorRank2List2D::<3, 1, 1, 2>::from_iter(get_tensor_rank_2_list_2d().0.into_iter());
+    let tensor_rank_2_list_2d = TensorRank2List2D::<3, 1, 1, 2, 2>::from_iter(get_tensor_rank_2_list_2d().0.into_iter());
     tensor_rank_2_list_2d.iter()
     .zip(into_iterator)
     .for_each(|(tensor_rank_2_list_2d_i, array_i)|
@@ -223,7 +223,7 @@ fn new()
 fn size()
 {
     assert_eq!(
-        std::mem::size_of::<TensorRank2List2D::<3, 1, 1, 8>>(),
+        std::mem::size_of::<TensorRank2List2D::<3, 1, 1, 8, 8>>(),
         std::mem::size_of::<[[TensorRank2::<3, 1, 1>; 8]; 8]>()
     )
 }
@@ -231,7 +231,7 @@ fn size()
 #[test]
 fn zero()
 {
-    TensorRank2List2D::<3, 1, 1, 8>::zero().iter()
+    TensorRank2List2D::<3, 1, 1, 8, 8>::zero().iter()
     .for_each(|tensor_rank_2_list_2d_entry|
         tensor_rank_2_list_2d_entry.iter()
         .for_each(|tensor_rank_2|

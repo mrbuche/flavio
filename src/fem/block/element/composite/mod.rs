@@ -14,22 +14,22 @@ where
     fn calculate_deformation_gradients(&self, nodal_coordinates: &NodalCoordinates<N>) -> DeformationGradients<G>
     {
         self.get_projected_gradient_vectors().iter()
-        .map(|projected_gradient_vectors_g|
+        .map(|projected_gradient_vectors|
             nodal_coordinates.iter()
-            .zip(projected_gradient_vectors_g.iter())
-            .map(|(nodal_coordinate_a, projected_gradient_vector_g_a)|
-                DeformationGradient::dyad(nodal_coordinate_a, projected_gradient_vector_g_a)
+            .zip(projected_gradient_vectors.iter())
+            .map(|(nodal_coordinate, projected_gradient_vector)|
+                DeformationGradient::dyad(nodal_coordinate, projected_gradient_vector)
             ).sum()
         ).collect()
     }
     fn calculate_deformation_gradient_rates(&self, _: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> DeformationGradientRates<G>
     {
         self.get_projected_gradient_vectors().iter()
-        .map(|projected_gradient_vectors_g|
+        .map(|projected_gradient_vectors|
             nodal_velocities.iter()
-            .zip(projected_gradient_vectors_g.iter())
-            .map(|(nodal_velocity_a, projected_gradient_vector_g_a)|
-                DeformationGradientRate::dyad(nodal_velocity_a, projected_gradient_vector_g_a)
+            .zip(projected_gradient_vectors.iter())
+            .map(|(nodal_velocity, projected_gradient_vector)|
+                DeformationGradientRate::dyad(nodal_velocity, projected_gradient_vector)
             ).sum()
         ).collect()
     }
