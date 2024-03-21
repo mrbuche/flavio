@@ -473,7 +473,7 @@ macro_rules! test_composite_element_with_constitutive_model
         fn normalized_projection_matrix<'a>()
         {
             $element::<$constitutive_model<'a>>::calculate_shape_function_integrals_products()
-            .iter().map(|dummy| dummy * 1.0).sum::<TensorRank2<4, 9, 9>>().iter()
+            .iter().map(|dummy| dummy * 1.0).sum::<TensorRank2<Q, 9, 9>>().iter()
             .zip($element::<$constitutive_model<'a>>::calculate_inverse_normalized_projection_matrix()
             .inverse().iter())
             .for_each(|(sum_i, projection_matrix_i)|
