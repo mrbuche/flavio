@@ -36,13 +36,27 @@ where
     fn calculate_inverse_normalized_projection_matrix() -> NormalizedProjectionMatrix<Q>;
     fn calculate_jacobians_and_parametric_gradient_operators(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> (Scalars<P>, ParametricGradientOperators<P>);
     fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> ProjectedGradientVectors<G, N>;
-    fn calculate_scaled_composite_jacobian_at_integration_points(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> Scalars<G>;
+    fn calculate_scaled_composite_jacobian_at_integration_points(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> Scalars<G>
+    {
+        let (jacobians, _) = Self::calculate_jacobians_and_parametric_gradient_operators(reference_nodal_coordinates);
+        let vector = Self::calculate_inverse_normalized_projection_matrix() *
+        Self::calculate_shape_function_integrals().iter()
+        .zip(jacobians.iter())
+        .map(|(shape_function_integral, jacobian)|
+            shape_function_integral * jacobian
+        ).sum::<TensorRank1<Q, 9>>();
+        Self::calculate_shape_functions_at_integration_points().iter()
+        .map(|shape_functions_at_integration_point|
+            (shape_functions_at_integration_point * &vector) * Self::get_integration_weight()
+        ).collect()
+    }
     fn calculate_shape_function_integrals() -> ShapeFunctionIntegrals<P, Q>;
     fn calculate_shape_function_integrals_products() -> ShapeFunctionIntegralsProducts<P, Q>;
     fn calculate_shape_functions_at_integration_points() -> ShapeFunctionsAtIntegrationPoints<G, Q>;
     fn calculate_standard_gradient_operators() -> StandardGradientOperators<M, O, P>;
     fn calculate_standard_gradient_operators_transposed() -> StandardGradientOperatorsTransposed<M, O, P>;
     fn get_constitutive_models(&self) -> &[C; G];
+    fn get_integration_weight() -> Scalar;
     fn get_projected_gradient_vectors(&self) -> &ProjectedGradientVectors<G, N>;
     fn get_scaled_composite_jacobians(&self) -> &Scalars<G>;
 }

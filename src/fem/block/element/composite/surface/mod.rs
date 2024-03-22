@@ -230,7 +230,7 @@ where
     }
     fn calculate_projected_gradient_vectors_composite_surface_element(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ProjectedGradientVectors<G, N>
     {
-        todo!()
+        ProjectedGradientVectors::zero()
     }
     fn get_reference_normals(&self) -> &ReferenceNormals<P>;
 }

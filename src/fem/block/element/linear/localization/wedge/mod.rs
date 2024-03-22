@@ -32,6 +32,12 @@ where
     }
 }
 
+#[test]
+fn IT_MAY_BE_BETTER_TO_COMPUTE_REFERENCE_NORMALS_USING_DUAL_BASIS()
+{
+    todo!()
+}
+
 impl<'a, C> LinearElement<'a, C, G, M, N, O> for Wedge<C>
 where
     C: Constitutive<'a>

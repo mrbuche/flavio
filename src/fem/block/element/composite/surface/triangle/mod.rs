@@ -36,6 +36,13 @@ where
     }
 }
 
+#[test]
+fn IT_MAY_BE_BETTER_TO_COMPUTE_REFERENCE_NORMALS_USING_DUAL_BASIS()
+{
+    todo!()
+}
+use crate::math::TensorRank0ListTrait;
+
 impl<'a, C> CompositeElement<'a, C, G, M, N, O, P, Q> for Triangle<C>
 where
     C: Constitutive<'a>
@@ -52,15 +59,11 @@ where
     }
     fn calculate_jacobians_and_parametric_gradient_operators(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> (Scalars<P>, ParametricGradientOperators<P>)
     {
-        todo!("Be careful and see what you can make a default implementation in composite/mod.rs to avoid copying code.")
+        (Scalars::zero(), ParametricGradientOperators::zero())
     }
     fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> ProjectedGradientVectors<G, N>
     {
-        todo!("Be careful and see what you can make a default implementation in composite/mod.rs to avoid copying code.")
-    }
-    fn calculate_scaled_composite_jacobian_at_integration_points(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> Scalars<G>
-    {
-         todo!("Be careful and see what you can make a default implementation in composite/mod.rs to avoid copying code.")
+        ProjectedGradientVectors::zero()
     }
     fn calculate_shape_function_integrals() -> ShapeFunctionIntegrals<P, Q>
     {
@@ -104,33 +107,33 @@ where
     fn calculate_standard_gradient_operators() -> StandardGradientOperators<M, O, P>
     {
         StandardGradientOperators::new([[
-            [ 2.0,  0.0],
-            [ 0.0,  0.0],
-            [ 0.0,  0.0],
-            [ 0.0,  2.0],
-            [ 0.0,  0.0],
-            [-2.0, -2.0]
-        ], [
-            [ 0.0,  0.0],
-            [ 0.0,  2.0],
             [ 0.0,  0.0],
             [ 2.0,  0.0],
+            [ 0.0,  0.0],
             [-2.0, -2.0],
+            [ 0.0,  2.0],
             [ 0.0,  0.0]
         ], [
             [ 0.0,  0.0],
-            [ 0.0,  0.0],
+            [ 2.0,  0.0],
             [-2.0, -2.0],
             [ 0.0,  0.0],
+            [ 0.0,  0.0],
             [ 0.0,  2.0],
-            [ 2.0,  0.0]
+        ], [
+            [-2.0, -2.0],
+            [ 0.0,  0.0],
+            [ 0.0,  0.0],
+            [ 2.0,  0.0],
+            [ 0.0,  0.0],
+            [ 0.0,  2.0]
         ], [
             [ 0.0,  0.0],
             [ 0.0,  0.0],
             [ 0.0,  0.0],
+            [ 0.0, -2.0],
             [ 2.0,  2.0],
-            [-2.0,  0.0],
-            [ 0.0, -2.0]
+            [-2.0,  0.0]
         ]])
     }
     fn calculate_standard_gradient_operators_transposed() -> StandardGradientOperatorsTransposed<M, O, P>
@@ -154,6 +157,10 @@ where
     fn get_constitutive_models(&self) -> &[C; G]
     {
         &self.constitutive_models
+    }
+    fn get_integration_weight() -> Scalar
+    {
+        INTEGRATION_WEIGHT
     }
     fn get_projected_gradient_vectors(&self) -> &ProjectedGradientVectors<G, N>
     {

@@ -87,20 +87,6 @@ where
             ).collect()
         ).collect()
     }
-    fn calculate_scaled_composite_jacobian_at_integration_points(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> Scalars<G>
-    {
-        let (jacobians, _) = Self::calculate_jacobians_and_parametric_gradient_operators(reference_nodal_coordinates);
-        let vector = Self::calculate_inverse_normalized_projection_matrix() *
-        Self::calculate_shape_function_integrals().iter()
-        .zip(jacobians.iter())
-        .map(|(shape_function_integral, jacobian)|
-            shape_function_integral * jacobian
-        ).sum::<TensorRank1<Q, 9>>();
-        Self::calculate_shape_functions_at_integration_points().iter()
-        .map(|shape_functions_at_integration_point|
-            (shape_functions_at_integration_point * &vector) * INTEGRATION_WEIGHT
-        ).collect()
-    }
     fn calculate_shape_function_integrals() -> ShapeFunctionIntegrals<P, Q>
     {
         ShapeFunctionIntegrals::new([
@@ -350,6 +336,10 @@ where
     fn get_constitutive_models(&self) -> &[C; G]
     {
         &self.constitutive_models
+    }
+    fn get_integration_weight() -> Scalar
+    {
+        INTEGRATION_WEIGHT
     }
     fn get_projected_gradient_vectors(&self) -> &ProjectedGradientVectors<G, N>
     {

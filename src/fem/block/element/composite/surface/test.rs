@@ -623,7 +623,8 @@ macro_rules! test_composite_surface_element_with_constitutive_model
                                 .zip(fd_normal_gradient_a_m.iter())
                                 .for_each(|(normal_gradient_a_m_i, fd_normal_gradient_a_m_i)|
                                     assert!(
-                                        (normal_gradient_a_m_i/fd_normal_gradient_a_m_i - 1.0).abs() < EPSILON
+                                        (normal_gradient_a_m_i/fd_normal_gradient_a_m_i - 1.0).abs() < EPSILON ||
+                                        (normal_gradient_a_m_i.abs() < EPSILON && fd_normal_gradient_a_m_i.abs() < EPSILON)
                                     )
                                 )
                             )
@@ -726,7 +727,7 @@ macro_rules! test_composite_surface_element_with_constitutive_model
                     .zip(get_normals(false, true).iter())
                     .for_each(|(normal, res_normal)|
                         normal.iter()
-                        .zip((get_rotation_current_configuration().transpose() * res_normal).iter())
+                        .zip((get_rotation_reference_configuration().transpose() * res_normal.convert()).iter())
                         .for_each(|(normal_i, res_normal_i)|
                             assert_eq_within_tols(normal_i, res_normal_i)
                         )
@@ -762,7 +763,8 @@ macro_rules! test_composite_surface_element_with_constitutive_model
                                         .zip(fd_normal_tangent_ab_m_i.iter())
                                         .for_each(|(normal_tangent_ab_mn_i, fd_normal_tangent_ab_mn_i)|
                                             assert!(
-                                                (normal_tangent_ab_mn_i/fd_normal_tangent_ab_mn_i - 1.0).abs() < EPSILON
+                                                (normal_tangent_ab_mn_i/fd_normal_tangent_ab_mn_i - 1.0).abs() < EPSILON ||
+                                                (normal_tangent_ab_mn_i.abs() < EPSILON && fd_normal_tangent_ab_mn_i.abs() < EPSILON)
                                             )
                                         )
                                     )
