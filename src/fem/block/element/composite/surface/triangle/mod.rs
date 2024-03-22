@@ -84,9 +84,6 @@ where
                 .zip(dual_bases.iter()
                 .zip(jacobians.iter())))
                 .map(|(shape_function_integral, (standard_gradient_operator, (dual_basis_vectors, jacobian)))|
-                    // (parametric_gradient_operator.inverse_transpose() * standard_gradient_operator) * jacobian
-                    // * (shape_functions_at_integration_point * (&inverse_projection_matrix * shape_function_integral))
-                    // (&dual_basis_vectors[0] * &standard_gradient_operator[0] + &dual_basis_vectors[1] * &standard_gradient_operator[1]) * jacobian
                     dual_basis_vectors.iter()
                     .zip(standard_gradient_operator.iter())
                     .map(|(dual_basis_vector, standard_gradient_operator_mu)|
