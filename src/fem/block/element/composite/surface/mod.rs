@@ -26,34 +26,39 @@ where
     }
     fn calculate_deformation_gradients_composite_surface_element(&self, nodal_coordinates: &NodalCoordinates<O>) -> DeformationGradients<G>
     {
+        let normals = Self::calculate_normals(nodal_coordinates);
         self.get_projected_gradient_vectors().iter()
-        .zip(Self::calculate_normals(nodal_coordinates).iter()
-        .zip(self.get_reference_normals().iter()))
-        .map(|(projected_gradient_vectors, (normal, reference_normal))|
+        .zip(self.get_scaled_reference_normals().iter())
+        .map(|(projected_gradient_vectors, scaled_reference_normals)|
             nodal_coordinates.iter()
             .zip(projected_gradient_vectors.iter())
             .map(|(nodal_coordinate, projected_gradient_vector)|
                 DeformationGradient::dyad(nodal_coordinate, projected_gradient_vector)
-            ).sum::<DeformationGradient>() + DeformationGradient::dyad(
-                normal, reference_normal
-            )
+            ).sum::<DeformationGradient>() +
+            scaled_reference_normals.iter()
+            .zip(normals.iter())
+            .map(|(scaled_reference_normal, normal)|
+                DeformationGradient::dyad(normal, scaled_reference_normal)
+            ).sum::<DeformationGradient>()
         ).collect()
     }
     fn calculate_deformation_gradient_rates_composite_surface_element(&self, nodal_coordinates: &NodalCoordinates<O>, nodal_velocities: &NodalVelocities<O>) -> DeformationGradientRates<G>
     {
-        // self.get_projected_gradient_vectors().iter()
-        // .zip(Self::calculate_normal_rates(nodal_coordinates, nodal_velocities).iter()
-        // .zip(self.get_reference_normals().iter()))
-        // .map(|(projected_gradient_vectors, (normal_rate, reference_normal))|
-        //     nodal_velocities.iter()
-        //     .zip(projected_gradient_vectors.iter())
-        //     .map(|(nodal_velocity, projected_gradient_vector)|
-        //         DeformationGradientRate::dyad(nodal_velocity, projected_gradient_vector)
-        //     ).sum::<DeformationGradientRate>() + DeformationGradientRate::dyad(
-        //         normal_rate, reference_normal
-        //     )
-        // ).collect()
-        todo!("Need to project the normals part too! And preallocate whatever parts you can.")
+        let normal_rates = Self::calculate_normal_rates(nodal_coordinates, nodal_velocities);
+        self.get_projected_gradient_vectors().iter()
+        .zip(self.get_scaled_reference_normals().iter())
+        .map(|(projected_gradient_vectors, scaled_reference_normals)|
+            nodal_velocities.iter()
+            .zip(projected_gradient_vectors.iter())
+            .map(|(nodal_velocity, projected_gradient_vector)|
+                DeformationGradientRate::dyad(nodal_velocity, projected_gradient_vector)
+            ).sum::<DeformationGradientRate>() +
+            scaled_reference_normals.iter()
+            .zip(normal_rates.iter())
+            .map(|(scaled_reference_normal, normal_rate)|
+                DeformationGradientRate::dyad(normal_rate, scaled_reference_normal)
+            ).sum::<DeformationGradientRate>()
+        ).collect()
     }
     fn calculate_dual_bases<const I: usize>(nodal_coordinates: &Coordinates<I, O>) -> Bases<I, P>
     {
@@ -229,10 +234,6 @@ where
             ).collect()
         }).collect()
     }
-    fn calculate_projected_gradient_vectors_composite_surface_element(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ProjectedGradientVectors<G, N>
-    {
-        ProjectedGradientVectors::zero()
-    }
     fn calculate_reference_normals(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ReferenceNormals<P>
     {
         Self::calculate_dual_bases(reference_nodal_coordinates).iter()
@@ -240,7 +241,22 @@ where
             dual_basis_vectors[0].cross(&dual_basis_vectors[1]).normalized()
         ).collect()
     }
+    fn calculate_scaled_reference_normals(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ScaledReferenceNormals<G, P>
+    {
+        let inverse_normalized_projection_matrix = Self::calculate_inverse_normalized_projection_matrix();
+        let reference_normals = Self::calculate_reference_normals(reference_nodal_coordinates);
+        let shape_function_integrals = Self::calculate_shape_function_integrals();
+        Self::calculate_shape_functions_at_integration_points().iter()
+        .map(|shape_function|
+            reference_normals.iter()
+            .zip(shape_function_integrals.iter())
+            .map(|(reference_normal, shape_function_integral)|
+                reference_normal * (shape_function * (&inverse_normalized_projection_matrix * shape_function_integral))
+            ).collect()
+        ).collect()
+    }
     fn get_reference_normals(&self) -> &ReferenceNormals<P>;
+    fn get_scaled_reference_normals(&self) -> &ScaledReferenceNormals<G, P>;
 }
 
 macro_rules! composite_surface_element_boilerplate
@@ -254,6 +270,10 @@ macro_rules! composite_surface_element_boilerplate
             fn get_reference_normals(&self) -> &ReferenceNormals<P>
             {
                 &self.reference_normals
+            }
+            fn get_scaled_reference_normals(&self) -> &ScaledReferenceNormals<G, P>
+            {
+                &self.scaled_reference_normals
             }
         }
         impl<'a, C> ElasticFiniteElement<'a, C, G, N> for $element<C>
