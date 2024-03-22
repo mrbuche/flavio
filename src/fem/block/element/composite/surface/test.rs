@@ -242,7 +242,7 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                 }
             }
         }
-        fn get_normal_gradients(is_deformed: bool, is_transformed: bool) -> NormalGradientss<G, O>
+        fn get_normal_gradients(is_deformed: bool, is_transformed: bool) -> NormalGradientss<P, O>
         {
             if is_transformed
             {
@@ -275,7 +275,7 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                 }
             }
         }
-        fn get_normal_gradients_from_finite_difference(is_deformed: bool) -> NormalGradientss<G, O>
+        fn get_normal_gradients_from_finite_difference(is_deformed: bool) -> NormalGradientss<P, O>
         {
             let mut finite_difference = 0.0;
             (0..G).map(|g|
@@ -305,7 +305,7 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                 ).collect()
             ).collect()
         }
-        fn get_normal_rates(is_deformed: bool, is_transformed: bool) -> NormalRates<G>
+        fn get_normal_rates(is_deformed: bool, is_transformed: bool) -> NormalRates<P>
         {
             if is_transformed
             {
@@ -342,7 +342,7 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                 }
             }
         }
-        fn get_normal_rates_from_finite_difference(is_deformed: bool) -> NormalRates<G>
+        fn get_normal_rates_from_finite_difference(is_deformed: bool) -> NormalRates<P>
         {
             let mut finite_difference = 0.0;
             (0..G).map(|g|
@@ -374,7 +374,7 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                 ).collect()
             ).collect()
         }
-        fn get_normal_tangents(is_deformed: bool, is_transformed: bool) -> NormalTangentss<G, O>
+        fn get_normal_tangents(is_deformed: bool, is_transformed: bool) -> NormalTangentss<P, O>
         {
             if is_transformed
             {
@@ -407,7 +407,7 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                 }
             }
         }
-        fn get_normal_tangents_from_finite_difference(is_deformed: bool) -> NormalTangentss<G, O>
+        fn get_normal_tangents_from_finite_difference(is_deformed: bool) -> NormalTangentss<P, O>
         {
             let mut finite_difference = 0.0;
             (0..G).map(|g|

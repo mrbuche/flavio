@@ -12,12 +12,6 @@ const Q: usize = 3;
 
 const INTEGRATION_WEIGHT: Scalar = 1.0/6.0;
 
-#[test]
-fn why_have_p_bases_but_g_gradientss_and_stuff()
-{
-    todo!("think should be P all around?")
-}
-
 pub struct Triangle<C>
 {
     constitutive_models: [C; G],

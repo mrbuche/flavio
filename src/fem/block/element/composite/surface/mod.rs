@@ -89,7 +89,7 @@ where
             basis_vectors[0].cross(&basis_vectors[1]).normalized()
         ).collect()
     }
-    fn calculate_normal_gradients(nodal_coordinates: &Coordinates<1, O>) -> NormalGradientss<G, O>
+    fn calculate_normal_gradients(nodal_coordinates: &Coordinates<1, O>) -> NormalGradientss<P, O>
     {
         let identity = TensorRank2::<3, 1, 1>::identity();
         let levi_civita_symbol = levi_civita::<1, 1, 1>();
@@ -126,7 +126,7 @@ where
             ).collect()
         }).collect()
     }
-    fn calculate_normal_rates(nodal_coordinates: &NodalCoordinates<O>, nodal_velocities: &NodalVelocities<O>) -> NormalRates<G>
+    fn calculate_normal_rates(nodal_coordinates: &NodalCoordinates<O>, nodal_velocities: &NodalVelocities<O>) -> NormalRates<P>
     {
         let identity = TensorRank2::<3, 1, 1>::identity();
         let levi_civita_symbol = levi_civita::<1, 1, 1>();
@@ -165,7 +165,7 @@ where
             ).collect()
         }).collect()
     }
-    fn calculate_normal_tangents(nodal_coordinates: &Coordinates<1, O>) -> NormalTangentss<G, O>
+    fn calculate_normal_tangents(nodal_coordinates: &Coordinates<1, O>) -> NormalTangentss<P, O>
     {
         let identity = TensorRank2::<3, 1, 1>::identity();
         let levi_civita_symbol = levi_civita::<1, 1, 1>();
