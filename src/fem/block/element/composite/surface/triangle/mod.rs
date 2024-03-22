@@ -15,20 +15,13 @@ const INTEGRATION_WEIGHT: Scalar = 1.0/6.0;
 #[test]
 fn why_have_p_bases_but_g_gradientss_and_stuff()
 {
-    todo!()
-}
-
-#[test]
-fn dont_store_normals_and_get_rid_of_getter_method()
-{
-    todo!()
+    todo!("think should be P all around?")
 }
 
 pub struct Triangle<C>
 {
     constitutive_models: [C; G],
     projected_gradient_vectors: ProjectedGradientVectors<G, N>,
-    reference_normals: ReferenceNormals<P>,
     scaled_composite_jacobians: Scalars<G>,
     scaled_reference_normals: ScaledReferenceNormals<G, P>
 }
@@ -43,7 +36,6 @@ where
         {
             constitutive_models: std::array::from_fn(|_| <C>::new(constitutive_model_parameters)),
             projected_gradient_vectors: Self::calculate_projected_gradient_vectors(&reference_nodal_coordinates),
-            reference_normals: Self::calculate_reference_normals(&reference_nodal_coordinates),
             scaled_composite_jacobians: Self::calculate_scaled_composite_jacobian_at_integration_points(&reference_nodal_coordinates),
             scaled_reference_normals: Self::calculate_scaled_reference_normals(&reference_nodal_coordinates)
         }

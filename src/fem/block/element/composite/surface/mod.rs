@@ -255,7 +255,6 @@ where
             ).collect()
         ).collect()
     }
-    fn get_reference_normals(&self) -> &ReferenceNormals<P>;
     fn get_scaled_reference_normals(&self) -> &ScaledReferenceNormals<G, P>;
 }
 
@@ -267,10 +266,6 @@ macro_rules! composite_surface_element_boilerplate
         where
             C: Constitutive<'a>
         {
-            fn get_reference_normals(&self) -> &ReferenceNormals<P>
-            {
-                &self.reference_normals
-            }
             fn get_scaled_reference_normals(&self) -> &ScaledReferenceNormals<G, P>
             {
                 &self.scaled_reference_normals

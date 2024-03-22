@@ -441,6 +441,21 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                 ).collect()
             ).collect()
         }
+        fn get_reference_normals(is_transformed: bool) -> ReferenceNormals<P>
+        {
+            if is_transformed
+            {
+                $element::<$constitutive_model>::calculate_reference_normals(
+                    &(get_rotation_reference_configuration() * get_reference_coordinates())
+                )
+            }
+            else
+            {
+                $element::<$constitutive_model>::calculate_reference_normals(
+                    &get_reference_coordinates()
+                )
+            }
+        }
     }
 }
 pub(crate) use setup_for_test_composite_surface_element_with_constitutive_model;
@@ -449,21 +464,6 @@ macro_rules! test_composite_surface_element_with_constitutive_model
 {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
     {
-        fn get_element<'a>() -> $element<$constitutive_model<'a>>
-        {
-            $element::new(
-                $constitutive_model_parameters,
-                get_reference_coordinates()
-            )
-        }
-        fn get_element_transformed<'a>() -> $element<$constitutive_model<'a>>
-        {
-            $element::<$constitutive_model>::new
-            (
-                $constitutive_model_parameters,
-                get_reference_coordinates_transformed()
-            )
-        }
         setup_for_test_composite_surface_element_with_constitutive_model!($element, $constitutive_model, $constitutive_model_parameters);
         mod bases
         {
@@ -1069,7 +1069,7 @@ macro_rules! test_composite_surface_element_with_constitutive_model
             fn normals()
             {
                 get_dual_bases(false, false).iter()
-                .zip(get_element().get_reference_normals().iter())
+                .zip(get_reference_normals(false).iter())
                 .for_each(|(dual_basis, reference_normal)|{
                     assert_eq_within_tols(
                         &(&dual_basis[0].convert() * reference_normal), &0.0
@@ -1082,8 +1082,8 @@ macro_rules! test_composite_surface_element_with_constitutive_model
             #[test]
             fn objectivity()
             {
-                get_element().get_reference_normals().iter()
-                .zip(get_element_transformed().get_reference_normals().iter())
+                get_reference_normals(false).iter()
+                .zip(get_reference_normals(true).iter())
                 .for_each(|(normal, res_normal)|
                     normal.iter()
                     .zip((get_rotation_reference_configuration().transpose() * res_normal).iter())
