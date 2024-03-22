@@ -41,18 +41,19 @@ where
     }
     fn calculate_deformation_gradient_rates_composite_surface_element(&self, nodal_coordinates: &NodalCoordinates<O>, nodal_velocities: &NodalVelocities<O>) -> DeformationGradientRates<G>
     {
-        self.get_projected_gradient_vectors().iter()
-        .zip(Self::calculate_normal_rates(nodal_coordinates, nodal_velocities).iter()
-        .zip(self.get_reference_normals().iter()))
-        .map(|(projected_gradient_vectors, (normal_rate, reference_normal))|
-            nodal_velocities.iter()
-            .zip(projected_gradient_vectors.iter())
-            .map(|(nodal_velocity, projected_gradient_vector)|
-                DeformationGradientRate::dyad(nodal_velocity, projected_gradient_vector)
-            ).sum::<DeformationGradientRate>() + DeformationGradientRate::dyad(
-                normal_rate, reference_normal
-            )
-        ).collect()
+        // self.get_projected_gradient_vectors().iter()
+        // .zip(Self::calculate_normal_rates(nodal_coordinates, nodal_velocities).iter()
+        // .zip(self.get_reference_normals().iter()))
+        // .map(|(projected_gradient_vectors, (normal_rate, reference_normal))|
+        //     nodal_velocities.iter()
+        //     .zip(projected_gradient_vectors.iter())
+        //     .map(|(nodal_velocity, projected_gradient_vector)|
+        //         DeformationGradientRate::dyad(nodal_velocity, projected_gradient_vector)
+        //     ).sum::<DeformationGradientRate>() + DeformationGradientRate::dyad(
+        //         normal_rate, reference_normal
+        //     )
+        // ).collect()
+        todo!("Need to project the normals part too! And preallocate whatever parts you can.")
     }
     fn calculate_dual_bases<const I: usize>(nodal_coordinates: &Coordinates<I, O>) -> Bases<I, P>
     {

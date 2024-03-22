@@ -36,12 +36,18 @@ where
     }
 }
 
-use crate::math::TensorRank0ListTrait;
-
 impl<'a, C> CompositeElement<'a, C, G, M, N, O, P, Q> for Triangle<C>
 where
     C: Constitutive<'a>
 {
+    fn calculate_deformation_gradients(&self, nodal_coordinates: &NodalCoordinates<N>) -> DeformationGradients<G>
+    {
+        self.calculate_deformation_gradients_composite_surface_element(nodal_coordinates)
+    }
+    fn calculate_deformation_gradient_rates(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> DeformationGradientRates<G>
+    {
+        self.calculate_deformation_gradient_rates_composite_surface_element(nodal_coordinates, nodal_velocities)
+    }
     fn calculate_inverse_normalized_projection_matrix() -> NormalizedProjectionMatrix<Q>
     {
         let diag: Scalar = 3.0/64.0;
@@ -52,13 +58,45 @@ where
             [ off,  off, diag]
         ])
     }
-    fn calculate_jacobians_and_parametric_gradient_operators(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> (Scalars<P>, ParametricGradientOperators<P>)
+    fn calculate_jacobians(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> Scalars<P>
     {
-        (Scalars::zero(), ParametricGradientOperators::zero())
+        Self::calculate_bases(reference_nodal_coordinates).iter()
+        .map(|basis_vectors|
+            basis_vectors[0].cross(&basis_vectors[1]).norm()
+        ).collect()
     }
     fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> ProjectedGradientVectors<G, N>
     {
-        ProjectedGradientVectors::zero()
+        let jacobians = Self::calculate_jacobians(reference_nodal_coordinates);
+        let dual_bases = Self::calculate_dual_bases(reference_nodal_coordinates);
+        let inverse_projection_matrix =
+        Self::calculate_shape_function_integrals_products().iter()
+        .zip(jacobians.iter())
+        .map(|(shape_function_integrals_products, jacobian)|
+            shape_function_integrals_products * jacobian
+        ).sum::<ProjectionMatrix<Q>>().inverse();
+        Self::calculate_shape_functions_at_integration_points().iter()
+        .map(|shape_functions_at_integration_point|
+            Self::calculate_standard_gradient_operators_transposed().iter()
+            .map(|standard_gradient_operators_a|
+                Self::calculate_shape_function_integrals().iter()
+                .zip(standard_gradient_operators_a.iter()
+                .zip(dual_bases.iter()
+                .zip(jacobians.iter())))
+                .map(|(shape_function_integral, (standard_gradient_operator, (dual_basis_vectors, jacobian)))|
+                    // (parametric_gradient_operator.inverse_transpose() * standard_gradient_operator) * jacobian
+                    // * (shape_functions_at_integration_point * (&inverse_projection_matrix * shape_function_integral))
+                    // (&dual_basis_vectors[0] * &standard_gradient_operator[0] + &dual_basis_vectors[1] * &standard_gradient_operator[1]) * jacobian
+                    dual_basis_vectors.iter()
+                    .zip(standard_gradient_operator.iter())
+                    .map(|(dual_basis_vector, standard_gradient_operator_mu)|
+                        dual_basis_vector * standard_gradient_operator_mu
+                    ).sum::<Vector<0>>() * jacobian * (
+                        shape_functions_at_integration_point * (&inverse_projection_matrix * shape_function_integral)
+                    )
+                ).sum()
+            ).collect()
+        ).collect()
     }
     fn calculate_shape_function_integrals() -> ShapeFunctionIntegrals<P, Q>
     {

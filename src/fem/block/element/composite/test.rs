@@ -372,9 +372,9 @@ macro_rules! test_composite_element_with_constitutive_model
                 #[test]
                 fn jacobians<'a>()
                 {
-                    $element::<$constitutive_model<'a>>::calculate_jacobians_and_parametric_gradient_operators(
+                    $element::<$constitutive_model<'a>>::calculate_jacobians(
                         &get_reference_coordinates()
-                    ).0.iter()
+                    ).iter()
                     .for_each(|jacobian|
                         assert_eq!(jacobian, &1.0)
                     )

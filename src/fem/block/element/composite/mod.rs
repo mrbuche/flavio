@@ -34,14 +34,13 @@ where
         ).collect()
     }
     fn calculate_inverse_normalized_projection_matrix() -> NormalizedProjectionMatrix<Q>;
-    fn calculate_jacobians_and_parametric_gradient_operators(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> (Scalars<P>, ParametricGradientOperators<P>);
+    fn calculate_jacobians(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> Scalars<P>;
     fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> ProjectedGradientVectors<G, N>;
     fn calculate_scaled_composite_jacobian_at_integration_points(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> Scalars<G>
     {
-        let (jacobians, _) = Self::calculate_jacobians_and_parametric_gradient_operators(reference_nodal_coordinates);
         let vector = Self::calculate_inverse_normalized_projection_matrix() *
         Self::calculate_shape_function_integrals().iter()
-        .zip(jacobians.iter())
+        .zip(Self::calculate_jacobians(reference_nodal_coordinates).iter())
         .map(|(shape_function_integral, jacobian)|
             shape_function_integral * jacobian
         ).sum::<TensorRank1<Q, 9>>();
