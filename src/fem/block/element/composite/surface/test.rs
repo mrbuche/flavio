@@ -13,7 +13,7 @@ macro_rules! test_composite_surface_element_inner
 {
     ($element: ident) =>
     {
-        mod linear_surface_element
+        mod composite_surface_element
         {
             use crate::
             {

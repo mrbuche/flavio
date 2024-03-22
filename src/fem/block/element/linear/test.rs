@@ -13,7 +13,7 @@ macro_rules! test_linear_element_inner
     ($element: ident) =>
     {
         crate::fem::block::element::test::test_finite_element!($element);
-        mod linear
+        mod linear_element
         {
             use crate::
             {
