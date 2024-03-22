@@ -76,7 +76,7 @@ where
             ).collect()
         ).collect()
     }
-    fn calculate_normals<const I: usize>(nodal_coordinates: &Coordinates<I, O>) -> Normals<I, P>
+    fn calculate_normals(nodal_coordinates: &NodalCoordinates<O>) -> Normals<P>
     {
         Self::calculate_bases(nodal_coordinates).iter()
         .map(|basis_vectors|
@@ -88,7 +88,7 @@ where
         let identity = TensorRank2::<3, 1, 1>::identity();
         let levi_civita_symbol = levi_civita::<1, 1, 1>();
         let mut normalization: Scalar = 0.0;
-        let mut normal_vector = Normal::<1>::new([0.0, 0.0, 0.0]);
+        let mut normal_vector = Normal::new([0.0, 0.0, 0.0]);
         Self::calculate_standard_gradient_operators().iter()
         .zip(Self::calculate_bases(nodal_coordinates).iter())
         .map(|(standard_gradient_operator, basis_vectors)|{
@@ -125,7 +125,7 @@ where
         let identity = TensorRank2::<3, 1, 1>::identity();
         let levi_civita_symbol = levi_civita::<1, 1, 1>();
         let mut normalization: Scalar = 0.0;
-        let mut normal_vector = Normal::<1>::new([0.0, 0.0, 0.0]);
+        let mut normal_vector = Normal::new([0.0, 0.0, 0.0]);
         Self::calculate_standard_gradient_operators().iter()
         .zip(Self::calculate_bases(nodal_coordinates).iter())
         .map(|(standard_gradient_operator, basis_vectors)|{
@@ -164,7 +164,7 @@ where
         let identity = TensorRank2::<3, 1, 1>::identity();
         let levi_civita_symbol = levi_civita::<1, 1, 1>();
         let mut normalization: Scalar = 0.0;
-        let mut normal_vector = Normal::<1>::new([0.0, 0.0, 0.0]);
+        let mut normal_vector = Normal::new([0.0, 0.0, 0.0]);
         Self::calculate_standard_gradient_operators().iter()
         .zip(Self::calculate_bases(nodal_coordinates).iter()
         .zip(Self::calculate_normal_gradients(nodal_coordinates).iter()))
@@ -231,6 +231,13 @@ where
     fn calculate_projected_gradient_vectors_composite_surface_element(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ProjectedGradientVectors<G, N>
     {
         ProjectedGradientVectors::zero()
+    }
+    fn calculate_reference_normals(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ReferenceNormals<P>
+    {
+        Self::calculate_dual_bases(reference_nodal_coordinates).iter()
+        .map(|dual_basis_vectors|
+            dual_basis_vectors[0].cross(&dual_basis_vectors[1]).normalized()
+        ).collect()
     }
     fn get_reference_normals(&self) -> &ReferenceNormals<P>;
 }

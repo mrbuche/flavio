@@ -75,7 +75,7 @@ where
             ).sum()
         ).collect()
     }
-    fn calculate_normal<const I: usize>(nodal_coordinates: &Coordinates<I, O>) -> Normal<I>
+    fn calculate_normal(nodal_coordinates: &NodalCoordinates<O>) -> Normal
     {
         let basis_vectors = Self::calculate_basis(nodal_coordinates);
         basis_vectors[0].cross(&basis_vectors[1]).normalized()
@@ -210,6 +210,11 @@ where
                 ).collect()
             ).collect()
         ).collect()
+    }
+    fn calculate_reference_normal(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ReferenceNormal
+    {
+        let dual_basis_vectors = Self::calculate_dual_basis(reference_nodal_coordinates);
+        dual_basis_vectors[0].cross(&dual_basis_vectors[1]).normalized()
     }
     fn get_reference_normal(&self) -> &ReferenceNormal;
 }

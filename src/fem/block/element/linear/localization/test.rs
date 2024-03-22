@@ -87,7 +87,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 }
             }
         }
-        fn get_normal(is_deformed: bool, is_transformed: bool) -> NormalRate
+        fn get_normal(is_deformed: bool, is_transformed: bool) -> Normal
         {
             if is_transformed
             {
@@ -244,7 +244,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 }
             }
         }
-        fn get_normal_rate_from_finite_difference(is_deformed: bool) -> Normal<1>
+        fn get_normal_rate_from_finite_difference(is_deformed: bool) -> NormalRate
         {
             let mut finite_difference = 0.0;
             (0..3).map(|i|

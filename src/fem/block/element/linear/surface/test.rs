@@ -209,7 +209,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 }
             }
         }
-        fn get_normal(is_deformed: bool, is_transformed: bool) -> Normal<1>
+        fn get_normal(is_deformed: bool, is_transformed: bool) -> Normal
         {
             if is_transformed
             {

@@ -209,7 +209,7 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                 }
             }
         }
-        fn get_normals(is_deformed: bool, is_transformed: bool) -> Normals<1, P>
+        fn get_normals(is_deformed: bool, is_transformed: bool) -> Normals<P>
         {
             if is_transformed
             {

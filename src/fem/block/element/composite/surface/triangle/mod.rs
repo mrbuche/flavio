@@ -30,17 +30,12 @@ where
         {
             constitutive_models: std::array::from_fn(|_| <C>::new(constitutive_model_parameters)),
             projected_gradient_vectors: Self::calculate_projected_gradient_vectors(&reference_nodal_coordinates),
-            reference_normals: Self::calculate_normals(&reference_nodal_coordinates),
+            reference_normals: Self::calculate_reference_normals(&reference_nodal_coordinates),
             scaled_composite_jacobians: Self::calculate_scaled_composite_jacobian_at_integration_points(&reference_nodal_coordinates)
         }
     }
 }
 
-#[test]
-fn IT_MAY_BE_BETTER_TO_COMPUTE_REFERENCE_NORMALS_USING_DUAL_BASIS()
-{
-    todo!()
-}
 use crate::math::TensorRank0ListTrait;
 
 impl<'a, C> CompositeElement<'a, C, G, M, N, O, P, Q> for Triangle<C>
