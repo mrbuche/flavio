@@ -91,7 +91,7 @@ fn get_reference_coordinates_block() -> ReferenceNodalCoordinates<D>
 
 fn get_velocities_block() -> NodalVelocities<D>
 {
-    NodalCoordinates::new([
+    NodalVelocities::new([
         [-0.08580606, -0.03719631, -0.06520447],
         [ 0.07911747,  0.05345331, -0.01990356],
         [-0.06609921, -0.05301467,  0.07700232],
