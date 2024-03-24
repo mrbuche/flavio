@@ -57,6 +57,16 @@ fn get_coordinates_block() -> NodalCoordinates<D>
     ])
 }
 
+#[test]
+fn note()
+{
+    todo!("Need to try distorted reference configs to make sure those tractions are actually zero.
+           May want to have FD tests for all elements use a distorted reference config.
+           First go did not pass, did not poke around to see how badly tests were failing.
+           Linear triangle passes FD tests with distorte reference configuration.
+           So perhaps the tractions are nonzero here due to projection.")
+}
+
 fn get_reference_coordinates() -> ReferenceNodalCoordinates<N>
 {
     ReferenceNodalCoordinates::new([
@@ -72,6 +82,12 @@ fn get_reference_coordinates() -> ReferenceNodalCoordinates<N>
         [0.5, 0.5, 0.0],
         [0.0, 0.5, 0.0],
         [0.5, 0.0, 0.0]
+        // [0.9, 0.1, 0.1],
+        // [-0.1, 1.1, 0.2],
+        // [0.0, 0.0,-0.1],
+        // [0.6, 0.5, 0.0],
+        // [-0.2, 0.5, 0.15],
+        // [0.4, 0.0, -0.2]
     ])
 }
 
