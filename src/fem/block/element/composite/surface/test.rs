@@ -23,115 +23,81 @@ macro_rules! test_composite_surface_element_inner
             use super::*;
             mod elastic
             {
-                use crate::
-                {
-                    constitutive::solid::elastic::
-                    {
-                        AlmansiHamel,
-                        test::ALMANSIHAMELPARAMETERS
-                    }
-                };
+                use crate::constitutive::solid::elastic::AlmansiHamel;
                 use super::*;
                 mod almansi_hamel
                 {
                     use super::*;
-                    test_composite_surface_element_with_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
+                    test_composite_surface_element_with_constitutive_model!($element, AlmansiHamel);
                 }
             }
             mod hyperelastic
             {
-                use crate::
-                {
-                    constitutive::solid::hyperelastic::
+                use crate::constitutive::solid::hyperelastic::
                     {
-                        ArrudaBoyce,
-                        Fung,
-                        Gent,
-                        MooneyRivlin,
-                        NeoHookean,
-                        SaintVenantKirchoff,
-                        Yeoh,
-                        test::
-                        {
-                            ARRUDABOYCEPARAMETERS,
-                            FUNGPARAMETERS,
-                            GENTPARAMETERS,
-                            MOONEYRIVLINPARAMETERS,
-                            NEOHOOKEANPARAMETERS,
-                            SAINTVENANTKIRCHOFFPARAMETERS,
-                            YEOHPARAMETERS
-                        }
-                    }
+                    ArrudaBoyce,
+                    Fung,
+                    Gent,
+                    MooneyRivlin,
+                    NeoHookean,
+                    SaintVenantKirchoff,
+                    Yeoh
                 };
                 use super::*;
                 mod arruda_boyce
                 {
                     use super::*;
-                    test_composite_surface_element_with_constitutive_model!($element, ArrudaBoyce, ARRUDABOYCEPARAMETERS);
+                    test_composite_surface_element_with_constitutive_model!($element, ArrudaBoyce);
                 }
                 mod fung
                 {
                     use super::*;
-                    test_composite_surface_element_with_constitutive_model!($element, Fung, FUNGPARAMETERS);
+                    test_composite_surface_element_with_constitutive_model!($element, Fung);
                 }
                 mod gent
                 {
                     use super::*;
-                    test_composite_surface_element_with_constitutive_model!($element, Gent, GENTPARAMETERS);
+                    test_composite_surface_element_with_constitutive_model!($element, Gent);
                 }
                 mod mooney_rivlin
                 {
                     use super::*;
-                    test_composite_surface_element_with_constitutive_model!($element, MooneyRivlin, MOONEYRIVLINPARAMETERS);
+                    test_composite_surface_element_with_constitutive_model!($element, MooneyRivlin);
                 }
                 mod neo_hookean
                 {
                     use super::*;
-                    test_composite_surface_element_with_constitutive_model!($element, NeoHookean, NEOHOOKEANPARAMETERS);
+                    test_composite_surface_element_with_constitutive_model!($element, NeoHookean);
                 }
                 mod saint_venant_kirchoff
                 {
                     use super::*;
-                    test_composite_surface_element_with_constitutive_model!($element, SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS);
+                    test_composite_surface_element_with_constitutive_model!($element, SaintVenantKirchoff);
                 }
                 mod yeoh
                 {
                     use super::*;
-                    test_composite_surface_element_with_constitutive_model!($element, Yeoh, YEOHPARAMETERS);
+                    test_composite_surface_element_with_constitutive_model!($element, Yeoh);
                 }
             }
             mod elastic_hyperviscous
             {
-                use crate::
-                {
-                    constitutive::solid::elastic_hyperviscous::
-                    {
-                        AlmansiHamel,
-                        test::ALMANSIHAMELPARAMETERS
-                    }
-                };
+                use crate::constitutive::solid::elastic_hyperviscous::AlmansiHamel;
                 use super::*;
                 mod almansi_hamel
                 {
                     use super::*;
-                    test_composite_surface_element_with_constitutive_model!($element, AlmansiHamel, ALMANSIHAMELPARAMETERS);
+                    test_composite_surface_element_with_constitutive_model!($element, AlmansiHamel);
                 }
             }
             mod hyperviscoelastic
             {
-                use crate::
-                {
-                    constitutive::solid::hyperviscoelastic::
-                    {
-                        SaintVenantKirchoff,
-                        test::SAINTVENANTKIRCHOFFPARAMETERS
-                    }
-                };
+                use crate::constitutive::solid::hyperviscoelastic::SaintVenantKirchoff;
                 use super::*;
                 mod saint_venant_kirchoff
                 {
                     use super::*;
-                    test_composite_surface_element_with_constitutive_model!($element, SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS);
+                    test_composite_surface_element_with_constitutive_model!($element, SaintVenantKirchoff);
                 }
             }
         }
@@ -141,7 +107,7 @@ pub(crate) use test_composite_surface_element_inner;
 
 macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
 {
-    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
+    ($element: ident, $constitutive_model: ident) =>
     {
         fn get_bases(is_deformed: bool, is_transformed: bool) -> Bases<1, P>
         {
@@ -278,7 +244,7 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
         fn get_normal_gradients_from_finite_difference(is_deformed: bool) -> NormalGradientss<P, O>
         {
             let mut finite_difference = 0.0;
-            (0..G).map(|g|
+            (0..P).map(|p|
                 (0..O).map(|a|
                     (0..3).map(|m|
                         (0..3).map(|i|{
@@ -294,11 +260,11 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                             nodal_coordinates[a][m] += 0.5 * EPSILON;
                             finite_difference = $element::<$constitutive_model>::calculate_normals(
                                 &nodal_coordinates
-                            )[g][i];
+                            )[p][i];
                             nodal_coordinates[a][m] -= EPSILON;
                             finite_difference -= $element::<$constitutive_model>::calculate_normals(
                                 &nodal_coordinates
-                            )[g][i];
+                            )[p][i];
                             finite_difference/EPSILON
                         }).collect()
                     ).collect()
@@ -345,7 +311,7 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
         fn get_normal_rates_from_finite_difference(is_deformed: bool) -> NormalRates<P>
         {
             let mut finite_difference = 0.0;
-            (0..G).map(|g|
+            (0..P).map(|p|
                 (0..3).map(|i|
                     get_velocities().iter().enumerate()
                     .map(|(a, velocity_a)|
@@ -363,11 +329,11 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                             nodal_coordinates[a][k] += 0.5 * EPSILON;
                             finite_difference = $element::<$constitutive_model>::calculate_normals(
                                 &nodal_coordinates
-                            )[g][i];
+                            )[p][i];
                             nodal_coordinates[a][k] -= EPSILON;
                             finite_difference -= $element::<$constitutive_model>::calculate_normals(
                                 &nodal_coordinates
-                            )[g][i];
+                            )[p][i];
                             finite_difference/EPSILON * velocity_a_k
                         }).sum::<Scalar>()
                     ).sum()
@@ -410,7 +376,7 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
         fn get_normal_tangents_from_finite_difference(is_deformed: bool) -> NormalTangentss<P, O>
         {
             let mut finite_difference = 0.0;
-            (0..G).map(|g|
+            (0..P).map(|p|
                 (0..O).map(|a|
                     (0..O).map(|b|
                         (0..3).map(|m|
@@ -428,11 +394,11 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                                     nodal_coordinates[b][n] += 0.5 * EPSILON;
                                     finite_difference = $element::<$constitutive_model>::calculate_normal_gradients(
                                         &nodal_coordinates
-                                    )[g][a][m][i];
+                                    )[p][a][m][i];
                                     nodal_coordinates[b][n] -= EPSILON;
                                     finite_difference -= $element::<$constitutive_model>::calculate_normal_gradients(
                                         &nodal_coordinates
-                                    )[g][a][m][i];
+                                    )[p][a][m][i];
                                     finite_difference/EPSILON
                                 }).collect()
                             ).collect()
@@ -462,9 +428,9 @@ pub(crate) use setup_for_test_composite_surface_element_with_constitutive_model;
 
 macro_rules! test_composite_surface_element_with_constitutive_model
 {
-    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
+    ($element: ident, $constitutive_model: ident) =>
     {
-        setup_for_test_composite_surface_element_with_constitutive_model!($element, $constitutive_model, $constitutive_model_parameters);
+        setup_for_test_composite_surface_element_with_constitutive_model!($element, $constitutive_model);
         mod bases
         {
             use super::*;

@@ -779,6 +779,7 @@ macro_rules! test_helmholtz_free_energy
                 #[test]
                 fn zero()
                 {
+                    println!("{:?}", get_helmholtz_free_energy(false, false));
                     assert_eq_within_tols(
                         &get_helmholtz_free_energy(false, false), &0.0
                     )

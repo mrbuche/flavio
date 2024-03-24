@@ -165,6 +165,20 @@ macro_rules! test_composite_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
+                fn TEMPORARY()
+                {
+                    get_element().calculate_deformation_gradients(&get_reference_coordinates().convert()).iter()
+                    .for_each(|deformation_gradient|
+                        deformation_gradient.iter()
+                        .for_each(|deformation_gradient_i|
+                            deformation_gradient_i.iter()
+                            .for_each(|deformation_gradient_ij|
+                                println!("{:?}", deformation_gradient_ij)
+                            )
+                        )
+                    )
+                }
+                #[test]
                 fn calculate()
                 {
                     get_element().calculate_deformation_gradients(
@@ -376,8 +390,7 @@ macro_rules! test_composite_element_with_constitutive_model
                         &get_reference_coordinates()
                     ).iter()
                     .for_each(|jacobian|
-                        // assert_eq!(jacobian, &1.0)
-                        println!("{:?}", jacobian)
+                        assert_eq!(jacobian, &1.0)
                     )
                 }
                 #[test]

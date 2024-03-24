@@ -58,7 +58,7 @@ where
             [ off,  off, diag]
         ])
     }
-    fn calculate_jacobians(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> Scalars<P>
+    fn calculate_jacobians(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> Scalars<P>
     {
         Self::calculate_bases(reference_nodal_coordinates).iter()
         .map(|basis_vectors|
@@ -136,35 +136,6 @@ where
     }
     fn calculate_standard_gradient_operators() -> StandardGradientOperators<M, O, P>
     {
-        // StandardGradientOperators::new([[
-        //     [ 0.0,  0.0],
-        //     [ 2.0,  0.0],
-        //     [ 0.0,  0.0],
-        //     [-2.0, -2.0],
-        //     [ 0.0,  2.0],
-        //     [ 0.0,  0.0]
-        // ], [
-        //     [ 0.0,  0.0],
-        //     [ 2.0,  0.0],
-        //     [-2.0, -2.0],
-        //     [ 0.0,  0.0],
-        //     [ 0.0,  0.0],
-        //     [ 0.0,  2.0],
-        // ], [
-        //     [-2.0, -2.0],
-        //     [ 0.0,  0.0],
-        //     [ 0.0,  0.0],
-        //     [ 2.0,  0.0],
-        //     [ 0.0,  0.0],
-        //     [ 0.0,  2.0]
-        // ], [
-        //     [ 0.0,  0.0],
-        //     [ 0.0,  0.0],
-        //     [ 0.0,  0.0],
-        //     [ 0.0, -2.0],
-        //     [ 2.0,  2.0],
-        //     [-2.0,  0.0]
-        // ]])
         StandardGradientOperators::new([[
             [ 2.0,  0.0],
             [ 0.0,  0.0],
