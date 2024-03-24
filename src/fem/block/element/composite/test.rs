@@ -139,6 +139,24 @@ macro_rules! test_composite_element_inner
 }
 pub(crate) use test_composite_element_inner;
 
+macro_rules! setup_for_test_composite_element_with_constitutive_model
+{
+    ($element: ident, $constitutive_model: ident) =>
+    {
+        #[test]
+        fn size()
+        {
+            assert_eq!(
+                std::mem::size_of::<$element::<$constitutive_model>>(),
+                std::mem::size_of::<[$constitutive_model; G]>()
+                + std::mem::size_of::<ProjectedGradientVectors<G, N>>()
+                + std::mem::size_of::<Scalars<G>>()
+            )
+        }
+    }
+}
+pub(crate) use setup_for_test_composite_element_with_constitutive_model;
+
 macro_rules! test_composite_element_with_constitutive_model
 {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
@@ -158,26 +176,13 @@ macro_rules! test_composite_element_with_constitutive_model
                 get_reference_coordinates_transformed()
             )
         }
+        setup_for_test_composite_element_with_constitutive_model!($element, $constitutive_model);
         mod deformation_gradients
         {
             use super::*;
             mod deformed
             {
                 use super::*;
-                #[test]
-                fn TEMPORARY()
-                {
-                    get_element().calculate_deformation_gradients(&get_reference_coordinates().convert()).iter()
-                    .for_each(|deformation_gradient|
-                        deformation_gradient.iter()
-                        .for_each(|deformation_gradient_i|
-                            deformation_gradient_i.iter()
-                            .for_each(|deformation_gradient_ij|
-                                println!("{:?}", deformation_gradient_ij)
-                            )
-                        )
-                    )
-                }
                 #[test]
                 fn calculate()
                 {
@@ -496,16 +501,6 @@ macro_rules! test_composite_element_with_constitutive_model
                 .for_each(|(sum_ij, projection_matrix_ij)|
                     assert_eq_within_tols(sum_ij, projection_matrix_ij)
                 )
-            )
-        }
-        #[test]
-        fn size<'a>()
-        {
-            assert_eq!(
-                std::mem::size_of::<$element::<$constitutive_model<'a>>>(),
-                std::mem::size_of::<[$constitutive_model<'a>; G]>()
-                + std::mem::size_of::<ProjectedGradientVectors<G, N>>()
-                + std::mem::size_of::<Scalars<G>>()
             )
         }
     }

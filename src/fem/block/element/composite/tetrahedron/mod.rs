@@ -70,17 +70,8 @@ where
         .map(|standard_gradient_operator|
             reference_nodal_coordinates * standard_gradient_operator
         ).collect::<ParametricGradientOperators<P>>();
-        let jacobians =
-        parametric_gradient_operators.iter()
-        .map(|parametric_gradient_operator|
-            parametric_gradient_operator.determinant()
-        ).collect::<Scalars<P>>();
-        let inverse_projection_matrix =
-        Self::calculate_shape_function_integrals_products().iter()
-        .zip(jacobians.iter())
-        .map(|(shape_function_integrals_products, jacobian)|
-            shape_function_integrals_products * jacobian
-        ).sum::<ProjectionMatrix<Q>>().inverse();
+        let jacobians = Self::calculate_jacobians(reference_nodal_coordinates);
+        let inverse_projection_matrix = Self::calculate_inverse_projection_matrix(&jacobians);
         Self::calculate_shape_functions_at_integration_points().iter()
         .map(|shape_functions_at_integration_point|
             Self::calculate_standard_gradient_operators_transposed().iter()

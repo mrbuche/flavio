@@ -105,6 +105,25 @@ macro_rules! test_composite_surface_element_inner
 }
 pub(crate) use test_composite_surface_element_inner;
 
+macro_rules! setup_for_test_composite_element_with_constitutive_model
+{
+    ($element: ident, $constitutive_model: ident) =>
+    {
+        #[test]
+        fn size()
+        {
+            assert_eq!(
+                std::mem::size_of::<$element::<$constitutive_model>>(),
+                std::mem::size_of::<[$constitutive_model; G]>()
+                + std::mem::size_of::<ProjectedGradientVectors<G, N>>()
+                + std::mem::size_of::<Scalars<G>>()
+                + std::mem::size_of::<ScaledReferenceNormals<G, P>>()
+            )
+        }
+    }
+}
+pub(crate) use setup_for_test_composite_element_with_constitutive_model;
+
 macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
 {
     ($element: ident, $constitutive_model: ident) =>

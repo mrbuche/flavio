@@ -229,9 +229,8 @@ macro_rules! setup_for_surface_or_localization_elements
     {
         use crate::
         {
-            constitutive::solid::elastic::AlmansiHamel,
-            mechanics::RotationCurrentConfiguration,
-            EPSILON
+            EPSILON,
+            mechanics::RotationCurrentConfiguration
         };
         fn get_deformation_gradient() -> DeformationGradient
         {
@@ -244,16 +243,6 @@ macro_rules! setup_for_surface_or_localization_elements
         fn get_deformation_gradient_rotation() -> RotationCurrentConfiguration
         {
             crate::mechanics::test::get_rotation_reference_configuration().convert().transpose()
-        }
-        #[test]
-        fn size()
-        {
-            assert_eq!(
-                std::mem::size_of::<$element::<AlmansiHamel>>(),
-                std::mem::size_of::<AlmansiHamel>()
-                + std::mem::size_of::<GradientVectors<N>>()
-                + std::mem::size_of::<ReferenceNormal>()
-            )
         }
         crate::fem::block::element::test::setup_for_element_tests_any_element!($element);
     }

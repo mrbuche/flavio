@@ -244,16 +244,7 @@ where
     fn calculate_scaled_reference_normals(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ScaledReferenceNormals<G, P>
     {
         let jacobians = Self::calculate_jacobians(reference_nodal_coordinates);
-        // let dual_bases = Self::calculate_dual_bases(reference_nodal_coordinates);
-        let inverse_projection_matrix =
-        Self::calculate_shape_function_integrals_products().iter()
-        .zip(jacobians.iter())
-        .map(|(shape_function_integrals_products, jacobian)|
-            shape_function_integrals_products * jacobian
-        ).sum::<ProjectionMatrix<Q>>().inverse();
-        // could make this a method that takes Jacobians to use here and in triangle/mod.rs AND tetrahedron/mod.rs
-
-        // let inverse_normalized_projection_matrix = Self::calculate_inverse_normalized_projection_matrix();
+        let inverse_projection_matrix = Self::calculate_inverse_projection_matrix(&jacobians);
         let reference_normals = Self::calculate_reference_normals(reference_nodal_coordinates);
         let shape_function_integrals = Self::calculate_shape_function_integrals();
         Self::calculate_shape_functions_at_integration_points().iter()
@@ -288,6 +279,7 @@ macro_rules! composite_surface_element_boilerplate
         {
             fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
             {
+                let mut traction = Vector::zero();
                 let normal_gradients = Self::calculate_normal_gradients(nodal_coordinates);
                 self.get_constitutive_models().iter()
                 .zip(self.calculate_deformation_gradients(nodal_coordinates).iter())
@@ -304,12 +296,13 @@ macro_rules! composite_surface_element_boilerplate
                     ).collect::<NodalForces<N>>() +
                     normal_gradients.iter()
                     .zip(scaled_reference_normals.iter())
-                    .map(|(normal_gradient, scaled_reference_normal)|
+                    .map(|(normal_gradient, scaled_reference_normal)|{
+                        traction = (first_piola_kirchoff_stress * scaled_reference_normal) * scaled_composite_jacobian;
                         normal_gradient.iter()
                         .map(|normal_gradient_a|
-                            (normal_gradient_a * (first_piola_kirchoff_stress * scaled_reference_normal)) * scaled_composite_jacobian
+                            normal_gradient_a * &traction
                         ).collect::<NodalForces<N>>()
-                    ).sum::<NodalForces<N>>()
+                    }).sum::<NodalForces<N>>()
                 ).sum::<NodalForces<N>>()
             }
             fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
@@ -340,7 +333,32 @@ macro_rules! composite_surface_element_boilerplate
         {
             fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalForces<N>
             {
-                todo!("Figure out elastic one first.Z")
+                let mut traction = Vector::zero();
+                let normal_gradients = Self::calculate_normal_gradients(nodal_coordinates);
+                self.get_constitutive_models().iter()
+                .zip(self.calculate_deformation_gradients(nodal_coordinates).iter()
+                .zip(self.calculate_deformation_gradient_rates(nodal_coordinates, nodal_velocities).iter()))
+                .map(|(constitutive_model, (deformation_gradient, deformation_gradient_rate))|
+                    constitutive_model.calculate_first_piola_kirchoff_stress(deformation_gradient, deformation_gradient_rate)
+                ).collect::<FirstPiolaKirchoffStresses<G>>().iter()
+                .zip(self.get_projected_gradient_vectors().iter()
+                .zip(self.get_scaled_composite_jacobians().iter()
+                .zip(self.get_scaled_reference_normals().iter())))
+                .map(|(first_piola_kirchoff_stress, (projected_gradient_vectors, (scaled_composite_jacobian, scaled_reference_normals)))|
+                    projected_gradient_vectors.iter()
+                    .map(|projected_gradient_vector|
+                        (first_piola_kirchoff_stress * projected_gradient_vector) * scaled_composite_jacobian
+                    ).collect::<NodalForces<N>>() +
+                    normal_gradients.iter()
+                    .zip(scaled_reference_normals.iter())
+                    .map(|(normal_gradient, scaled_reference_normal)|{
+                        traction = (first_piola_kirchoff_stress * scaled_reference_normal) * scaled_composite_jacobian;
+                        normal_gradient.iter()
+                        .map(|normal_gradient_a|
+                            normal_gradient_a * &traction
+                        ).collect::<NodalForces<N>>()
+                    }).sum::<NodalForces<N>>()
+                ).sum::<NodalForces<N>>()
             }
             fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalStiffnesses<N>
             {

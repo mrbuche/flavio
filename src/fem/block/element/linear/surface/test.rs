@@ -435,6 +435,16 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 ).collect()
             ).collect()
         }
+        #[test]
+        fn size()
+        {
+            assert_eq!(
+                std::mem::size_of::<$element::<$constitutive_model>>(),
+                std::mem::size_of::<$constitutive_model>()
+                + std::mem::size_of::<GradientVectors<N>>()
+                + std::mem::size_of::<ReferenceNormal>()
+            )
+        }
     }
 }
 pub(crate) use setup_for_test_linear_surface_element_with_constitutive_model;

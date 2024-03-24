@@ -69,12 +69,7 @@ where
     {
         let jacobians = Self::calculate_jacobians(reference_nodal_coordinates);
         let dual_bases = Self::calculate_dual_bases(reference_nodal_coordinates);
-        let inverse_projection_matrix =
-        Self::calculate_shape_function_integrals_products().iter()
-        .zip(jacobians.iter())
-        .map(|(shape_function_integrals_products, jacobian)|
-            shape_function_integrals_products * jacobian
-        ).sum::<ProjectionMatrix<Q>>().inverse();
+        let inverse_projection_matrix = Self::calculate_inverse_projection_matrix(&jacobians);
         Self::calculate_shape_functions_at_integration_points().iter()
         .map(|shape_functions_at_integration_point|
             Self::calculate_standard_gradient_operators_transposed().iter()
