@@ -475,7 +475,61 @@ macro_rules! composite_surface_element_boilerplate
             }
             fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalStiffnesses<N>
             {
-                todo!("Will not have normal tangents term, i.e., see localization implementation.")
+                let identity = TensorRank2::<3, 1, 1>::identity();
+                let normal_gradients = Self::calculate_normal_gradients(&nodal_coordinates);
+                let objects = self.calculate_objects(&normal_gradients);
+                self.get_constitutive_models().iter()
+                .zip(self.calculate_deformation_gradients(nodal_coordinates).iter()
+                .zip(self.calculate_deformation_gradient_rates(nodal_coordinates, nodal_velocities).iter()))
+                .map(|(constitutive_model, (deformation_gradient, deformation_gradient_rate))|
+                    constitutive_model.calculate_first_piola_kirchoff_rate_tangent_stiffness(deformation_gradient, deformation_gradient_rate)
+                ).collect::<FirstPiolaKirchoffRateTangentStiffnesses<G>>().iter()
+                .zip(self.get_projected_gradient_vectors().iter()
+                .zip(self.get_scaled_composite_jacobians().iter()
+                .zip(objects.iter())))
+                .map(|(first_piola_kirchoff_rate_tangent_stiffness, (projected_gradient_vectors, (scaled_composite_jacobian, object)))|
+                    projected_gradient_vectors.iter()
+                    .zip(object.iter())
+                    .map(|(projected_gradient_vector_a, object_a)|
+                        projected_gradient_vectors.iter()
+                        .zip(object.iter())
+                        .map(|(projected_gradient_vector_b, object_b)|
+                            identity.iter()
+                            .zip(object_a.iter())
+                            .map(|(identity_m, object_a_m)|
+                                identity.iter()
+                                .zip(object_b.iter())
+                                .map(|(identity_n, object_b_n)|
+                                    first_piola_kirchoff_rate_tangent_stiffness.iter()
+                                    .zip(identity_m.iter()
+                                    .zip(object_a_m.iter()))
+                                    .map(|(first_piola_kirchoff_rate_tangent_stiffness_i, (identity_mi, object_a_mi))|
+                                        first_piola_kirchoff_rate_tangent_stiffness_i.iter()
+                                        .zip(projected_gradient_vector_a.iter()
+                                        .zip(object_a_mi.iter()))
+                                        .map(|(first_piola_kirchoff_rate_tangent_stiffness_ij, (projected_gradient_vector_a_j, object_a_mij))|
+                                            first_piola_kirchoff_rate_tangent_stiffness_ij.iter()
+                                            .zip(identity_n.iter()
+                                            .zip(object_b_n.iter()))
+                                            .map(|(first_piola_kirchoff_rate_tangent_stiffness_ijk, (identity_nk, object_b_nk))|
+                                                first_piola_kirchoff_rate_tangent_stiffness_ijk.iter()
+                                                .zip(projected_gradient_vector_b.iter()
+                                                .zip(object_b_nk.iter()))
+                                                .map(|(first_piola_kirchoff_rate_tangent_stiffness_ijkl, (projected_gradient_vector_b_l, object_b_nkl))|
+                                                    first_piola_kirchoff_rate_tangent_stiffness_ijkl * (
+                                                        identity_mi * projected_gradient_vector_a_j + object_a_mij
+                                                    ) * (
+                                                        identity_nk * projected_gradient_vector_b_l + object_b_nkl
+                                                    ) * scaled_composite_jacobian
+                                                ).sum::<Scalar>()
+                                            ).sum::<Scalar>()
+                                        ).sum::<Scalar>()
+                                    ).sum::<Scalar>()
+                                ).collect()
+                            ).collect()
+                        ).collect()
+                    ).collect::<NodalStiffnesses<N>>()
+                ).sum()
             }
         }
         impl<'a, C> ViscoelasticCompositeElement<'a, C, G, M, N, O, P, Q> for $element<C>
