@@ -661,7 +661,7 @@ impl<const D: usize, const I: usize, const J: usize> std::iter::Sum for TensorRa
     where
         Ii: Iterator<Item = Self>
     {
-        let mut output = TensorRank2::zero();
+        let mut output = Self::zero();
         iter.for_each(|item|
             output += item
         );

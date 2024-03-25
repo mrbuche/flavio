@@ -1,6 +1,11 @@
 #[cfg(test)]
 pub mod test;
 
+use std::ops::
+{
+    AddAssign
+};
+
 use super::
 {
     TensorRank0,
@@ -68,5 +73,41 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: us
             *tensor_rank_3_list_entry = entry
         );
         tensor_rank_3_list
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize> std::iter::Sum for TensorRank3List<D, I, J, K, W>
+{
+    fn sum<Ii>(iter: Ii) -> Self
+    where
+        Ii: Iterator<Item = Self>
+    {
+        let mut output = Self::zero();
+        iter.for_each(|item|
+            output += item
+        );
+        output
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize> AddAssign for TensorRank3List<D, I, J, K, W>
+{
+    fn add_assign(&mut self, tensor_rank_3_list: Self)
+    {
+        self.iter_mut().zip(tensor_rank_3_list.iter())
+        .for_each(|(self_i, tensor_rank_3)|
+            *self_i += tensor_rank_3
+        );
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize> AddAssign<&Self> for TensorRank3List<D, I, J, K, W>
+{
+    fn add_assign(&mut self, tensor_rank_3_list: &Self)
+    {
+        self.iter_mut().zip(tensor_rank_3_list.iter())
+        .for_each(|(self_i, tensor_rank_3)|
+            *self_i += tensor_rank_3
+        );
     }
 }

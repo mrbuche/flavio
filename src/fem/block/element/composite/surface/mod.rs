@@ -281,6 +281,23 @@ macro_rules! composite_surface_element_boilerplate
             {
                 let mut traction = Vector::zero();
                 let normal_gradients = Self::calculate_normal_gradients(nodal_coordinates);
+
+                // object[g][a][m][i][j]
+                let object = self.get_scaled_reference_normals().iter()
+                .map(|scaled_reference_normals|
+                    normal_gradients.iter()
+                    .zip(scaled_reference_normals.iter())
+                    .map(|(normal_gradient, scaled_reference_normal)|
+                        normal_gradient.iter()
+                        .map(|normal_gradient_a|
+                            normal_gradient_a.iter()
+                            .map(|normal_gradient_a_m|
+                                TensorRank2::dyad(normal_gradient_a_m, scaled_reference_normal)
+                            ).collect::<TensorRank3<3, 1, 1, 0>>()
+                        ).collect::<TensorRank3List<3, 1, 1, 0, N>>()
+                    ).sum::<TensorRank3List<3, 1, 1, 0, N>>()
+                ).collect::<TensorRank3List2D<3, 1, 1, 0, N, G>>();
+
                 self.get_constitutive_models().iter()
                 .zip(self.calculate_deformation_gradients(nodal_coordinates).iter())
                 .map(|(constitutive_model, deformation_gradient)|
@@ -303,11 +320,110 @@ macro_rules! composite_surface_element_boilerplate
                             normal_gradient_a * &traction
                         ).collect::<NodalForces<N>>()
                     }).sum::<NodalForces<N>>()
-                ).sum::<NodalForces<N>>()
+                ).sum()
             }
             fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
             {
-                todo!()
+                let deformation_gradients = self.calculate_deformation_gradients(nodal_coordinates);
+                let identity = TensorRank2::<3, 1, 1>::identity();
+                let normal_gradients = Self::calculate_normal_gradients(&nodal_coordinates);
+                let normal_tangents = Self::calculate_normal_tangents(&nodal_coordinates);
+                let mut traction = Vector::zero();
+                // self.get_constitutive_models().iter()
+                // .zip(deformation_gradients.iter())
+                // .map(|(constitutive_model, deformation_gradient)|
+                //     constitutive_model.calculate_first_piola_kirchoff_stress(deformation_gradient)
+                // ).collect::<FirstPiolaKirchoffStresses<G>>().iter()
+                // .zip(self.get_constitutive_models().iter()
+                // .zip(deformation_gradients.iter())
+                // .map(|(constitutive_model, deformation_gradient)|
+                //     constitutive_model.calculate_first_piola_kirchoff_tangent_stiffness(&deformation_gradient)
+                // ).collect::<FirstPiolaKirchoffTangentStiffnesses<G>>().iter()
+                // .zip(self.get_projected_gradient_vectors().iter()
+                // .zip(self.get_scaled_composite_jacobians().iter()
+                // .zip(self.get_scaled_reference_normals().iter()))))
+                // .map(|(first_piola_kirchoff_stress, (first_piola_kirchoff_tangent_stiffness, (projected_gradient_vectors, (scaled_composite_jacobian, scaled_reference_normals))))|
+                //     projected_gradient_vectors.iter()
+                //     .map(|projected_gradient_vector_a|
+                //         projected_gradient_vectors.iter()
+                //         .map(|projected_gradient_vector_b|
+                //             identity.iter()
+                //             .zip(normal_gradient_a.iter())
+                //             .map(|(identity_m, normal_gradient_a_m)|
+                //                 identity.iter()
+                //                 .zip(normal_gradient_b.iter())
+                //                 .map(|(identity_n, normal_gradient_b_n)|
+                //                     first_piola_kirchoff_tangent_stiffness.iter()
+                //                     .zip(identity_m.iter()
+                //                     .zip(normal_gradient_a_m.iter()))
+                //                     .map(|(first_piola_kirchoff_tangent_stiffness_i, (identity_mi, normal_gradient_a_m_i))|
+                //                         first_piola_kirchoff_tangent_stiffness_i.iter()
+                //                         .zip(projected_gradient_vector_a.iter())
+                //                         .map(|(first_piola_kirchoff_tangent_stiffness_ij, projected_gradient_vector_a_j)|
+                //                             first_piola_kirchoff_tangent_stiffness_ij.iter()
+                //                             .zip(identity_n.iter()
+                //                             .zip(normal_gradient_b_n.iter()))
+                //                             .map(|(first_piola_kirchoff_tangent_stiffness_ijk, (identity_nk, normal_gradient_b_n_k))|
+                //                                 first_piola_kirchoff_tangent_stiffness_ijk.iter()
+                //                                 .zip(projected_gradient_vector_b.iter())
+                //                                 .map(|(first_piola_kirchoff_tangent_stiffness_ijkl, projected_gradient_vector_b_l)|
+                //                                     first_piola_kirchoff_tangent_stiffness_ijkl * (
+                //                                         identity_mi * projected_gradient_vector_a_j
+                //                                     ) * (
+                //                                         identity_nk * projected_gradient_vector_b_l
+                //                                     ) * scaled_composite_jacobian
+                //                                 ).sum::<Scalar>()
+                //                             ).sum::<Scalar>()
+                //                         ).sum::<Scalar>()
+                //                     ).sum::<Scalar>()
+                //                 ).collect()
+                //             ).collect()
+                //         ).collect()
+                //     ).collect::<NodalStiffnesses<N>>() +
+
+                self.get_constitutive_models().iter()
+                .zip(deformation_gradients.iter())
+                .map(|(constitutive_model, deformation_gradient)|
+                    constitutive_model.calculate_first_piola_kirchoff_stress(deformation_gradient)
+                ).collect::<FirstPiolaKirchoffStresses<G>>().iter()
+                .zip(self.get_constitutive_models().iter()
+                .zip(deformation_gradients.iter())
+                .map(|(constitutive_model, deformation_gradient)|
+                    constitutive_model.calculate_first_piola_kirchoff_tangent_stiffness(&deformation_gradient)
+                ).collect::<FirstPiolaKirchoffTangentStiffnesses<G>>().iter()
+                .zip(self.get_projected_gradient_vectors().iter()
+                .zip(self.get_scaled_composite_jacobians().iter()
+                .zip(self.get_scaled_reference_normals().iter()))))
+                .map(|(first_piola_kirchoff_stress, (first_piola_kirchoff_tangent_stiffness, (projected_gradient_vectors, (scaled_composite_jacobian, scaled_reference_normals))))|
+                    projected_gradient_vectors.iter()
+                    .map(|projected_gradient_vector_a|
+                        projected_gradient_vectors.iter()
+                        .map(|projected_gradient_vector_b|
+                            first_piola_kirchoff_tangent_stiffness
+                            .contract_second_fourth_indices_with_first_indices_of(
+                                projected_gradient_vector_a, projected_gradient_vector_b
+                            ) * scaled_composite_jacobian
+                        ).collect()
+                    ).collect::<NodalStiffnesses<N>>() +
+                    normal_tangents.iter()
+                    .zip(scaled_reference_normals.iter())
+                    .map(|(normal_tangent, scaled_reference_normal)|{
+                        traction = (first_piola_kirchoff_stress * scaled_reference_normal) * scaled_composite_jacobian;
+                        normal_tangent.iter()
+                        .map(|normal_tangent_a|
+                            normal_tangent_a.iter()
+                            .map(|normal_tangent_ab|
+                                normal_tangent_ab.iter()
+                                .map(|normal_tangent_ab_m|
+                                    normal_tangent_ab_m.iter()
+                                    .map(|normal_tangent_ab_mn|
+                                        (normal_tangent_ab_mn * &traction) * scaled_composite_jacobian
+                                    ).collect()
+                                ).collect()
+                            ).collect()
+                        ).collect::<NodalStiffnesses<N>>()
+                    }).sum::<NodalStiffnesses<N>>()
+                ).sum()
             }
         }
         impl<'a, C> ElasticCompositeElement<'a, C, G, M, N, O, P, Q> for $element<C>
@@ -358,11 +474,11 @@ macro_rules! composite_surface_element_boilerplate
                             normal_gradient_a * &traction
                         ).collect::<NodalForces<N>>()
                     }).sum::<NodalForces<N>>()
-                ).sum::<NodalForces<N>>()
+                ).sum()
             }
             fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalStiffnesses<N>
             {
-                todo!()
+                todo!("Will not have normal tangents term, i.e., see localization implementation.")
             }
         }
         impl<'a, C> ViscoelasticCompositeElement<'a, C, G, M, N, O, P, Q> for $element<C>

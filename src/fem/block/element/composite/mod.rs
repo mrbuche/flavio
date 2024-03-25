@@ -87,7 +87,7 @@ where
             .map(|projected_gradient_vector|
                 (first_piola_kirchoff_stress * projected_gradient_vector) * scaled_composite_jacobian
             ).collect()
-        ).sum::<NodalForces<N>>()
+        ).sum()
     }
     fn calculate_nodal_stiffnesses_composite_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
     {
@@ -97,12 +97,11 @@ where
             constitutive_model.calculate_first_piola_kirchoff_tangent_stiffness(deformation_gradient)
         ).collect::<FirstPiolaKirchoffTangentStiffnesses<G>>().iter()
         .zip(self.get_projected_gradient_vectors().iter()
-        .zip(self.get_projected_gradient_vectors().iter()
-        .zip(self.get_scaled_composite_jacobians().iter())))
-        .map(|(first_piola_kirchoff_tangent_stiffness, (projected_gradient_vectors_a, (projected_gradient_vectors_b, scaled_composite_jacobian)))|
-            projected_gradient_vectors_a.iter()
+        .zip(self.get_scaled_composite_jacobians().iter()))
+        .map(|(first_piola_kirchoff_tangent_stiffness, (projected_gradient_vectors, scaled_composite_jacobian))|
+            projected_gradient_vectors.iter()
             .map(|projected_gradient_vector_a|
-                projected_gradient_vectors_b.iter()
+                projected_gradient_vectors.iter()
                 .map(|projected_gradient_vector_b|
                     first_piola_kirchoff_tangent_stiffness
                     .contract_second_fourth_indices_with_first_indices_of(
@@ -110,7 +109,7 @@ where
                     ) * scaled_composite_jacobian
                 ).collect()
             ).collect()
-        ).sum::<NodalStiffnesses<N>>()
+        ).sum()
     }
 }
 

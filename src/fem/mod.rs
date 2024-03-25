@@ -94,6 +94,8 @@ use crate::
         TensorRank2ListTrait,
         TensorRank2List2D,
         TensorRank2List2DTrait,
+        TensorRank3,
+        TensorRank3List,
         TensorRank3List2D,
         TensorRank3List3D,
         levi_civita
