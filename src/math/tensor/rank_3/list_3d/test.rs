@@ -107,7 +107,7 @@ fn get_array() -> [[[MakeClippyHappy<3>; 2]; 2]; 2]
     ]]]]]
 }
 
-fn get_tensor_rank_3_list_3d() -> TensorRank3List3D<3, 1, 1, 1, 2, 2>
+fn get_tensor_rank_3_list_3d() -> TensorRank3List3D<3, 1, 1, 1, 2, 2, 2>
 {
     TensorRank3List3D::new(get_array())
 }
@@ -116,7 +116,7 @@ fn get_tensor_rank_3_list_3d() -> TensorRank3List3D<3, 1, 1, 1, 2, 2>
 fn from_iter()
 {
     let into_iterator = get_tensor_rank_3_list_3d().0.into_iter();
-    let tensor_rank_3_list_3d = TensorRank3List3D::<3, 1, 1, 1, 2, 2>::from_iter(get_tensor_rank_3_list_3d().0.into_iter());
+    let tensor_rank_3_list_3d = TensorRank3List3D::<3, 1, 1, 1, 2, 2, 2>::from_iter(get_tensor_rank_3_list_3d().0.into_iter());
     tensor_rank_3_list_3d.iter()
     .zip(into_iterator)
     .for_each(|(tensor_rank_3_list_2d, array)|
@@ -238,15 +238,15 @@ fn new()
 fn size()
 {
     assert_eq!(
-        std::mem::size_of::<TensorRank3List3D::<3, 1, 1, 1, 4, 5>>(),
-        std::mem::size_of::<[[[TensorRank3::<3, 1, 1, 1>; 4]; 4]; 5]>()
+        std::mem::size_of::<TensorRank3List3D::<3, 1, 1, 1, 3, 4, 5>>(),
+        std::mem::size_of::<[[[TensorRank3::<3, 1, 1, 1>; 3]; 4]; 5]>()
     )
 }
 
 #[test]
 fn zero()
 {
-    TensorRank3List3D::<3, 1, 1, 1, 4, 5>::zero().iter()
+    TensorRank3List3D::<3, 1, 1, 1, 3, 4, 5>::zero().iter()
     .for_each(|tensor_rank_3_list_2d|
         tensor_rank_3_list_2d.iter()
         .for_each(|tensor_rank_3_list_1d|
