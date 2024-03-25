@@ -11,6 +11,8 @@ use super::
     }
 };
 
+type MakeClippyHappy<const D: usize> = [[[TensorRank0; D]; D]; D];
+
 /// A 3D list of *d*-dimensional tensors of rank 3.
 ///
 /// `D` is the dimension, `I`, `J`, `K` are the configurations `W` and `X` are the list lengths.
@@ -42,7 +44,7 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: us
 pub trait TensorRank3List3DTrait<const D: usize, const W: usize, const X: usize>
 {
     /// Returns a list of rank-3 tensors given an array.
-    fn new(array: [[[[[[TensorRank0; D]; D]; D]; W]; W]; X]) -> Self;
+    fn new(array: [[[MakeClippyHappy<D>; W]; W]; X]) -> Self;
     /// Returns a list of rank-3 zero tensors.
     fn zero() -> Self;
 }
@@ -50,7 +52,7 @@ pub trait TensorRank3List3DTrait<const D: usize, const W: usize, const X: usize>
 /// Implementation of [`TensorRank3List3DTrait`] for [`TensorRank3List3D`].
 impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize, const X: usize> TensorRank3List3DTrait<D, W, X> for TensorRank3List3D<D, I, J, K, W, X>
 {
-    fn new(array: [[[[[[TensorRank0; D]; D]; D]; W]; W]; X]) -> Self
+    fn new(array: [[[MakeClippyHappy<D>; W]; W]; X]) -> Self
     {
         array.iter().map(|array_i|
             TensorRank3List2D::new(*array_i)
