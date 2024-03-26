@@ -30,6 +30,11 @@ pub use block::
             {
                 Tetrahedron as CompositeTetrahedron
             },
+            localization::
+            {
+                CompositeLocalizationElement,
+                wedge::Wedge as CompositeWedgeLocalization
+            },
             surface::
             {
                 CompositeSurfaceElement,

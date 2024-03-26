@@ -70,36 +70,7 @@ where
         );
         gradient_vectors
     }
-    fn calculate_standard_gradient_operator() -> StandardGradientOperator<M, O>
-    {
-        StandardGradientOperator::new([
-            [-1.0, -1.0],
-            [ 1.0,  0.0],
-            [ 0.0,  1.0]
-        ])
-    }
-    fn get_constitutive_model(&self) -> &C
-    {
-        &self.constitutive_model
-    }
-    fn get_gradient_vectors(&self) -> &GradientVectors<N>
-    {
-        &self.gradient_vectors
-    }
-    fn get_integration_weight(&self) -> &Scalar
-    {
-        &INTEGRATION_WEIGHT
-    }
-}
-
-impl<'a, C> LinearSurfaceElement<'a, C, G, M, N, O> for Wedge<C>
-where
-    C: Constitutive<'a>
-{
-    fn get_reference_normal(&self) -> &ReferenceNormal
-    {
-        &self.reference_normal
-    }
+    linear_surface_element_boilerplate_inner!{}
 }
 
 impl<'a, C> LinearLocalizationElement<'a, C, G, M, N, O> for Wedge<C>
@@ -287,4 +258,4 @@ where
     }
 }
 
-super::linear_localization_element_boilerplate!(Triangle);
+super::linear_surface_or_localization_element_boilerplate!(Wedge);
