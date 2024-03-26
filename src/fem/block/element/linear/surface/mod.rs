@@ -17,10 +17,7 @@ where
         .map(|(standard_gradient_operator_a, nodal_coordinates_a)|
             standard_gradient_operator_a.iter()
             .map(|standard_gradient_operator_a_m|
-                nodal_coordinates_a.iter()
-                .map(|nodal_coordinates_a_i|
-                    nodal_coordinates_a_i*standard_gradient_operator_a_m
-                ).collect()
+                nodal_coordinates_a * standard_gradient_operator_a_m
             ).collect()
         ).sum()
     }
@@ -53,7 +50,7 @@ where
         .map(|basis_vectors_m|
             basis_vectors.iter()
             .map(|basis_vectors_n|
-                basis_vectors_m*basis_vectors_n
+                basis_vectors_m * basis_vectors_n
             ).collect()
         ).collect::<TensorRank2<M, I, I>>()
         .inverse()
@@ -62,7 +59,7 @@ where
             metric_tensor_m.iter()
             .zip(basis_vectors.iter())
             .map(|(metric_tensor_mn, basis_vectors_n)|
-                basis_vectors_n*metric_tensor_mn
+                basis_vectors_n * metric_tensor_mn
             ).sum()
         ).collect()
     }
@@ -74,11 +71,11 @@ where
             standard_gradient_operator_a.iter()
             .zip(reference_dual_basis_vectors.iter())
             .map(|(standard_gradient_operator_a_m, dual_reference_basis_vector_m)|
-                dual_reference_basis_vector_m*standard_gradient_operator_a_m
+                dual_reference_basis_vector_m * standard_gradient_operator_a_m
             ).sum()
         ).collect()
     }
-    fn calculate_normal<const I: usize>(nodal_coordinates: &Coordinates<I, O>) -> Normal<I>
+    fn calculate_normal(nodal_coordinates: &NodalCoordinates<O>) -> Normal
     {
         let basis_vectors = Self::calculate_basis(nodal_coordinates);
         basis_vectors[0].cross(&basis_vectors[1]).normalized()
@@ -86,10 +83,10 @@ where
     fn calculate_normal_gradients(nodal_coordinates: &Coordinates<1, O>) -> NormalGradients<O>
     {
         let basis_vectors = Self::calculate_basis(nodal_coordinates);
+        let identity = TensorRank2::<3, 1, 1>::identity();
         let levi_civita_symbol = levi_civita::<1, 1, 1>();
         let normalization = basis_vectors[0].cross(&basis_vectors[1]).norm();
         let normal_vector = basis_vectors[0].cross(&basis_vectors[1])/normalization;
-        let identity = TensorRank2::<3, 1, 1>::identity();
         Self::calculate_standard_gradient_operator().iter()
         .map(|standard_gradient_operator_a|
             levi_civita_symbol.iter()
@@ -105,12 +102,12 @@ where
                         .zip(identity_i.iter()
                         .zip(normal_vector.iter()))
                         .map(|(levi_civita_symbol_mno, (identity_io, normal_vector_o))|
-                            levi_civita_symbol_mno*(identity_io - normal_vector_i*normal_vector_o)
-                        ).sum::<Scalar>()*(
-                            standard_gradient_operator_a[0]*basis_vector_1_n
-                          - standard_gradient_operator_a[1]*basis_vector_0_n
+                            levi_civita_symbol_mno * (identity_io - normal_vector_i * normal_vector_o)
+                        ).sum::<Scalar>() * (
+                            standard_gradient_operator_a[0] * basis_vector_1_n
+                          - standard_gradient_operator_a[1] * basis_vector_0_n
                         )
-                    ).sum::<Scalar>()/normalization
+                    ).sum::<Scalar>() / normalization
                 ).collect()
             ).collect()
         ).collect()
@@ -139,25 +136,25 @@ where
                         .zip(identity_i.iter()
                         .zip(normal_vector.iter()))
                         .map(|(levi_civita_symbol_mno, (identity_io, normal_vector_o))|
-                            levi_civita_symbol_mno*(identity_io - normal_vector_i*normal_vector_o)
-                        ).sum::<Scalar>()*(
-                            standard_gradient_operator_a[0]*basis_vector_1_n
-                          - standard_gradient_operator_a[1]*basis_vector_0_n
+                            levi_civita_symbol_mno * (identity_io - normal_vector_i * normal_vector_o)
+                        ).sum::<Scalar>() * (
+                            standard_gradient_operator_a[0] * basis_vector_1_n
+                          - standard_gradient_operator_a[1] * basis_vector_0_n
                         )
-                    ).sum::<Scalar>()*nodal_velocity_a_m
+                    ).sum::<Scalar>() * nodal_velocity_a_m
                 ).sum::<Scalar>()
-            ).sum::<Scalar>()/normalization
+            ).sum::<Scalar>() / normalization
         ).collect()
     }
     fn calculate_normal_tangents(nodal_coordinates: &Coordinates<1, O>) -> NormalTangents<O>
     {
         let basis_vectors = Self::calculate_basis(nodal_coordinates);
+        let identity = TensorRank2::<3, 1, 1>::identity();
         let levi_civita_symbol = levi_civita::<1, 1, 1>();
         let normalization = basis_vectors[0].cross(&basis_vectors[1]).norm();
+        let normal_gradients = Self::calculate_normal_gradients(nodal_coordinates);
         let normal_vector = basis_vectors[0].cross(&basis_vectors[1])/normalization;
         let standard_gradient_operator = Self::calculate_standard_gradient_operator();
-        let normal_gradients = Self::calculate_normal_gradients(nodal_coordinates);
-        let identity = TensorRank2::<3, 1, 1>::identity();
         normal_gradients.iter()
         .zip(standard_gradient_operator.iter())
         .map(|(normal_gradient_a, standard_gradient_operator_a)|
@@ -190,29 +187,34 @@ where
                                       + normal_gradient_b_n_s * normal_vector_i
                                     )
                                 ).sum::<Scalar>() * (
-                                    standard_gradient_operator_a[1]*basis_vector_0_r
-                                  - standard_gradient_operator_a[0]*basis_vector_1_r
+                                    standard_gradient_operator_a[1] * basis_vector_0_r
+                                  - standard_gradient_operator_a[0] * basis_vector_1_r
                                 ) +
                                 levi_civita_symbol_nr.iter()
                                 .zip(normal_vector.iter())
                                 .map(|(levi_civita_symbol_nrs, normal_vector_s)|
                                     levi_civita_symbol_nrs * normal_vector_s * normal_gradient_a_m_i
-                                ).sum::<Scalar>()*(
-                                    standard_gradient_operator_b[1]*basis_vector_0_r
-                                  - standard_gradient_operator_b[0]*basis_vector_1_r
+                                ).sum::<Scalar>() * (
+                                    standard_gradient_operator_b[1] * basis_vector_0_r
+                                  - standard_gradient_operator_b[0] * basis_vector_1_r
                                 )
                             ).sum::<Scalar>() +
                             levi_civita_symbol_mn * (
-                                identity_i - &normal_vector*normal_vector_i
+                                identity_i - &normal_vector * normal_vector_i
                             ) * (
-                                standard_gradient_operator_a[0]*standard_gradient_operator_b[1]
-                              - standard_gradient_operator_a[1]*standard_gradient_operator_b[0]
-                            ))/normalization
+                                standard_gradient_operator_a[0] * standard_gradient_operator_b[1]
+                              - standard_gradient_operator_a[1] * standard_gradient_operator_b[0]
+                            )) / normalization
                         ).collect()
                     ).collect()
                 ).collect()
             ).collect()
         ).collect()
+    }
+    fn calculate_reference_normal(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ReferenceNormal
+    {
+        let dual_basis_vectors = Self::calculate_dual_basis(reference_nodal_coordinates);
+        dual_basis_vectors[0].cross(&dual_basis_vectors[1]).normalized()
     }
     fn get_reference_normal(&self) -> &ReferenceNormal;
 }

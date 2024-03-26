@@ -17,10 +17,7 @@ macro_rules! test_linear_surface_element_inner
         {
             use crate::
             {
-                fem::block::element::linear::surface::test::
-                {
-                    test_linear_surface_element_with_constitutive_model
-                },
+                fem::block::element::linear::surface::test::test_linear_surface_element_with_constitutive_model,
                 test::assert_eq_within_tols
             };
             use super::*;
@@ -212,7 +209,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 }
             }
         }
-        fn get_normal(is_deformed: bool, is_transformed: bool) -> Normal<1>
+        fn get_normal(is_deformed: bool, is_transformed: bool) -> Normal
         {
             if is_transformed
             {
@@ -343,7 +340,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 }
             }
         }
-        fn get_normal_rate_from_finite_difference(is_deformed: bool) -> Normal<1>
+        fn get_normal_rate_from_finite_difference(is_deformed: bool) -> NormalRate
         {
             let mut finite_difference = 0.0;
             (0..3).map(|i|
@@ -438,6 +435,16 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 ).collect()
             ).collect()
         }
+        #[test]
+        fn size()
+        {
+            assert_eq!(
+                std::mem::size_of::<$element::<$constitutive_model>>(),
+                std::mem::size_of::<$constitutive_model>()
+                + std::mem::size_of::<GradientVectors<N>>()
+                + std::mem::size_of::<ReferenceNormal>()
+            )
+        }
     }
 }
 pub(crate) use setup_for_test_linear_surface_element_with_constitutive_model;
@@ -475,9 +482,7 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                     .zip(get_basis(true, true).iter())
                     .for_each(|(basis_m, res_basis_m)|
                         basis_m.iter()
-                        .zip((
-                            get_rotation_current_configuration().transpose() *
-                            res_basis_m
+                        .zip((get_rotation_current_configuration().transpose() * res_basis_m
                         ).iter())
                         .for_each(|(basis_m_i, res_basis_m_i)|
                             assert_eq_within_tols(basis_m_i, res_basis_m_i)
@@ -495,9 +500,7 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                     .zip(get_basis(false, true).iter())
                     .for_each(|(basis_m, res_basis_m)|
                         basis_m.iter()
-                        .zip((
-                            get_rotation_reference_configuration().transpose() *
-                            res_basis_m.convert()
+                        .zip(( get_rotation_reference_configuration().transpose() * res_basis_m.convert()
                         ).iter())
                         .for_each(|(basis_m_i, res_basis_m_i)|
                             assert_eq_within_tols(basis_m_i, res_basis_m_i)
@@ -533,14 +536,12 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                 {
                     get_dual_basis(true, false).iter()
                     .zip(get_dual_basis(true, true).iter())
-                    .for_each(|(basis_m, res_basis_m)|
-                        basis_m.iter()
-                        .zip((
-                            get_rotation_current_configuration().transpose() *
-                            res_basis_m
+                    .for_each(|(dual_basis_m, res_dual_basis_m)|
+                        dual_basis_m.iter()
+                        .zip((get_rotation_current_configuration().transpose() * res_dual_basis_m
                         ).iter())
-                        .for_each(|(basis_m_i, res_basis_m_i)|
-                            assert_eq_within_tols(basis_m_i, res_basis_m_i)
+                        .for_each(|(dual_basis_m_i, res_dual_basis_m_i)|
+                            assert_eq_within_tols(dual_basis_m_i, res_dual_basis_m_i)
                         )
                     )
                 }
@@ -569,14 +570,12 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                 {
                     get_dual_basis(false, false).iter()
                     .zip(get_dual_basis(false, true).iter())
-                    .for_each(|(basis_m, res_basis_m)|
-                        basis_m.iter()
-                        .zip((
-                            get_rotation_reference_configuration().transpose() *
-                            res_basis_m.convert()
+                    .for_each(|(dual_basis_m, res_dual_basis_m)|
+                        dual_basis_m.iter()
+                        .zip((get_rotation_reference_configuration().transpose() * res_dual_basis_m.convert()
                         ).iter())
-                        .for_each(|(basis_m_i, res_basis_m_i)|
-                            assert_eq_within_tols(basis_m_i, res_basis_m_i)
+                        .for_each(|(dual_basis_m_i, res_dual_basis_m_i)|
+                            assert_eq_within_tols(dual_basis_m_i, res_dual_basis_m_i)
                         )
                     )
                 }

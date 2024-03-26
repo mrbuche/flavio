@@ -61,6 +61,11 @@ pub use tensor::
         {
             TensorRank3List2D,
             TensorRank3List2DTrait
+        },
+        list_3d::
+        {
+            TensorRank3List3D,
+            TensorRank3List3DTrait
         }
     },
     rank_4::

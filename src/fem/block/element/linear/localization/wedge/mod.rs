@@ -27,7 +27,7 @@ where
         {
             constitutive_model: <C>::new(constitutive_model_parameters),
             gradient_vectors: Self::calculate_gradient_vectors(&reference_nodal_coordinates),
-            reference_normal: Self::calculate_normal(&Self::calculate_midplane(&reference_nodal_coordinates))
+            reference_normal: Self::calculate_reference_normal(&Self::calculate_midplane(&reference_nodal_coordinates))
         }
     }
 }
@@ -48,7 +48,7 @@ where
     {
         let reference_nodal_coordinates_midplane = Self::calculate_midplane(reference_nodal_coordinates);
         let reference_dual_basis_vectors = Self::calculate_dual_basis(&reference_nodal_coordinates_midplane);
-        let reference_normal = Self::calculate_normal(&reference_nodal_coordinates_midplane);
+        let reference_normal = Self::calculate_reference_normal(&reference_nodal_coordinates_midplane);
         let gradient_vectors_midplane = Self::calculate_standard_gradient_operator().iter()
         .map(|standard_gradient_operator_a|
             standard_gradient_operator_a.iter()
@@ -142,22 +142,14 @@ where
     }
     fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
     {
-        let first_piola_kirchoff_stress = self.get_constitutive_model()
-        .calculate_first_piola_kirchoff_stress(
-            &self.calculate_deformation_gradient(nodal_coordinates)
-        );
-        let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_model()
-        .calculate_first_piola_kirchoff_tangent_stiffness(
-            &self.calculate_deformation_gradient(nodal_coordinates)
-        );
+        let deformation_gradient = self.calculate_deformation_gradient(nodal_coordinates);
+        let first_piola_kirchoff_stress = self.get_constitutive_model().calculate_first_piola_kirchoff_stress(&deformation_gradient);
+        let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_model().calculate_first_piola_kirchoff_tangent_stiffness(&deformation_gradient);
         let gradient_vectors = self.get_gradient_vectors();
         let identity = TensorRank2::<3, 1, 1>::identity();
-        let normal_gradients = Self::calculate_normal_gradients(
-            &Self::calculate_midplane(nodal_coordinates)
-        );
-        let normal_tangents = Self::calculate_normal_tangents(
-            &Self::calculate_midplane(nodal_coordinates)
-        );
+        let midplane = Self::calculate_midplane(nodal_coordinates);
+        let normal_gradients = Self::calculate_normal_gradients(&midplane);
+        let normal_tangents = Self::calculate_normal_tangents(&midplane);
         let reference_normal = self.get_reference_normal() * 0.5;
         let traction = (first_piola_kirchoff_stress * &reference_normal) * 0.5;
         gradient_vectors.iter()

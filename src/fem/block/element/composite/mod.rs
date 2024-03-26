@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod test;
 
+pub mod surface;
 pub mod tetrahedron;
 
 use super::*;
@@ -13,35 +14,56 @@ where
     fn calculate_deformation_gradients(&self, nodal_coordinates: &NodalCoordinates<N>) -> DeformationGradients<G>
     {
         self.get_projected_gradient_vectors().iter()
-        .map(|projected_gradient_vectors_g|
+        .map(|projected_gradient_vectors|
             nodal_coordinates.iter()
-            .zip(projected_gradient_vectors_g.iter())
-            .map(|(nodal_coordinate_a, projected_gradient_vector_g_a)|
-                DeformationGradient::dyad(nodal_coordinate_a, projected_gradient_vector_g_a)
+            .zip(projected_gradient_vectors.iter())
+            .map(|(nodal_coordinate, projected_gradient_vector)|
+                DeformationGradient::dyad(nodal_coordinate, projected_gradient_vector)
             ).sum()
         ).collect()
     }
     fn calculate_deformation_gradient_rates(&self, _: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> DeformationGradientRates<G>
     {
         self.get_projected_gradient_vectors().iter()
-        .map(|projected_gradient_vectors_g|
+        .map(|projected_gradient_vectors|
             nodal_velocities.iter()
-            .zip(projected_gradient_vectors_g.iter())
-            .map(|(nodal_velocity_a, projected_gradient_vector_g_a)|
-                DeformationGradientRate::dyad(nodal_velocity_a, projected_gradient_vector_g_a)
+            .zip(projected_gradient_vectors.iter())
+            .map(|(nodal_velocity, projected_gradient_vector)|
+                DeformationGradientRate::dyad(nodal_velocity, projected_gradient_vector)
             ).sum()
         ).collect()
     }
     fn calculate_inverse_normalized_projection_matrix() -> NormalizedProjectionMatrix<Q>;
-    fn calculate_jacobians_and_parametric_gradient_operators(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> (Scalars<P>, ParametricGradientOperators<P>);
+    fn calculate_inverse_projection_matrix(jacobians: &Scalars<P>) -> NormalizedProjectionMatrix<Q>
+    {
+        Self::calculate_shape_function_integrals_products().iter()
+        .zip(jacobians.iter())
+        .map(|(shape_function_integrals_products, jacobian)|
+            shape_function_integrals_products * jacobian
+        ).sum::<ProjectionMatrix<Q>>().inverse()
+    }
+    fn calculate_jacobians(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> Scalars<P>;
     fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> ProjectedGradientVectors<G, N>;
-    fn calculate_scaled_composite_jacobian_at_integration_points(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> Scalars<G>;
+    fn calculate_scaled_composite_jacobian_at_integration_points(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> Scalars<G>
+    {
+        let vector = Self::calculate_inverse_normalized_projection_matrix() *
+        Self::calculate_shape_function_integrals().iter()
+        .zip(Self::calculate_jacobians(reference_nodal_coordinates).iter())
+        .map(|(shape_function_integral, jacobian)|
+            shape_function_integral * jacobian
+        ).sum::<TensorRank1<Q, 9>>();
+        Self::calculate_shape_functions_at_integration_points().iter()
+        .map(|shape_functions_at_integration_point|
+            (shape_functions_at_integration_point * &vector) * Self::get_integration_weight()
+        ).collect()
+    }
     fn calculate_shape_function_integrals() -> ShapeFunctionIntegrals<P, Q>;
     fn calculate_shape_function_integrals_products() -> ShapeFunctionIntegralsProducts<P, Q>;
     fn calculate_shape_functions_at_integration_points() -> ShapeFunctionsAtIntegrationPoints<G, Q>;
     fn calculate_standard_gradient_operators() -> StandardGradientOperators<M, O, P>;
     fn calculate_standard_gradient_operators_transposed() -> StandardGradientOperatorsTransposed<M, O, P>;
     fn get_constitutive_models(&self) -> &[C; G];
+    fn get_integration_weight() -> Scalar;
     fn get_projected_gradient_vectors(&self) -> &ProjectedGradientVectors<G, N>;
     fn get_scaled_composite_jacobians(&self) -> &Scalars<G>;
 }
@@ -65,7 +87,7 @@ where
             .map(|projected_gradient_vector|
                 (first_piola_kirchoff_stress * projected_gradient_vector) * scaled_composite_jacobian
             ).collect()
-        ).sum::<NodalForces<N>>()
+        ).sum()
     }
     fn calculate_nodal_stiffnesses_composite_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
     {
@@ -75,12 +97,11 @@ where
             constitutive_model.calculate_first_piola_kirchoff_tangent_stiffness(deformation_gradient)
         ).collect::<FirstPiolaKirchoffTangentStiffnesses<G>>().iter()
         .zip(self.get_projected_gradient_vectors().iter()
-        .zip(self.get_projected_gradient_vectors().iter()
-        .zip(self.get_scaled_composite_jacobians().iter())))
-        .map(|(first_piola_kirchoff_tangent_stiffness, (projected_gradient_vectors_a, (projected_gradient_vectors_b, scaled_composite_jacobian)))|
-            projected_gradient_vectors_a.iter()
+        .zip(self.get_scaled_composite_jacobians().iter()))
+        .map(|(first_piola_kirchoff_tangent_stiffness, (projected_gradient_vectors, scaled_composite_jacobian))|
+            projected_gradient_vectors.iter()
             .map(|projected_gradient_vector_a|
-                projected_gradient_vectors_b.iter()
+                projected_gradient_vectors.iter()
                 .map(|projected_gradient_vector_b|
                     first_piola_kirchoff_tangent_stiffness
                     .contract_second_fourth_indices_with_first_indices_of(
@@ -88,7 +109,7 @@ where
                     ) * scaled_composite_jacobian
                 ).collect()
             ).collect()
-        ).sum::<NodalStiffnesses<N>>()
+        ).sum()
     }
 }
 

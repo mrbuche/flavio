@@ -87,7 +87,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 }
             }
         }
-        fn get_normal(is_deformed: bool, is_transformed: bool) -> NormalRate
+        fn get_normal(is_deformed: bool, is_transformed: bool) -> Normal
         {
             if is_transformed
             {
@@ -211,7 +211,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                         &$element::<$constitutive_model>::calculate_midplane(
                             &(get_rotation_current_configuration() * get_coordinates())
                         ),
-                        &$element::<AlmansiHamel>::calculate_midplane(
+                        &$element::<$constitutive_model>::calculate_midplane(
                             &(get_rotation_current_configuration() * get_velocities() + get_rotation_rate_current_configuration() * get_coordinates())
                         )
                     )
@@ -232,7 +232,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 {
                     $element::<$constitutive_model>::calculate_normal_rate(
                         &$element::<$constitutive_model>::calculate_midplane(&get_coordinates()),
-                        &$element::<AlmansiHamel>::calculate_midplane(&get_velocities())
+                        &$element::<$constitutive_model>::calculate_midplane(&get_velocities())
                     )
                 }
                 else
@@ -244,7 +244,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 }
             }
         }
-        fn get_normal_rate_from_finite_difference(is_deformed: bool) -> Normal<1>
+        fn get_normal_rate_from_finite_difference(is_deformed: bool) -> NormalRate
         {
             let mut finite_difference = 0.0;
             (0..3).map(|i|
@@ -350,6 +350,16 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                     ).collect()
                 ).collect()
             ).collect()
+        }
+        #[test]
+        fn size()
+        {
+            assert_eq!(
+                std::mem::size_of::<$element::<$constitutive_model>>(),
+                std::mem::size_of::<$constitutive_model>()
+                + std::mem::size_of::<GradientVectors<N>>()
+                + std::mem::size_of::<ReferenceNormal>()
+            )
         }
     }
 }

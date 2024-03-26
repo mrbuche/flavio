@@ -1,6 +1,10 @@
 use crate::fem::block::
 {
-    element::composite::test::test_composite_element,
+    element::composite::test::
+    {
+        setup_for_test_composite_element_with_constitutive_model,
+        test_composite_element
+    },
     test::test_finite_element_block
 };
 use super::*;

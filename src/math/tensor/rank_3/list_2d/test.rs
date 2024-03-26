@@ -59,7 +59,7 @@ fn get_array() -> [[[[[TensorRank0; 3]; 3]; 3]; 2]; 2]
     ]]]]
 }
 
-fn get_tensor_rank_3_list_2d() -> TensorRank3List2D<3, 1, 1, 1, 2>
+fn get_tensor_rank_3_list_2d() -> TensorRank3List2D<3, 1, 1, 1, 2, 2>
 {
     TensorRank3List2D::new(get_array())
 }
@@ -68,7 +68,7 @@ fn get_tensor_rank_3_list_2d() -> TensorRank3List2D<3, 1, 1, 1, 2>
 fn from_iter()
 {
     let into_iterator = get_tensor_rank_3_list_2d().0.into_iter();
-    let tensor_rank_3_list_2d = TensorRank3List2D::<3, 1, 1, 1, 2>::from_iter(get_tensor_rank_3_list_2d().0.into_iter());
+    let tensor_rank_3_list_2d = TensorRank3List2D::<3, 1, 1, 1, 2, 2>::from_iter(get_tensor_rank_3_list_2d().0.into_iter());
     tensor_rank_3_list_2d.iter()
     .zip(into_iterator)
     .for_each(|(tensor_rank_3_list_2d_entry, array_entry)|
@@ -89,7 +89,7 @@ fn from_iter()
                 )
             )
         )
-    );
+    )
 }
 
 #[test]
@@ -115,7 +115,7 @@ fn iter()
                 )
             )
         )
-    );
+    )
 }
 
 #[test]
@@ -141,7 +141,7 @@ fn iter_mut()
                 )
             )
         )
-    );
+    )
 }
 
 #[test]
@@ -167,14 +167,14 @@ fn new()
                 )
             )
         )
-    );
+    )
 }
 
 #[test]
 fn size()
 {
     assert_eq!(
-        std::mem::size_of::<TensorRank3List2D::<3, 1, 1, 1, 8>>(),
+        std::mem::size_of::<TensorRank3List2D::<3, 1, 1, 1, 8, 8>>(),
         std::mem::size_of::<[[TensorRank3::<3, 1, 1, 1>; 8]; 8]>()
     )
 }
@@ -182,7 +182,7 @@ fn size()
 #[test]
 fn zero()
 {
-    TensorRank3List2D::<3, 1, 1, 1, 8>::zero().iter()
+    TensorRank3List2D::<3, 1, 1, 1, 8, 8>::zero().iter()
     .for_each(|tensor_rank_3_list_2d_entry|
         tensor_rank_3_list_2d_entry.iter()
         .for_each(|tensor_rank_3|
@@ -197,5 +197,5 @@ fn zero()
                 )
             )
         )
-    );
+    )
 }

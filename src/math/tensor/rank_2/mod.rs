@@ -661,7 +661,7 @@ impl<const D: usize, const I: usize, const J: usize> std::iter::Sum for TensorRa
     where
         Ii: Iterator<Item = Self>
     {
-        let mut output = TensorRank2::zero();
+        let mut output = Self::zero();
         iter.for_each(|item|
             output += item
         );
@@ -1023,10 +1023,10 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> Mul<&Tensor
     }
 }
 
-impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize> Mul<TensorRank2List2D<D, J, K, W>> for TensorRank2<D, I, J>
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize, const X: usize> Mul<TensorRank2List2D<D, J, K, W, X>> for TensorRank2<D, I, J>
 {
-    type Output = TensorRank2List2D<D, I, K, W>;
-    fn mul(self, tensor_rank_2_list_2d: TensorRank2List2D<D, J, K, W>) -> Self::Output
+    type Output = TensorRank2List2D<D, I, K, W, X>;
+    fn mul(self, tensor_rank_2_list_2d: TensorRank2List2D<D, J, K, W, X>) -> Self::Output
     {
         tensor_rank_2_list_2d.iter().map(|tensor_rank_2_list_2d_entry|
             tensor_rank_2_list_2d_entry.iter().map(|tensor_rank_2|
@@ -1036,10 +1036,10 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: us
     }
 }
 
-impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize> Mul<TensorRank2List2D<D, J, K, W>> for &TensorRank2<D, I, J>
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize, const X: usize> Mul<TensorRank2List2D<D, J, K, W, X>> for &TensorRank2<D, I, J>
 {
-    type Output = TensorRank2List2D<D, I, K, W>;
-    fn mul(self, tensor_rank_2_list_2d: TensorRank2List2D<D, J, K, W>) -> Self::Output
+    type Output = TensorRank2List2D<D, I, K, W, X>;
+    fn mul(self, tensor_rank_2_list_2d: TensorRank2List2D<D, J, K, W, X>) -> Self::Output
     {
         tensor_rank_2_list_2d.iter().map(|tensor_rank_2_list_2d_entry|
             tensor_rank_2_list_2d_entry.iter().map(|tensor_rank_2|

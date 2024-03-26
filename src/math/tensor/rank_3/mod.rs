@@ -3,6 +3,7 @@ mod test;
 
 pub mod list;
 pub mod list_2d;
+pub mod list_3d;
 
 use std::ops::
 {

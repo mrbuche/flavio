@@ -27,7 +27,7 @@ where
         {
             constitutive_model: <C>::new(constitutive_model_parameters),
             gradient_vectors: Self::calculate_gradient_vectors(&reference_nodal_coordinates),
-            reference_normal: Self::calculate_normal(&reference_nodal_coordinates)
+            reference_normal: Self::calculate_reference_normal(&reference_nodal_coordinates)
         }
     }
 }

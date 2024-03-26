@@ -120,7 +120,7 @@ pub type SecondPiolaKirchoffRateTangentStiffness = TensorRank4<3, 0, 0, 1, 0>;
 pub type Stiffness = TensorRank2<3, 1, 1>;
 
 /// A list of stiffnesses.
-pub type Stiffnesses<const W: usize> = TensorRank2List2D<3, 1, 1, W>;
+pub type Stiffnesses<const W: usize> = TensorRank2List2D<3, 1, 1, W, W>;
 
 /// The temperature gradient.
 pub type TemperatureGradient = TensorRank1<3, 1>;

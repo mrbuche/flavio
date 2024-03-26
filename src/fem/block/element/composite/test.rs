@@ -139,6 +139,24 @@ macro_rules! test_composite_element_inner
 }
 pub(crate) use test_composite_element_inner;
 
+macro_rules! setup_for_test_composite_element_with_constitutive_model
+{
+    ($element: ident, $constitutive_model: ident) =>
+    {
+        #[test]
+        fn size()
+        {
+            assert_eq!(
+                std::mem::size_of::<$element::<$constitutive_model>>(),
+                std::mem::size_of::<[$constitutive_model; G]>()
+                + std::mem::size_of::<ProjectedGradientVectors<G, N>>()
+                + std::mem::size_of::<Scalars<G>>()
+            )
+        }
+    }
+}
+pub(crate) use setup_for_test_composite_element_with_constitutive_model;
+
 macro_rules! test_composite_element_with_constitutive_model
 {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
@@ -158,6 +176,7 @@ macro_rules! test_composite_element_with_constitutive_model
                 get_reference_coordinates_transformed()
             )
         }
+        setup_for_test_composite_element_with_constitutive_model!($element, $constitutive_model);
         mod deformation_gradients
         {
             use super::*;
@@ -372,9 +391,9 @@ macro_rules! test_composite_element_with_constitutive_model
                 #[test]
                 fn jacobians<'a>()
                 {
-                    $element::<$constitutive_model<'a>>::calculate_jacobians_and_parametric_gradient_operators(
+                    $element::<$constitutive_model<'a>>::calculate_jacobians(
                         &get_reference_coordinates()
-                    ).0.iter()
+                    ).iter()
                     .for_each(|jacobian|
                         assert_eq!(jacobian, &1.0)
                     )
@@ -473,7 +492,7 @@ macro_rules! test_composite_element_with_constitutive_model
         fn normalized_projection_matrix<'a>()
         {
             $element::<$constitutive_model<'a>>::calculate_shape_function_integrals_products()
-            .iter().map(|dummy| dummy * 1.0).sum::<TensorRank2<4, 9, 9>>().iter()
+            .iter().map(|dummy| dummy * 1.0).sum::<TensorRank2<Q, 9, 9>>().iter()
             .zip($element::<$constitutive_model<'a>>::calculate_inverse_normalized_projection_matrix()
             .inverse().iter())
             .for_each(|(sum_i, projection_matrix_i)|
@@ -482,16 +501,6 @@ macro_rules! test_composite_element_with_constitutive_model
                 .for_each(|(sum_ij, projection_matrix_ij)|
                     assert_eq_within_tols(sum_ij, projection_matrix_ij)
                 )
-            )
-        }
-        #[test]
-        fn size<'a>()
-        {
-            assert_eq!(
-                std::mem::size_of::<$element::<$constitutive_model<'a>>>(),
-                std::mem::size_of::<[$constitutive_model<'a>; G]>()
-                + std::mem::size_of::<ProjectedGradientVectors<G, N>>()
-                + std::mem::size_of::<Scalars<G>>()
             )
         }
     }
