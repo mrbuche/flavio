@@ -40,10 +40,110 @@ fn get_tensor_rank_3_list() -> TensorRank3List<3, 1, 1, 1, 2>
     TensorRank3List::new(get_array())
 }
 
-#[test]
-fn add_assign()
+fn get_other_tensor_rank_3_list() -> TensorRank3List<3, 1, 1, 1, 2>
 {
-    todo!()
+    TensorRank3List::new([[[
+        [5.0, 0.0, 2.0],
+        [3.0, 0.0, 6.0],
+        [5.0, 1.0, 4.0]
+        ], [
+        [0.0, 2.0, 0.0],
+        [0.0, 3.0, 0.0],
+        [1.0, 3.0, 3.0]
+        ], [
+        [4.0, 6.0, 6.0],
+        [4.0, 3.0, 4.0],
+        [2.0, 4.0, 0.0]
+        ]], [[
+        [2.0, 4.0, 0.0],
+        [5.0, 1.0, 3.0],
+        [4.0, 2.0, 6.0]
+        ], [
+        [4.0, 5.0, 2.0],
+        [4.0, 4.0, 0.0],
+        [2.0, 6.0, 0.0]
+        ], [
+        [6.0, 6.0, 6.0],
+        [5.0, 4.0, 1.0],
+        [4.0, 3.0, 0.0]
+    ]]])
+}
+
+fn get_other_tensor_rank_3_list_add_tensor_rank_3_list() -> TensorRank3List<3, 1, 1, 1, 2>
+{
+    TensorRank3List::new([[[
+        [6.0, 2.0, 3.0],
+        [3.0, 3.0, 7.0],
+        [8.0, 2.0, 6.0]
+        ], [
+        [2.0, 2.0, 3.0],
+        [0.0, 5.0, 3.0],
+        [4.0, 6.0, 5.0]
+        ], [
+        [6.0, 8.0, 6.0],
+        [5.0, 3.0, 4.0],
+        [2.0, 6.0, 1.0]
+        ]], [[
+        [4.0, 6.0, 0.0],
+        [6.0, 1.0, 3.0],
+        [4.0, 4.0, 7.0]
+        ], [
+        [6.0, 5.0, 5.0],
+        [4.0, 6.0, 3.0],
+        [5.0, 9.0, 2.0]
+        ], [
+        [7.0, 8.0, 7.0],
+        [5.0, 7.0, 2.0],
+        [7.0, 4.0, 2.0]
+    ]]])
+}
+
+#[test]
+fn add_assign_tensor_rank_3_list()
+{
+    let mut tensor_rank_3_list = get_tensor_rank_3_list();
+    tensor_rank_3_list += get_other_tensor_rank_3_list();
+    tensor_rank_3_list.iter()
+    .zip(get_other_tensor_rank_3_list_add_tensor_rank_3_list().iter())
+    .for_each(|(tensor_rank_3, res_tensor_rank_3)|
+        tensor_rank_3.iter()
+        .zip(res_tensor_rank_3.iter())
+        .for_each(|(tensor_rank_3_i, res_tensor_rank_3_i)|
+            tensor_rank_3_i.iter()
+            .zip(res_tensor_rank_3_i.iter())
+            .for_each(|(tensor_rank_3_ij, res_tensor_rank_3_ij)|
+                tensor_rank_3_ij.iter()
+                .zip(res_tensor_rank_3_ij.iter())
+                .for_each(|(tensor_rank_3_ijk, res_tensor_rank_3_ijk)|
+                    assert_eq!(tensor_rank_3_ijk, res_tensor_rank_3_ijk)
+                )
+            )
+        )
+    )
+}
+
+#[test]
+fn add_assign_tensor_rank_3_list_ref()
+{
+    let mut tensor_rank_3_list = get_tensor_rank_3_list();
+    tensor_rank_3_list += &get_other_tensor_rank_3_list();
+    tensor_rank_3_list.iter()
+    .zip(get_other_tensor_rank_3_list_add_tensor_rank_3_list().iter())
+    .for_each(|(tensor_rank_3, res_tensor_rank_3)|
+        tensor_rank_3.iter()
+        .zip(res_tensor_rank_3.iter())
+        .for_each(|(tensor_rank_3_i, res_tensor_rank_3_i)|
+            tensor_rank_3_i.iter()
+            .zip(res_tensor_rank_3_i.iter())
+            .for_each(|(tensor_rank_3_ij, res_tensor_rank_3_ij)|
+                tensor_rank_3_ij.iter()
+                .zip(res_tensor_rank_3_ij.iter())
+                .for_each(|(tensor_rank_3_ijk, res_tensor_rank_3_ijk)|
+                    assert_eq!(tensor_rank_3_ijk, res_tensor_rank_3_ijk)
+                )
+            )
+        )
+    )
 }
 
 #[test]
@@ -67,7 +167,7 @@ fn from_iter()
                 )
             )
         )
-    );
+    )
 }
 
 #[test]
@@ -89,7 +189,7 @@ fn iter()
                 )
             )
         )
-    );
+    )
 }
 
 #[test]
@@ -111,7 +211,7 @@ fn iter_mut()
                 )
             )
         )
-    );
+    )
 }
 
 #[test]
@@ -133,7 +233,7 @@ fn new()
                 )
             )
         )
-    );
+    )
 }
 
 #[test]
@@ -160,5 +260,5 @@ fn zero()
                 )
             )
         )
-    );
+    )
 }
