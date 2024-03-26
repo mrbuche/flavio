@@ -55,4 +55,5 @@ where
         ).collect()
     }
     fn calculate_midplane<const I: usize>(nodal_coordinates: &Coordinates<I, N>) -> Coordinates<I, O>;
+    fn calculate_mixed_shape_function_integrals_products() -> ShapeFunctionIntegralsProductsMixed<O, P>;
 }

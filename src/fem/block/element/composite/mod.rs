@@ -35,23 +35,23 @@ where
         ).collect()
     }
     fn calculate_inverse_normalized_projection_matrix() -> NormalizedProjectionMatrix<Q>;
-    fn calculate_inverse_projection_matrix(jacobians: &Scalars<P>) -> NormalizedProjectionMatrix<Q>
+    fn calculate_inverse_projection_matrix(reference_jacobians: &Scalars<P>) -> NormalizedProjectionMatrix<Q>
     {
         Self::calculate_shape_function_integrals_products().iter()
-        .zip(jacobians.iter())
-        .map(|(shape_function_integrals_products, jacobian)|
-            shape_function_integrals_products * jacobian
+        .zip(reference_jacobians.iter())
+        .map(|(shape_function_integrals_products, reference_jacobian)|
+            shape_function_integrals_products * reference_jacobian
         ).sum::<ProjectionMatrix<Q>>().inverse()
     }
-    fn calculate_jacobians(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> Scalars<P>;
     fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> ProjectedGradientVectors<G, N>;
+    fn calculate_reference_jacobians(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> Scalars<P>;
     fn calculate_scaled_composite_jacobian_at_integration_points(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> Scalars<G>
     {
         let vector = Self::calculate_inverse_normalized_projection_matrix() *
         Self::calculate_shape_function_integrals().iter()
-        .zip(Self::calculate_jacobians(reference_nodal_coordinates).iter())
-        .map(|(shape_function_integral, jacobian)|
-            shape_function_integral * jacobian
+        .zip(Self::calculate_reference_jacobians(reference_nodal_coordinates).iter())
+        .map(|(shape_function_integral, reference_jacobian)|
+            shape_function_integral * reference_jacobian
         ).sum::<TensorRank1<Q, 9>>();
         Self::calculate_shape_functions_at_integration_points().iter()
         .map(|shape_functions_at_integration_point|

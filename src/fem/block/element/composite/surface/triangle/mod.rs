@@ -50,28 +50,7 @@ where
     }
     fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> ProjectedGradientVectors<G, N>
     {
-        let jacobians = Self::calculate_jacobians(reference_nodal_coordinates);
-        let dual_bases = Self::calculate_dual_bases(reference_nodal_coordinates);
-        let inverse_projection_matrix = Self::calculate_inverse_projection_matrix(&jacobians);
-        Self::calculate_shape_functions_at_integration_points().iter()
-        .map(|shape_functions_at_integration_point|
-            Self::calculate_standard_gradient_operators_transposed().iter()
-            .map(|standard_gradient_operators_a|
-                Self::calculate_shape_function_integrals().iter()
-                .zip(standard_gradient_operators_a.iter()
-                .zip(dual_bases.iter()
-                .zip(jacobians.iter())))
-                .map(|(shape_function_integral, (standard_gradient_operator, (dual_basis_vectors, jacobian)))|
-                    dual_basis_vectors.iter()
-                    .zip(standard_gradient_operator.iter())
-                    .map(|(dual_basis_vector, standard_gradient_operator_mu)|
-                        dual_basis_vector * standard_gradient_operator_mu
-                    ).sum::<Vector<0>>() * jacobian * (
-                        shape_functions_at_integration_point * (&inverse_projection_matrix * shape_function_integral)
-                    )
-                ).sum()
-            ).collect()
-        ).collect()
+        Self::calculate_projected_gradient_vectors_composite_surface_element(reference_nodal_coordinates)
     }
     composite_surface_element_boilerplate_inner!{}
 }

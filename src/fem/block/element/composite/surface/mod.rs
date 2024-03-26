@@ -251,26 +251,51 @@ where
             ).sum::<TensorRank3List<3, 1, 1, 0, N>>()
         ).collect()
     }
+    fn calculate_projected_gradient_vectors_composite_surface_element(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ProjectedGradientVectors<G, N>
+    {
+        let reference_dual_bases = Self::calculate_dual_bases(reference_nodal_coordinates);
+        let reference_jacobians = Self::calculate_reference_jacobians(reference_nodal_coordinates);
+        let inverse_projection_matrix = Self::calculate_inverse_projection_matrix(&reference_jacobians);
+        Self::calculate_shape_functions_at_integration_points().iter()
+        .map(|shape_functions_at_integration_point|
+            Self::calculate_standard_gradient_operators_transposed().iter()
+            .map(|standard_gradient_operators_a|
+                Self::calculate_shape_function_integrals().iter()
+                .zip(standard_gradient_operators_a.iter()
+                .zip(reference_dual_bases.iter()
+                .zip(reference_jacobians.iter())))
+                .map(|(shape_function_integral, (standard_gradient_operator, (reference_dual_basis_vectors, reference_jacobian)))|
+                    reference_dual_basis_vectors.iter()
+                    .zip(standard_gradient_operator.iter())
+                    .map(|(reference_dual_basis_vector, standard_gradient_operator_mu)|
+                        reference_dual_basis_vector * standard_gradient_operator_mu
+                    ).sum::<Vector<0>>() * reference_jacobian * (
+                        shape_functions_at_integration_point * (&inverse_projection_matrix * shape_function_integral)
+                    )
+                ).sum()
+            ).collect()
+        ).collect()
+    }
     fn calculate_reference_normals(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ReferenceNormals<P>
     {
         Self::calculate_dual_bases(reference_nodal_coordinates).iter()
-        .map(|dual_basis_vectors|
-            dual_basis_vectors[0].cross(&dual_basis_vectors[1]).normalized()
+        .map(|reference_dual_basis_vectors|
+            reference_dual_basis_vectors[0].cross(&reference_dual_basis_vectors[1]).normalized()
         ).collect()
     }
     fn calculate_scaled_reference_normals(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ScaledReferenceNormals<G, P>
     {
-        let jacobians = Self::calculate_jacobians(reference_nodal_coordinates);
-        let inverse_projection_matrix = Self::calculate_inverse_projection_matrix(&jacobians);
+        let reference_jacobians = Self::calculate_reference_jacobians(reference_nodal_coordinates);
+        let inverse_projection_matrix = Self::calculate_inverse_projection_matrix(&reference_jacobians);
         let reference_normals = Self::calculate_reference_normals(reference_nodal_coordinates);
         let shape_function_integrals = Self::calculate_shape_function_integrals();
         Self::calculate_shape_functions_at_integration_points().iter()
         .map(|shape_function|
             reference_normals.iter()
             .zip(shape_function_integrals.iter()
-            .zip(jacobians.iter()))
-            .map(|(reference_normal, (shape_function_integral, jacobian))|
-                reference_normal * ((shape_function * (&inverse_projection_matrix * shape_function_integral)) * jacobian)
+            .zip(reference_jacobians.iter()))
+            .map(|(reference_normal, (shape_function_integral, reference_jacobian))|
+                reference_normal * ((shape_function * (&inverse_projection_matrix * shape_function_integral)) * reference_jacobian)
             ).collect()
         ).collect()
     }
@@ -593,11 +618,11 @@ macro_rules! composite_surface_element_boilerplate_inner
                 [ off,  off, diag]
             ])
         }
-        fn calculate_jacobians(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> Scalars<P>
+        fn calculate_reference_jacobians(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> Scalars<P>
         {
             Self::calculate_bases(reference_nodal_coordinates).iter()
-            .map(|basis_vectors|
-                basis_vectors[0].cross(&basis_vectors[1]).norm()
+            .map(|reference_basis_vectors|
+                reference_basis_vectors[0].cross(&reference_basis_vectors[1]).norm()
             ).collect()
         }
         fn calculate_shape_function_integrals() -> ShapeFunctionIntegrals<P, Q>

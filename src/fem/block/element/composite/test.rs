@@ -389,13 +389,13 @@ macro_rules! test_composite_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn jacobians<'a>()
+                fn reference_jacobians<'a>()
                 {
-                    $element::<$constitutive_model<'a>>::calculate_jacobians(
+                    $element::<$constitutive_model<'a>>::calculate_reference_jacobians(
                         &get_reference_coordinates()
                     ).iter()
-                    .for_each(|jacobian|
-                        assert_eq!(jacobian, &1.0)
+                    .for_each(|reference_jacobian|
+                        assert_eq!(reference_jacobian, &1.0)
                     )
                 }
                 #[test]

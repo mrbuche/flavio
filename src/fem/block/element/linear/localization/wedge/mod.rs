@@ -49,24 +49,25 @@ where
         let reference_nodal_coordinates_midplane = Self::calculate_midplane(reference_nodal_coordinates);
         let reference_dual_basis_vectors = Self::calculate_dual_basis(&reference_nodal_coordinates_midplane);
         let reference_normal = Self::calculate_reference_normal(&reference_nodal_coordinates_midplane);
-        let gradient_vectors_midplane = Self::calculate_standard_gradient_operator().iter()
+        let gradient_vectors_midplane =
+        Self::calculate_standard_gradient_operator().iter()
         .map(|standard_gradient_operator_a|
             standard_gradient_operator_a.iter()
             .zip(reference_dual_basis_vectors.iter())
             .map(|(standard_gradient_operator_a_m, dual_reference_basis_vector_m)|
-                dual_reference_basis_vector_m*standard_gradient_operator_a_m
+                dual_reference_basis_vector_m * standard_gradient_operator_a_m
             ).sum()
         ).collect::<GradientVectors<O>>();
         let mut gradient_vectors = GradientVectors::zero();
-        gradient_vectors.iter_mut().take(O)
-        .zip(gradient_vectors_midplane.iter())
-        .for_each(|(gradient_vector_a, gradient_vector_midplane_a)|
-            *gradient_vector_a = gradient_vector_midplane_a * 0.5 - &reference_normal / 3.0
-        );
         gradient_vectors.iter_mut().skip(O)
         .zip(gradient_vectors_midplane.iter())
         .for_each(|(gradient_vector_a, gradient_vector_midplane_a)|
             *gradient_vector_a = gradient_vector_midplane_a * 0.5 + &reference_normal / 3.0
+        );
+        gradient_vectors.iter_mut().take(O)
+        .zip(gradient_vectors_midplane.iter())
+        .for_each(|(gradient_vector_a, gradient_vector_midplane_a)|
+            *gradient_vector_a = gradient_vector_midplane_a * 0.5 - &reference_normal / 3.0
         );
         gradient_vectors
     }
