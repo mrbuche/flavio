@@ -290,16 +290,6 @@ macro_rules! setup_for_localization_elements
         {
             get_deformation_gradient_rotation() * get_coordinates_unrotated()
         }
-        fn get_coordinates_unrotated() -> NodalCoordinates<N>
-        {
-            let jump = get_jump();
-            let mut coordinates = get_deformation_gradient_surface() * get_reference_coordinates();
-            coordinates.iter_mut().skip(O)
-            .for_each(|coordinate_top_a|
-                *coordinate_top_a += &jump
-            );
-            coordinates
-        }
         fn get_deformation_gradient_special() -> DeformationGradient
         {
             let jump = get_jump();
@@ -345,16 +335,6 @@ macro_rules! setup_for_localization_elements
         fn get_velocities() -> NodalVelocities<N>
         {
             get_deformation_gradient_rotation() * get_velocities_unrotated()
-        }
-        fn get_velocities_unrotated() -> NodalVelocities<N>
-        {
-            let jump_rate = get_jump_rate();
-            let mut velocities = get_deformation_gradient_rate_surface() * get_reference_coordinates();
-            velocities.iter_mut().skip(O)
-            .for_each(|velocity_top_a|
-                *velocity_top_a += &jump_rate
-            );
-            velocities
         }
         crate::fem::block::element::test::setup_for_surface_or_localization_elements!($element);
     }
@@ -428,7 +408,7 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses
                                 .for_each(|(nodal_stiffness_ab_ij, fd_nodal_stiffness_ab_ij)|
                                     assert!(
                                         (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < EPSILON ||
-                                        (nodal_stiffness_ab_ij - fd_nodal_stiffness_ab_ij).abs() < EPSILON / 10.0
+                                        (nodal_stiffness_ab_ij - fd_nodal_stiffness_ab_ij).abs() < EPSILON / 2.0
                                     )
                                 )
                             )

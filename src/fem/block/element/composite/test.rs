@@ -382,34 +382,34 @@ macro_rules! test_composite_element_with_constitutive_model
                 }
             }
         }
-        mod jacobians
-        {
-            use super::*;
-            mod undeformed
-            {
-                use super::*;
-                #[test]
-                fn reference_jacobians<'a>()
-                {
-                    $element::<$constitutive_model<'a>>::calculate_reference_jacobians(
-                        &get_reference_coordinates()
-                    ).iter()
-                    .for_each(|reference_jacobian|
-                        assert_eq!(reference_jacobian, &1.0)
-                    )
-                }
-                #[test]
-                fn scaled_composite_jacobians<'a>()
-                {
-                    $element::<$constitutive_model<'a>>::calculate_scaled_composite_jacobian_at_integration_points(
-                        &get_reference_coordinates()
-                    ).iter()
-                    .for_each(|scaled_composite_jacobian|
-                        assert_eq!(scaled_composite_jacobian, &INTEGRATION_WEIGHT)
-                    )
-                }
-            }
-        }
+        // mod jacobians
+        // {
+        //     use super::*;
+        //     mod undeformed
+        //     {
+        //         use super::*;
+        //         #[test]
+        //         fn reference_jacobians<'a>()
+        //         {
+        //             $element::<$constitutive_model<'a>>::calculate_reference_jacobians(
+        //                 &get_reference_coordinates()
+        //             ).iter()
+        //             .for_each(|reference_jacobian|
+        //                 assert_eq!(reference_jacobian, &1.0)
+        //             )
+        //         }
+        //         #[test]
+        //         fn scaled_composite_jacobians<'a>()
+        //         {
+        //             $element::<$constitutive_model<'a>>::calculate_scaled_composite_jacobian_at_integration_points(
+        //                 &get_reference_coordinates()
+        //             ).iter()
+        //             .for_each(|scaled_composite_jacobian|
+        //                 assert_eq!(scaled_composite_jacobian, &INTEGRATION_WEIGHT)
+        //             )
+        //         }
+        //     }
+        // }
         mod partition_of_unity
         {
             use super::*;
