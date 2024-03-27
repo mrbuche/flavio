@@ -193,13 +193,57 @@ fn temporary_4()
     )
 }
 
-fn get_finite_difference_of_helmholtz_free_energy_both() -> NodalForces<N>
+fn get_reference_coordinates_distorted() -> ReferenceNodalCoordinates<N>
 {
-    let element = get_element();
+    ReferenceNodalCoordinates::new([
+        [ 0.99926759, -0.00492477,  0.00473545],
+        [ 0.00395293,  1.01517263,  0.00579895],
+        [ 0.0084215 ,  0.01449531, -0.01263632],
+        [ 0.98528723, -0.00700808,  0.01811121],
+        [ 0.01031553,  0.98143822, -0.0055957 ],
+        [ 0.00599955, -0.01477466, -0.00564895],
+        [ 0.51456154,  0.5120805 , -0.01684216],
+        [ 0.00283855,  0.50947624, -0.00354348],
+        [ 0.50324758, -0.00521494, -0.01022159],
+        [ 0.50758104,  0.50456292, -0.01654888],
+        [ 0.00106299,  0.51187361,  0.01741694],
+        [ 0.49211042, -0.01282023,  0.01630969]
+    ])
+}
+
+fn get_element_distorted<'a>() -> Wedge<crate::constitutive::solid::hyperelastic::NeoHookean<'a>>
+{
+    Wedge::new(
+        crate::constitutive::solid::hyperelastic::test::NEOHOOKEANPARAMETERS,
+        get_reference_coordinates_distorted()
+    )
+}
+
+fn get_coordinates_distorted() -> NodalCoordinates<N>
+{
+    NodalCoordinates::new([
+        [ 0.78126924,  0.48248601, -0.31196753],
+        [ 0.39495532,  0.68137112, -0.29016521],
+        [-0.11102563, -0.19592438, -0.3130127 ],
+        [ 1.01338446,  0.88479018,  0.29831012],
+        [ 0.61690543,  1.11171078,  0.30851072],
+        [ 0.1077119 ,  0.20115359,  0.30302711],
+        [ 0.60260084,  0.58991677, -0.28643558],
+        [ 0.15742686,  0.2610388 , -0.30296679],
+        [ 0.35750349,  0.14907168, -0.31712706],
+        [ 0.78279103,  1.00726579,  0.31962874],
+        [ 0.34129542,  0.66540902,  0.3152397 ],
+        [ 0.53464796,  0.56976664,  0.30936124]
+    ])
+}
+
+fn get_finite_difference_of_helmholtz_free_energy_distorted() -> NodalForces<N>
+{
+    let element = get_element_distorted();
     let mut finite_difference = 0.0;
     (0..N).map(|node|
         (0..3).map(|i|{
-            let mut nodal_coordinates = get_coordinates_from_deformation_gradient_both();
+            let mut nodal_coordinates = get_coordinates_distorted();
             nodal_coordinates[node][i] += 0.5 * crate::EPSILON;
             finite_difference = element.calculate_helmholtz_free_energy(
                 &nodal_coordinates
@@ -216,10 +260,10 @@ fn get_finite_difference_of_helmholtz_free_energy_both() -> NodalForces<N>
 #[test]
 fn temporary_5()
 {
-    get_element().calculate_nodal_forces(
-        &get_coordinates_from_deformation_gradient_both()
+    get_element_distorted().calculate_nodal_forces(
+        &get_coordinates_distorted()
     ).iter()
-    .zip(get_finite_difference_of_helmholtz_free_energy_both().iter())
+    .zip(get_finite_difference_of_helmholtz_free_energy_distorted().iter())
     .for_each(|(nodal_force, fd_nodal_force)|
         nodal_force.iter()
         .zip(fd_nodal_force.iter())

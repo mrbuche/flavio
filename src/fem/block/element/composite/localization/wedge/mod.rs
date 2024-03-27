@@ -201,8 +201,7 @@ where
             .zip(objects.iter().take(3)
             .chain(objects.iter().take(3))
             .chain(objects.iter().skip(3).take(3))
-            .chain(objects.iter().skip(3).take(3))
-            )
+            .chain(objects.iter().skip(3).take(3)))
             .map(|(projected_gradient_vector, object)|
                 identity.iter()
                 .zip(object.iter())
@@ -223,13 +222,6 @@ where
                 ).collect()
             ).collect()
         ).sum()
-        // todo!("Factors of 1/2 and stuff that are not present in surface implementation.
-        //        Remember why? It's from the normal gradients on the midplane.
-        //        So maybe multiply the object by 0.5 in the loop.
-        //        And don't forget to chain the normal gradients, since you calculate them on the midplane!
-        //        And make sure those chains are consistent with projected gradients vectors chains.")
-        //
-        // need to chain objects<O> consistent with node list and projected gradient vectors
     }
     fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
     {
