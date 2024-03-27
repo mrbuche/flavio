@@ -30,6 +30,11 @@ pub use block::
             {
                 Tetrahedron as CompositeTetrahedron
             },
+            localization::
+            {
+                CompositeLocalizationElement,
+                wedge::Wedge as CompositeWedgeLocalization
+            },
             surface::
             {
                 CompositeSurfaceElement,
@@ -148,6 +153,7 @@ type ReferenceNormals<const P: usize> = Vectors<0, P>;
 type ScaledReferenceNormals<const G: usize, const P: usize> = TensorRank1List2D<3, 0, P, G>;
 type ShapeFunctionIntegrals<const P: usize, const Q: usize> = TensorRank1List<Q, 9, P>;
 type ShapeFunctionIntegralsProducts<const P: usize, const Q: usize> = TensorRank2List<Q, 9, 9, P>;
+type ShapeFunctionIntegralsProductsMixed<const O: usize, const P: usize> = TensorRank1List2D<3, 9, P, O>;
 type ShapeFunctionsAtIntegrationPoints<const G: usize, const Q: usize> = TensorRank1List<Q, 9, G>;
 type StandardGradientOperator<const M: usize, const O: usize> = TensorRank1List<M, 9, O>;
 type StandardGradientOperators<const M: usize, const O: usize, const P: usize> = TensorRank1List2D<M, 9, O, P>;

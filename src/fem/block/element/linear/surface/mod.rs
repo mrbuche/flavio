@@ -223,15 +223,6 @@ macro_rules! linear_surface_element_boilerplate
 {
     ($element: ident) =>
     {
-        impl<'a, C> LinearSurfaceElement<'a, C, G, M, N, O> for $element<C>
-        where
-            C: Constitutive<'a>
-        {
-            fn get_reference_normal(&self) -> &ReferenceNormal
-            {
-                &self.reference_normal
-            }
-        }
         impl<'a, C> ElasticFiniteElement<'a, C, G, N> for $element<C>
         where
             C: Elastic<'a>
@@ -283,23 +274,6 @@ macro_rules! linear_surface_element_boilerplate
                 ).collect()
             }
         }
-        impl<'a, C> ElasticLinearElement<'a, C, G, M, N, O> for $element<C>
-        where
-            C: Elastic<'a>
-        {}
-        impl<'a, C> HyperelasticFiniteElement<'a, C, G, N> for $element<C>
-        where
-            C: Hyperelastic<'a>
-        {
-            fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
-            {
-                self.calculate_helmholtz_free_energy_linear_element(nodal_coordinates)
-            }
-        }
-        impl<'a, C> HyperelasticLinearElement<'a, C, G, M, N, O> for $element<C>
-        where
-            C: Hyperelastic<'a>
-        {}
         impl<'a, C> ViscoelasticFiniteElement<'a, C, G, N> for $element<C>
         where
             C: Viscoelastic<'a>
@@ -352,6 +326,41 @@ macro_rules! linear_surface_element_boilerplate
                 ).collect()
             }
         }
+        linear_surface_or_localization_element_boilerplate!($element);
+    }
+}
+pub(crate) use linear_surface_element_boilerplate;
+
+macro_rules! linear_surface_or_localization_element_boilerplate
+{
+    ($element: ident) =>
+    {
+        impl<'a, C> LinearSurfaceElement<'a, C, G, M, N, O> for $element<C>
+        where
+            C: Constitutive<'a>
+        {
+            fn get_reference_normal(&self) -> &ReferenceNormal
+            {
+                &self.reference_normal
+            }
+        }
+        impl<'a, C> ElasticLinearElement<'a, C, G, M, N, O> for $element<C>
+        where
+            C: Elastic<'a>
+        {}
+        impl<'a, C> HyperelasticFiniteElement<'a, C, G, N> for $element<C>
+        where
+            C: Hyperelastic<'a>
+        {
+            fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
+            {
+                self.calculate_helmholtz_free_energy_linear_element(nodal_coordinates)
+            }
+        }
+        impl<'a, C> HyperelasticLinearElement<'a, C, G, M, N, O> for $element<C>
+        where
+            C: Hyperelastic<'a>
+        {}
         impl<'a, C> ViscoelasticLinearElement<'a, C, G, M, N, O> for $element<C>
         where
             C: Viscoelastic<'a>
@@ -373,6 +382,7 @@ macro_rules! linear_surface_element_boilerplate
         where
             C: ElasticHyperviscous<'a>
         {}
+        
         impl<'a, C> HyperviscoelasticFiniteElement<'a, C, G, N> for $element<C>
         where
             C: Hyperviscoelastic<'a>
@@ -388,4 +398,32 @@ macro_rules! linear_surface_element_boilerplate
         {}
     }
 }
-pub(crate) use linear_surface_element_boilerplate;
+pub(crate) use linear_surface_or_localization_element_boilerplate;
+
+macro_rules! linear_surface_element_boilerplate_inner
+{
+    () =>
+    {
+        fn calculate_standard_gradient_operator() -> StandardGradientOperator<M, O>
+        {
+            StandardGradientOperator::new([
+                [-1.0, -1.0],
+                [ 1.0,  0.0],
+                [ 0.0,  1.0]
+            ])
+        }
+        fn get_constitutive_model(&self) -> &C
+        {
+            &self.constitutive_model
+        }
+        fn get_gradient_vectors(&self) -> &GradientVectors<N>
+        {
+            &self.gradient_vectors
+        }
+        fn get_integration_weight(&self) -> &Scalar
+        {
+            &INTEGRATION_WEIGHT
+        }
+    }
+}
+pub(crate) use linear_surface_element_boilerplate_inner;

@@ -49,20 +49,6 @@ where
             [ off,  off,  off, diag]
         ])
     }
-    fn calculate_jacobians(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> Scalars<P>
-    {
-        let parametric_gradient_operators =
-        Self::calculate_standard_gradient_operators().iter()
-        .map(|standard_gradient_operator|
-            reference_nodal_coordinates * standard_gradient_operator
-        ).collect::<ParametricGradientOperators<P>>();
-        let jacobians =
-        parametric_gradient_operators.iter()
-        .map(|parametric_gradient_operator|
-            parametric_gradient_operator.determinant()
-        ).collect::<Scalars<P>>();
-        jacobians
-    }
     fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> ProjectedGradientVectors<G, N>
     {
         let parametric_gradient_operators =
@@ -70,8 +56,8 @@ where
         .map(|standard_gradient_operator|
             reference_nodal_coordinates * standard_gradient_operator
         ).collect::<ParametricGradientOperators<P>>();
-        let jacobians = Self::calculate_jacobians(reference_nodal_coordinates);
-        let inverse_projection_matrix = Self::calculate_inverse_projection_matrix(&jacobians);
+        let reference_jacobians = Self::calculate_reference_jacobians(reference_nodal_coordinates);
+        let inverse_projection_matrix = Self::calculate_inverse_projection_matrix(&reference_jacobians);
         Self::calculate_shape_functions_at_integration_points().iter()
         .map(|shape_functions_at_integration_point|
             Self::calculate_standard_gradient_operators_transposed().iter()
@@ -79,13 +65,25 @@ where
                 Self::calculate_shape_function_integrals().iter()
                 .zip(standard_gradient_operators_a.iter()
                 .zip(parametric_gradient_operators.iter()
-                .zip(jacobians.iter())))
-                .map(|(shape_function_integral, (standard_gradient_operator, (parametric_gradient_operator, jacobian)))|
-                    (parametric_gradient_operator.inverse_transpose() * standard_gradient_operator) * jacobian
+                .zip(reference_jacobians.iter())))
+                .map(|(shape_function_integral, (standard_gradient_operator, (parametric_gradient_operator, reference_jacobian)))|
+                    (parametric_gradient_operator.inverse_transpose() * standard_gradient_operator) * reference_jacobian
                     * (shape_functions_at_integration_point * (&inverse_projection_matrix * shape_function_integral))
                 ).sum()
             ).collect()
         ).collect()
+    }
+    fn calculate_reference_jacobians(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> Scalars<P>
+    {
+        let parametric_gradient_operators =
+        Self::calculate_standard_gradient_operators().iter()
+        .map(|standard_gradient_operator|
+            reference_nodal_coordinates * standard_gradient_operator
+        ).collect::<ParametricGradientOperators<P>>();
+        parametric_gradient_operators.iter()
+        .map(|parametric_gradient_operator|
+            parametric_gradient_operator.determinant()
+        ).collect::<Scalars<P>>()
     }
     fn calculate_shape_function_integrals() -> ShapeFunctionIntegrals<P, Q>
     {

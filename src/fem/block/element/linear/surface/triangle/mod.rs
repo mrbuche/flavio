@@ -48,26 +48,7 @@ where
     {
         Self::calculate_gradient_vectors_linear_surface_element(reference_nodal_coordinates)
     }
-    fn calculate_standard_gradient_operator() -> StandardGradientOperator<M, N>
-    {
-        StandardGradientOperator::new([
-            [-1.0, -1.0],
-            [ 1.0,  0.0],
-            [ 0.0,  1.0]
-        ])
-    }
-    fn get_constitutive_model(&self) -> &C
-    {
-        &self.constitutive_model
-    }
-    fn get_gradient_vectors(&self) -> &GradientVectors<N>
-    {
-        &self.gradient_vectors
-    }
-    fn get_integration_weight(&self) -> &Scalar
-    {
-        &INTEGRATION_WEIGHT
-    }
+    linear_surface_element_boilerplate_inner!{}
 }
 
 super::linear_surface_element_boilerplate!(Triangle);

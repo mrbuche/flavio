@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod test;
+pub mod test;
 
 pub mod triangle;
 
@@ -234,7 +234,7 @@ where
             ).collect()
         }).collect()
     }
-    fn calculate_objects(&self, normal_gradients: &NormalGradientss<P, O>) -> TensorRank3List2D<3, 1, 1, 0, N, G>
+    fn calculate_objects(&self, normal_gradients: &NormalGradientss<P, O>) -> TensorRank3List2D<3, 1, 1, 0, O, G>
     {
         self.get_scaled_reference_normals().iter()
         .map(|scaled_reference_normals|
@@ -247,30 +247,55 @@ where
                     .map(|normal_gradient_a_m|
                         TensorRank2::dyad(normal_gradient_a_m, scaled_reference_normal)
                     ).collect::<TensorRank3<3, 1, 1, 0>>()
-                ).collect::<TensorRank3List<3, 1, 1, 0, N>>()
-            ).sum::<TensorRank3List<3, 1, 1, 0, N>>()
+                ).collect::<TensorRank3List<3, 1, 1, 0, O>>()
+            ).sum::<TensorRank3List<3, 1, 1, 0, O>>()
+        ).collect()
+    }
+    fn calculate_projected_gradient_vectors_composite_surface_element(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ProjectedGradientVectors<G, N>
+    {
+        let reference_dual_bases = Self::calculate_dual_bases(reference_nodal_coordinates);
+        let reference_jacobians = Self::calculate_reference_jacobians(reference_nodal_coordinates);
+        let inverse_projection_matrix = Self::calculate_inverse_projection_matrix(&reference_jacobians);
+        Self::calculate_shape_functions_at_integration_points().iter()
+        .map(|shape_functions_at_integration_point|
+            Self::calculate_standard_gradient_operators_transposed().iter()
+            .map(|standard_gradient_operators_a|
+                Self::calculate_shape_function_integrals().iter()
+                .zip(standard_gradient_operators_a.iter()
+                .zip(reference_dual_bases.iter()
+                .zip(reference_jacobians.iter())))
+                .map(|(shape_function_integral, (standard_gradient_operator, (reference_dual_basis_vectors, reference_jacobian)))|
+                    reference_dual_basis_vectors.iter()
+                    .zip(standard_gradient_operator.iter())
+                    .map(|(reference_dual_basis_vector, standard_gradient_operator_mu)|
+                        reference_dual_basis_vector * standard_gradient_operator_mu
+                    ).sum::<Vector<0>>() * reference_jacobian * (
+                        shape_functions_at_integration_point * (&inverse_projection_matrix * shape_function_integral)
+                    )
+                ).sum()
+            ).collect()
         ).collect()
     }
     fn calculate_reference_normals(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ReferenceNormals<P>
     {
         Self::calculate_dual_bases(reference_nodal_coordinates).iter()
-        .map(|dual_basis_vectors|
-            dual_basis_vectors[0].cross(&dual_basis_vectors[1]).normalized()
+        .map(|reference_dual_basis_vectors|
+            reference_dual_basis_vectors[0].cross(&reference_dual_basis_vectors[1]).normalized()
         ).collect()
     }
     fn calculate_scaled_reference_normals(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ScaledReferenceNormals<G, P>
     {
-        let jacobians = Self::calculate_jacobians(reference_nodal_coordinates);
-        let inverse_projection_matrix = Self::calculate_inverse_projection_matrix(&jacobians);
+        let reference_jacobians = Self::calculate_reference_jacobians(reference_nodal_coordinates);
+        let inverse_projection_matrix = Self::calculate_inverse_projection_matrix(&reference_jacobians);
         let reference_normals = Self::calculate_reference_normals(reference_nodal_coordinates);
         let shape_function_integrals = Self::calculate_shape_function_integrals();
         Self::calculate_shape_functions_at_integration_points().iter()
         .map(|shape_function|
             reference_normals.iter()
             .zip(shape_function_integrals.iter()
-            .zip(jacobians.iter()))
-            .map(|(reference_normal, (shape_function_integral, jacobian))|
-                reference_normal * ((shape_function * (&inverse_projection_matrix * shape_function_integral)) * jacobian)
+            .zip(reference_jacobians.iter()))
+            .map(|(reference_normal, (shape_function_integral, reference_jacobian))|
+                reference_normal * ((shape_function * (&inverse_projection_matrix * shape_function_integral)) * reference_jacobian)
             ).collect()
         ).collect()
     }
@@ -281,15 +306,6 @@ macro_rules! composite_surface_element_boilerplate
 {
     ($element: ident) =>
     {
-        impl<'a, C> CompositeSurfaceElement<'a, C, G, M, N, O, P, Q> for $element<C>
-        where
-            C: Constitutive<'a>
-        {
-            fn get_scaled_reference_normals(&self) -> &ScaledReferenceNormals<G, P>
-            {
-                &self.scaled_reference_normals
-            }
-        }
         impl<'a, C> ElasticFiniteElement<'a, C, G, N> for $element<C>
         where
             C: Elastic<'a>
@@ -297,7 +313,6 @@ macro_rules! composite_surface_element_boilerplate
             fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
             {
                 let identity = TensorRank2::<3, 1, 1>::identity();
-                let normal_gradients = Self::calculate_normal_gradients(nodal_coordinates);
                 self.get_constitutive_models().iter()
                 .zip(self.calculate_deformation_gradients(nodal_coordinates).iter())
                 .map(|(constitutive_model, deformation_gradient)|
@@ -305,7 +320,7 @@ macro_rules! composite_surface_element_boilerplate
                 ).collect::<FirstPiolaKirchoffStresses<G>>().iter()
                 .zip(self.get_projected_gradient_vectors().iter()
                 .zip(self.get_scaled_composite_jacobians().iter()
-                .zip(self.calculate_objects(&normal_gradients).iter())))
+                .zip(self.calculate_objects(&Self::calculate_normal_gradients(nodal_coordinates)).iter())))
                 .map(|(first_piola_kirchoff_stress, (projected_gradient_vectors, (scaled_composite_jacobian, objects)))|
                     projected_gradient_vectors.iter()
                     .zip(objects.iter())
@@ -334,9 +349,8 @@ macro_rules! composite_surface_element_boilerplate
             {
                 let deformation_gradients = self.calculate_deformation_gradients(nodal_coordinates);
                 let identity = TensorRank2::<3, 1, 1>::identity();
-                let normal_gradients = Self::calculate_normal_gradients(&nodal_coordinates);
-                let normal_tangents = Self::calculate_normal_tangents(&nodal_coordinates);
-                let objects = self.calculate_objects(&normal_gradients);
+                let normal_tangentss = Self::calculate_normal_tangents(&nodal_coordinates);
+                let objectss = self.calculate_objects(&Self::calculate_normal_gradients(&nodal_coordinates));
                 let mut scaled_traction = Vector::zero();
                 self.get_constitutive_models().iter()
                 .zip(deformation_gradients.iter())
@@ -351,13 +365,13 @@ macro_rules! composite_surface_element_boilerplate
                 .zip(self.get_projected_gradient_vectors().iter()
                 .zip(self.get_scaled_composite_jacobians().iter()
                 .zip(self.get_scaled_reference_normals().iter()
-                .zip(objects.iter())))))
-                .map(|(first_piola_kirchoff_stress, (first_piola_kirchoff_tangent_stiffness, (projected_gradient_vectors, (scaled_composite_jacobian, (scaled_reference_normals, object)))))|
+                .zip(objectss.iter())))))
+                .map(|(first_piola_kirchoff_stress, (first_piola_kirchoff_tangent_stiffness, (projected_gradient_vectors, (scaled_composite_jacobian, (scaled_reference_normals, objects)))))|
                     projected_gradient_vectors.iter()
-                    .zip(object.iter())
+                    .zip(objects.iter())
                     .map(|(projected_gradient_vector_a, object_a)|
                         projected_gradient_vectors.iter()
-                        .zip(object.iter())
+                        .zip(objects.iter())
                         .map(|(projected_gradient_vector_b, object_b)|
                             identity.iter()
                             .zip(object_a.iter())
@@ -394,11 +408,11 @@ macro_rules! composite_surface_element_boilerplate
                             ).collect()
                         ).collect()
                     ).collect::<NodalStiffnesses<N>>() +
-                    normal_tangents.iter()
+                    normal_tangentss.iter()
                     .zip(scaled_reference_normals.iter())
-                    .map(|(normal_tangent, scaled_reference_normal)|{
+                    .map(|(normal_tangents, scaled_reference_normal)|{
                         scaled_traction = (first_piola_kirchoff_stress * scaled_reference_normal) * scaled_composite_jacobian;
-                        normal_tangent.iter()
+                        normal_tangents.iter()
                         .map(|normal_tangent_a|
                             normal_tangent_a.iter()
                             .map(|normal_tangent_ab|
@@ -415,23 +429,6 @@ macro_rules! composite_surface_element_boilerplate
                 ).sum()
             }
         }
-        impl<'a, C> ElasticCompositeElement<'a, C, G, M, N, O, P, Q> for $element<C>
-        where
-            C: Elastic<'a>
-        {}
-        impl<'a, C> HyperelasticFiniteElement<'a, C, G, N> for $element<C>
-        where
-            C: Hyperelastic<'a>
-        {
-            fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
-            {
-                self.calculate_helmholtz_free_energy_composite_element(nodal_coordinates)
-            }
-        }
-        impl<'a, C> HyperelasticCompositeElement<'a, C, G, M, N, O, P, Q> for $element<C>
-        where
-            C: Hyperelastic<'a>
-        {}
         impl<'a, C> ViscoelasticFiniteElement<'a, C, G, N> for $element<C>
         where
             C: Viscoelastic<'a>
@@ -477,7 +474,7 @@ macro_rules! composite_surface_element_boilerplate
             {
                 let identity = TensorRank2::<3, 1, 1>::identity();
                 let normal_gradients = Self::calculate_normal_gradients(&nodal_coordinates);
-                let objects = self.calculate_objects(&normal_gradients);
+                let objectss = self.calculate_objects(&normal_gradients);
                 self.get_constitutive_models().iter()
                 .zip(self.calculate_deformation_gradients(nodal_coordinates).iter()
                 .zip(self.calculate_deformation_gradient_rates(nodal_coordinates, nodal_velocities).iter()))
@@ -486,13 +483,13 @@ macro_rules! composite_surface_element_boilerplate
                 ).collect::<FirstPiolaKirchoffRateTangentStiffnesses<G>>().iter()
                 .zip(self.get_projected_gradient_vectors().iter()
                 .zip(self.get_scaled_composite_jacobians().iter()
-                .zip(objects.iter())))
-                .map(|(first_piola_kirchoff_rate_tangent_stiffness, (projected_gradient_vectors, (scaled_composite_jacobian, object)))|
+                .zip(objectss.iter())))
+                .map(|(first_piola_kirchoff_rate_tangent_stiffness, (projected_gradient_vectors, (scaled_composite_jacobian, objects)))|
                     projected_gradient_vectors.iter()
-                    .zip(object.iter())
+                    .zip(objects.iter())
                     .map(|(projected_gradient_vector_a, object_a)|
                         projected_gradient_vectors.iter()
-                        .zip(object.iter())
+                        .zip(objects.iter())
                         .map(|(projected_gradient_vector_b, object_b)|
                             identity.iter()
                             .zip(object_a.iter())
@@ -528,10 +525,45 @@ macro_rules! composite_surface_element_boilerplate
                                 ).collect()
                             ).collect()
                         ).collect()
-                    ).collect::<NodalStiffnesses<N>>()
+                    ).collect()
                 ).sum()
             }
         }
+        composite_surface_or_localization_element_boilerplate!($element);
+    }
+}
+pub(crate) use composite_surface_element_boilerplate;
+
+macro_rules! composite_surface_or_localization_element_boilerplate
+{
+    ($element: ident) =>
+    {
+        impl<'a, C> CompositeSurfaceElement<'a, C, G, M, N, O, P, Q> for $element<C>
+        where
+            C: Constitutive<'a>
+        {
+            fn get_scaled_reference_normals(&self) -> &ScaledReferenceNormals<G, P>
+            {
+                &self.scaled_reference_normals
+            }
+        }
+        impl<'a, C> ElasticCompositeElement<'a, C, G, M, N, O, P, Q> for $element<C>
+        where
+            C: Elastic<'a>
+        {}
+        impl<'a, C> HyperelasticFiniteElement<'a, C, G, N> for $element<C>
+        where
+            C: Hyperelastic<'a>
+        {
+            fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
+            {
+                self.calculate_helmholtz_free_energy_composite_element(nodal_coordinates)
+            }
+        }
+        impl<'a, C> HyperelasticCompositeElement<'a, C, G, M, N, O, P, Q> for $element<C>
+        where
+            C: Hyperelastic<'a>
+        {}
         impl<'a, C> ViscoelasticCompositeElement<'a, C, G, M, N, O, P, Q> for $element<C>
         where
             C: Viscoelastic<'a>
@@ -568,4 +600,134 @@ macro_rules! composite_surface_element_boilerplate
         {}
     }
 }
-pub(crate) use composite_surface_element_boilerplate;
+pub(crate) use composite_surface_or_localization_element_boilerplate;
+
+macro_rules! composite_surface_element_boilerplate_inner
+{
+    () =>
+    {
+        fn calculate_inverse_normalized_projection_matrix() -> NormalizedProjectionMatrix<Q>
+        {
+            let diag: Scalar = 3.0/64.0;
+            let off: Scalar = -1.0/64.0;
+            NormalizedProjectionMatrix::new([
+                [diag,  off,  off],
+                [ off, diag,  off],
+                [ off,  off, diag]
+            ])
+        }
+        fn calculate_reference_jacobians(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> Scalars<P>
+        {
+            Self::calculate_bases(reference_nodal_coordinates).iter()
+            .map(|reference_basis_vectors|
+                reference_basis_vectors[0].cross(&reference_basis_vectors[1]).norm()
+            ).collect()
+        }
+        fn calculate_shape_function_integrals() -> ShapeFunctionIntegrals<P, Q>
+        {
+            ShapeFunctionIntegrals::new([
+                [32.0,  8.0,  8.0],
+                [ 8.0, 32.0,  8.0],
+                [ 8.0,  8.0, 32.0],
+                [16.0, 16.0, 16.0]
+            ])
+        }
+        fn calculate_shape_function_integrals_products() -> ShapeFunctionIntegralsProducts<P, Q>
+        {
+            ShapeFunctionIntegralsProducts::new([[
+                [22.0,  5.0,  5.0],
+                [ 5.0,  2.0,  1.0],
+                [ 5.0,  1.0,  2.0]
+            ], [
+                [ 2.0,  5.0,  1.0],
+                [ 5.0, 22.0,  5.0],
+                [ 1.0,  5.0,  2.0]
+            ], [
+                [ 2.0,  1.0,  5.0],
+                [ 1.0,  2.0,  5.0],
+                [ 5.0,  5.0, 22.0]
+            ], [
+                [ 6.0,  5.0,  5.0],
+                [ 5.0,  6.0,  5.0],
+                [ 5.0,  5.0,  6.0]
+            ]])
+        }
+        fn calculate_shape_functions_at_integration_points() -> ShapeFunctionsAtIntegrationPoints<G, Q>
+        {
+            let diag: Scalar = 0.666_666_666_666_666_6;
+            let off: Scalar = 0.166_666_666_666_666_7;
+            ShapeFunctionsAtIntegrationPoints::new([
+                [diag,  off,  off],
+                [ off, diag,  off],
+                [ off,  off, diag]
+            ])
+        }
+        fn calculate_standard_gradient_operators() -> StandardGradientOperators<M, O, P>
+        {
+            StandardGradientOperators::new([[
+                [ 2.0,  0.0],
+                [ 0.0,  0.0],
+                [ 0.0,  0.0],
+                [ 0.0,  2.0],
+                [ 0.0,  0.0],
+                [-2.0, -2.0]
+            ], [
+                [ 0.0,  0.0],
+                [ 0.0,  2.0],
+                [ 0.0,  0.0],
+                [ 2.0,  0.0],
+                [-2.0, -2.0],
+                [ 0.0,  0.0]
+            ], [
+                [ 0.0,  0.0],
+                [ 0.0,  0.0],
+                [-2.0, -2.0],
+                [ 0.0,  0.0],
+                [ 0.0,  2.0],
+                [ 2.0,  0.0]
+            ], [
+                [ 0.0,  0.0],
+                [ 0.0,  0.0],
+                [ 0.0,  0.0],
+                [ 2.0,  2.0],
+                [-2.0,  0.0],
+                [ 0.0, -2.0]
+            ]])
+        }
+        fn calculate_standard_gradient_operators_transposed() -> StandardGradientOperatorsTransposed<M, O, P>
+        {
+            let standard_gradient_operators = Self::calculate_standard_gradient_operators();
+            let mut standard_gradient_operators_transposed = StandardGradientOperatorsTransposed::zero();
+            standard_gradient_operators_transposed.iter_mut().enumerate()
+            .for_each(|(n, standard_gradient_operators_transposed_n)|
+                standard_gradient_operators_transposed_n.iter_mut()
+                .zip(standard_gradient_operators.iter())
+                .for_each(|(standard_gradient_operators_transposed_n_e, standard_gradient_operators_e)|
+                    standard_gradient_operators_transposed_n_e.iter_mut()
+                    .zip(standard_gradient_operators_e[n].iter())
+                    .for_each(|(standard_gradient_operators_transposed_n_e_i, standard_gradient_operators_e_n_i)|
+                        *standard_gradient_operators_transposed_n_e_i = *standard_gradient_operators_e_n_i
+                    )
+                )
+            );
+            standard_gradient_operators_transposed
+        }
+        fn get_constitutive_models(&self) -> &[C; G]
+        {
+            &self.constitutive_models
+        }
+        fn get_integration_weight() -> Scalar
+        {
+            INTEGRATION_WEIGHT
+        }
+        fn get_projected_gradient_vectors(&self) -> &ProjectedGradientVectors<G, N>
+        {
+            &self.projected_gradient_vectors
+        }
+        fn get_scaled_composite_jacobians(&self) -> &Scalars<G>
+        {
+            &self.scaled_composite_jacobians
+        }
+    }
+}
+pub(crate) use composite_surface_element_boilerplate_inner;

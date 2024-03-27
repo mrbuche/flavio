@@ -49,57 +49,29 @@ where
         let reference_nodal_coordinates_midplane = Self::calculate_midplane(reference_nodal_coordinates);
         let reference_dual_basis_vectors = Self::calculate_dual_basis(&reference_nodal_coordinates_midplane);
         let reference_normal = Self::calculate_reference_normal(&reference_nodal_coordinates_midplane);
-        let gradient_vectors_midplane = Self::calculate_standard_gradient_operator().iter()
+        let gradient_vectors_midplane =
+        Self::calculate_standard_gradient_operator().iter()
         .map(|standard_gradient_operator_a|
             standard_gradient_operator_a.iter()
             .zip(reference_dual_basis_vectors.iter())
             .map(|(standard_gradient_operator_a_m, dual_reference_basis_vector_m)|
-                dual_reference_basis_vector_m*standard_gradient_operator_a_m
+                dual_reference_basis_vector_m * standard_gradient_operator_a_m
             ).sum()
         ).collect::<GradientVectors<O>>();
         let mut gradient_vectors = GradientVectors::zero();
-        gradient_vectors.iter_mut().take(O)
-        .zip(gradient_vectors_midplane.iter())
-        .for_each(|(gradient_vector_a, gradient_vector_midplane_a)|
-            *gradient_vector_a = gradient_vector_midplane_a * 0.5 - &reference_normal / 3.0
-        );
         gradient_vectors.iter_mut().skip(O)
         .zip(gradient_vectors_midplane.iter())
         .for_each(|(gradient_vector_a, gradient_vector_midplane_a)|
             *gradient_vector_a = gradient_vector_midplane_a * 0.5 + &reference_normal / 3.0
         );
+        gradient_vectors.iter_mut().take(O)
+        .zip(gradient_vectors_midplane.iter())
+        .for_each(|(gradient_vector_a, gradient_vector_midplane_a)|
+            *gradient_vector_a = gradient_vector_midplane_a * 0.5 - &reference_normal / 3.0
+        );
         gradient_vectors
     }
-    fn calculate_standard_gradient_operator() -> StandardGradientOperator<M, O>
-    {
-        StandardGradientOperator::new([
-            [-1.0, -1.0],
-            [ 1.0,  0.0],
-            [ 0.0,  1.0]
-        ])
-    }
-    fn get_constitutive_model(&self) -> &C
-    {
-        &self.constitutive_model
-    }
-    fn get_gradient_vectors(&self) -> &GradientVectors<N>
-    {
-        &self.gradient_vectors
-    }
-    fn get_integration_weight(&self) -> &Scalar
-    {
-        &INTEGRATION_WEIGHT
-    }
-}
-
-impl<'a, C> LinearSurfaceElement<'a, C, G, M, N, O> for Wedge<C>
-where
-    C: Constitutive<'a>
-{
-    fn get_reference_normal(&self) -> &ReferenceNormal
-    {
-        &self.reference_normal
-    }
+    linear_surface_element_boilerplate_inner!{}
 }
 
 impl<'a, C> LinearLocalizationElement<'a, C, G, M, N, O> for Wedge<C>
@@ -135,7 +107,8 @@ where
         );
         let traction = (&first_piola_kirchoff_stress * self.get_reference_normal()) * 0.5;
         self.get_gradient_vectors().iter()
-        .zip(normal_gradients.iter().chain(normal_gradients.iter()))
+        .zip(normal_gradients.iter()
+        .chain(normal_gradients.iter()))
         .map(|(gradient_vector_a, normal_gradient_a)|
             (&first_piola_kirchoff_stress * gradient_vector_a + normal_gradient_a * &traction) * self.get_integration_weight()
         ).collect()
@@ -153,10 +126,12 @@ where
         let reference_normal = self.get_reference_normal() * 0.5;
         let traction = (first_piola_kirchoff_stress * &reference_normal) * 0.5;
         gradient_vectors.iter()
-        .zip(normal_gradients.iter().chain(normal_gradients.iter()))
+        .zip(normal_gradients.iter()
+        .chain(normal_gradients.iter()))
         .map(|(gradient_vector_a, normal_gradient_a)|
             gradient_vectors.iter()
-            .zip(normal_gradients.iter().chain(normal_gradients.iter()))
+            .zip(normal_gradients.iter()
+            .chain(normal_gradients.iter()))
             .map(|(gradient_vector_b, normal_gradient_b)|
                 identity.iter()
                 .zip(normal_gradient_a.iter())
@@ -193,9 +168,11 @@ where
                 ).collect()
             ).collect()
         ).collect::<NodalStiffnesses<N>>() +
-        normal_tangents.iter().chain(normal_tangents.iter())
+        normal_tangents.iter()
+        .chain(normal_tangents.iter())
         .map(|normal_tangent_a|
-            normal_tangent_a.iter().chain(normal_tangent_a.iter())
+            normal_tangent_a.iter()
+            .chain(normal_tangent_a.iter())
             .map(|normal_tangent_ab|
                 normal_tangent_ab.iter()
                 .map(|normal_tangent_ab_m|
@@ -225,7 +202,8 @@ where
         );
         let traction = (&first_piola_kirchoff_stress * self.get_reference_normal()) * 0.5;
         self.get_gradient_vectors().iter()
-        .zip(normal_gradients.iter().chain(normal_gradients.iter()))
+        .zip(normal_gradients.iter()
+        .chain(normal_gradients.iter()))
         .map(|(gradient_vector_a, normal_gradient_a)|
             (&first_piola_kirchoff_stress * gradient_vector_a + normal_gradient_a * &traction) * self.get_integration_weight()
         ).collect()
@@ -244,10 +222,12 @@ where
         );
         let reference_normal = self.get_reference_normal() * 0.5;
         gradient_vectors.iter()
-        .zip(normal_gradients.iter().chain(normal_gradients.iter()))
+        .zip(normal_gradients.iter()
+        .chain(normal_gradients.iter()))
         .map(|(gradient_vector_a, normal_gradient_a)|
             gradient_vectors.iter()
-            .zip(normal_gradients.iter().chain(normal_gradients.iter()))
+            .zip(normal_gradients.iter()
+            .chain(normal_gradients.iter()))
             .map(|(gradient_vector_b, normal_gradient_b)|
                 identity.iter()
                 .zip(normal_gradient_a.iter())
@@ -283,8 +263,8 @@ where
                     ).collect()
                 ).collect()
             ).collect()
-        ).collect::<NodalStiffnesses<N>>()
+        ).collect()
     }
 }
 
-super::linear_localization_element_boilerplate!(Triangle);
+super::linear_surface_or_localization_element_boilerplate!(Wedge);
