@@ -234,7 +234,7 @@ where
             ).collect()
         }).collect()
     }
-    fn calculate_objects(&self, normal_gradients: &NormalGradientss<P, O>) -> TensorRank3List2D<3, 1, 1, 0, N, G>
+    fn calculate_objects(&self, normal_gradients: &NormalGradientss<P, O>) -> TensorRank3List2D<3, 1, 1, 0, O, G>
     {
         self.get_scaled_reference_normals().iter()
         .map(|scaled_reference_normals|
@@ -247,8 +247,8 @@ where
                     .map(|normal_gradient_a_m|
                         TensorRank2::dyad(normal_gradient_a_m, scaled_reference_normal)
                     ).collect::<TensorRank3<3, 1, 1, 0>>()
-                ).collect::<TensorRank3List<3, 1, 1, 0, N>>()
-            ).sum::<TensorRank3List<3, 1, 1, 0, N>>()
+                ).collect::<TensorRank3List<3, 1, 1, 0, O>>()
+            ).sum::<TensorRank3List<3, 1, 1, 0, O>>()
         ).collect()
     }
     fn calculate_projected_gradient_vectors_composite_surface_element(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ProjectedGradientVectors<G, N>

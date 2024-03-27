@@ -154,3 +154,79 @@ fn temporary_3()
         )
     )
 }
+
+fn get_finite_difference_of_helmholtz_free_energy_planar() -> NodalForces<N>
+{
+    let element = get_element();
+    let mut finite_difference = 0.0;
+    (0..N).map(|node|
+        (0..3).map(|i|{
+            let mut nodal_coordinates = get_coordinates_from_deformation_gradient_planar();
+            nodal_coordinates[node][i] += 0.5 * crate::EPSILON;
+            finite_difference = element.calculate_helmholtz_free_energy(
+                &nodal_coordinates
+            );
+            nodal_coordinates[node][i] -= crate::EPSILON;
+            finite_difference -= element.calculate_helmholtz_free_energy(
+                &nodal_coordinates
+            );
+            finite_difference/crate::EPSILON
+        }).collect()
+    ).collect()
+}
+
+#[test]
+fn temporary_4()
+{
+    get_element().calculate_nodal_forces(
+        &get_coordinates_from_deformation_gradient_planar()
+    ).iter()
+    .zip(get_finite_difference_of_helmholtz_free_energy_planar().iter())
+    .for_each(|(nodal_force, fd_nodal_force)|
+        nodal_force.iter()
+        .zip(fd_nodal_force.iter())
+        .for_each(|(nodal_force_i, fd_nodal_force_i)|
+            assert!(
+                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < crate::EPSILON
+            )
+        )
+    )
+}
+
+fn get_finite_difference_of_helmholtz_free_energy_both() -> NodalForces<N>
+{
+    let element = get_element();
+    let mut finite_difference = 0.0;
+    (0..N).map(|node|
+        (0..3).map(|i|{
+            let mut nodal_coordinates = get_coordinates_from_deformation_gradient_both();
+            nodal_coordinates[node][i] += 0.5 * crate::EPSILON;
+            finite_difference = element.calculate_helmholtz_free_energy(
+                &nodal_coordinates
+            );
+            nodal_coordinates[node][i] -= crate::EPSILON;
+            finite_difference -= element.calculate_helmholtz_free_energy(
+                &nodal_coordinates
+            );
+            finite_difference/crate::EPSILON
+        }).collect()
+    ).collect()
+}
+
+#[test]
+fn temporary_5()
+{
+    get_element().calculate_nodal_forces(
+        &get_coordinates_from_deformation_gradient_both()
+    ).iter()
+    .zip(get_finite_difference_of_helmholtz_free_energy_both().iter())
+    .for_each(|(nodal_force, fd_nodal_force)|
+        nodal_force.iter()
+        .zip(fd_nodal_force.iter())
+        .for_each(|(nodal_force_i, fd_nodal_force_i)|
+            assert!(
+                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < crate::EPSILON
+            )
+        )
+    )
+}

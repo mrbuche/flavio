@@ -183,11 +183,57 @@ where
 {
     fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
     {
-        todo!("Factors of 1/2 and stuff that are not present in surface implementation.")
+        let identity = TensorRank2::<3, 1, 1>::identity();
+        let normal_gradients = Self::calculate_normal_gradients(
+            &Self::calculate_midplane(nodal_coordinates)
+        );
+        let objects = self.calculate_objects(&normal_gradients);
+        self.get_constitutive_models().iter()
+        .zip(self.calculate_deformation_gradients(nodal_coordinates).iter())
+        .map(|(constitutive_model, deformation_gradient)|
+            constitutive_model.calculate_first_piola_kirchoff_stress(deformation_gradient)
+        ).collect::<FirstPiolaKirchoffStresses<G>>().iter()
+        .zip(self.get_projected_gradient_vectors().iter()
+        .zip(self.get_scaled_composite_jacobians().iter()
+        .zip(objects.iter())))
+        .map(|(first_piola_kirchoff_stress, (projected_gradient_vectors, (scaled_composite_jacobian, objects)))|
+            projected_gradient_vectors.iter()
+            .zip(objects.iter().take(3)
+            .chain(objects.iter().take(3))
+            .chain(objects.iter().skip(3).take(3))
+            .chain(objects.iter().skip(3).take(3))
+            )
+            .map(|(projected_gradient_vector, object)|
+                identity.iter()
+                .zip(object.iter())
+                .map(|(identity_m, object_m)|
+                    first_piola_kirchoff_stress.iter()
+                    .zip(identity_m.iter()
+                    .zip(object_m.iter()))
+                    .map(|(first_piola_kirchoff_stress_i, (identity_mi, object_mi))|
+                        first_piola_kirchoff_stress_i.iter()
+                        .zip(projected_gradient_vector.iter()
+                        .zip(object_mi.iter()))
+                        .map(|(first_piola_kirchoff_stress_ij, (projected_gradient_vector_j, object_mij))|
+                            first_piola_kirchoff_stress_ij * (
+                                identity_mi * projected_gradient_vector_j + object_mij * 0.5
+                            ) * scaled_composite_jacobian
+                        ).sum::<Scalar>()
+                    ).sum::<Scalar>()
+                ).collect()
+            ).collect()
+        ).sum()
+        // todo!("Factors of 1/2 and stuff that are not present in surface implementation.
+        //        Remember why? It's from the normal gradients on the midplane.
+        //        So maybe multiply the object by 0.5 in the loop.
+        //        And don't forget to chain the normal gradients, since you calculate them on the midplane!
+        //        And make sure those chains are consistent with projected gradients vectors chains.")
+        //
+        // need to chain objects<O> consistent with node list and projected gradient vectors
     }
     fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
     {
-        todo!()
+        todo!("Factors of 1/2 and stuff that are not present in surface implementation.")
     }
 }
 impl<'a, C> ViscoelasticFiniteElement<'a, C, G, N> for Wedge<C>
@@ -196,11 +242,11 @@ where
 {
     fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalForces<N>
     {
-        todo!()
+        todo!("Factors of 1/2 and stuff that are not present in surface implementation.")
     }
     fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalStiffnesses<N>
     {
-        todo!()
+        todo!("Factors of 1/2 and stuff that are not present in surface implementation.")
     }
 }
 

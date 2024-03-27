@@ -107,7 +107,8 @@ where
         );
         let traction = (&first_piola_kirchoff_stress * self.get_reference_normal()) * 0.5;
         self.get_gradient_vectors().iter()
-        .zip(normal_gradients.iter().chain(normal_gradients.iter()))
+        .zip(normal_gradients.iter()
+        .chain(normal_gradients.iter()))
         .map(|(gradient_vector_a, normal_gradient_a)|
             (&first_piola_kirchoff_stress * gradient_vector_a + normal_gradient_a * &traction) * self.get_integration_weight()
         ).collect()
@@ -125,10 +126,12 @@ where
         let reference_normal = self.get_reference_normal() * 0.5;
         let traction = (first_piola_kirchoff_stress * &reference_normal) * 0.5;
         gradient_vectors.iter()
-        .zip(normal_gradients.iter().chain(normal_gradients.iter()))
+        .zip(normal_gradients.iter()
+        .chain(normal_gradients.iter()))
         .map(|(gradient_vector_a, normal_gradient_a)|
             gradient_vectors.iter()
-            .zip(normal_gradients.iter().chain(normal_gradients.iter()))
+            .zip(normal_gradients.iter()
+            .chain(normal_gradients.iter()))
             .map(|(gradient_vector_b, normal_gradient_b)|
                 identity.iter()
                 .zip(normal_gradient_a.iter())
@@ -165,9 +168,11 @@ where
                 ).collect()
             ).collect()
         ).collect::<NodalStiffnesses<N>>() +
-        normal_tangents.iter().chain(normal_tangents.iter())
+        normal_tangents.iter()
+        .chain(normal_tangents.iter())
         .map(|normal_tangent_a|
-            normal_tangent_a.iter().chain(normal_tangent_a.iter())
+            normal_tangent_a.iter()
+            .chain(normal_tangent_a.iter())
             .map(|normal_tangent_ab|
                 normal_tangent_ab.iter()
                 .map(|normal_tangent_ab_m|
@@ -197,7 +202,8 @@ where
         );
         let traction = (&first_piola_kirchoff_stress * self.get_reference_normal()) * 0.5;
         self.get_gradient_vectors().iter()
-        .zip(normal_gradients.iter().chain(normal_gradients.iter()))
+        .zip(normal_gradients.iter()
+        .chain(normal_gradients.iter()))
         .map(|(gradient_vector_a, normal_gradient_a)|
             (&first_piola_kirchoff_stress * gradient_vector_a + normal_gradient_a * &traction) * self.get_integration_weight()
         ).collect()
@@ -216,10 +222,12 @@ where
         );
         let reference_normal = self.get_reference_normal() * 0.5;
         gradient_vectors.iter()
-        .zip(normal_gradients.iter().chain(normal_gradients.iter()))
+        .zip(normal_gradients.iter()
+        .chain(normal_gradients.iter()))
         .map(|(gradient_vector_a, normal_gradient_a)|
             gradient_vectors.iter()
-            .zip(normal_gradients.iter().chain(normal_gradients.iter()))
+            .zip(normal_gradients.iter()
+            .chain(normal_gradients.iter()))
             .map(|(gradient_vector_b, normal_gradient_b)|
                 identity.iter()
                 .zip(normal_gradient_a.iter())
