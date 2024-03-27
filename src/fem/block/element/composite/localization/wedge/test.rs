@@ -252,7 +252,7 @@ fn get_finite_difference_of_helmholtz_free_energy_distorted() -> NodalForces<N>
             finite_difference -= element.calculate_helmholtz_free_energy(
                 &nodal_coordinates
             );
-            finite_difference/crate::EPSILON
+            finite_difference / crate::EPSILON
         }).collect()
     ).collect()
 }
@@ -270,6 +270,57 @@ fn temporary_5()
         .for_each(|(nodal_force_i, fd_nodal_force_i)|
             assert!(
                 (nodal_force_i/fd_nodal_force_i - 1.0).abs() < crate::EPSILON
+            )
+        )
+    )
+}
+
+fn get_finite_difference_of_nodal_forces_distorted() -> NodalStiffnesses<N>
+{
+    let element = get_element_distorted();
+    let mut finite_difference = 0.0;
+    (0..N).map(|a|
+        (0..N).map(|b|
+            (0..3).map(|i|
+                (0..3).map(|j|{
+                    let mut nodal_coordinates = get_coordinates_distorted();
+                    nodal_coordinates[b][j] += 0.5 * crate::EPSILON;
+                    finite_difference = element.calculate_nodal_forces(
+                        &nodal_coordinates
+                    )[a][i];
+                    nodal_coordinates[b][j] -= crate::EPSILON;
+                    finite_difference -= element.calculate_nodal_forces(
+                        &nodal_coordinates
+                    )[a][i];
+                    finite_difference / crate::EPSILON
+                }).collect()
+            ).collect()
+        ).collect()
+    ).collect()
+}
+
+#[test]
+fn temporary_6()
+{
+    get_element_distorted().calculate_nodal_stiffnesses(
+        &get_coordinates_distorted()
+    ).iter()
+    .zip(get_finite_difference_of_nodal_forces_distorted().iter())
+    .for_each(|(nodal_stiffness_a, fd_nodal_stiffness_a)|
+        nodal_stiffness_a.iter()
+        .zip(fd_nodal_stiffness_a.iter())
+        .for_each(|(nodal_stiffness_ab, fd_nodal_stiffness_ab)|
+            nodal_stiffness_ab.iter()
+            .zip(fd_nodal_stiffness_ab.iter())
+            .for_each(|(nodal_stiffness_ab_i, fd_nodal_stiffness_ab_i)|
+                nodal_stiffness_ab_i.iter()
+                .zip(fd_nodal_stiffness_ab_i.iter())
+                .for_each(|(nodal_stiffness_ab_ij, fd_nodal_stiffness_ab_ij)|
+                    assert!(
+                        (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < crate::EPSILON ||
+                        (nodal_stiffness_ab_ij - fd_nodal_stiffness_ab_ij).abs() < crate::EPSILON / 10.0
+                    )
+                )
             )
         )
     )
