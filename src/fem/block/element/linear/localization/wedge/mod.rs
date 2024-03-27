@@ -263,7 +263,7 @@ where
                     ).collect()
                 ).collect()
             ).collect()
-        ).collect::<NodalStiffnesses<N>>()
+        ).collect()
     }
 }
 

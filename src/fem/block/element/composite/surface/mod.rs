@@ -525,7 +525,7 @@ macro_rules! composite_surface_element_boilerplate
                                 ).collect()
                             ).collect()
                         ).collect()
-                    ).collect::<NodalStiffnesses<N>>()
+                    ).collect()
                 ).sum()
             }
         }
