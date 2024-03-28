@@ -254,8 +254,8 @@ where
     fn calculate_projected_gradient_vectors_composite_surface_element(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ProjectedGradientVectors<G, N>
     {
         let reference_dual_bases = Self::calculate_dual_bases(reference_nodal_coordinates);
-        let reference_jacobians = Self::calculate_reference_jacobians(reference_nodal_coordinates);
-        let inverse_projection_matrix = Self::calculate_inverse_projection_matrix(&reference_jacobians);
+        let reference_jacobians_subelements = Self::calculate_reference_jacobians_subelements(reference_nodal_coordinates);
+        let inverse_projection_matrix = Self::calculate_inverse_projection_matrix(&reference_jacobians_subelements);
         Self::calculate_shape_functions_at_integration_points().iter()
         .map(|shape_functions_at_integration_point|
             Self::calculate_standard_gradient_operators_transposed().iter()
@@ -263,13 +263,13 @@ where
                 Self::calculate_shape_function_integrals().iter()
                 .zip(standard_gradient_operators_a.iter()
                 .zip(reference_dual_bases.iter()
-                .zip(reference_jacobians.iter())))
-                .map(|(shape_function_integral, (standard_gradient_operator, (reference_dual_basis_vectors, reference_jacobian)))|
+                .zip(reference_jacobians_subelements.iter())))
+                .map(|(shape_function_integral, (standard_gradient_operator, (reference_dual_basis_vectors, reference_jacobian_subelement)))|
                     reference_dual_basis_vectors.iter()
                     .zip(standard_gradient_operator.iter())
                     .map(|(reference_dual_basis_vector, standard_gradient_operator_mu)|
                         reference_dual_basis_vector * standard_gradient_operator_mu
-                    ).sum::<Vector<0>>() * reference_jacobian * (
+                    ).sum::<Vector<0>>() * reference_jacobian_subelement * (
                         shape_functions_at_integration_point * (&inverse_projection_matrix * shape_function_integral)
                     )
                 ).sum()
@@ -285,17 +285,17 @@ where
     }
     fn calculate_scaled_reference_normals(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ScaledReferenceNormals<G, P>
     {
-        let reference_jacobians = Self::calculate_reference_jacobians(reference_nodal_coordinates);
-        let inverse_projection_matrix = Self::calculate_inverse_projection_matrix(&reference_jacobians);
+        let reference_jacobians_subelements = Self::calculate_reference_jacobians_subelements(reference_nodal_coordinates);
+        let inverse_projection_matrix = Self::calculate_inverse_projection_matrix(&reference_jacobians_subelements);
         let reference_normals = Self::calculate_reference_normals(reference_nodal_coordinates);
         let shape_function_integrals = Self::calculate_shape_function_integrals();
         Self::calculate_shape_functions_at_integration_points().iter()
         .map(|shape_function|
             reference_normals.iter()
             .zip(shape_function_integrals.iter()
-            .zip(reference_jacobians.iter()))
-            .map(|(reference_normal, (shape_function_integral, reference_jacobian))|
-                reference_normal * ((shape_function * (&inverse_projection_matrix * shape_function_integral)) * reference_jacobian)
+            .zip(reference_jacobians_subelements.iter()))
+            .map(|(reference_normal, (shape_function_integral, reference_jacobian_subelement))|
+                reference_normal * ((shape_function * (&inverse_projection_matrix * shape_function_integral)) * reference_jacobian_subelement)
             ).collect()
         ).collect()
     }
@@ -319,7 +319,7 @@ macro_rules! composite_surface_element_boilerplate
                     constitutive_model.calculate_first_piola_kirchoff_stress(deformation_gradient)
                 ).collect::<FirstPiolaKirchoffStresses<G>>().iter()
                 .zip(self.get_projected_gradient_vectors().iter()
-                .zip(self.get_scaled_composite_jacobians().iter()
+                .zip(self.get_integration_weights().iter()
                 .zip(self.calculate_objects(&Self::calculate_normal_gradients(nodal_coordinates)).iter())))
                 .map(|(first_piola_kirchoff_stress, (projected_gradient_vectors, (scaled_composite_jacobian, objects)))|
                     projected_gradient_vectors.iter()
@@ -363,7 +363,7 @@ macro_rules! composite_surface_element_boilerplate
                     constitutive_model.calculate_first_piola_kirchoff_tangent_stiffness(&deformation_gradient)
                 ).collect::<FirstPiolaKirchoffTangentStiffnesses<G>>().iter()
                 .zip(self.get_projected_gradient_vectors().iter()
-                .zip(self.get_scaled_composite_jacobians().iter()
+                .zip(self.get_integration_weights().iter()
                 .zip(self.get_scaled_reference_normals().iter()
                 .zip(objectss.iter())))))
                 .map(|(first_piola_kirchoff_stress, (first_piola_kirchoff_tangent_stiffness, (projected_gradient_vectors, (scaled_composite_jacobian, (scaled_reference_normals, objects)))))|
@@ -444,7 +444,7 @@ macro_rules! composite_surface_element_boilerplate
                     constitutive_model.calculate_first_piola_kirchoff_stress(deformation_gradient, deformation_gradient_rate)
                 ).collect::<FirstPiolaKirchoffStresses<G>>().iter()
                 .zip(self.get_projected_gradient_vectors().iter()
-                .zip(self.get_scaled_composite_jacobians().iter()
+                .zip(self.get_integration_weights().iter()
                 .zip(self.calculate_objects(&normal_gradients).iter())))
                 .map(|(first_piola_kirchoff_stress, (projected_gradient_vectors, (scaled_composite_jacobian, objects)))|
                     projected_gradient_vectors.iter()
@@ -482,7 +482,7 @@ macro_rules! composite_surface_element_boilerplate
                     constitutive_model.calculate_first_piola_kirchoff_rate_tangent_stiffness(deformation_gradient, deformation_gradient_rate)
                 ).collect::<FirstPiolaKirchoffRateTangentStiffnesses<G>>().iter()
                 .zip(self.get_projected_gradient_vectors().iter()
-                .zip(self.get_scaled_composite_jacobians().iter()
+                .zip(self.get_integration_weights().iter()
                 .zip(objectss.iter())))
                 .map(|(first_piola_kirchoff_rate_tangent_stiffness, (projected_gradient_vectors, (scaled_composite_jacobian, objects)))|
                     projected_gradient_vectors.iter()
@@ -616,7 +616,7 @@ macro_rules! composite_surface_element_boilerplate_inner
                 [ off,  off, diag]
             ])
         }
-        fn calculate_reference_jacobians(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> Scalars<P>
+        fn calculate_reference_jacobians_subelements(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> Scalars<P>
         {
             Self::calculate_bases(reference_nodal_coordinates).iter()
             .map(|reference_basis_vectors|
@@ -716,17 +716,13 @@ macro_rules! composite_surface_element_boilerplate_inner
         {
             &self.constitutive_models
         }
-        fn get_integration_weight() -> Scalar
+        fn get_integration_weights(&self) -> &Scalars<G>
         {
-            INTEGRATION_WEIGHT
+            &self.integration_weights
         }
         fn get_projected_gradient_vectors(&self) -> &ProjectedGradientVectors<G, N>
         {
             &self.projected_gradient_vectors
-        }
-        fn get_scaled_composite_jacobians(&self) -> &Scalars<G>
-        {
-            &self.scaled_composite_jacobians
         }
     }
 }

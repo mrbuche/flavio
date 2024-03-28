@@ -13,7 +13,8 @@ const INTEGRATION_WEIGHT: Scalar = 1.0/6.0;
 pub struct Tetrahedron<C>
 {
     constitutive_model: C,
-    gradient_vectors: GradientVectors<N>
+    gradient_vectors: GradientVectors<N>,
+    integration_weight: Scalar
 }
 
 impl<'a, C> FiniteElement<'a, C, G, N> for Tetrahedron<C>
@@ -25,7 +26,8 @@ where
         Self
         {
             constitutive_model: <C>::new(constitutive_model_parameters),
-            gradient_vectors: Self::calculate_gradient_vectors(&reference_nodal_coordinates)
+            gradient_vectors: Self::calculate_gradient_vectors(&reference_nodal_coordinates),
+            integration_weight: Self::calculate_reference_jacobian(&reference_nodal_coordinates) * INTEGRATION_WEIGHT
         }
     }
 }
@@ -34,10 +36,14 @@ impl<'a, C> LinearElement<'a, C, G, M, N, O> for Tetrahedron<C>
 where
     C: Constitutive<'a>
 {
-    fn calculate_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> GradientVectors<N>
+    fn calculate_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> GradientVectors<N>
     {
         let standard_gradient_operator = Self::calculate_standard_gradient_operator();
         (reference_nodal_coordinates * &standard_gradient_operator).inverse_transpose() * standard_gradient_operator
+    }
+    fn calculate_reference_jacobian(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> Scalar
+    {
+        (reference_nodal_coordinates * Self::calculate_standard_gradient_operator()).determinant()
     }
     fn calculate_standard_gradient_operator() -> StandardGradientOperator<M, O>
     {
@@ -58,7 +64,7 @@ where
     }
     fn get_integration_weight(&self) -> &Scalar
     {
-        &INTEGRATION_WEIGHT
+        &self.integration_weight
     }
 }
 

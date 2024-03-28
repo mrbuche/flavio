@@ -5,7 +5,8 @@ use std::ops::
 {
     Index,
     IndexMut,
-    Mul
+    Mul,
+    MulAssign
 };
 
 use super::
@@ -87,6 +88,68 @@ impl<const W: usize> IndexMut<usize> for TensorRank0List<W>
     fn index_mut(&mut self, index: usize) -> &mut Self::Output
     {
         &mut self.0[index]
+    }
+}
+
+impl<const W: usize> Mul<TensorRank0> for TensorRank0List<W>
+{
+    type Output = Self;
+    fn mul(mut self, tensor_rank_0: TensorRank0) -> Self::Output
+    {
+        self *= tensor_rank_0;
+        self
+    }
+}
+
+impl<const W: usize> Mul<TensorRank0> for &TensorRank0List<W>
+{
+    type Output = TensorRank0List<W>;
+    fn mul(self, tensor_rank_0: TensorRank0) -> Self::Output
+    {
+        self.iter().map(|self_i|
+            self_i * tensor_rank_0
+        ).collect()
+    }
+}
+
+impl<const W: usize> Mul<&TensorRank0> for TensorRank0List<W>
+{
+    type Output = Self;
+    fn mul(mut self, tensor_rank_0: &TensorRank0) -> Self::Output
+    {
+        self *= tensor_rank_0;
+        self
+    }
+}
+
+impl<const W: usize> Mul<&TensorRank0> for &TensorRank0List<W>
+{
+    type Output = TensorRank0List<W>;
+    fn mul(self, tensor_rank_0: &TensorRank0) -> Self::Output
+    {
+        self.iter().map(|self_i|
+            self_i * tensor_rank_0
+        ).collect()
+    }
+}
+
+impl<const W: usize> MulAssign<TensorRank0> for TensorRank0List<W>
+{
+    fn mul_assign(&mut self, tensor_rank_0: TensorRank0)
+    {
+        self.iter_mut().for_each(|self_i|
+            *self_i *= &tensor_rank_0
+        );
+    }
+}
+
+impl<const W: usize> MulAssign<&TensorRank0> for TensorRank0List<W>
+{
+    fn mul_assign(&mut self, tensor_rank_0: &TensorRank0)
+    {
+        self.iter_mut().for_each(|self_i|
+            *self_i *= tensor_rank_0
+        );
     }
 }
 

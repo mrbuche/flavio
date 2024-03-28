@@ -15,8 +15,8 @@ const INTEGRATION_WEIGHT: Scalar = 1.0/6.0;
 pub struct Triangle<C>
 {
     constitutive_models: [C; G],
+    integration_weights: Scalars<G>,
     projected_gradient_vectors: ProjectedGradientVectors<G, N>,
-    scaled_composite_jacobians: Scalars<G>,
     scaled_reference_normals: ScaledReferenceNormals<G, P>
 }
 
@@ -29,8 +29,8 @@ where
         Self
         {
             constitutive_models: std::array::from_fn(|_| <C>::new(constitutive_model_parameters)),
+            integration_weights: Self::calculate_reference_jacobians(&reference_nodal_coordinates) * INTEGRATION_WEIGHT,
             projected_gradient_vectors: Self::calculate_projected_gradient_vectors(&reference_nodal_coordinates),
-            scaled_composite_jacobians: Self::calculate_scaled_composite_jacobian_at_integration_points(&reference_nodal_coordinates),
             scaled_reference_normals: Self::calculate_scaled_reference_normals(&reference_nodal_coordinates)
         }
     }
@@ -48,7 +48,7 @@ where
     {
         self.calculate_deformation_gradient_rates_composite_surface_element(nodal_coordinates, nodal_velocities)
     }
-    fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> ProjectedGradientVectors<G, N>
+    fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ProjectedGradientVectors<G, N>
     {
         Self::calculate_projected_gradient_vectors_composite_surface_element(reference_nodal_coordinates)
     }

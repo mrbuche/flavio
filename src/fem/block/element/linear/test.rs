@@ -4,6 +4,7 @@ macro_rules! test_linear_element
     {
         crate::fem::block::element::test::setup_for_elements!($element);
         crate::fem::block::element::linear::test::test_linear_element_inner!($element);
+        crate::fem::block::element::linear::test::test_linear_element_with_constitutive_model_size!($element);
     }
 }
 pub(crate) use test_linear_element;
@@ -24,13 +25,10 @@ macro_rules! test_linear_element_inner
             use super::*;
             mod elastic
             {
-                use crate::
+                use crate::constitutive::solid::elastic::
                 {
-                    constitutive::solid::elastic::
-                    {
-                        AlmansiHamel,
-                        test::ALMANSIHAMELPARAMETERS
-                    }
+                    AlmansiHamel,
+                    test::ALMANSIHAMELPARAMETERS
                 };
                 use super::*;
                 mod almansi_hamel
@@ -41,27 +39,24 @@ macro_rules! test_linear_element_inner
             }
             mod hyperelastic
             {
-                use crate::
+                use crate::constitutive::solid::hyperelastic::
                 {
-                    constitutive::solid::hyperelastic::
+                    ArrudaBoyce,
+                    Fung,
+                    Gent,
+                    MooneyRivlin,
+                    NeoHookean,
+                    SaintVenantKirchoff,
+                    Yeoh,
+                    test::
                     {
-                        ArrudaBoyce,
-                        Fung,
-                        Gent,
-                        MooneyRivlin,
-                        NeoHookean,
-                        SaintVenantKirchoff,
-                        Yeoh,
-                        test::
-                        {
-                            ARRUDABOYCEPARAMETERS,
-                            FUNGPARAMETERS,
-                            GENTPARAMETERS,
-                            MOONEYRIVLINPARAMETERS,
-                            NEOHOOKEANPARAMETERS,
-                            SAINTVENANTKIRCHOFFPARAMETERS,
-                            YEOHPARAMETERS
-                        }
+                        ARRUDABOYCEPARAMETERS,
+                        FUNGPARAMETERS,
+                        GENTPARAMETERS,
+                        MOONEYRIVLINPARAMETERS,
+                        NEOHOOKEANPARAMETERS,
+                        SAINTVENANTKIRCHOFFPARAMETERS,
+                        YEOHPARAMETERS
                     }
                 };
                 use super::*;
@@ -103,13 +98,10 @@ macro_rules! test_linear_element_inner
             }
             mod elastic_hyperviscous
             {
-                use crate::
+                use crate::constitutive::solid::elastic_hyperviscous::
                 {
-                    constitutive::solid::elastic_hyperviscous::
-                    {
-                        AlmansiHamel,
-                        test::ALMANSIHAMELPARAMETERS
-                    }
+                    AlmansiHamel,
+                    test::ALMANSIHAMELPARAMETERS
                 };
                 use super::*;
                 mod almansi_hamel
@@ -120,13 +112,10 @@ macro_rules! test_linear_element_inner
             }
             mod hyperviscoelastic
             {
-                use crate::
+                use crate::constitutive::solid::hyperviscoelastic::
                 {
-                    constitutive::solid::hyperviscoelastic::
-                    {
-                        SaintVenantKirchoff,
-                        test::SAINTVENANTKIRCHOFFPARAMETERS
-                    }
+                    SaintVenantKirchoff,
+                    test::SAINTVENANTKIRCHOFFPARAMETERS
                 };
                 use super::*;
                 mod saint_venant_kirchoff
@@ -139,6 +128,109 @@ macro_rules! test_linear_element_inner
     }
 }
 pub(crate) use test_linear_element_inner;
+
+macro_rules! test_linear_element_with_constitutive_model_size
+{
+    ($element: ident) =>
+    {
+        macro_rules! test_linear_element_with_constitutive_model_size_inner
+        {
+            ($elementt: ident, $constitutive_model: ident) =>
+            {
+                #[test]
+                fn size()
+                {
+                    assert_eq!(
+                        std::mem::size_of::<$elementt::<$constitutive_model>>(),
+                        std::mem::size_of::<$constitutive_model>()
+                        + std::mem::size_of::<GradientVectors<N>>()
+                        + std::mem::size_of::<Scalar>()
+                    )
+                }
+            }
+        }
+        mod elastic
+        {
+            use crate::constitutive::solid::elastic::AlmansiHamel;
+            use super::*;
+            mod almansi_hamel
+            {
+                use super::*;
+                test_linear_element_with_constitutive_model_size_inner!($element, AlmansiHamel);
+            }
+        }
+        mod hyperelastic
+        {
+            use crate::constitutive::solid::hyperelastic::
+            {
+                ArrudaBoyce,
+                Fung,
+                Gent,
+                MooneyRivlin,
+                NeoHookean,
+                SaintVenantKirchoff,
+                Yeoh
+            };
+            use super::*;
+            mod arruda_boyce
+            {
+                use super::*;
+                test_linear_element_with_constitutive_model_size_inner!($element, ArrudaBoyce);
+            }
+            mod fung
+            {
+                use super::*;
+                test_linear_element_with_constitutive_model_size_inner!($element, Fung);
+            }
+            mod gent
+            {
+                use super::*;
+                test_linear_element_with_constitutive_model_size_inner!($element, Gent);
+            }
+            mod mooney_rivlin
+            {
+                use super::*;
+                test_linear_element_with_constitutive_model_size_inner!($element, MooneyRivlin);
+            }
+            mod neo_hookean
+            {
+                use super::*;
+                test_linear_element_with_constitutive_model_size_inner!($element, NeoHookean);
+            }
+            mod saint_venant_kirchoff
+            {
+                use super::*;
+                test_linear_element_with_constitutive_model_size_inner!($element, SaintVenantKirchoff);
+            }
+            mod yeoh
+            {
+                use super::*;
+                test_linear_element_with_constitutive_model_size_inner!($element, Yeoh);
+            }
+        }
+        mod elastic_hyperviscous
+        {
+            use crate::constitutive::solid::elastic_hyperviscous::AlmansiHamel;
+            use super::*;
+            mod almansi_hamel
+            {
+                use super::*;
+                test_linear_element_with_constitutive_model_size_inner!($element, AlmansiHamel);
+            }
+        }
+        mod hyperviscoelastic
+        {
+            use crate::constitutive::solid::hyperviscoelastic::SaintVenantKirchoff;
+            use super::*;
+            mod saint_venant_kirchoff
+            {
+                use super::*;
+                test_linear_element_with_constitutive_model_size_inner!($element, SaintVenantKirchoff);
+            }
+        }
+    }
+}
+pub(crate) use test_linear_element_with_constitutive_model_size;
 
 macro_rules! test_linear_element_with_constitutive_model
 {
@@ -329,44 +421,6 @@ macro_rules! test_linear_element_with_constitutive_model
                         )
                     )
                 }
-            }
-        }
-        mod gradient_vectors
-        {
-            use super::*;
-            #[test]
-            fn get<'a>()
-            {
-                $element::<$constitutive_model<'a>>::calculate_gradient_vectors(
-                    &get_reference_coordinates()
-                ).iter().zip((
-                    get_element().get_gradient_vectors()
-                ).iter())
-                .for_each(|(gradient_vector, res_gradient_vector)|
-                    gradient_vector.iter()
-                    .zip(res_gradient_vector.iter())
-                    .for_each(|(gradient_vector_i, res_gradient_vector_i)|
-                        assert_eq_within_tols(gradient_vector_i, res_gradient_vector_i)
-                    )
-                )
-            }
-            #[test]
-            fn objectivity<'a>()
-            {
-                $element::<$constitutive_model<'a>>::calculate_gradient_vectors(
-                    &get_reference_coordinates()
-                ).iter().zip((
-                    get_rotation_reference_configuration().transpose() *
-                    $element::<$constitutive_model<'a>>::calculate_gradient_vectors(
-                        &get_reference_coordinates_transformed()
-                )).iter())
-                .for_each(|(gradient_vector, res_gradient_vector)|
-                    gradient_vector.iter()
-                    .zip(res_gradient_vector.iter())
-                    .for_each(|(gradient_vector_i, res_gradient_vector_i)|
-                        assert_eq_within_tols(gradient_vector_i, res_gradient_vector_i)
-                    )
-                )
             }
         }
         mod standard_gradient_operator

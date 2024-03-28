@@ -192,14 +192,10 @@ macro_rules! setup_for_elements
 {
     ($element: ident) =>
     {
-        use crate::
+        use crate::mechanics::test::
         {
-            constitutive::solid::elastic::AlmansiHamel,
-            mechanics::test::
-            {
-                get_deformation_gradient,
-                get_deformation_gradient_rate
-            }
+            get_deformation_gradient,
+            get_deformation_gradient_rate
         };
         fn get_coordinates() -> NodalCoordinates<N>
         {
@@ -208,15 +204,6 @@ macro_rules! setup_for_elements
         fn get_velocities() -> NodalVelocities<N>
         {
             get_deformation_gradient_rate() * get_reference_coordinates()
-        }
-        #[test]
-        fn size()
-        {
-            assert_eq!(
-                std::mem::size_of::<$element::<AlmansiHamel>>(),
-                std::mem::size_of::<AlmansiHamel>()
-                + std::mem::size_of::<GradientVectors<N>>()
-            )
         }
         crate::fem::block::element::test::setup_for_element_tests_any_element!($element);
     }
@@ -690,6 +677,29 @@ macro_rules! test_helmholtz_free_energy
                         get_helmholtz_free_energy(true, false) > 0.0
                     )
                 }
+                // #[test]
+                // fn scale<'a>()
+                // {
+                //     let scale = 2.3;
+                //     let helmholtz_free_energy =
+                //     $element::<$constitutive_model<'a>>::new(
+                //         $constitutive_model_parameters,
+                //         get_reference_coordinates()
+                //     ).calculate_helmholtz_free_energy(
+                //         &get_coordinates()
+                //     );
+                //     let helmholtz_free_energy_scaled =
+                //     $element::<$constitutive_model<'a>>::new(
+                //         $constitutive_model_parameters,
+                //         get_reference_coordinates() * scale
+                //     ).calculate_helmholtz_free_energy(
+                //         &(get_coordinates() * scale)
+                //     );
+                //     assert_eq_within_tols(
+                //         &(helmholtz_free_energy * scale.powi(EXPONENT)),
+                //         &helmholtz_free_energy_scaled
+                //     )
+                // }
             }
             mod undeformed
             {
@@ -748,7 +758,6 @@ macro_rules! test_helmholtz_free_energy
                 #[test]
                 fn zero()
                 {
-                    println!("{:?}", get_helmholtz_free_energy(false, false));
                     assert_eq_within_tols(
                         &get_helmholtz_free_energy(false, false), &0.0
                     )
