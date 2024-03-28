@@ -677,6 +677,11 @@ macro_rules! test_helmholtz_free_energy
                         get_helmholtz_free_energy(true, false) > 0.0
                     )
                 }
+                #[test]
+                fn todo()
+                {
+                    todo!("scale size, make sure energy scales accordingly")
+                }
             }
             mod undeformed
             {
