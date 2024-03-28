@@ -423,44 +423,6 @@ macro_rules! test_linear_element_with_constitutive_model
                 }
             }
         }
-        // mod gradient_vectors
-        // {
-        //     use super::*;
-        //     #[test]
-        //     fn get<'a>()
-        //     {
-        //         $element::<$constitutive_model<'a>>::calculate_gradient_vectors(
-        //             &get_reference_coordinates()
-        //         ).iter().zip((
-        //             get_element().get_gradient_vectors()
-        //         ).iter())
-        //         .for_each(|(gradient_vector, res_gradient_vector)|
-        //             gradient_vector.iter()
-        //             .zip(res_gradient_vector.iter())
-        //             .for_each(|(gradient_vector_i, res_gradient_vector_i)|
-        //                 assert_eq_within_tols(gradient_vector_i, res_gradient_vector_i)
-        //             )
-        //         )
-        //     }
-        //     #[test]
-        //     fn objectivity<'a>()
-        //     {
-        //         $element::<$constitutive_model<'a>>::calculate_gradient_vectors(
-        //             &get_reference_coordinates()
-        //         ).iter().zip((
-        //             get_rotation_reference_configuration().transpose() *
-        //             $element::<$constitutive_model<'a>>::calculate_gradient_vectors(
-        //                 &get_reference_coordinates_transformed()
-        //         )).iter())
-        //         .for_each(|(gradient_vector, res_gradient_vector)|
-        //             gradient_vector.iter()
-        //             .zip(res_gradient_vector.iter())
-        //             .for_each(|(gradient_vector_i, res_gradient_vector_i)|
-        //                 assert_eq_within_tols(gradient_vector_i, res_gradient_vector_i)
-        //             )
-        //         )
-        //     }
-        // }
         mod standard_gradient_operator
         {
             use super::*;

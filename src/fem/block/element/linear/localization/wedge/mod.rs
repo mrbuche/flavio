@@ -29,7 +29,7 @@ where
         {
             constitutive_model: <C>::new(constitutive_model_parameters),
             gradient_vectors: Self::calculate_gradient_vectors(&reference_nodal_coordinates_midplane),
-            integration_weight: INTEGRATION_WEIGHT * Self::calculate_reference_jacobian(&reference_nodal_coordinates_midplane),
+            integration_weight: Self::calculate_reference_jacobian(&reference_nodal_coordinates_midplane) * INTEGRATION_WEIGHT,
             reference_normal: Self::calculate_reference_normal(&reference_nodal_coordinates_midplane)
         }
     }
@@ -49,8 +49,8 @@ where
     }
     fn calculate_gradient_vectors(reference_nodal_coordinates_midplane: &ReferenceNodalCoordinates<O>) -> GradientVectors<N>
     {
-        let reference_dual_basis_vectors = Self::calculate_dual_basis(&reference_nodal_coordinates_midplane);
-        let reference_normal = Self::calculate_reference_normal(&reference_nodal_coordinates_midplane);
+        let reference_dual_basis_vectors = Self::calculate_dual_basis(reference_nodal_coordinates_midplane);
+        let reference_normal = Self::calculate_reference_normal(reference_nodal_coordinates_midplane);
         let gradient_vectors_midplane =
         Self::calculate_standard_gradient_operator().iter()
         .map(|standard_gradient_operator_a|

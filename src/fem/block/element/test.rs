@@ -677,11 +677,29 @@ macro_rules! test_helmholtz_free_energy
                         get_helmholtz_free_energy(true, false) > 0.0
                     )
                 }
-                #[test]
-                fn todo()
-                {
-                    todo!("scale size, make sure energy scales accordingly")
-                }
+                // #[test]
+                // fn scale<'a>()
+                // {
+                //     let scale = 2.3;
+                //     let helmholtz_free_energy =
+                //     $element::<$constitutive_model<'a>>::new(
+                //         $constitutive_model_parameters,
+                //         get_reference_coordinates()
+                //     ).calculate_helmholtz_free_energy(
+                //         &get_coordinates()
+                //     );
+                //     let helmholtz_free_energy_scaled =
+                //     $element::<$constitutive_model<'a>>::new(
+                //         $constitutive_model_parameters,
+                //         get_reference_coordinates() * scale
+                //     ).calculate_helmholtz_free_energy(
+                //         &(get_coordinates() * scale)
+                //     );
+                //     assert_eq_within_tols(
+                //         &(helmholtz_free_energy * scale.powi(EXPONENT)),
+                //         &helmholtz_free_energy_scaled
+                //     )
+                // }
             }
             mod undeformed
             {
@@ -740,7 +758,6 @@ macro_rules! test_helmholtz_free_energy
                 #[test]
                 fn zero()
                 {
-                    println!("{:?}", get_helmholtz_free_energy(false, false));
                     assert_eq_within_tols(
                         &get_helmholtz_free_energy(false, false), &0.0
                     )

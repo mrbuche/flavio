@@ -382,34 +382,6 @@ macro_rules! test_composite_element_with_constitutive_model
                 }
             }
         }
-        // mod jacobians
-        // {
-        //     use super::*;
-        //     mod undeformed
-        //     {
-        //         use super::*;
-        //         #[test]
-        //         fn reference_jacobians<'a>()
-        //         {
-        //             $element::<$constitutive_model<'a>>::calculate_reference_jacobians(
-        //                 &get_reference_coordinates()
-        //             ).iter()
-        //             .for_each(|reference_jacobian|
-        //                 assert_eq!(reference_jacobian, &1.0)
-        //             )
-        //         }
-        //         #[test]
-        //         fn scaled_composite_jacobians<'a>()
-        //         {
-        //             $element::<$constitutive_model<'a>>::calculate_scaled_composite_jacobian_at_integration_points(
-        //                 &get_reference_coordinates()
-        //             ).iter()
-        //             .for_each(|scaled_composite_jacobian|
-        //                 assert_eq!(scaled_composite_jacobian, &INTEGRATION_WEIGHT)
-        //             )
-        //         }
-        //     }
-        // }
         mod partition_of_unity
         {
             use super::*;
@@ -442,52 +414,6 @@ macro_rules! test_composite_element_with_constitutive_model
                 })
             }
         }
-        // mod projected_gradient_vectors
-        // {
-        //     use super::*;
-        //     #[test]
-        //     fn get<'a>()
-        //     {
-        //         $element::<$constitutive_model<'a>>::calculate_projected_gradient_vectors(
-        //             &get_reference_coordinates()
-        //         ).iter().zip((
-        //             get_element().get_projected_gradient_vectors()
-        //         ).iter())
-        //         .for_each(|(gradient_vectors, res_gradient_vectors)|
-        //             gradient_vectors.iter()
-        //             .zip(res_gradient_vectors.iter())
-        //             .for_each(|(gradient_vector, res_gradient_vector)|
-        //                 gradient_vector.iter()
-        //                 .zip(res_gradient_vector.iter())
-        //                 .for_each(|(gradient_vector_i, res_gradient_vector_i)|
-        //                     assert_eq_within_tols(gradient_vector_i, res_gradient_vector_i)
-        //                 )
-        //             )
-        //         )
-        //     }
-        //     #[test]
-        //     fn objectivity<'a>()
-        //     {
-        //         $element::<$constitutive_model<'a>>::calculate_projected_gradient_vectors(
-        //             &get_reference_coordinates()
-        //         ).iter().zip(
-        //             $element::<$constitutive_model<'a>>::calculate_projected_gradient_vectors(
-        //                 &get_reference_coordinates_transformed()
-        //         ).iter())
-        //         .for_each(|(gradient_vectors, res_gradient_vectors)|
-        //             gradient_vectors.iter().zip((
-        //                 get_rotation_reference_configuration().transpose() * res_gradient_vectors
-        //             ).iter())
-        //             .for_each(|(gradient_vector, res_gradient_vector)|
-        //                 gradient_vector.iter()
-        //                 .zip(res_gradient_vector.iter())
-        //                 .for_each(|(gradient_vector_i, res_gradient_vector_i)|
-        //                     assert_eq_within_tols(gradient_vector_i, res_gradient_vector_i)
-        //                 )
-        //             )
-        //         )
-        //     }
-        // }
         #[test]
         fn normalized_projection_matrix<'a>()
         {

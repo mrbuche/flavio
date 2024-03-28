@@ -27,7 +27,7 @@ where
         {
             constitutive_model: <C>::new(constitutive_model_parameters),
             gradient_vectors: Self::calculate_gradient_vectors(&reference_nodal_coordinates),
-            integration_weight: INTEGRATION_WEIGHT * Self::calculate_reference_jacobian(&reference_nodal_coordinates)
+            integration_weight: Self::calculate_reference_jacobian(&reference_nodal_coordinates) * INTEGRATION_WEIGHT
         }
     }
 }
