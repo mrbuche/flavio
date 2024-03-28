@@ -14,6 +14,7 @@ pub struct Triangle<C>
 {
     constitutive_model: C,
     gradient_vectors: GradientVectors<N>,
+    integration_weight: Scalar,
     reference_normal: ReferenceNormal
 }
 
@@ -27,6 +28,7 @@ where
         {
             constitutive_model: <C>::new(constitutive_model_parameters),
             gradient_vectors: Self::calculate_gradient_vectors(&reference_nodal_coordinates),
+            integration_weight: INTEGRATION_WEIGHT * Self::calculate_reference_jacobian(&reference_nodal_coordinates),
             reference_normal: Self::calculate_reference_normal(&reference_nodal_coordinates)
         }
     }
@@ -44,9 +46,13 @@ where
     {
         self.calculate_deformation_gradient_rate_linear_surface_element(nodal_coordinates, nodal_velocities)
     }
-    fn calculate_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> GradientVectors<N>
+    fn calculate_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> GradientVectors<N>
     {
         Self::calculate_gradient_vectors_linear_surface_element(reference_nodal_coordinates)
+    }
+    fn calculate_reference_jacobian(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> Scalar
+    {
+        Self::calculate_reference_jacobian_linear_surface_element(reference_nodal_coordinates)
     }
     linear_surface_element_boilerplate_inner!{}
 }

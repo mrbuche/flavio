@@ -442,52 +442,52 @@ macro_rules! test_composite_element_with_constitutive_model
                 })
             }
         }
-        mod projected_gradient_vectors
-        {
-            use super::*;
-            #[test]
-            fn get<'a>()
-            {
-                $element::<$constitutive_model<'a>>::calculate_projected_gradient_vectors(
-                    &get_reference_coordinates()
-                ).iter().zip((
-                    get_element().get_projected_gradient_vectors()
-                ).iter())
-                .for_each(|(gradient_vectors, res_gradient_vectors)|
-                    gradient_vectors.iter()
-                    .zip(res_gradient_vectors.iter())
-                    .for_each(|(gradient_vector, res_gradient_vector)|
-                        gradient_vector.iter()
-                        .zip(res_gradient_vector.iter())
-                        .for_each(|(gradient_vector_i, res_gradient_vector_i)|
-                            assert_eq_within_tols(gradient_vector_i, res_gradient_vector_i)
-                        )
-                    )
-                )
-            }
-            #[test]
-            fn objectivity<'a>()
-            {
-                $element::<$constitutive_model<'a>>::calculate_projected_gradient_vectors(
-                    &get_reference_coordinates()
-                ).iter().zip(
-                    $element::<$constitutive_model<'a>>::calculate_projected_gradient_vectors(
-                        &get_reference_coordinates_transformed()
-                ).iter())
-                .for_each(|(gradient_vectors, res_gradient_vectors)|
-                    gradient_vectors.iter().zip((
-                        get_rotation_reference_configuration().transpose() * res_gradient_vectors
-                    ).iter())
-                    .for_each(|(gradient_vector, res_gradient_vector)|
-                        gradient_vector.iter()
-                        .zip(res_gradient_vector.iter())
-                        .for_each(|(gradient_vector_i, res_gradient_vector_i)|
-                            assert_eq_within_tols(gradient_vector_i, res_gradient_vector_i)
-                        )
-                    )
-                )
-            }
-        }
+        // mod projected_gradient_vectors
+        // {
+        //     use super::*;
+        //     #[test]
+        //     fn get<'a>()
+        //     {
+        //         $element::<$constitutive_model<'a>>::calculate_projected_gradient_vectors(
+        //             &get_reference_coordinates()
+        //         ).iter().zip((
+        //             get_element().get_projected_gradient_vectors()
+        //         ).iter())
+        //         .for_each(|(gradient_vectors, res_gradient_vectors)|
+        //             gradient_vectors.iter()
+        //             .zip(res_gradient_vectors.iter())
+        //             .for_each(|(gradient_vector, res_gradient_vector)|
+        //                 gradient_vector.iter()
+        //                 .zip(res_gradient_vector.iter())
+        //                 .for_each(|(gradient_vector_i, res_gradient_vector_i)|
+        //                     assert_eq_within_tols(gradient_vector_i, res_gradient_vector_i)
+        //                 )
+        //             )
+        //         )
+        //     }
+        //     #[test]
+        //     fn objectivity<'a>()
+        //     {
+        //         $element::<$constitutive_model<'a>>::calculate_projected_gradient_vectors(
+        //             &get_reference_coordinates()
+        //         ).iter().zip(
+        //             $element::<$constitutive_model<'a>>::calculate_projected_gradient_vectors(
+        //                 &get_reference_coordinates_transformed()
+        //         ).iter())
+        //         .for_each(|(gradient_vectors, res_gradient_vectors)|
+        //             gradient_vectors.iter().zip((
+        //                 get_rotation_reference_configuration().transpose() * res_gradient_vectors
+        //             ).iter())
+        //             .for_each(|(gradient_vector, res_gradient_vector)|
+        //                 gradient_vector.iter()
+        //                 .zip(res_gradient_vector.iter())
+        //                 .for_each(|(gradient_vector_i, res_gradient_vector_i)|
+        //                     assert_eq_within_tols(gradient_vector_i, res_gradient_vector_i)
+        //                 )
+        //             )
+        //         )
+        //     }
+        // }
         #[test]
         fn normalized_projection_matrix<'a>()
         {

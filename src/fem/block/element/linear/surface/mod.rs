@@ -211,6 +211,11 @@ where
             ).collect()
         ).collect()
     }
+    fn calculate_reference_jacobian_linear_surface_element(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> Scalar
+    {
+        let reference_basis_vectors = Self::calculate_basis(reference_nodal_coordinates);
+        reference_basis_vectors[0].cross(&reference_basis_vectors[1]).norm()
+    }
     fn calculate_reference_normal(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ReferenceNormal
     {
         let dual_basis_vectors = Self::calculate_dual_basis(reference_nodal_coordinates);
@@ -422,7 +427,7 @@ macro_rules! linear_surface_element_boilerplate_inner
         }
         fn get_integration_weight(&self) -> &Scalar
         {
-            &INTEGRATION_WEIGHT
+            &self.integration_weight
         }
     }
 }

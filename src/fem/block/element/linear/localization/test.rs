@@ -379,6 +379,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 std::mem::size_of::<$constitutive_model>()
                 + std::mem::size_of::<GradientVectors<N>>()
                 + std::mem::size_of::<ReferenceNormal>()
+                + std::mem::size_of::<Scalar>()
             )
         }
     }

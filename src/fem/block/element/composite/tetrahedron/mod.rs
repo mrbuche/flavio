@@ -17,6 +17,7 @@ pub struct Tetrahedron<C>
     constitutive_models: [C; G],
     projected_gradient_vectors: ProjectedGradientVectors<G, N>,
     scaled_composite_jacobians: Scalars<G>
+    // would be replacing scaled_composite_jacobians with integration weights, maybe better since more homogeneous definition across element types
 }
 
 impl<'a, C> FiniteElement<'a, C, G, N> for Tetrahedron<C>
@@ -49,7 +50,7 @@ where
             [ off,  off,  off, diag]
         ])
     }
-    fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> ProjectedGradientVectors<G, N>
+    fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ProjectedGradientVectors<G, N>
     {
         let parametric_gradient_operators =
         Self::calculate_standard_gradient_operators().iter()
@@ -75,15 +76,13 @@ where
     }
     fn calculate_reference_jacobians(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> Scalars<P>
     {
-        let parametric_gradient_operators =
         Self::calculate_standard_gradient_operators().iter()
         .map(|standard_gradient_operator|
             reference_nodal_coordinates * standard_gradient_operator
-        ).collect::<ParametricGradientOperators<P>>();
-        parametric_gradient_operators.iter()
+        ).collect::<ParametricGradientOperators<P>>().iter()
         .map(|parametric_gradient_operator|
             parametric_gradient_operator.determinant()
-        ).collect::<Scalars<P>>()
+        ).collect()
     }
     fn calculate_shape_function_integrals() -> ShapeFunctionIntegrals<P, Q>
     {

@@ -14,6 +14,7 @@ pub struct Wedge<C>
 {
     constitutive_model: C,
     gradient_vectors: GradientVectors<N>,
+    integration_weight: Scalar,
     reference_normal: ReferenceNormal
 }
 
@@ -23,11 +24,13 @@ where
 {
     fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>) -> Self
     {
+        let reference_nodal_coordinates_midplane = Self::calculate_midplane(&reference_nodal_coordinates);
         Self
         {
             constitutive_model: <C>::new(constitutive_model_parameters),
-            gradient_vectors: Self::calculate_gradient_vectors(&reference_nodal_coordinates),
-            reference_normal: Self::calculate_reference_normal(&Self::calculate_midplane(&reference_nodal_coordinates))
+            gradient_vectors: Self::calculate_gradient_vectors(&reference_nodal_coordinates_midplane),
+            integration_weight: INTEGRATION_WEIGHT * Self::calculate_reference_jacobian(&reference_nodal_coordinates_midplane),
+            reference_normal: Self::calculate_reference_normal(&reference_nodal_coordinates_midplane)
         }
     }
 }
@@ -44,9 +47,8 @@ where
     {
         self.calculate_deformation_gradient_rate_linear_localization_element(nodal_coordinates, nodal_velocities)
     }
-    fn calculate_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> GradientVectors<N>
+    fn calculate_gradient_vectors(reference_nodal_coordinates_midplane: &ReferenceNodalCoordinates<O>) -> GradientVectors<N>
     {
-        let reference_nodal_coordinates_midplane = Self::calculate_midplane(reference_nodal_coordinates);
         let reference_dual_basis_vectors = Self::calculate_dual_basis(&reference_nodal_coordinates_midplane);
         let reference_normal = Self::calculate_reference_normal(&reference_nodal_coordinates_midplane);
         let gradient_vectors_midplane =
@@ -70,6 +72,10 @@ where
             *gradient_vector_a = gradient_vector_midplane_a * 0.5 - &reference_normal / 3.0
         );
         gradient_vectors
+    }
+    fn calculate_reference_jacobian(reference_nodal_coordinates_midplane: &ReferenceNodalCoordinates<O>) -> Scalar
+    {
+        Self::calculate_reference_jacobian_linear_surface_element(reference_nodal_coordinates_midplane)
     }
     linear_surface_element_boilerplate_inner!{}
 }

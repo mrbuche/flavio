@@ -48,7 +48,7 @@ where
     {
         self.calculate_deformation_gradient_rates_composite_surface_element(nodal_coordinates, nodal_velocities)
     }
-    fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> ProjectedGradientVectors<G, N>
+    fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ProjectedGradientVectors<G, N>
     {
         Self::calculate_projected_gradient_vectors_composite_surface_element(reference_nodal_coordinates)
     }

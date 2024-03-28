@@ -43,7 +43,7 @@ where
             shape_function_integrals_products * reference_jacobian
         ).sum::<ProjectionMatrix<Q>>().inverse()
     }
-    fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> ProjectedGradientVectors<G, N>;
+    fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ProjectedGradientVectors<G, N>;
     fn calculate_reference_jacobians(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> Scalars<P>;
     fn calculate_scaled_composite_jacobian_at_integration_points(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> Scalars<G>
     {
@@ -126,7 +126,7 @@ where
         .zip(self.get_scaled_composite_jacobians().iter()))
         .map(|(constitutive_model, (deformation_gradient, scaled_composite_jacobian))|
             constitutive_model.calculate_helmholtz_free_energy_density(deformation_gradient) * scaled_composite_jacobian
-        ).sum::<Scalar>()
+        ).sum()
     }
 }
 
@@ -150,7 +150,7 @@ where
             .map(|projected_gradient_vector|
                 (first_piola_kirchoff_stress * projected_gradient_vector) * scaled_composite_jacobian
             ).collect()
-        ).sum::<NodalForces<N>>()
+        ).sum()
     }
     fn calculate_nodal_stiffnesses_composite_element(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalStiffnesses<N>
     {
@@ -174,7 +174,7 @@ where
                     ) * scaled_composite_jacobian
                 ).collect()
             ).collect()
-        ).sum::<NodalStiffnesses<N>>()
+        ).sum()
     }
 }
 
@@ -191,7 +191,7 @@ where
         .zip(self.get_scaled_composite_jacobians().iter())))
         .map(|(constitutive_model, (deformation_gradient, (deformation_gradient_rate, scaled_composite_jacobian)))|
             constitutive_model.calculate_viscous_dissipation(deformation_gradient, deformation_gradient_rate) * scaled_composite_jacobian
-        ).sum::<Scalar>()
+        ).sum()
     }
     fn calculate_dissipation_potential_composite_element(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> Scalar
     {
@@ -201,7 +201,7 @@ where
         .zip(self.get_scaled_composite_jacobians().iter())))
         .map(|(constitutive_model, (deformation_gradient, (deformation_gradient_rate, scaled_composite_jacobian)))|
             constitutive_model.calculate_dissipation_potential(deformation_gradient, deformation_gradient_rate) * scaled_composite_jacobian
-        ).sum::<Scalar>()
+        ).sum()
     }
 }
 
@@ -217,7 +217,7 @@ where
         .zip(self.get_scaled_composite_jacobians().iter()))
         .map(|(constitutive_model, (deformation_gradient, scaled_composite_jacobian))|
             constitutive_model.calculate_helmholtz_free_energy_density(deformation_gradient) * scaled_composite_jacobian
-        ).sum::<Scalar>()
+        ).sum()
     }
 }
 

@@ -26,13 +26,13 @@ where
 {
     fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>) -> Self
     {
-        let nodal_coordinates_midplane = Self::calculate_midplane(&reference_nodal_coordinates);
+        let reference_nodal_coordinates_midplane = Self::calculate_midplane(&reference_nodal_coordinates);
         Self
         {
             constitutive_models: std::array::from_fn(|_| <C>::new(constitutive_model_parameters)),
-            projected_gradient_vectors: Self::calculate_projected_gradient_vectors(&reference_nodal_coordinates),
-            scaled_composite_jacobians: Self::calculate_scaled_composite_jacobian_at_integration_points(&nodal_coordinates_midplane),
-            scaled_reference_normals: Self::calculate_scaled_reference_normals(&nodal_coordinates_midplane)
+            projected_gradient_vectors: Self::calculate_projected_gradient_vectors(&reference_nodal_coordinates_midplane),
+            scaled_composite_jacobians: Self::calculate_scaled_composite_jacobian_at_integration_points(&reference_nodal_coordinates_midplane),
+            scaled_reference_normals: Self::calculate_scaled_reference_normals(&reference_nodal_coordinates_midplane)
         }
     }
 }
@@ -49,9 +49,8 @@ where
     {
         self.calculate_deformation_gradient_rates_composite_localization_element(nodal_coordinates, nodal_velocities)
     }
-    fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> ProjectedGradientVectors<G, N>
+    fn calculate_projected_gradient_vectors(reference_nodal_coordinates_midplane: &ReferenceNodalCoordinates<O>) -> ProjectedGradientVectors<G, N>
     {
-        let reference_nodal_coordinates_midplane = Self::calculate_midplane(reference_nodal_coordinates);
         let reference_dual_bases = Self::calculate_dual_bases(&reference_nodal_coordinates_midplane);
         let reference_jacobians = Self::calculate_reference_jacobians(&reference_nodal_coordinates_midplane);
         let reference_normals = Self::calculate_reference_normals(&reference_nodal_coordinates_midplane);
