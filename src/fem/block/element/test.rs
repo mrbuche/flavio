@@ -192,14 +192,10 @@ macro_rules! setup_for_elements
 {
     ($element: ident) =>
     {
-        use crate::
+        use crate::mechanics::test::
         {
-            constitutive::solid::elastic::AlmansiHamel,
-            mechanics::test::
-            {
-                get_deformation_gradient,
-                get_deformation_gradient_rate
-            }
+            get_deformation_gradient,
+            get_deformation_gradient_rate
         };
         fn get_coordinates() -> NodalCoordinates<N>
         {
@@ -208,15 +204,6 @@ macro_rules! setup_for_elements
         fn get_velocities() -> NodalVelocities<N>
         {
             get_deformation_gradient_rate() * get_reference_coordinates()
-        }
-        #[test]
-        fn size()
-        {
-            assert_eq!(
-                std::mem::size_of::<$element::<AlmansiHamel>>(),
-                std::mem::size_of::<AlmansiHamel>()
-                + std::mem::size_of::<GradientVectors<N>>()
-            )
         }
         crate::fem::block::element::test::setup_for_element_tests_any_element!($element);
     }

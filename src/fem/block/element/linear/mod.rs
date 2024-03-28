@@ -29,6 +29,10 @@ where
         ).sum()
     }
     fn calculate_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> GradientVectors<N>;
+    fn calculate_reference_jacobian(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> Scalar
+    {
+        todo!()
+    }
     fn calculate_standard_gradient_operator() -> StandardGradientOperator<M, O>;
     fn get_constitutive_model(&self) -> &C;
     fn get_gradient_vectors(&self) -> &GradientVectors<N>;
