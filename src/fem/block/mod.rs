@@ -45,8 +45,8 @@ where
 
 pub trait ElasticFiniteElementBlock<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
 where
-    C: Solid<'a>,
-    F: FiniteElement<'a, C, G, N>,
+    C: Elastic<'a>,
+    F: ElasticFiniteElement<'a, C, G, N>,
     Self: FiniteElementBlock<'a, C, D, E, F, G, N>
 {
     fn calculate_nodal_forces(&self) -> NodalForces<D>;
@@ -66,8 +66,10 @@ pub trait ViscoelasticFiniteElementBlock<'a, C, const D: usize, const E: usize, 
 where
     C: Viscoelastic<'a>,
     F: ViscoelasticFiniteElement<'a, C, G, N>,
-    Self: ElasticFiniteElementBlock<'a, C, D, E, F, G, N>
+    Self: FiniteElementBlock<'a, C, D, E, F, G, N>
 {
+    fn calculate_nodal_forces(&self) -> NodalForces<D>;
+    fn calculate_nodal_stiffnesses(&self) -> NodalStiffnesses<D>;
     fn calculate_nodal_velocities_element(&self, element_connectivity: &[usize; N]) -> NodalVelocities<N>;
     fn get_nodal_velocities(&self) -> &NodalVelocities<D>;
     fn set_nodal_velocities(&mut self, nodal_velocities: NodalVelocities<D>);
@@ -268,7 +270,7 @@ where
 }
 
 impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
-    ElasticFiniteElementBlock<'a, C, D, E, F, G, N>
+    ViscoelasticFiniteElementBlock<'a, C, D, E, F, G, N>
     for ViscoelasticBlock<D, E, F, G, N>
 where
     C: Viscoelastic<'a>,
@@ -321,16 +323,6 @@ where
         );
         nodal_stiffnesses
     }
-}
-
-impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
-    ViscoelasticFiniteElementBlock<'a, C, D, E, F, G, N>
-    for ViscoelasticBlock<D, E, F, G, N>
-where
-    C: Viscoelastic<'a>,
-    F: ViscoelasticFiniteElement<'a, C, G, N>,
-    Self: ElasticFiniteElementBlock<'a, C, D, E, F, G, N>
-{
     fn calculate_nodal_velocities_element(&self, element_connectivity: &[usize; N]) -> NodalVelocities<N>
     {
         let nodal_velocities = self.get_nodal_velocities();

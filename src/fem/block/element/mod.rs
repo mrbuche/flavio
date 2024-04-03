@@ -13,6 +13,13 @@ where
     fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>) -> Self;
 }
 
+pub trait SurfaceElement<'a, C, const G: usize, const N: usize>
+where
+    C: Constitutive<'a>
+{
+    fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>, thickness: &Scalar) -> Self;
+}
+
 pub trait ElasticFiniteElement<'a, C, const G: usize, const N: usize>
 where
     C: Elastic<'a>,

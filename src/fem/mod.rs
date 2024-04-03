@@ -75,7 +75,6 @@ use crate::
         Parameters,
         solid::
         {
-            Solid,
             elastic::Elastic,
             hyperelastic::Hyperelastic,
             viscoelastic::Viscoelastic,
