@@ -38,5 +38,6 @@ where
             ), self.get_reference_normal()
         )
     }
+    fn calculate_gradient_vectors_linear_localization_element(reference_nodal_coordinates_midplane: &ReferenceNodalCoordinates<O>, thickness: &Scalar) -> GradientVectors<N>;
     fn calculate_midplane<const I: usize>(nodal_coordinates: &Coordinates<I, N>) -> Coordinates<I, O>;
 }

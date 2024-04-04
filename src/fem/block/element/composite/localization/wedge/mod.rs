@@ -30,8 +30,8 @@ where
         Self
         {
             constitutive_models: std::array::from_fn(|_| <C>::new(constitutive_model_parameters)),
-            integration_weights: Self::calculate_reference_jacobians(&reference_nodal_coordinates_midplane) * INTEGRATION_WEIGHT,
-            projected_gradient_vectors: Self::calculate_projected_gradient_vectors(&reference_nodal_coordinates_midplane),
+            integration_weights: Self::calculate_reference_jacobians(&reference_nodal_coordinates_midplane) * (INTEGRATION_WEIGHT * thickness),
+            projected_gradient_vectors: Self::calculate_projected_gradient_vectors_composite_localization_element(&reference_nodal_coordinates_midplane, thickness),
             scaled_reference_normals: Self::calculate_scaled_reference_normals(&reference_nodal_coordinates_midplane)
         }
     }
@@ -48,77 +48,6 @@ where
     fn calculate_deformation_gradient_rates(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> DeformationGradientRates<G>
     {
         self.calculate_deformation_gradient_rates_composite_localization_element(nodal_coordinates, nodal_velocities)
-    }
-    fn calculate_projected_gradient_vectors(reference_nodal_coordinates_midplane: &ReferenceNodalCoordinates<O>) -> ProjectedGradientVectors<G, N>
-    {
-        let reference_dual_bases = Self::calculate_dual_bases(reference_nodal_coordinates_midplane);
-        let reference_jacobians_subelements = Self::calculate_reference_jacobians_subelements(reference_nodal_coordinates_midplane);
-        let reference_normals = Self::calculate_reference_normals(reference_nodal_coordinates_midplane);
-        let inverse_projection_matrix = Self::calculate_inverse_projection_matrix(&reference_jacobians_subelements);
-        let projected_gradient_vectors_midplane =
-        Self::calculate_shape_functions_at_integration_points().iter()
-        .map(|shape_functions_at_integration_point|
-            Self::calculate_standard_gradient_operators_transposed().iter()
-            .map(|standard_gradient_operators_a|
-                Self::calculate_shape_function_integrals().iter()
-                .zip(standard_gradient_operators_a.iter()
-                .zip(reference_dual_bases.iter()
-                .zip(reference_jacobians_subelements.iter())))
-                .map(|(shape_function_integral, (standard_gradient_operator, (reference_dual_basis_vectors, reference_jacobian_subelement)))|
-                    reference_dual_basis_vectors.iter()
-                    .zip(standard_gradient_operator.iter())
-                    .map(|(reference_dual_basis_vector, standard_gradient_operator_mu)|
-                        reference_dual_basis_vector * standard_gradient_operator_mu
-                    ).sum::<Vector<0>>() * reference_jacobian_subelement * (
-                        shape_functions_at_integration_point * (&inverse_projection_matrix * shape_function_integral)
-                    )
-                ).sum()
-            ).collect()
-        ).collect::<ProjectedGradientVectors<G, N>>();
-        let other_scaled_reference_normals =
-        Self::calculate_shape_functions_at_integration_points().iter()
-        .map(|shape_function|
-            Self::calculate_mixed_shape_function_integrals_products().iter()
-            .map(|mixed_shape_function_integrals_products|
-                reference_normals.iter()
-                .zip(reference_jacobians_subelements.iter()
-                .zip(mixed_shape_function_integrals_products.iter()))
-                .map(|(reference_normal, (reference_jacobian_subelement, mixed_shape_function_integrals_product))|
-                    reference_normal * ((shape_function * (&inverse_projection_matrix * mixed_shape_function_integrals_product)) * reference_jacobian_subelement)
-                ).sum()
-            ).collect()
-        ).collect::<ScaledReferenceNormals<G, O>>();
-        let mut projected_gradient_vectors = ProjectedGradientVectors::zero();
-        projected_gradient_vectors.iter_mut()
-        .zip(projected_gradient_vectors_midplane.iter()
-        .zip(other_scaled_reference_normals.iter()))
-        .for_each(|(projected_gradient_vectors_g, (projected_gradient_vectors_midplane_g, other_scaled_reference_normals_g))|{
-            projected_gradient_vectors_g.iter_mut().skip(3).take(3)
-            .zip(projected_gradient_vectors_midplane_g.iter().take(3)
-            .zip(other_scaled_reference_normals_g.iter().take(3)))
-            .for_each(|(projected_gradient_vector_g_a, (projected_gradient_vector_midplane_g_a, other_scaled_reference_normal_g_a))|
-                *projected_gradient_vector_g_a = projected_gradient_vector_midplane_g_a * 0.5 + other_scaled_reference_normal_g_a
-            );
-            projected_gradient_vectors_g.iter_mut().skip(9)
-            .zip(projected_gradient_vectors_midplane_g.iter().skip(3)
-            .zip(other_scaled_reference_normals_g.iter().skip(3)))
-            .for_each(|(projected_gradient_vector_g_a, (projected_gradient_vector_midplane_g_a, other_scaled_reference_normal_g_a))|
-                *projected_gradient_vector_g_a = projected_gradient_vector_midplane_g_a * 0.5 + other_scaled_reference_normal_g_a
-            );
-            projected_gradient_vectors_g.iter_mut().take(3)
-            .zip(projected_gradient_vectors_midplane_g.iter().take(3)
-            .zip(other_scaled_reference_normals_g.iter().take(3)))
-            .for_each(|(projected_gradient_vector_g_a, (projected_gradient_vector_midplane_g_a, other_scaled_reference_normal_g_a))|
-                *projected_gradient_vector_g_a = projected_gradient_vector_midplane_g_a * 0.5 - other_scaled_reference_normal_g_a
-            );
-            projected_gradient_vectors_g.iter_mut().skip(6).take(3)
-            .zip(projected_gradient_vectors_midplane_g.iter().skip(3)
-            .zip(other_scaled_reference_normals_g.iter().skip(3)))
-            .for_each(|(projected_gradient_vector_g_a, (projected_gradient_vector_midplane_g_a, other_scaled_reference_normal_g_a))|
-                *projected_gradient_vector_g_a = projected_gradient_vector_midplane_g_a * 0.5 - other_scaled_reference_normal_g_a
-            );
-        });
-        projected_gradient_vectors
     }
     composite_surface_element_boilerplate_inner!{}
 }
@@ -174,6 +103,77 @@ where
             [ 4.0,  2.0, 10.0],
             [ 6.0,  4.0,  6.0]
         ]])
+    }
+    fn calculate_projected_gradient_vectors_composite_localization_element(reference_nodal_coordinates_midplane: &ReferenceNodalCoordinates<O>, thickness: &Scalar) -> ProjectedGradientVectors<G, N>
+    {
+        let reference_dual_bases = Self::calculate_dual_bases(reference_nodal_coordinates_midplane);
+        let reference_jacobians_subelements = Self::calculate_reference_jacobians_subelements(reference_nodal_coordinates_midplane);
+        let reference_normals = Self::calculate_reference_normals(reference_nodal_coordinates_midplane);
+        let inverse_projection_matrix = Self::calculate_inverse_projection_matrix(&reference_jacobians_subelements);
+        let projected_gradient_vectors_midplane =
+        Self::calculate_shape_functions_at_integration_points().iter()
+        .map(|shape_functions_at_integration_point|
+            Self::calculate_standard_gradient_operators_transposed().iter()
+            .map(|standard_gradient_operators_a|
+                Self::calculate_shape_function_integrals().iter()
+                .zip(standard_gradient_operators_a.iter()
+                .zip(reference_dual_bases.iter()
+                .zip(reference_jacobians_subelements.iter())))
+                .map(|(shape_function_integral, (standard_gradient_operator, (reference_dual_basis_vectors, reference_jacobian_subelement)))|
+                    reference_dual_basis_vectors.iter()
+                    .zip(standard_gradient_operator.iter())
+                    .map(|(reference_dual_basis_vector, standard_gradient_operator_mu)|
+                        reference_dual_basis_vector * standard_gradient_operator_mu
+                    ).sum::<Vector<0>>() * reference_jacobian_subelement * (
+                        shape_functions_at_integration_point * (&inverse_projection_matrix * shape_function_integral)
+                    )
+                ).sum()
+            ).collect()
+        ).collect::<ProjectedGradientVectors<G, N>>();
+        let other_scaled_reference_normals =
+        Self::calculate_shape_functions_at_integration_points().iter()
+        .map(|shape_function|
+            Self::calculate_mixed_shape_function_integrals_products().iter()
+            .map(|mixed_shape_function_integrals_products|
+                reference_normals.iter()
+                .zip(reference_jacobians_subelements.iter()
+                .zip(mixed_shape_function_integrals_products.iter()))
+                .map(|(reference_normal, (reference_jacobian_subelement, mixed_shape_function_integrals_product))|
+                    reference_normal * ((shape_function * (&inverse_projection_matrix * mixed_shape_function_integrals_product)) * (reference_jacobian_subelement / thickness))
+                ).sum()
+            ).collect()
+        ).collect::<ScaledReferenceNormals<G, O>>();
+        let mut projected_gradient_vectors = ProjectedGradientVectors::zero();
+        projected_gradient_vectors.iter_mut()
+        .zip(projected_gradient_vectors_midplane.iter()
+        .zip(other_scaled_reference_normals.iter()))
+        .for_each(|(projected_gradient_vectors_g, (projected_gradient_vectors_midplane_g, other_scaled_reference_normals_g))|{
+            projected_gradient_vectors_g.iter_mut().skip(3).take(3)
+            .zip(projected_gradient_vectors_midplane_g.iter().take(3)
+            .zip(other_scaled_reference_normals_g.iter().take(3)))
+            .for_each(|(projected_gradient_vector_g_a, (projected_gradient_vector_midplane_g_a, other_scaled_reference_normal_g_a))|
+                *projected_gradient_vector_g_a = projected_gradient_vector_midplane_g_a * 0.5 + other_scaled_reference_normal_g_a
+            );
+            projected_gradient_vectors_g.iter_mut().skip(9)
+            .zip(projected_gradient_vectors_midplane_g.iter().skip(3)
+            .zip(other_scaled_reference_normals_g.iter().skip(3)))
+            .for_each(|(projected_gradient_vector_g_a, (projected_gradient_vector_midplane_g_a, other_scaled_reference_normal_g_a))|
+                *projected_gradient_vector_g_a = projected_gradient_vector_midplane_g_a * 0.5 + other_scaled_reference_normal_g_a
+            );
+            projected_gradient_vectors_g.iter_mut().take(3)
+            .zip(projected_gradient_vectors_midplane_g.iter().take(3)
+            .zip(other_scaled_reference_normals_g.iter().take(3)))
+            .for_each(|(projected_gradient_vector_g_a, (projected_gradient_vector_midplane_g_a, other_scaled_reference_normal_g_a))|
+                *projected_gradient_vector_g_a = projected_gradient_vector_midplane_g_a * 0.5 - other_scaled_reference_normal_g_a
+            );
+            projected_gradient_vectors_g.iter_mut().skip(6).take(3)
+            .zip(projected_gradient_vectors_midplane_g.iter().skip(3)
+            .zip(other_scaled_reference_normals_g.iter().skip(3)))
+            .for_each(|(projected_gradient_vector_g_a, (projected_gradient_vector_midplane_g_a, other_scaled_reference_normal_g_a))|
+                *projected_gradient_vector_g_a = projected_gradient_vector_midplane_g_a * 0.5 - other_scaled_reference_normal_g_a
+            );
+        });
+        projected_gradient_vectors
     }
 }
 impl<'a, C> ElasticFiniteElement<'a, C, G, N> for Wedge<C>

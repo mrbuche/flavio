@@ -179,19 +179,21 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses
     {
         fn get_block<'a>() -> $block<D, E, $element<$constitutive_model<'a>>, G, N>
         {
-            $block::<D, E, $element<$constitutive_model<'a>>, G, N>::new(
-                $constitutive_model_parameters,
-                get_connectivity(),
-                get_reference_coordinates_block()
-            )
+            // $block::<D, E, $element<$constitutive_model<'a>>, G, N>::new(
+            //     $constitutive_model_parameters,
+            //     get_connectivity(),
+            //     get_reference_coordinates_block()
+            // )
+            todo!()
         }
         fn get_block_transformed<'a>() -> $block<D, E, $element<$constitutive_model<'a>>, G, N>
         {
-            $block::<D, E, $element<$constitutive_model<'a>>, G, N>::new(
-                $constitutive_model_parameters,
-                get_connectivity(),
-                get_reference_coordinates_transformed_block()
-            )
+            // $block::<D, E, $element<$constitutive_model<'a>>, G, N>::new(
+            //     $constitutive_model_parameters,
+            //     get_connectivity(),
+            //     get_reference_coordinates_transformed_block()
+            // )
+            todo!()
         }
         fn get_coordinates_transformed_block() -> NodalCoordinates<D>
         {

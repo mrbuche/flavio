@@ -163,18 +163,20 @@ macro_rules! test_composite_element_with_constitutive_model
     {
         fn get_element<'a>() -> $element<$constitutive_model<'a>>
         {
-            $element::new(
-                $constitutive_model_parameters,
-                get_reference_coordinates()
-            )
+            // $element::new(
+            //     $constitutive_model_parameters,
+            //     get_reference_coordinates()
+            // )
+            todo!()
         }
         fn get_element_transformed<'a>() -> $element<$constitutive_model<'a>>
         {
-            $element::<$constitutive_model>::new
-            (
-                $constitutive_model_parameters,
-                get_reference_coordinates_transformed()
-            )
+            // $element::<$constitutive_model>::new
+            // (
+            //     $constitutive_model_parameters,
+            //     get_reference_coordinates_transformed()
+            // )
+            todo!()
         }
         setup_for_test_composite_element_with_constitutive_model!($element, $constitutive_model);
         mod deformation_gradients

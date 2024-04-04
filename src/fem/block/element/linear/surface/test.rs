@@ -1,3 +1,5 @@
+pub const THICKNESS: crate::mechanics::Scalar = 1.23;
+
 macro_rules! test_linear_surface_element
 {
     ($element: ident) =>
@@ -458,15 +460,16 @@ macro_rules! test_linear_surface_element_with_constitutive_model
         {
             $element::new(
                 $constitutive_model_parameters,
-                get_reference_coordinates()
+                get_reference_coordinates(),
+                &crate::fem::block::element::linear::surface::test::THICKNESS
             )
         }
         fn get_element_transformed<'a>() -> $element<$constitutive_model<'a>>
         {
-            $element::<$constitutive_model>::new
-            (
+            $element::new(
                 $constitutive_model_parameters,
-                get_reference_coordinates_transformed()
+                get_reference_coordinates_transformed(),
+                &crate::fem::block::element::linear::surface::test::THICKNESS
             )
         }
         setup_for_test_linear_surface_element_with_constitutive_model!($element, $constitutive_model, $constitutive_model_parameters);

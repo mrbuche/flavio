@@ -359,18 +359,20 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses
     {
         fn get_element<'a>() -> $element<$constitutive_model<'a>>
         {
-            $element::new(
-                $constitutive_model_parameters,
-                get_reference_coordinates()
-            )
+            // $element::new(
+            //     $constitutive_model_parameters,
+            //     get_reference_coordinates()
+            // )
+            todo!()
         }
         fn get_element_transformed<'a>() -> $element<$constitutive_model<'a>>
         {
-            $element::<$constitutive_model>::new
-            (
-                $constitutive_model_parameters,
-                get_reference_coordinates_transformed()
-            )
+            // $element::<$constitutive_model>::new
+            // (
+            //     $constitutive_model_parameters,
+            //     get_reference_coordinates_transformed()
+            // )
+            todo!()
         }
         mod nodal_forces
         {

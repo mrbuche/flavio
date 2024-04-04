@@ -29,7 +29,7 @@ where
         Self
         {
             constitutive_models: std::array::from_fn(|_| <C>::new(constitutive_model_parameters)),
-            integration_weights: Self::calculate_reference_jacobians(&reference_nodal_coordinates) * INTEGRATION_WEIGHT,
+            integration_weights: Self::calculate_reference_jacobians(&reference_nodal_coordinates) * (INTEGRATION_WEIGHT * thickness),
             projected_gradient_vectors: Self::calculate_projected_gradient_vectors(&reference_nodal_coordinates),
             scaled_reference_normals: Self::calculate_scaled_reference_normals(&reference_nodal_coordinates)
         }
