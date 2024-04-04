@@ -18,17 +18,17 @@ pub struct Triangle<C>
     reference_normal: ReferenceNormal
 }
 
-impl<'a, C> FiniteElement<'a, C, G, N> for Triangle<C>
+impl<'a, C> SurfaceElement<'a, C, G, N> for Triangle<C>
 where
     C: Constitutive<'a>
 {
-    fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>) -> Self
+    fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>, thickness: &Scalar) -> Self
     {
         Self
         {
             constitutive_model: <C>::new(constitutive_model_parameters),
             gradient_vectors: Self::calculate_gradient_vectors(&reference_nodal_coordinates),
-            integration_weight: Self::calculate_reference_jacobian(&reference_nodal_coordinates) * INTEGRATION_WEIGHT,
+            integration_weight: Self::calculate_reference_jacobian(&reference_nodal_coordinates) * INTEGRATION_WEIGHT * thickness,
             reference_normal: Self::calculate_reference_normal(&reference_nodal_coordinates)
         }
     }

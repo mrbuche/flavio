@@ -1,9 +1,19 @@
 use crate::fem::block::
 {
-    element::linear::localization::test::
+    element::linear::
     {
-        setup_for_test_linear_surface_element_with_constitutive_model,
-        test_linear_localization_element
+        surface::test::
+        {
+            setup_for_test_finite_element_with_elastic_constitutive_model,
+            setup_for_test_finite_element_block_with_elastic_constitutive_model,
+            setup_for_test_linear_element_with_constitutive_model,
+
+        },
+        localization::test::
+        {
+            setup_for_test_linear_surface_element_with_constitutive_model,
+            test_linear_localization_element
+        }
     },
     test::test_finite_element_block
 };

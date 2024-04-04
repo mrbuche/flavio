@@ -18,18 +18,18 @@ pub struct Wedge<C>
     reference_normal: ReferenceNormal
 }
 
-impl<'a, C> FiniteElement<'a, C, G, N> for Wedge<C>
+impl<'a, C> SurfaceElement<'a, C, G, N> for Wedge<C>
 where
     C: Constitutive<'a>
 {
-    fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>) -> Self
+    fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>, thickness: &Scalar) -> Self
     {
         let reference_nodal_coordinates_midplane = Self::calculate_midplane(&reference_nodal_coordinates);
         Self
         {
             constitutive_model: <C>::new(constitutive_model_parameters),
-            gradient_vectors: Self::calculate_gradient_vectors(&reference_nodal_coordinates_midplane),
-            integration_weight: Self::calculate_reference_jacobian(&reference_nodal_coordinates_midplane) * INTEGRATION_WEIGHT,
+            gradient_vectors: Self::calculate_gradient_vectors_linear_localization_element(&reference_nodal_coordinates_midplane, thickness),
+            integration_weight: Self::calculate_reference_jacobian(&reference_nodal_coordinates_midplane) * INTEGRATION_WEIGHT * thickness,
             reference_normal: Self::calculate_reference_normal(&reference_nodal_coordinates_midplane)
         }
     }
@@ -47,10 +47,21 @@ where
     {
         self.calculate_deformation_gradient_rate_linear_localization_element(nodal_coordinates, nodal_velocities)
     }
-    fn calculate_gradient_vectors(reference_nodal_coordinates_midplane: &ReferenceNodalCoordinates<O>) -> GradientVectors<N>
+    fn calculate_reference_jacobian(reference_nodal_coordinates_midplane: &ReferenceNodalCoordinates<O>) -> Scalar
+    {
+        Self::calculate_reference_jacobian_linear_surface_element(reference_nodal_coordinates_midplane)
+    }
+    linear_surface_element_boilerplate_inner!{}
+}
+
+impl<'a, C> LinearLocalizationElement<'a, C, G, M, N, O> for Wedge<C>
+where
+    C: Constitutive<'a>
+{
+    fn calculate_gradient_vectors_linear_localization_element(reference_nodal_coordinates_midplane: &ReferenceNodalCoordinates<O>, thickness: &Scalar) -> GradientVectors<N>
     {
         let reference_dual_basis_vectors = Self::calculate_dual_basis(reference_nodal_coordinates_midplane);
-        let reference_normal = Self::calculate_reference_normal(reference_nodal_coordinates_midplane);
+        let scaled_reference_normal = Self::calculate_reference_normal(reference_nodal_coordinates_midplane) / (3.0 * thickness);
         let gradient_vectors_midplane =
         Self::calculate_standard_gradient_operator().iter()
         .map(|standard_gradient_operator_a|
@@ -64,26 +75,15 @@ where
         gradient_vectors.iter_mut().skip(O)
         .zip(gradient_vectors_midplane.iter())
         .for_each(|(gradient_vector_a, gradient_vector_midplane_a)|
-            *gradient_vector_a = gradient_vector_midplane_a * 0.5 + &reference_normal / 3.0
+            *gradient_vector_a = gradient_vector_midplane_a * 0.5 + &scaled_reference_normal
         );
         gradient_vectors.iter_mut().take(O)
         .zip(gradient_vectors_midplane.iter())
         .for_each(|(gradient_vector_a, gradient_vector_midplane_a)|
-            *gradient_vector_a = gradient_vector_midplane_a * 0.5 - &reference_normal / 3.0
+            *gradient_vector_a = gradient_vector_midplane_a * 0.5 - &scaled_reference_normal
         );
         gradient_vectors
     }
-    fn calculate_reference_jacobian(reference_nodal_coordinates_midplane: &ReferenceNodalCoordinates<O>) -> Scalar
-    {
-        Self::calculate_reference_jacobian_linear_surface_element(reference_nodal_coordinates_midplane)
-    }
-    linear_surface_element_boilerplate_inner!{}
-}
-
-impl<'a, C> LinearLocalizationElement<'a, C, G, M, N, O> for Wedge<C>
-where
-    C: Constitutive<'a>
-{
     fn calculate_midplane<const I: usize>(nodal_coordinates: &Coordinates<I, N>) -> Coordinates<I, O>
     {
         nodal_coordinates.iter().skip(O)

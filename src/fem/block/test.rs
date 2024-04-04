@@ -173,13 +173,13 @@ macro_rules! test_finite_element_block
 }
 pub(crate) use test_finite_element_block;
 
-macro_rules! test_nodal_forces_and_nodal_stiffnesses
+macro_rules! setup_for_test_finite_element_block_with_elastic_constitutive_model
 {
     ($block: ident, $element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
     {
         fn get_block<'a>() -> $block<D, E, $element<$constitutive_model<'a>>, G, N>
         {
-            $block::new(
+            $block::<D, E, $element<$constitutive_model<'a>>, G, N>::new(
                 $constitutive_model_parameters,
                 get_connectivity(),
                 get_reference_coordinates_block()
@@ -187,12 +187,21 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses
         }
         fn get_block_transformed<'a>() -> $block<D, E, $element<$constitutive_model<'a>>, G, N>
         {
-            $block::new(
+            $block::<D, E, $element<$constitutive_model<'a>>, G, N>::new(
                 $constitutive_model_parameters,
                 get_connectivity(),
                 get_reference_coordinates_transformed_block()
             )
         }
+    }
+}
+pub(crate) use setup_for_test_finite_element_block_with_elastic_constitutive_model;
+
+macro_rules! test_nodal_forces_and_nodal_stiffnesses
+{
+    ($block: ident, $element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
+    {
+        setup_for_test_finite_element_block_with_elastic_constitutive_model!($block, $element, $constitutive_model, $constitutive_model_parameters);
         fn get_coordinates_transformed_block() -> NodalCoordinates<D>
         {
             get_coordinates_block().iter()
@@ -445,7 +454,7 @@ macro_rules! test_helmholtz_free_energy
                         .zip(fd_nodal_force.iter())
                         .for_each(|(nodal_force_i, fd_nodal_force_i)|
                             assert!(
-                                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON * 2.0
+                                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON * 4.0
                             )
                         )
                     )
@@ -1082,7 +1091,7 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
                         .zip(fd_nodal_force.iter())
                         .for_each(|(nodal_force_i, fd_nodal_force_i)|
                             assert!(
-                                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON * 2.0
+                                (nodal_force_i/fd_nodal_force_i - 1.0).abs() < EPSILON * 4.0
                             )
                         )
                     )

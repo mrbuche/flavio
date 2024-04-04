@@ -13,10 +13,16 @@ where
     fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>) -> Self;
 }
 
+pub trait SurfaceElement<'a, C, const G: usize, const N: usize>
+where
+    C: Constitutive<'a>
+{
+    fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>, thickness: &Scalar) -> Self;
+}
+
 pub trait ElasticFiniteElement<'a, C, const G: usize, const N: usize>
 where
-    C: Elastic<'a>,
-    Self: FiniteElement<'a, C, G, N>
+    C: Elastic<'a>
 {
     fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>;
     fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>;
@@ -32,8 +38,7 @@ where
 
 pub trait ViscoelasticFiniteElement<'a, C, const G: usize, const N: usize>
 where
-    C: Viscoelastic<'a>,
-    Self: FiniteElement<'a, C, G, N>
+    C: Viscoelastic<'a>
 {
     fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalForces<N>;
     fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalStiffnesses<N>;

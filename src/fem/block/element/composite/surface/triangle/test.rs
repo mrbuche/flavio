@@ -1,10 +1,18 @@
 use crate::fem::block::
 {
-    element::composite::surface::test::
+    element::
     {
-        setup_for_test_composite_element_with_constitutive_model,
-        setup_for_test_composite_surface_element_with_constitutive_model,
-        test_composite_surface_element
+        composite::surface::test::
+        {
+            setup_for_test_composite_element_with_constitutive_model,
+            setup_for_test_composite_surface_element_with_constitutive_model,
+            test_composite_surface_element
+        },
+        linear::surface::test::
+        {
+            setup_for_test_finite_element_with_elastic_constitutive_model,
+            setup_for_test_finite_element_block_with_elastic_constitutive_model
+        }
     },
     test::test_finite_element_block
 };

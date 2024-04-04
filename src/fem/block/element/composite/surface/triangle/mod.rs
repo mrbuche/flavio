@@ -20,16 +20,16 @@ pub struct Triangle<C>
     scaled_reference_normals: ScaledReferenceNormals<G, P>
 }
 
-impl<'a, C> FiniteElement<'a, C, G, N> for Triangle<C>
+impl<'a, C> SurfaceElement<'a, C, G, N> for Triangle<C>
 where
     C: Constitutive<'a>
 {
-    fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>) -> Self
+    fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>, thickness: &Scalar) -> Self
     {
         Self
         {
             constitutive_models: std::array::from_fn(|_| <C>::new(constitutive_model_parameters)),
-            integration_weights: Self::calculate_reference_jacobians(&reference_nodal_coordinates) * INTEGRATION_WEIGHT,
+            integration_weights: Self::calculate_reference_jacobians(&reference_nodal_coordinates) * (INTEGRATION_WEIGHT * thickness),
             projected_gradient_vectors: Self::calculate_projected_gradient_vectors(&reference_nodal_coordinates),
             scaled_reference_normals: Self::calculate_scaled_reference_normals(&reference_nodal_coordinates)
         }

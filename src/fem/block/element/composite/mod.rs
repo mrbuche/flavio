@@ -9,8 +9,7 @@ use super::*;
 
 pub trait CompositeElement<'a, C, const G: usize, const M: usize, const N: usize, const O: usize, const P: usize, const Q: usize>
 where
-    C: Constitutive<'a>,
-    Self: FiniteElement<'a, C, G, N>
+    C: Constitutive<'a>
 {
     fn calculate_deformation_gradients(&self, nodal_coordinates: &NodalCoordinates<N>) -> DeformationGradients<G>
     {
@@ -43,7 +42,10 @@ where
             shape_function_integrals_products * reference_jacobian_subelement
         ).sum::<ProjectionMatrix<Q>>().inverse()
     }
-    fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ProjectedGradientVectors<G, N>;
+    fn calculate_projected_gradient_vectors(_reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ProjectedGradientVectors<G, N>
+    {
+        panic!()
+    }
     fn calculate_reference_jacobians(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> Scalars<G>
     {
         let vector = Self::calculate_inverse_normalized_projection_matrix() *

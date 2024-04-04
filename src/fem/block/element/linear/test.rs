@@ -232,7 +232,7 @@ macro_rules! test_linear_element_with_constitutive_model_size
 }
 pub(crate) use test_linear_element_with_constitutive_model_size;
 
-macro_rules! test_linear_element_with_constitutive_model
+macro_rules! setup_for_test_linear_element_with_constitutive_model
 {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
     {
@@ -251,6 +251,15 @@ macro_rules! test_linear_element_with_constitutive_model
                 get_reference_coordinates_transformed()
             )
         }
+    }
+}
+pub(crate) use setup_for_test_linear_element_with_constitutive_model;
+
+macro_rules! test_linear_element_with_constitutive_model
+{
+    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
+    {
+        setup_for_test_linear_element_with_constitutive_model!($element, $constitutive_model, $constitutive_model_parameters);
         mod deformation_gradient
         {
             use super::*;

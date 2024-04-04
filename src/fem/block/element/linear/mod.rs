@@ -9,8 +9,7 @@ use super::*;
 
 pub trait LinearElement<'a, C, const G: usize, const M: usize, const N: usize, const O: usize>
 where
-    C: Constitutive<'a>,
-    Self: FiniteElement<'a, C, G, N>
+    C: Constitutive<'a>
 {
     fn calculate_deformation_gradient(&self, nodal_coordinates: &NodalCoordinates<N>) -> DeformationGradient
     {
@@ -28,7 +27,10 @@ where
             DeformationGradientRate::dyad(nodal_velocity, gradient_vector)
         ).sum()
     }
-    fn calculate_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> GradientVectors<N>;
+    fn calculate_gradient_vectors(_reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> GradientVectors<N>
+    {
+        panic!()
+    }
     fn calculate_reference_jacobian(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> Scalar;
     fn calculate_standard_gradient_operator() -> StandardGradientOperator<M, O>;
     fn get_constitutive_model(&self) -> &C;
