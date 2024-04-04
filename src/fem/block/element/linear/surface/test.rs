@@ -141,6 +141,80 @@ macro_rules! test_linear_surface_element_inner
 }
 pub(crate) use test_linear_surface_element_inner;
 
+macro_rules! setup_for_test_finite_element_with_elastic_constitutive_model
+{
+    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
+    {
+        fn get_element<'a>() -> $element<$constitutive_model<'a>>
+        {
+            $element::new(
+                $constitutive_model_parameters,
+                get_reference_coordinates(),
+                &crate::fem::block::element::linear::surface::test::THICKNESS
+            )
+        }
+        fn get_element_transformed<'a>() -> $element<$constitutive_model<'a>>
+        {
+            $element::new(
+                $constitutive_model_parameters,
+                get_reference_coordinates_transformed(),
+                &crate::fem::block::element::linear::surface::test::THICKNESS
+            )
+        }
+    }
+}
+pub(crate) use setup_for_test_finite_element_with_elastic_constitutive_model;
+
+macro_rules! setup_for_test_finite_element_block_with_elastic_constitutive_model
+{
+    ($block: ident, $element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
+    {
+        fn get_block<'a>() -> $block<D, E, $element<$constitutive_model<'a>>, G, N>
+        {
+            $block::<D, E, $element<$constitutive_model<'a>>, G, N>::new(
+                $constitutive_model_parameters,
+                get_connectivity(),
+                get_reference_coordinates_block(),
+                crate::fem::block::element::linear::surface::test::THICKNESS
+            )
+        }
+        fn get_block_transformed<'a>() -> $block<D, E, $element<$constitutive_model<'a>>, G, N>
+        {
+            $block::<D, E, $element<$constitutive_model<'a>>, G, N>::new(
+                $constitutive_model_parameters,
+                get_connectivity(),
+                get_reference_coordinates_transformed_block(),
+                crate::fem::block::element::linear::surface::test::THICKNESS
+            )
+        }
+    }
+}
+pub(crate) use setup_for_test_finite_element_block_with_elastic_constitutive_model;
+
+macro_rules! setup_for_test_linear_element_with_constitutive_model
+{
+    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
+    {
+        fn get_element<'a>() -> $element<$constitutive_model<'a>>
+        {
+            $element::new(
+                $constitutive_model_parameters,
+                get_reference_coordinates(),
+                &crate::fem::block::element::linear::surface::test::THICKNESS
+            )
+        }
+        fn get_element_transformed<'a>() -> $element<$constitutive_model<'a>>
+        {
+            $element::new(
+                $constitutive_model_parameters,
+                get_reference_coordinates_transformed(),
+                &crate::fem::block::element::linear::surface::test::THICKNESS
+            )
+        }
+    }
+}
+pub(crate) use setup_for_test_linear_element_with_constitutive_model;
+
 macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
 {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
@@ -456,22 +530,7 @@ macro_rules! test_linear_surface_element_with_constitutive_model
 {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
     {
-        fn get_element<'a>() -> $element<$constitutive_model<'a>>
-        {
-            $element::new(
-                $constitutive_model_parameters,
-                get_reference_coordinates(),
-                &crate::fem::block::element::linear::surface::test::THICKNESS
-            )
-        }
-        fn get_element_transformed<'a>() -> $element<$constitutive_model<'a>>
-        {
-            $element::new(
-                $constitutive_model_parameters,
-                get_reference_coordinates_transformed(),
-                &crate::fem::block::element::linear::surface::test::THICKNESS
-            )
-        }
+        setup_for_test_linear_element_with_constitutive_model!($element, $constitutive_model, $constitutive_model_parameters);
         setup_for_test_linear_surface_element_with_constitutive_model!($element, $constitutive_model, $constitutive_model_parameters);
         mod basis
         {

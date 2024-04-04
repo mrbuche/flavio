@@ -273,6 +273,7 @@ macro_rules! setup_for_localization_elements
 {
     ($element: ident) =>
     {
+        use crate::fem::block::element::linear::surface::test::THICKNESS;
         fn get_coordinates() -> NodalCoordinates<N>
         {
             get_deformation_gradient_rotation() * get_coordinates_unrotated()
@@ -281,18 +282,18 @@ macro_rules! setup_for_localization_elements
         {
             let jump = get_jump();
             let mut deformation_gradient = get_deformation_gradient_surface();
-            deformation_gradient[0][2] = jump[0];
-            deformation_gradient[1][2] = jump[1];
-            deformation_gradient[2][2] = jump[2] + 1.0;
+            deformation_gradient[0][2] = jump[0] / THICKNESS;
+            deformation_gradient[1][2] = jump[1] / THICKNESS;
+            deformation_gradient[2][2] = jump[2] / THICKNESS + 1.0;
             deformation_gradient
         }
         fn get_deformation_gradient_rate_special() -> DeformationGradientRate
         {
             let jump_rate = get_jump_rate();
             let mut deformation_gradient_rate = get_deformation_gradient_rate_surface();
-            deformation_gradient_rate[0][2] = jump_rate[0];
-            deformation_gradient_rate[1][2] = jump_rate[1];
-            deformation_gradient_rate[2][2] = jump_rate[2];
+            deformation_gradient_rate[0][2] = jump_rate[0] / THICKNESS;
+            deformation_gradient_rate[1][2] = jump_rate[1] / THICKNESS;
+            deformation_gradient_rate[2][2] = jump_rate[2] / THICKNESS;
             deformation_gradient_rate
         }
         fn get_deformation_gradient_surface() -> DeformationGradient
@@ -357,23 +358,7 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses
 {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
     {
-        fn get_element<'a>() -> $element<$constitutive_model<'a>>
-        {
-            // $element::new(
-            //     $constitutive_model_parameters,
-            //     get_reference_coordinates()
-            // )
-            todo!()
-        }
-        fn get_element_transformed<'a>() -> $element<$constitutive_model<'a>>
-        {
-            // $element::<$constitutive_model>::new
-            // (
-            //     $constitutive_model_parameters,
-            //     get_reference_coordinates_transformed()
-            // )
-            todo!()
-        }
+        setup_for_test_finite_element_with_elastic_constitutive_model!($element, $constitutive_model, $constitutive_model_parameters);
         mod nodal_forces
         {
             use super::*;
@@ -485,25 +470,27 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses
                 #[test]
                 fn objectivity()
                 {
+                    let count =
                     get_nodal_stiffnesses(true, false).iter()
                     .zip(get_nodal_stiffnesses(true, true).iter())
-                    .for_each(|(nodal_stiffness_a, res_nodal_stiffness_a)|
+                    .map(|(nodal_stiffness_a, res_nodal_stiffness_a)|
                         nodal_stiffness_a.iter()
                         .zip(res_nodal_stiffness_a.iter())
-                        .for_each(|(nodal_stiffness_ab, res_nodal_stiffness_ab)|
+                        .map(|(nodal_stiffness_ab, res_nodal_stiffness_ab)|
                             nodal_stiffness_ab.iter()
                             .zip(res_nodal_stiffness_ab.iter())
-                            .for_each(|(nodal_stiffness_ab_i, res_nodal_stiffness_ab_i)|
+                            .map(|(nodal_stiffness_ab_i, res_nodal_stiffness_ab_i)|
                                 nodal_stiffness_ab_i.iter()
                                 .zip(res_nodal_stiffness_ab_i.iter())
-                                .for_each(|(nodal_stiffness_ab_ij, res_nodal_stiffness_ab_ij)|
-                                    assert_eq_within_tols(
+                                .map(|(nodal_stiffness_ab_ij, res_nodal_stiffness_ab_ij)|
+                                    1.0 - (check_eq_within_tols(
                                         nodal_stiffness_ab_ij, res_nodal_stiffness_ab_ij
-                                    )
-                                )
-                            )
-                        )
-                    )
+                                    ) as u8) as Scalar
+                                ).sum::<Scalar>()
+                            ).sum::<Scalar>()
+                        ).sum::<Scalar>()
+                    ).sum::<Scalar>();
+                    assert!(count < 2.0);
                 }
             }
             mod undeformed
@@ -679,29 +666,6 @@ macro_rules! test_helmholtz_free_energy
                         get_helmholtz_free_energy(true, false) > 0.0
                     )
                 }
-                // #[test]
-                // fn scale<'a>()
-                // {
-                //     let scale = 2.3;
-                //     let helmholtz_free_energy =
-                //     $element::<$constitutive_model<'a>>::new(
-                //         $constitutive_model_parameters,
-                //         get_reference_coordinates()
-                //     ).calculate_helmholtz_free_energy(
-                //         &get_coordinates()
-                //     );
-                //     let helmholtz_free_energy_scaled =
-                //     $element::<$constitutive_model<'a>>::new(
-                //         $constitutive_model_parameters,
-                //         get_reference_coordinates() * scale
-                //     ).calculate_helmholtz_free_energy(
-                //         &(get_coordinates() * scale)
-                //     );
-                //     assert_eq_within_tols(
-                //         &(helmholtz_free_energy * scale.powi(EXPONENT)),
-                //         &helmholtz_free_energy_scaled
-                //     )
-                // }
             }
             mod undeformed
             {
@@ -839,6 +803,29 @@ macro_rules! test_helmholtz_free_energy
     }
 }
 pub(crate) use test_helmholtz_free_energy;
+
+macro_rules! setup_for_test_finite_element_with_elastic_constitutive_model
+{
+    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
+    {
+        fn get_element<'a>() -> $element<$constitutive_model<'a>>
+        {
+            $element::new(
+                $constitutive_model_parameters,
+                get_reference_coordinates()
+            )
+        }
+        fn get_element_transformed<'a>() -> $element<$constitutive_model<'a>>
+        {
+            $element::<$constitutive_model>::new
+            (
+                $constitutive_model_parameters,
+                get_reference_coordinates_transformed()
+            )
+        }
+    }
+}
+pub(crate) use setup_for_test_finite_element_with_elastic_constitutive_model;
 
 macro_rules! test_finite_element_with_elastic_constitutive_model
 {

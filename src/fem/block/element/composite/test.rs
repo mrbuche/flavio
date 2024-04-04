@@ -141,8 +141,23 @@ pub(crate) use test_composite_element_inner;
 
 macro_rules! setup_for_test_composite_element_with_constitutive_model
 {
-    ($element: ident, $constitutive_model: ident) =>
+    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
     {
+        fn get_element<'a>() -> $element<$constitutive_model<'a>>
+        {
+            $element::new(
+                $constitutive_model_parameters,
+                get_reference_coordinates()
+            )
+        }
+        fn get_element_transformed<'a>() -> $element<$constitutive_model<'a>>
+        {
+            $element::<$constitutive_model>::new
+            (
+                $constitutive_model_parameters,
+                get_reference_coordinates_transformed()
+            )
+        }
         #[test]
         fn size()
         {
@@ -161,24 +176,7 @@ macro_rules! test_composite_element_with_constitutive_model
 {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
     {
-        fn get_element<'a>() -> $element<$constitutive_model<'a>>
-        {
-            // $element::new(
-            //     $constitutive_model_parameters,
-            //     get_reference_coordinates()
-            // )
-            todo!()
-        }
-        fn get_element_transformed<'a>() -> $element<$constitutive_model<'a>>
-        {
-            // $element::<$constitutive_model>::new
-            // (
-            //     $constitutive_model_parameters,
-            //     get_reference_coordinates_transformed()
-            // )
-            todo!()
-        }
-        setup_for_test_composite_element_with_constitutive_model!($element, $constitutive_model);
+        setup_for_test_composite_element_with_constitutive_model!($element, $constitutive_model, $constitutive_model_parameters);
         mod deformation_gradients
         {
             use super::*;

@@ -1,11 +1,19 @@
 use crate::fem::block::
 {
-    element::composite::test::
+    element::
     {
-        setup_for_test_composite_element_with_constitutive_model,
-        test_composite_element
+        composite::test::
+        {
+            setup_for_test_composite_element_with_constitutive_model,
+            test_composite_element
+        },
+        test::setup_for_test_finite_element_with_elastic_constitutive_model
     },
-    test::test_finite_element_block
+    test::
+    {
+        setup_for_test_finite_element_block_with_elastic_constitutive_model,
+        test_finite_element_block
+    }
 };
 use super::*;
 

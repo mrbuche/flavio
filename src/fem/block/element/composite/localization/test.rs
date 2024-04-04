@@ -39,8 +39,24 @@ pub(crate) use test_composite_localization_element;
 
 macro_rules! setup_for_test_composite_element_with_constitutive_model
 {
-    ($element: ident, $constitutive_model: ident) =>
+    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
     {
+        fn get_element<'a>() -> $element<$constitutive_model<'a>>
+        {
+            $element::new(
+                $constitutive_model_parameters,
+                get_reference_coordinates(),
+                &crate::fem::block::element::linear::surface::test::THICKNESS
+            )
+        }
+        fn get_element_transformed<'a>() -> $element<$constitutive_model<'a>>
+        {
+            $element::new(
+                $constitutive_model_parameters,
+                get_reference_coordinates_transformed(),
+                &crate::fem::block::element::linear::surface::test::THICKNESS
+            )
+        }
         #[test]
         fn size()
         {
