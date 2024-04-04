@@ -9,8 +9,7 @@ use super::*;
 
 pub trait LinearElement<'a, C, const G: usize, const M: usize, const N: usize, const O: usize>
 where
-    C: Constitutive<'a>,
-    Self: FiniteElement<'a, C, G, N>
+    C: Constitutive<'a>
 {
     fn calculate_deformation_gradient(&self, nodal_coordinates: &NodalCoordinates<N>) -> DeformationGradient
     {

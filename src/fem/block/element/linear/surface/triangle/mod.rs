@@ -18,11 +18,11 @@ pub struct Triangle<C>
     reference_normal: ReferenceNormal
 }
 
-impl<'a, C> FiniteElement<'a, C, G, N> for Triangle<C>
+impl<'a, C> SurfaceElement<'a, C, G, N> for Triangle<C>
 where
     C: Constitutive<'a>
 {
-    fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>) -> Self
+    fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>, thickness: &Scalar) -> Self
     {
         Self
         {
