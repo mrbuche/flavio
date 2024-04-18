@@ -20,3 +20,7 @@ mechanics = ['math']
 [package.metadata.docs.rs]
 features = ["fem"]
 rustdoc-args = ["--html-in-header", ".github/katex.html"]
+
+[profile.release]
+codegen-units = 1
+lto = false
