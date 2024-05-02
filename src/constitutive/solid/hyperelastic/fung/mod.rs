@@ -28,7 +28,7 @@ pub struct Fung<'a>
 impl<'a> Fung<'a>
 {
     /// Returns the extra modulus.
-    pub fn get_extra_modulus(&self) -> &Scalar
+    fn get_extra_modulus(&self) -> &Scalar
     {
         &self.parameters[2]
     }
