@@ -26,6 +26,5 @@ pub trait Cohesive<'a>
 where
     Self: Constitutive<'a>
 {
-    fn calculate_potential(&self, displacement: &Displacement) -> Scalar;
     fn calculate_traction(&self, displacement: &Displacement, normal: &Normal) -> Traction;
 }
