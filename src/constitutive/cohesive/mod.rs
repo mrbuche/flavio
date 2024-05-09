@@ -3,6 +3,8 @@ pub mod test;
 
 mod smith_ferrante;
 
+pub use smith_ferrante::SmithFerrante;
+
 use crate::
 {
     math::TensorRank1Trait,

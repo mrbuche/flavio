@@ -1,0 +1,17 @@
+#[cfg(test)]
+pub mod test;
+
+pub mod wedge;
+
+use super::*;
+
+pub trait LinearCohesiveElement<'a, C, const G: usize, const M: usize, const N: usize, const O: usize>
+where
+    C: Cohesive<'a>,
+    Self: LinearSurfaceElement<'a, C, G, M, N, O>
+{
+    fn calculate_displacement(nodal_coordinates: &NodalCoordinates<N>) -> Displacement;
+    fn calculate_midplane<const I: usize>(nodal_coordinates: &Coordinates<I, N>) -> Coordinates<I, O>;
+    fn calculate_nodal_forces_linear_cohesive_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>;
+    fn calculate_nodal_stiffnesses_linear_cohesive_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>;
+}

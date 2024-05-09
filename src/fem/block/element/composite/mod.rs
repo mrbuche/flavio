@@ -42,10 +42,7 @@ where
             shape_function_integrals_products * reference_jacobian_subelement
         ).sum::<ProjectionMatrix<Q>>().inverse()
     }
-    fn calculate_projected_gradient_vectors(_reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ProjectedGradientVectors<G, N>
-    {
-        panic!()
-    }
+    fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ProjectedGradientVectors<G, N>;
     fn calculate_reference_jacobians(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> Scalars<G>
     {
         let vector = Self::calculate_inverse_normalized_projection_matrix() *
@@ -221,88 +218,3 @@ where
         ).sum()
     }
 }
-
-macro_rules! composite_element_boilerplate
-{
-    ($element: ident) =>
-    {
-        impl<'a, C> ElasticFiniteElement<'a, C, G, N> for $element<C>
-        where
-            C: Elastic<'a>
-        {
-            fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
-            {
-                self.calculate_nodal_forces_composite_element(nodal_coordinates)
-            }
-            fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
-            {
-                self.calculate_nodal_stiffnesses_composite_element(nodal_coordinates)
-            }
-        }
-        impl<'a, C> ElasticCompositeElement<'a, C, G, M, N, O, P, Q> for $element<C>
-        where
-            C: Elastic<'a>
-        {}
-        impl<'a, C> HyperelasticFiniteElement<'a, C, G, N> for $element<C>
-        where
-            C: Hyperelastic<'a>
-        {
-            fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
-            {
-                self.calculate_helmholtz_free_energy_composite_element(nodal_coordinates)
-            }
-        }
-        impl<'a, C> HyperelasticCompositeElement<'a, C, G, M, N, O, P, Q> for $element<C>
-        where
-            C: Hyperelastic<'a>
-        {}
-        impl<'a, C> ViscoelasticFiniteElement<'a, C, G, N> for $element<C>
-        where
-            C: Viscoelastic<'a>
-        {
-            fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalForces<N>
-            {
-                self.calculate_nodal_forces_composite_element(nodal_coordinates, nodal_velocities)
-            }
-            fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalStiffnesses<N>
-            {
-                self.calculate_nodal_stiffnesses_composite_element(nodal_coordinates, nodal_velocities)
-            }
-        }
-        impl<'a, C> ViscoelasticCompositeElement<'a, C, G, M, N, O, P, Q> for $element<C>
-        where
-            C: Viscoelastic<'a>
-        {}
-        impl<'a, C> ElasticHyperviscousFiniteElement<'a, C, G, N> for $element<C>
-        where
-            C: ElasticHyperviscous<'a>
-        {
-            fn calculate_viscous_dissipation(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> Scalar
-            {
-                self.calculate_viscous_dissipation_composite_element(nodal_coordinates, nodal_velocities)
-            }
-            fn calculate_dissipation_potential(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> Scalar
-            {
-                self.calculate_dissipation_potential_composite_element(nodal_coordinates, nodal_velocities)
-            }
-        }
-        impl<'a, C> ElasticHyperviscousCompositeElement<'a, C, G, M, N, O, P, Q> for $element<C>
-        where
-            C: ElasticHyperviscous<'a>
-        {}
-        impl<'a, C> HyperviscoelasticFiniteElement<'a, C, G, N> for $element<C>
-        where
-            C: Hyperviscoelastic<'a>
-        {
-            fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
-            {
-                self.calculate_helmholtz_free_energy_composite_element(nodal_coordinates)
-            }
-        }
-        impl<'a, C> HyperviscoelasticCompositeElement<'a, C, G, M, N, O, P, Q> for $element<C>
-        where
-            C: Hyperviscoelastic<'a>
-        {}
-    }
-}
-pub(crate) use composite_element_boilerplate;

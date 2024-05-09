@@ -73,6 +73,7 @@ use crate::
     {
         Constitutive,
         Parameters,
+        cohesive::Cohesive,
         solid::
         {
             elastic::Elastic,
@@ -112,6 +113,7 @@ use crate::
         DeformationGradients,
         DeformationGradientRate,
         DeformationGradientRates,
+        Displacement,
         FirstPiolaKirchoffStresses,
         FirstPiolaKirchoffTangentStiffnesses,
         FirstPiolaKirchoffRateTangentStiffnesses,
