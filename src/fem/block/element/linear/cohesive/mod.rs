@@ -12,6 +12,4 @@ where
 {
     fn calculate_displacement(nodal_coordinates: &NodalCoordinates<N>) -> Displacement;
     fn calculate_midplane<const I: usize>(nodal_coordinates: &Coordinates<I, N>) -> Coordinates<I, O>;
-    fn calculate_nodal_forces_linear_cohesive_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>;
-    fn calculate_nodal_stiffnesses_linear_cohesive_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>;
 }

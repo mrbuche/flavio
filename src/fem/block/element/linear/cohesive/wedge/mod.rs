@@ -101,11 +101,20 @@ where
 {
     fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
     {
-        self.calculate_nodal_forces_linear_cohesive_element(nodal_coordinates)
+        let scaled_traction = self.get_constitutive_model()
+        .calculate_traction(
+            &Self::calculate_displacement(nodal_coordinates),
+            &Self::calculate_normal(
+                &Self::calculate_midplane(nodal_coordinates)
+            )
+        ) * self.get_integration_weight() / 3.0;
+        (0..N).map(|node|
+            &scaled_traction * (1.0 - 2.0 * (((node >= O) as u8) as Scalar))
+        ).collect()
     }
     fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
     {
-        self.calculate_nodal_stiffnesses_linear_cohesive_element(nodal_coordinates)
+        NodalStiffnesses::zero()
     }
 }
 
@@ -136,22 +145,5 @@ where
                 (nodal_coordinates_top_i + nodal_coordinates_bottom_i) * 0.5
             ).collect()
         ).collect()
-    }
-    fn calculate_nodal_forces_linear_cohesive_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
-    {
-        let scaled_traction = self.get_constitutive_model()
-        .calculate_traction(
-            &Self::calculate_displacement(nodal_coordinates),
-            &Self::calculate_normal(
-                &Self::calculate_midplane(nodal_coordinates)
-            )
-        ) * self.get_integration_weight() / 3.0;
-        (0..N).map(|node|
-            &scaled_traction * (1.0 - 2.0 * (((node >= O) as u8) as Scalar))
-        ).collect()
-    }
-    fn calculate_nodal_stiffnesses_linear_cohesive_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
-    {
-        todo!("Need to finish constitutive implementation first.")
     }
 }
