@@ -30,7 +30,7 @@ fn get_coordinates() -> NodalCoordinates<N>
 fn zero()
 {
     let element = Wedge::<SmithFerrante>::new(
-        &[1.0, 1.0],
+        &[1.0, 1.0, 1.0],
         get_reference_coordinates()
     );
     element.calculate_nodal_forces(
