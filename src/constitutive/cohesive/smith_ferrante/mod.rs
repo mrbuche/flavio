@@ -39,9 +39,21 @@ impl<'a> Cohesive<'a> for SmithFerrante<'a>
 {
     fn calculate_traction(&self, displacement: &Displacement, normal: &Normal) -> Traction
     {
-        let normal_displacement = normal * (displacement * normal);
-        let surface_displacement = displacement - normal * (displacement * normal);
-        let characteristic_displacement = self.get_characteristic_displacement();
-        (surface_displacement * self.get_weight().powi(2) + normal_displacement) * (self.get_maximum_normal_traction() / characteristic_displacement) * (1.0 - displacement.norm() / characteristic_displacement).exp()
+        let opening_magnitude = displacement * normal;
+        let opening = normal * opening_magnitude;
+        let sliding = displacement - normal * opening_magnitude;
+        let effective_opening = sliding * self.get_weight() + opening;
+        let effective_opening_magnitude = effective_opening.norm();
+        effective_opening * (self.get_maximum_normal_traction() / self.get_characteristic_displacement()) * (1.0 - effective_opening_magnitude / self.get_characteristic_displacement()).exp()
+    }
+    fn calculate_stiffnesses(&self, displacement: &Displacement, normal: &Normal) -> (Stiffness, Stiffness)
+    {
+        let opening_magnitude = displacement * normal;
+        let opening = normal * opening_magnitude;
+        let sliding = displacement - normal * opening_magnitude;
+        let effective_opening = sliding * self.get_weight() + opening;
+        let nominal = (Stiffness::identity() - Stiffness::dyad(&effective_opening, &effective_opening.normalized()) / self.get_characteristic_displacement()) * ((self.get_maximum_normal_traction() / self.get_characteristic_displacement()) * (1.0 - effective_opening.norm() / self.get_characteristic_displacement()).exp());
+        (&nominal * (Stiffness::identity() * self.get_weight() + Stiffness::dyad(normal, normal) * (1.0 - self.get_weight())), 
+        (&nominal * ((Stiffness::identity() * opening_magnitude + Stiffness::dyad(normal, displacement)) * (1.0 - self.get_weight()))))
     }
 }

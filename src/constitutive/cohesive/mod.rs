@@ -7,12 +7,17 @@ pub use smith_ferrante::SmithFerrante;
 
 use crate::
 {
-    math::TensorRank1Trait,
+    math::
+    {
+        TensorRank1Trait,
+        TensorRank2Trait
+    },
     mechanics::
     {
         Displacement,
         Normal,
         Scalar,
+        Stiffness,
         Traction
     }
 };
@@ -29,4 +34,5 @@ where
     Self: Constitutive<'a>
 {
     fn calculate_traction(&self, displacement: &Displacement, normal: &Normal) -> Traction;
+    fn calculate_stiffnesses(&self, displacement: &Displacement, normal: &Normal) -> (Stiffness, Stiffness);
 }
