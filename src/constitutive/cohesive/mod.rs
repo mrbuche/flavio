@@ -1,3 +1,5 @@
+//! Cohesive constitutive models.
+
 #[cfg(test)]
 pub mod test;
 
@@ -29,6 +31,7 @@ use super::
 
 // TODO: loading/unloading rules using an ISV
 
+/// Required methods for cohesive constitutive models.
 pub trait Cohesive<'a>
 where
     Self: Constitutive<'a>

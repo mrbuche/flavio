@@ -3,6 +3,7 @@ pub mod test;
 
 use super::*;
 
+/// The Smith-Ferrante cohesive constitutive model.
 pub struct SmithFerrante<'a>
 {
     parameters: Parameters<'a>

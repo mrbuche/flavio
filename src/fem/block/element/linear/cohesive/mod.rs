@@ -1,6 +1,3 @@
-#[cfg(test)]
-pub mod test;
-
 pub mod wedge;
 
 use super::*;

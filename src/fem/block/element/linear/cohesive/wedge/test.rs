@@ -1,7 +1,11 @@
 use crate::
 {
     EPSILON,
-    constitutive::cohesive::SmithFerrante
+    constitutive::cohesive::
+    {
+        SmithFerrante,
+        test::SMITHFERRANTEPARAMETERS
+    }
 };
 
 use super::*;
@@ -34,7 +38,7 @@ fn get_coordinates() -> NodalCoordinates<N>
 fn zero()
 {
     let element = Wedge::<SmithFerrante>::new(
-        &[1.3, 1.4, 0.8],
+        SMITHFERRANTEPARAMETERS,
         get_reference_coordinates()
     );
     element.calculate_nodal_forces(
@@ -52,7 +56,7 @@ fn zero()
 fn finite_difference()
 {
     let element = Wedge::<SmithFerrante>::new(
-        &[1.3, 1.4, 0.8],
+        SMITHFERRANTEPARAMETERS,
         get_reference_coordinates()
     );
     let mut finite_difference = 0.0;
@@ -87,10 +91,4 @@ fn finite_difference()
             )
         )
     )
-}
-
-#[test]
-fn todo()
-{
-    todo!()
 }

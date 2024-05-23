@@ -26,10 +26,6 @@ pub use block::
             ViscoelasticCompositeElement,
             ElasticHyperviscousCompositeElement,
             HyperviscoelasticCompositeElement,
-            tetrahedron::
-            {
-                Tetrahedron as CompositeTetrahedron
-            },
             localization::
             {
                 CompositeLocalizationElement,
@@ -39,6 +35,10 @@ pub use block::
             {
                 CompositeSurfaceElement,
                 triangle::Triangle as CompositeTriangle
+            },
+            tetrahedron::
+            {
+                Tetrahedron as CompositeTetrahedron
             }
         },
         linear::
@@ -49,9 +49,10 @@ pub use block::
             ViscoelasticLinearElement,
             ElasticHyperviscousLinearElement,
             HyperviscoelasticLinearElement,
-            tetrahedron::
+            cohesive::
             {
-                Tetrahedron as LinearTetrahedron
+                LinearCohesiveElement,
+                wedge::Wedge as LinearWedgeCohesive
             },
             localization::
             {
@@ -62,6 +63,10 @@ pub use block::
             {
                 LinearSurfaceElement,
                 triangle::Triangle as LinearTriangle
+            },
+            tetrahedron::
+            {
+                Tetrahedron as LinearTetrahedron
             }
         }
     }
