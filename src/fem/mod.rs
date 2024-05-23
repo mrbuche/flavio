@@ -7,6 +7,8 @@ pub use block::
     ElasticBlock,
     ViscoelasticBlock,
     FiniteElementBlock,
+    BasicFiniteElementBlock,
+    SurfaceElementBlock,
     ElasticFiniteElementBlock,
     HyperelasticFiniteElementBlock,
     ViscoelasticFiniteElementBlock,
@@ -18,6 +20,7 @@ pub use block::
         HyperelasticFiniteElement,
         ViscoelasticFiniteElement,
         HyperviscoelasticFiniteElement,
+        CohesiveElement,
         composite::
         {
             CompositeElement,
