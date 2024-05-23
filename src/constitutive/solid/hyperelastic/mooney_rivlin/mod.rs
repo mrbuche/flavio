@@ -27,7 +27,7 @@ pub struct MooneyRivlin<'a>
 impl<'a> MooneyRivlin<'a>
 {
     /// Returns the extra modulus.
-    pub fn get_extra_modulus(&self) -> &Scalar
+    fn get_extra_modulus(&self) -> &Scalar
     {
         &self.parameters[2]
     }

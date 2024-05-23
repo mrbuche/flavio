@@ -79,6 +79,10 @@ pub use tensor::
         TensorRank4,
         TensorRank4Inverse,
         TensorRank4Trait,
-        list::TensorRank4List
+        list::
+        {
+            TensorRank4List,
+            TensorRank4ListTrait
+        }
     }
 };

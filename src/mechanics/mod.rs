@@ -50,6 +50,9 @@ pub type DeformationGradients<const W: usize> = TensorRank2List<3, 1, 0, W>;
 /// A list of deformation gradient rates.
 pub type DeformationGradientRates<const W: usize> = TensorRank2List<3, 1, 0, W>;
 
+/// A displacement.
+pub type Displacement = TensorRank1<3, 1>;
+
 /// The first Piola-Kirchoff stress $`\mathbf{P}`$.
 pub type FirstPiolaKirchoffStress = TensorRank2<3, 1, 0>;
 
@@ -82,6 +85,9 @@ pub type HeatFlux = TensorRank1<3, 1>;
 
 /// The left Cauchy-Green deformation $`\mathbf{B}`$.
 pub type LeftCauchyGreenDeformation = TensorRank2<3, 1, 1>;
+
+/// A normal.
+pub type Normal = TensorRank1<3, 1>;
 
 /// A coordinate in the reference configuration.
 pub type ReferenceCoordinate = TensorRank1<3, 0>;
@@ -124,6 +130,9 @@ pub type Stiffnesses<const W: usize> = TensorRank2List2D<3, 1, 1, W, W>;
 
 /// The temperature gradient.
 pub type TemperatureGradient = TensorRank1<3, 1>;
+
+/// A traction.
+pub type Traction = TensorRank1<3, 1>;
 
 /// A vector.
 pub type Vector<const I: usize> = TensorRank1<3, I>;

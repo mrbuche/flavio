@@ -3,6 +3,7 @@
 #[cfg(test)]
 pub mod test;
 
+pub mod cohesive;
 pub mod fluid;
 pub mod multiphysics;
 pub mod solid;

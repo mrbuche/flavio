@@ -20,6 +20,15 @@ where
     fn new(constitutive_model_parameters: Parameters<'a>, reference_nodal_coordinates: ReferenceNodalCoordinates<N>, thickness: &Scalar) -> Self;
 }
 
+pub trait CohesiveElement<'a, C, const G: usize, const N: usize>
+where
+    C: Cohesive<'a>,
+    Self: FiniteElement<'a, C, G, N>
+{
+    fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>;
+    fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>;
+}
+
 pub trait ElasticFiniteElement<'a, C, const G: usize, const N: usize>
 where
     C: Elastic<'a>

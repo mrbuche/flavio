@@ -1068,8 +1068,8 @@ macro_rules! test_finite_element_with_viscoelastic_constitutive_model
         {
             let element = get_element();
             let mut finite_difference = 0.0;
-            (0..N).map(|node_a|
-                (0..N).map(|node_b|
+            (0..N).map(|a|
+                (0..N).map(|b|
                     (0..3).map(|i|
                         (0..3).map(|j|{
                             let nodal_coordinates = 
@@ -1090,14 +1090,14 @@ macro_rules! test_finite_element_with_viscoelastic_constitutive_model
                             {
                                 NodalVelocities::zero()
                             };
-                            nodal_velocities[node_a][i] += 0.5 * EPSILON;
+                            nodal_velocities[b][j] += 0.5 * EPSILON;
                             finite_difference = element.calculate_nodal_forces(
                                 &nodal_coordinates, &nodal_velocities
-                            )[node_b][j];
-                            nodal_velocities[node_a][i] -= EPSILON;
+                            )[a][i];
+                            nodal_velocities[b][j] -= EPSILON;
                             finite_difference -= element.calculate_nodal_forces(
                                 &nodal_coordinates, &nodal_velocities
-                            )[node_b][j];
+                            )[a][i];
                             finite_difference/EPSILON
                         }).collect()
                     ).collect()
