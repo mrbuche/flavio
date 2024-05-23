@@ -79,7 +79,10 @@ fn finite_difference()
                     finite_difference -= element.calculate_nodal_forces(
                         &nodal_coordinates
                     )[a][i];
-                    assert_eq!(nodal_stiffness_ab_ij, &(finite_difference/EPSILON))
+                    finite_difference /= EPSILON;
+                    assert!(
+                        (nodal_stiffness_ab_ij/finite_difference - 1.0).abs() < EPSILON
+                    )
                 })
             )
         )

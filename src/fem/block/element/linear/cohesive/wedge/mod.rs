@@ -107,14 +107,44 @@ where
             &Self::calculate_normal(
                 &Self::calculate_midplane(nodal_coordinates)
             )
-        ) * self.get_integration_weight() / 3.0;
+        ) * (self.get_integration_weight() / 3.0);
         (0..N).map(|node|
             &scaled_traction * (1.0 - 2.0 * (((node >= O) as u8) as Scalar))
         ).collect()
     }
     fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
     {
-        NodalStiffnesses::zero()
+        let midplane = Self::calculate_midplane(nodal_coordinates);
+        let (stiffness_opening, stiffness_normal) = self.get_constitutive_model()
+        .calculate_stiffnesses(
+            &Self::calculate_displacement(nodal_coordinates),
+            &Self::calculate_normal(&midplane)
+        );
+        let objects = Self::calculate_normal_gradients(&midplane).iter()
+        .map(|normal_gradient_b|
+            stiffness_normal.iter()
+            .map(|stiffness_normal_i|
+                normal_gradient_b.iter()
+                .map(|normal_gradient_b_k|
+                    stiffness_normal_i * normal_gradient_b_k
+                ).collect()
+            ).collect()
+        ).collect::<NormalGradients<O>>();
+        (0..N).map(|node_a|
+            (0..N)
+            .zip(objects.iter()
+            .chain(objects.iter()))
+            .map(|(node_b, object_b)|
+                &stiffness_opening * (
+                    self.get_integration_weight() / -9.0
+                    * (1.0 - 2.0 * (((node_a >= O) as u8) as Scalar))
+                    * (1.0 - 2.0 * (((node_b >= O) as u8) as Scalar))
+                ) + object_b * (
+                    self.get_integration_weight() / 6.0
+                    * (1.0 - 2.0 * (((node_a >= O) as u8) as Scalar))
+                )
+            ).collect()
+        ).collect()
     }
 }
 
