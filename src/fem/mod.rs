@@ -20,6 +20,7 @@ pub use block::
         HyperelasticFiniteElement,
         ViscoelasticFiniteElement,
         HyperviscoelasticFiniteElement,
+        SurfaceElement,
         CohesiveElement,
         composite::
         {
