@@ -406,7 +406,7 @@ macro_rules! test_helmholtz_free_energy
             let mut finite_difference = 0.0;
             (0..D).map(|node|
                 (0..3).map(|i|{
-                    let mut nodal_coordinates = 
+                    let mut nodal_coordinates =
                     if is_deformed
                     {
                         get_coordinates_block()
@@ -418,7 +418,7 @@ macro_rules! test_helmholtz_free_energy
                     nodal_coordinates[node][i] += 0.5 * EPSILON;
                     block.set_nodal_coordinates(nodal_coordinates);
                     finite_difference = block.calculate_helmholtz_free_energy();
-                    let mut nodal_coordinates = 
+                    let mut nodal_coordinates =
                     if is_deformed
                     {
                         get_coordinates_block()
@@ -698,7 +698,7 @@ macro_rules! test_finite_element_block_with_elastic_constitutive_model
                 (0..D).map(|node_b|
                     (0..3).map(|i|
                         (0..3).map(|j|{
-                            let mut nodal_coordinates = 
+                            let mut nodal_coordinates =
                             if is_deformed
                             {
                                 get_coordinates_block()
@@ -710,7 +710,7 @@ macro_rules! test_finite_element_block_with_elastic_constitutive_model
                             nodal_coordinates[node_b][j] += 0.5 * EPSILON;
                             block.set_nodal_coordinates(nodal_coordinates);
                             finite_difference = block.calculate_nodal_forces()[node_a][i];
-                            let mut nodal_coordinates = 
+                            let mut nodal_coordinates =
                             if is_deformed
                             {
                                 get_coordinates_block()
@@ -939,7 +939,7 @@ macro_rules! test_finite_element_block_with_viscoelastic_constitutive_model
                 (0..D).map(|node_b|
                     (0..3).map(|i|
                         (0..3).map(|j|{
-                            let mut nodal_velocities = 
+                            let mut nodal_velocities =
                             if is_deformed
                             {
                                 get_velocities_block()
@@ -951,7 +951,7 @@ macro_rules! test_finite_element_block_with_viscoelastic_constitutive_model
                             nodal_velocities[node_a][i] += 0.5 * EPSILON;
                             block.set_nodal_velocities(nodal_velocities);
                             finite_difference = block.calculate_nodal_forces()[node_b][j];
-                            let mut nodal_velocities = 
+                            let mut nodal_velocities =
                             if is_deformed
                             {
                                 get_velocities_block()
@@ -997,7 +997,7 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
             let mut finite_difference = 0.0;
             (0..D).map(|node|
                 (0..3).map(|i|{
-                    let mut nodal_velocities = 
+                    let mut nodal_velocities =
                     if is_deformed
                     {
                         get_velocities_block()
@@ -1009,7 +1009,7 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
                     nodal_velocities[node][i] += 0.5 * EPSILON;
                     block.set_nodal_velocities(nodal_velocities);
                     finite_difference = block.calculate_viscous_dissipation();
-                    let mut nodal_velocities = 
+                    let mut nodal_velocities =
                     if is_deformed
                     {
                         get_velocities_block()
@@ -1039,7 +1039,7 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
             let mut finite_difference = 0.0;
             (0..D).map(|node|
                 (0..3).map(|i|{
-                    let mut nodal_velocities = 
+                    let mut nodal_velocities =
                     if is_deformed
                     {
                         get_velocities_block()
@@ -1051,7 +1051,7 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
                     nodal_velocities[node][i] += 0.5 * EPSILON;
                     block.set_nodal_velocities(nodal_velocities);
                     finite_difference = block.calculate_dissipation_potential();
-                    let mut nodal_velocities = 
+                    let mut nodal_velocities =
                     if is_deformed
                     {
                         get_velocities_block()

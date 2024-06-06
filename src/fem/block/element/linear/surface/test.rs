@@ -357,7 +357,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
             (0..O).map(|a|
                 (0..3).map(|m|
                     (0..3).map(|i|{
-                        let mut nodal_coordinates = 
+                        let mut nodal_coordinates =
                         if is_deformed
                         {
                             get_coordinates()
@@ -424,7 +424,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 .map(|(a, velocity_a)|
                     velocity_a.iter().enumerate()
                     .map(|(k, velocity_a_k)|{
-                        let mut nodal_coordinates = 
+                        let mut nodal_coordinates =
                         if is_deformed
                         {
                             get_coordinates()
@@ -487,7 +487,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                     (0..3).map(|m|
                         (0..3).map(|n|
                             (0..3).map(|i|{
-                                let mut nodal_coordinates = 
+                                let mut nodal_coordinates =
                                 if is_deformed
                                 {
                                     get_coordinates()
@@ -588,7 +588,7 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                         .enumerate()
                         .for_each(|(n, dual_basis_n)|
                             assert_eq_within_tols(
-                                &(basis_m * dual_basis_n), 
+                                &(basis_m * dual_basis_n),
                                 &((m == n) as u8 as Scalar)
                             )
                         )
@@ -622,7 +622,7 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                         .enumerate()
                         .for_each(|(n, dual_basis_n)|
                             assert_eq_within_tols(
-                                &(basis_m * dual_basis_n), 
+                                &(basis_m * dual_basis_n),
                                 &((m == n) as u8 as Scalar)
                             )
                         )
@@ -890,7 +890,7 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                     get_normal_rate(true, false).iter()
                     .zip((
                         get_rotation_current_configuration().transpose() *
-                        get_normal_rate(true, true) + 
+                        get_normal_rate(true, true) +
                         get_rotation_rate_current_configuration().transpose() *
                         get_normal(true, true)
                     ).iter())

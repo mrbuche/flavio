@@ -4,7 +4,7 @@ mod test;
 use super::*;
 
 /// The Gent hyperelastic constitutive model.
-/// 
+///
 /// **Parameters**
 /// - The bulk modulus $`\kappa`$.
 /// - The shear modulus $`\mu`$.
@@ -15,7 +15,7 @@ use super::*;
 ///
 /// **Internal variables**
 /// - None.
-/// 
+///
 /// **Notes**
 /// - The Gent model reduces to the [Neo-Hookean model](NeoHookean) when $`J_m\to\infty`$.
 pub struct Gent<'a>

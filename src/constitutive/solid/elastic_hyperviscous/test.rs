@@ -105,7 +105,7 @@ macro_rules! test_solid_elastic_hyperviscous_specifics
                     {
                         for j in 0..3
                         {
-                            let mut deformation_gradient_rate_plus = 
+                            let mut deformation_gradient_rate_plus =
                                 if is_deformed
                                 {
                                     get_deformation_gradient_rate()
@@ -119,7 +119,7 @@ macro_rules! test_solid_elastic_hyperviscous_specifics
                             calculate_viscous_dissipation_from_deformation_gradient_rate_simple!(
                                 $constitutive_model_constructed, &deformation_gradient_rate_plus
                             );
-                            let mut deformation_gradient_rate_minus = 
+                            let mut deformation_gradient_rate_minus =
                                 if is_deformed
                                 {
                                     get_deformation_gradient_rate()
@@ -286,7 +286,7 @@ macro_rules! test_solid_elastic_hyperviscous_specifics
                     {
                         for j in 0..3
                         {
-                            let mut deformation_gradient_rate_plus = 
+                            let mut deformation_gradient_rate_plus =
                                 if is_deformed
                                 {
                                     get_deformation_gradient_rate()
@@ -300,7 +300,7 @@ macro_rules! test_solid_elastic_hyperviscous_specifics
                             calculate_dissipation_potential_from_deformation_gradient_and_deformation_gradient_rate!(
                                 $constitutive_model_constructed, &deformation_gradient, &deformation_gradient_rate_plus
                             );
-                            let mut deformation_gradient_rate_minus = 
+                            let mut deformation_gradient_rate_minus =
                                 if is_deformed
                                 {
                                     get_deformation_gradient_rate()

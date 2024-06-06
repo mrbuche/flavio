@@ -443,7 +443,7 @@ fn determinant_dim_3()
 fn determinant_dim_4()
 {
     assert_eq_within_tols(&get_tensor_rank_2_dim_4().determinant(), &36.0);
-} 
+}
 
 #[test]
 fn determinant_dim_9()

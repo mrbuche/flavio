@@ -231,7 +231,7 @@ macro_rules! test_solid_viscous_constitutive_model
                 {
                     for l in 0..3
                     {
-                        let mut deformation_gradient_rate_plus = 
+                        let mut deformation_gradient_rate_plus =
                             if is_deformed
                             {
                                 get_deformation_gradient_rate()
@@ -245,7 +245,7 @@ macro_rules! test_solid_viscous_constitutive_model
                         calculate_cauchy_stress_from_deformation_gradient_and_deformation_gradient_rate!(
                             &$constitutive_model_constructed, &deformation_gradient, &deformation_gradient_rate_plus
                         );
-                        let mut deformation_gradient_rate_minus = 
+                        let mut deformation_gradient_rate_minus =
                             if is_deformed
                             {
                                 get_deformation_gradient_rate()
@@ -288,7 +288,7 @@ macro_rules! test_solid_viscous_constitutive_model
                 {
                     for l in 0..3
                     {
-                        let mut deformation_gradient_rate_plus = 
+                        let mut deformation_gradient_rate_plus =
                             if is_deformed
                             {
                                 get_deformation_gradient_rate()
@@ -302,7 +302,7 @@ macro_rules! test_solid_viscous_constitutive_model
                         calculate_first_piola_kirchoff_stress_from_deformation_gradient_and_deformation_gradient_rate!(
                             &$constitutive_model_constructed, &deformation_gradient, &deformation_gradient_rate_plus
                         );
-                        let mut deformation_gradient_rate_minus = 
+                        let mut deformation_gradient_rate_minus =
                             if is_deformed
                             {
                                 get_deformation_gradient_rate()
@@ -345,7 +345,7 @@ macro_rules! test_solid_viscous_constitutive_model
                 {
                     for l in 0..3
                     {
-                        let mut deformation_gradient_rate_plus = 
+                        let mut deformation_gradient_rate_plus =
                             if is_deformed
                             {
                                 get_deformation_gradient_rate()
@@ -359,7 +359,7 @@ macro_rules! test_solid_viscous_constitutive_model
                         calculate_second_piola_kirchoff_stress_from_deformation_gradient_and_deformation_gradient_rate!(
                             &$constitutive_model_constructed, &deformation_gradient, &deformation_gradient_rate_plus
                         );
-                        let mut deformation_gradient_rate_minus = 
+                        let mut deformation_gradient_rate_minus =
                             if is_deformed
                             {
                                 get_deformation_gradient_rate()
@@ -490,7 +490,7 @@ macro_rules! test_solid_viscous_constitutive_model
                     #[test]
                     fn symmetry()
                     {
-                        let cauchy_rate_tangent_stiffness = 
+                        let cauchy_rate_tangent_stiffness =
                         calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
                             &$constitutive_model_constructed, &get_deformation_gradient(), &get_deformation_gradient_rate()
                         );
@@ -551,7 +551,7 @@ macro_rules! test_solid_viscous_constitutive_model
                     #[test]
                     fn symmetry()
                     {
-                        let cauchy_rate_tangent_stiffness = 
+                        let cauchy_rate_tangent_stiffness =
                         calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
                             &$constitutive_model_constructed, &DeformationGradient::identity(), &DeformationGradientRate::zero()
                         );
