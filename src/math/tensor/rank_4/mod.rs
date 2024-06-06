@@ -228,7 +228,7 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
     {
         let mut output = TensorRank4::zero();
         self.iter().zip(tensor_rank_2_a.iter()).for_each(|(self_q, tensor_rank_2_a_q)|
-            output.iter_mut().zip(tensor_rank_2_a_q.iter()).for_each(|(output_i, tensor_rank_2_a_qi)|    
+            output.iter_mut().zip(tensor_rank_2_a_q.iter()).for_each(|(output_i, tensor_rank_2_a_qi)|
                 output_i.iter_mut().zip(self_q.iter()).for_each(|(output_ij, self_qj)|
                     self_qj.iter().zip(tensor_rank_2_b.iter()).for_each(|(self_qjm, tensor_rank_2_b_m)|
                         self_qjm.iter().zip(tensor_rank_2_c.iter()).for_each(|(self_qjmn, tensor_rank_2_c_n)|

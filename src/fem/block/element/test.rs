@@ -572,7 +572,7 @@ macro_rules! test_helmholtz_free_energy
             let mut finite_difference = 0.0;
             (0..N).map(|node|
                 (0..3).map(|i|{
-                    let mut nodal_coordinates = 
+                    let mut nodal_coordinates =
                     if is_deformed
                     {
                         get_coordinates()
@@ -627,7 +627,7 @@ macro_rules! test_helmholtz_free_energy
                         (0..3).for_each(|i|{
                             perturbed_coordinates = get_coordinates();
                             perturbed_coordinates[node][i] += 0.5 * EPSILON;
-                            perturbed = 
+                            perturbed =
                                 element.calculate_helmholtz_free_energy(
                                     &perturbed_coordinates
                                 ) - nodal_forces.dot(
@@ -638,7 +638,7 @@ macro_rules! test_helmholtz_free_energy
                                 check_eq_within_tols(&perturbed, &minimum)
                             );
                             perturbed_coordinates[node][i] -= EPSILON;
-                            perturbed = 
+                            perturbed =
                                 element.calculate_helmholtz_free_energy(
                                     &perturbed_coordinates
                                 ) - nodal_forces.dot(
@@ -909,7 +909,7 @@ macro_rules! test_finite_element_with_elastic_constitutive_model
                 (0..N).map(|b|
                     (0..3).map(|i|
                         (0..3).map(|j|{
-                            let mut nodal_coordinates = 
+                            let mut nodal_coordinates =
                             if is_deformed
                             {
                                 get_coordinates()
@@ -1072,7 +1072,7 @@ macro_rules! test_finite_element_with_viscoelastic_constitutive_model
                 (0..N).map(|b|
                     (0..3).map(|i|
                         (0..3).map(|j|{
-                            let nodal_coordinates = 
+                            let nodal_coordinates =
                             if is_deformed
                             {
                                 get_coordinates()
@@ -1081,7 +1081,7 @@ macro_rules! test_finite_element_with_viscoelastic_constitutive_model
                             {
                                 get_reference_coordinates().convert()
                             };
-                            let mut nodal_velocities = 
+                            let mut nodal_velocities =
                             if is_deformed
                             {
                                 get_velocities()
@@ -1198,7 +1198,7 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model
             let mut finite_difference = 0.0;
             (0..N).map(|node|
                 (0..3).map(|i|{
-                    let nodal_coordinates = 
+                    let nodal_coordinates =
                     if is_deformed
                     {
                         get_coordinates()
@@ -1207,7 +1207,7 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model
                     {
                         get_reference_coordinates().convert()
                     };
-                    let mut nodal_velocities = 
+                    let mut nodal_velocities =
                     if is_deformed
                     {
                         get_velocities()
@@ -1234,7 +1234,7 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model
             let mut finite_difference = 0.0;
             (0..N).map(|node|
                 (0..3).map(|i|{
-                    let nodal_coordinates = 
+                    let nodal_coordinates =
                     if is_deformed
                     {
                         get_coordinates()
@@ -1243,7 +1243,7 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model
                     {
                         get_reference_coordinates().convert()
                     };
-                    let mut nodal_velocities = 
+                    let mut nodal_velocities =
                     if is_deformed
                     {
                         get_velocities()

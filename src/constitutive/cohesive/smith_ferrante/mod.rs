@@ -54,7 +54,7 @@ impl<'a> Cohesive<'a> for SmithFerrante<'a>
         let sliding = displacement - normal * opening_magnitude;
         let effective_opening = sliding * self.get_weight() + opening;
         let nominal = (Stiffness::identity() - Stiffness::dyad(&effective_opening, &effective_opening.normalized()) / self.get_characteristic_displacement()) * ((self.get_maximum_normal_traction() / self.get_characteristic_displacement()) * (1.0 - effective_opening.norm() / self.get_characteristic_displacement()).exp());
-        (&nominal * (Stiffness::identity() * self.get_weight() + Stiffness::dyad(normal, normal) * (1.0 - self.get_weight())), 
+        (&nominal * (Stiffness::identity() * self.get_weight() + Stiffness::dyad(normal, normal) * (1.0 - self.get_weight())),
         (&nominal * ((Stiffness::identity() * opening_magnitude + Stiffness::dyad(normal, displacement)) * (1.0 - self.get_weight()))))
     }
 }

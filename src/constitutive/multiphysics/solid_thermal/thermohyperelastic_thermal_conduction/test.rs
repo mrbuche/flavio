@@ -12,13 +12,13 @@ test_thermohyperelastic_thermal_conduction_constitutive_model!(
 
 macro_rules! test_thermohyperelastic_thermal_conduction_constitutive_model
 {
-    ($thermohyperelastic_constitutive_model: ident, $thermohyperelastic_constitutive_model_parameters: expr, 
+    ($thermohyperelastic_constitutive_model: ident, $thermohyperelastic_constitutive_model_parameters: expr,
      $thermal_conduction_constitutive_model: ident, $thermal_conduction_constitutive_model_parameters: expr) =>
     {
         use crate::constitutive::multiphysics::solid_thermal::thermoelastic_thermal_conduction::test::test_thermoelastic_thermal_conduction_constitutive_model;
         test_thermoelastic_thermal_conduction_constitutive_model!(
             ThermohyperelasticThermalConduction,
-            $thermohyperelastic_constitutive_model, $thermohyperelastic_constitutive_model_parameters, 
+            $thermohyperelastic_constitutive_model, $thermohyperelastic_constitutive_model_parameters,
             $thermal_conduction_constitutive_model, $thermal_conduction_constitutive_model_parameters
         );
         #[test]

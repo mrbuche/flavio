@@ -77,7 +77,7 @@ macro_rules! test_solid_hyperelastic_constitutive_model_no_tangents
             {
                 for j in 0..3
                 {
-                    let mut deformation_gradient_plus = 
+                    let mut deformation_gradient_plus =
                         if is_deformed
                         {
                             get_deformation_gradient()
@@ -91,7 +91,7 @@ macro_rules! test_solid_hyperelastic_constitutive_model_no_tangents
                     calculate_helmholtz_free_energy_density_from_deformation_gradient_simple!(
                         $constitutive_model_constructed, &deformation_gradient_plus
                     );
-                    let mut deformation_gradient_minus = 
+                    let mut deformation_gradient_minus =
                         if is_deformed
                         {
                             get_deformation_gradient()

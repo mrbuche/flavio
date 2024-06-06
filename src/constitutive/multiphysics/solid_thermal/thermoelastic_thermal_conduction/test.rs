@@ -14,7 +14,7 @@ test_thermoelastic_thermal_conduction_constitutive_model!(
 macro_rules! test_thermoelastic_thermal_conduction_constitutive_model
 {
     ($thermoelastic_thermal_conduction_constitutive_model: ident,
-     $thermoelastic_constitutive_model: ident, $thermoelastic_constitutive_model_parameters: expr, 
+     $thermoelastic_constitutive_model: ident, $thermoelastic_constitutive_model_parameters: expr,
      $thermal_conduction_constitutive_model: ident, $thermal_conduction_constitutive_model_parameters: expr) =>
     {
         use crate::

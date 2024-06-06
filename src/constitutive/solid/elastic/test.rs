@@ -382,7 +382,7 @@ macro_rules! test_solid_constitutive_model_tangents
                 {
                     for l in 0..3
                     {
-                        let mut deformation_gradient_plus = 
+                        let mut deformation_gradient_plus =
                             if is_deformed
                             {
                                 get_deformation_gradient()
@@ -393,7 +393,7 @@ macro_rules! test_solid_constitutive_model_tangents
                             };
                         deformation_gradient_plus[k][l] += 0.5*EPSILON;
                         let calculate_cauchy_stress_plus = calculate_cauchy_stress_from_deformation_gradient!(&model, &deformation_gradient_plus);
-                        let mut deformation_gradient_minus = 
+                        let mut deformation_gradient_minus =
                             if is_deformed
                             {
                                 get_deformation_gradient()
@@ -423,7 +423,7 @@ macro_rules! test_solid_constitutive_model_tangents
                 {
                     for l in 0..3
                     {
-                        let mut deformation_gradient_plus = 
+                        let mut deformation_gradient_plus =
                             if is_deformed
                             {
                                 get_deformation_gradient()
@@ -434,7 +434,7 @@ macro_rules! test_solid_constitutive_model_tangents
                             };
                         deformation_gradient_plus[k][l] += 0.5*EPSILON;
                         let first_piola_kirchoff_stress_plus = calculate_first_piola_kirchoff_stress_from_deformation_gradient!(&model, &deformation_gradient_plus);
-                        let mut deformation_gradient_minus = 
+                        let mut deformation_gradient_minus =
                             if is_deformed
                             {
                                 get_deformation_gradient()
@@ -463,7 +463,7 @@ macro_rules! test_solid_constitutive_model_tangents
                 {
                     for l in 0..3
                     {
-                        let mut deformation_gradient_plus = 
+                        let mut deformation_gradient_plus =
                             if is_deformed
                             {
                                 get_deformation_gradient()
@@ -477,7 +477,7 @@ macro_rules! test_solid_constitutive_model_tangents
                         calculate_second_piola_kirchoff_stress_from_deformation_gradient!(
                             $constitutive_model_constructed, &deformation_gradient_plus
                         );
-                        let mut deformation_gradient_minus = 
+                        let mut deformation_gradient_minus =
                             if is_deformed
                             {
                                 get_deformation_gradient()
@@ -729,7 +729,7 @@ macro_rules! test_solid_constitutive_model_tangents
                     #[test]
                     fn symmetry()
                     {
-                        let cauchy_tangent_stiffness = 
+                        let cauchy_tangent_stiffness =
                         calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
                             &$constitutive_model_constructed, &get_deformation_gradient()
                         );
@@ -791,7 +791,7 @@ macro_rules! test_solid_constitutive_model_tangents
                     #[test]
                     fn symmetry()
                     {
-                        let cauchy_tangent_stiffness = 
+                        let cauchy_tangent_stiffness =
                         calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
                             &$constitutive_model_constructed, &DeformationGradient::identity()
                         );

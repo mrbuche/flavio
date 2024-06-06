@@ -195,7 +195,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
             (0..O).map(|a|
                 (0..3).map(|i|
                     (0..3).map(|j|{
-                        let mut nodal_coordinates = 
+                        let mut nodal_coordinates =
                         if is_deformed
                         {
                             $element::<$constitutive_model>::calculate_midplane(
@@ -272,7 +272,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 .map(|(a, velocity_a)|
                     velocity_a.iter().enumerate()
                     .map(|(k, velocity_a_k)|{
-                        let mut nodal_coordinates = 
+                        let mut nodal_coordinates =
                         if is_deformed
                         {
                             $element::<$constitutive_model>::calculate_midplane(&get_coordinates())
@@ -343,7 +343,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                     (0..3).map(|m|
                         (0..3).map(|n|
                             (0..3).map(|i|{
-                                let mut nodal_coordinates = 
+                                let mut nodal_coordinates =
                                 if is_deformed
                                 {
                                     $element::<$constitutive_model>::calculate_midplane(
