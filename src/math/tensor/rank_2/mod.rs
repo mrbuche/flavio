@@ -592,7 +592,7 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2Trait<D, I, J> f
             self_i.iter().map(|self_ij|
                 self_ij.powi(2)
             ).sum::<TensorRank0>()
-        ).sum::<TensorRank0>()/2.0).sqrt()
+        ).sum::<TensorRank0>()).sqrt()
     }
     fn second_invariant(&self) -> TensorRank0
     {
@@ -623,6 +623,16 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2Trait<D, I, J> f
     fn zero() -> Self
     {
         Self(std::array::from_fn(|_| TensorRank1::zero()))
+    }
+}
+
+impl<const D: usize> From<TensorRank2<D, 1, 2>> for TensorRank2<D, 1, 0>
+{
+    fn from(tensor_rank_2: TensorRank2<D, 1, 2>) -> Self
+    {
+        tensor_rank_2.iter().map(|tensor_rank_1|
+            tensor_rank_1.into()
+        ).collect()
     }
 }
 
