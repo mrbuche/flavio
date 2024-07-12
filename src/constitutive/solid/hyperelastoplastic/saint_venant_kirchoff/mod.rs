@@ -101,11 +101,11 @@ impl<'a> Plastic<'a> for SaintVenantKirchoff<'a>
     /// Calculates and returns the plastic flow rate.
     ///
     /// ```math
-    /// \dot{\gamma}^\mathrm{p}(\mathbf{M}^\mathrm{e}) = \dot{\gamma}^\mathrm{p}_0 \sinh\left(\frac{|{\mathbf{M}^\mathrm{e}}'|}{\sqrt{2}\,S_0}\right)
+    /// \dot{\gamma}^\mathrm{p}(\mathbf{M}^\mathrm{e}) = \dot{\gamma}^\mathrm{p}_0 \sinh\left(\frac{|{\mathbf{M}^\mathrm{e}}'|}{S_0}\right)
     /// ```
     fn compute_plastic_flow_rate(&self, deviatoric_mandel_stress_norm: &Scalar) -> Scalar
     {
-        self.get_reference_plastic_flow_rate() * (deviatoric_mandel_stress_norm / self.get_shear_strength() / 2.0_f64.sqrt()).sinh()
+        self.get_reference_plastic_flow_rate() * (deviatoric_mandel_stress_norm / self.get_shear_strength()).sinh()
     }
     fn get_reference_plastic_flow_rate(&self) -> &Scalar
     {
