@@ -1,5 +1,7 @@
 //! Elastic-hyperviscous constitutive models.
 //!
+//! ---
+//!
 //! Elastic-hyperviscous constitutive models are defined by an elastic stress tensor function and a viscous dissipation function.
 //!
 //! ```math

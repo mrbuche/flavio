@@ -1,5 +1,7 @@
 //! Hyperviscoelastic constitutive models.
 //!
+//! ---
+//!
 //! Hyperviscoelastic constitutive models are defined by a Helmholtz free energy density function and a viscous dissipation function.
 //!
 //! ```math
