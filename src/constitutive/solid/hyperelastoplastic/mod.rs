@@ -17,17 +17,12 @@
 //! ```math
 //! \boldsymbol{\sigma}_\mathrm{p} = \mathbf{M}_\mathrm{e} = J\,\mathbf{F}_\mathrm{e}^T\cdot\boldsymbol{\sigma}_\mathrm{e}\cdot\mathbf{F}_\mathrm{e}^{-T}
 //! ```
-//! Incompressible plasticity implies a deviatoric plastic velocity gradient and therefore deviatoric plastic stretching and spin tensors. Accordingly, the plastic stress is assumed to be deviatoric. The plastic flow is assumed irrotational, so the plastic spin tensor is zero.
-//!
-//! ```math
-//! ???
-//! ```
-//! parts can evolve separately? satisfy plastic part for rate proportional to Mandel deviator, often written "in direction" with scalar plastic rate.
+//! Incompressible plasticity implies a deviatoric plastic velocity gradient and therefore deviatoric plastic stretching and spin tensors. Accordingly, the plastic stress is assumed to be deviatoric. The plastic flow is assumed irrotational, so the plastic spin tensor is zero. Since the elastic and plastic deformations can evolve independently, the second law of thermodynamics can be satisfied separately. The plastic stretching rate becomes proportional to the deviatoric Mandel stress, often written in terms of a scalar plastic flow rate.
 //!
 //! ```math
 //! \mathbf{D}_\mathrm{p} = \dot{\gamma}_\mathrm{p}\,\frac{\mathbf{M}_\mathrm{e}'}{|\mathbf{M}_\mathrm{e}'|}
 //! ```
-//! and then the elastic part by taking hyperelasticity (and Cauchy stresses equal)
+//! The stress becomes hyperelastic, where the Cauchy stress can be shown to equal the elastic Cauchy stress.
 //!
 //!```math
 //! \mathbf{P} = \frac{\partial a}{\partial\mathbf{F}} = \mathbf{P}_\mathrm{e}\cdot\mathbf{F}_\mathrm{p}^{-T}
