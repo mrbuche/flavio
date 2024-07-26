@@ -32,7 +32,7 @@ use crate::
     }
 };
 
-/// Constitutive model implementation of hybrid hyperelastic constitutive models.
+/// Constitutive model implementation of hybrid hyperelastic constitutive models that are based on the additive decomposition.
 impl<'a, C1: Hyperelastic<'a>, C2: Hyperelastic<'a>> Constitutive<'a> for Additive<C1, C2>
 {
     /// Dummy method that will panic, use [Self::construct()] instead.
@@ -42,7 +42,7 @@ impl<'a, C1: Hyperelastic<'a>, C2: Hyperelastic<'a>> Constitutive<'a> for Additi
     }
 }
 
-/// Solid constitutive model implementation of hybrid hyperelastic constitutive models.
+/// Solid constitutive model implementation of hybrid hyperelastic constitutive models that are based on the additive decomposition.
 impl<'a, C1: Hyperelastic<'a>, C2: Hyperelastic<'a>> Solid<'a> for Additive<C1, C2>
 {
     fn get_bulk_modulus(&self) -> &Scalar
@@ -55,7 +55,7 @@ impl<'a, C1: Hyperelastic<'a>, C2: Hyperelastic<'a>> Solid<'a> for Additive<C1, 
     }
 }
 
-/// Elastic constitutive model implementation of hybrid hyperelastic constitutive models.
+/// Elastic constitutive model implementation of hybrid hyperelastic constitutive models that are based on the additive decomposition.
 impl<'a, C1: Hyperelastic<'a>, C2: Hyperelastic<'a>> Elastic<'a> for Additive<C1, C2>
 {
     /// Calculates and returns the Cauchy stress.
@@ -114,6 +114,7 @@ impl<'a, C1: Hyperelastic<'a>, C2: Hyperelastic<'a>> Elastic<'a> for Additive<C1
     }
 }
 
+/// Hyperelastic constitutive model implementation of hybrid hyperelastic constitutive models that are based on the additive decomposition.
 impl<'a, C1: Hyperelastic<'a>, C2: Hyperelastic<'a>> Hyperelastic<'a> for Additive<C1, C2>
 {
     /// Calculates and returns the Helmholtz free energy density.

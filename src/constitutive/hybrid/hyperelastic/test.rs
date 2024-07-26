@@ -36,7 +36,7 @@ macro_rules! test_hybrid_hyperelastic_constitutive_models
             }
         };
         use_elastic_macros!();
-        mod additive_1
+        mod hybrid_1
         {
             use super::*;
             test_constructed_solid_hyperelastic_constitutive_model!(
@@ -46,7 +46,7 @@ macro_rules! test_hybrid_hyperelastic_constitutive_models
                 )
             );
         }
-        mod additive_2
+        mod hybrid_2
         {
             use super::*;
             test_constructed_solid_hyperelastic_constitutive_model!(
@@ -56,7 +56,7 @@ macro_rules! test_hybrid_hyperelastic_constitutive_models
                 )
             );
         }
-        mod additive_nested_1
+        mod hybrid_nested_1
         {
             use super::*;
             test_constructed_solid_hyperelastic_constitutive_model!(
@@ -69,7 +69,7 @@ macro_rules! test_hybrid_hyperelastic_constitutive_models
                 )
             );
         }
-        mod additive_nested_2
+        mod hybrid_nested_2
         {
             use super::*;
             test_constructed_solid_hyperelastic_constitutive_model!(
