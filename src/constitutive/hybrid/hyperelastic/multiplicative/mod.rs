@@ -32,6 +32,20 @@ use crate::
     }
 };
 
+/// Inherent implementation of hybrid hyperelastic constitutive models that are based on the multiplicative decomposition.
+impl<'a, C1: Hyperelastic<'a>, C2: Hyperelastic<'a>> Multiplicative<C1, C2>
+{
+    /// Calculates and returns the first deformation gradient.
+    ///
+    /// ```math
+    /// ???
+    /// ```
+    fn calculate_deformation_gradient_1(deformation_gradient: &DeformationGradient) -> DeformationGradient
+    {
+        todo!("Do minimization for F1 or F2 based on what is better for use below; update description and equation.")
+    }
+}
+
 /// Constitutive model implementation of hybrid hyperelastic constitutive models that are based on the multiplicative decomposition.
 impl<'a, C1: Hyperelastic<'a>, C2: Hyperelastic<'a>> Constitutive<'a> for Multiplicative<C1, C2>
 {
