@@ -47,13 +47,11 @@ impl<'a, C1: Hyperelastic<'a>, C2: Hyperelastic<'a>> Solid<'a> for Additive<C1, 
 {
     fn get_bulk_modulus(&self) -> &Scalar
     {
-        // self.get_constitutive_model_1().get_bulk_modulus() + self.get_constitutive_model_2().get_bulk_modulus()
-        todo!()
+        panic!()
     }
     fn get_shear_modulus(&self) -> &Scalar
     {
-        // self.get_constitutive_model_1().get_shear_modulus() + self.get_constitutive_model_2().get_shear_modulus()
-        todo!()
+        panic!()
     }
 }
 
