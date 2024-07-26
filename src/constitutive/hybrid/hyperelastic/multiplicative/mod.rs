@@ -42,7 +42,13 @@ impl<'a, C1: Hyperelastic<'a>, C2: Hyperelastic<'a>> Multiplicative<C1, C2>
     /// ```
     fn calculate_deformation_gradient_1(deformation_gradient: &DeformationGradient) -> DeformationGradient
     {
-        todo!("Do minimization for F1 or F2 based on what is better for use below; update description and equation.")
+        todo!("Do minimization for F1 or F2 based on what is better for use below; update description and equation.
+               Note that this should actually be an Elastic trait method,
+               and below should be a Hyperelastic trait method.")
+    }
+    fn calculate_deformation_gradients(deformation_gradient: &DeformationGradient) -> (DeformationGradient, DeformationGradient)
+    {
+        todo!("Need both for Helmholtz free energy; avoid code duplication with above.")
     }
 }
 
