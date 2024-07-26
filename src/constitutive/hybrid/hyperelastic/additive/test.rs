@@ -1,37 +1,7 @@
-use crate::constitutive::
+use crate::constitutive::hybrid::
 {
-    Constitutive,
-    hybrid::
-    {
-        Additive,
-        Hybrid
-    },
-    solid::
-    {
-        hyperelastic::
-        {
-            Fung,
-            Gent,
-            test::
-            {
-                FUNGPARAMETERS,
-                GENTPARAMETERS
-            }
-        }
-    }
+    Additive,
+    hyperelastic::test::test_hybrid_hyperelastic_constitutive_models
 };
 
-#[test]
-fn todo()
-{
-    let _ = Additive::construct(
-        Fung::new(FUNGPARAMETERS),
-        Gent::new(GENTPARAMETERS)
-    );
-    // send through hyperelastic tests macros for each hyperelastic combo?
-    // and hydrid speicific tests, like gets()?
-    // and moduli if you can get them working?
-    // put hybrid-specific testing macros (or additive, multiplicative) in hybrid/tests
-    // and then for hyperelastic in one down
-    // then apply the tests another one down
-}
+test_hybrid_hyperelastic_constitutive_models!(Additive);

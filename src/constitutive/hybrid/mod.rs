@@ -1,8 +1,5 @@
 //! Hybrid constitutive models.
 
-#[cfg(test)]
-mod test;
-
 mod hyperelastic;
 
 use crate::constitutive::Constitutive;
