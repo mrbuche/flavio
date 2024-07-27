@@ -1,8 +1,13 @@
 //! Hybrid constitutive models.
 
+mod elastic;
 mod hyperelastic;
 
-use crate::constitutive::Constitutive;
+use crate::
+{
+    constitutive::Constitutive,
+    mechanics::DeformationGradient
+};
 
 /// Required methods for hybrid constitutive models.
 pub trait Hybrid<'a, C1: Constitutive<'a>, C2: Constitutive<'a>>
@@ -27,6 +32,22 @@ pub struct Multiplicative<C1, C2>
 {
     constitutive_model_1: C1,
     constitutive_model_2: C2
+}
+
+pub trait MultiplicativeTrait
+{
+    fn calculate_deformation_gradient_1(&self, deformation_gradient: &DeformationGradient) -> DeformationGradient
+    {
+        panic!()
+    }
+    fn calculate_deformation_gradient_2(&self, deformation_gradient: &DeformationGradient) -> DeformationGradient
+    {
+        panic!()
+    }
+    fn calculate_deformation_gradients(&self, deformation_gradient: &DeformationGradient) -> (DeformationGradient, DeformationGradient)
+    {
+        panic!()
+    }
 }
 
 /// Hybrid constitutive model implementation of hybrid constitutive models based on the additive decomposition.

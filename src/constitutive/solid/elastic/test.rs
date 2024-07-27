@@ -152,6 +152,17 @@ macro_rules! test_solid_constitutive_model
         crate::constitutive::solid::elastic::test::test_solid_constitutive_construction!(
             $constitutive_model, $constitutive_model_parameters, $constitutive_model_constructed
         );
+        crate::constitutive::solid::elastic::test::test_constructed_solid_constitutive_model!(
+            $constitutive_model_constructed
+        );
+    }
+}
+pub(crate) use test_solid_constitutive_model;
+
+macro_rules! test_constructed_solid_constitutive_model
+{
+    ($constitutive_model_constructed: expr) =>
+    {
         crate::constitutive::solid::elastic::test::test_solid_constitutive_model_no_tangents!(
             $constitutive_model_constructed
         );
@@ -160,7 +171,7 @@ macro_rules! test_solid_constitutive_model
         );
     }
 }
-pub(crate) use test_solid_constitutive_model;
+pub(crate) use test_constructed_solid_constitutive_model;
 
 macro_rules! test_solid_constitutive_construction
 {
