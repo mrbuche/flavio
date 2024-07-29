@@ -95,7 +95,6 @@ use crate::
     math::
     {
         ContractSecondFourthIndicesWithFirstIndicesOf,
-        Convert,
         TensorRank1,
         TensorRank1Trait,
         TensorRank1List,

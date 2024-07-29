@@ -42,7 +42,7 @@ fn zero()
         get_reference_coordinates()
     );
     element.calculate_nodal_forces(
-        &get_reference_coordinates().convert()
+        &get_reference_coordinates().into()
     ).iter()
     .for_each(|nodal_force|
         nodal_force.iter()

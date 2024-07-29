@@ -20,6 +20,7 @@ macro_rules! test_linear_surface_element_inner
             use crate::
             {
                 fem::block::element::linear::surface::test::test_linear_surface_element_with_constitutive_model,
+                math::Convert,
                 test::assert_eq_within_tols
             };
             use super::*;
@@ -232,7 +233,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 else
                 {
                     $element::<$constitutive_model>::calculate_basis(
-                        &(get_rotation_reference_configuration() * get_reference_coordinates()).convert()
+                        &(get_rotation_reference_configuration() * get_reference_coordinates()).into()
                     )
                 }
             }
@@ -247,7 +248,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 else
                 {
                     $element::<$constitutive_model>::calculate_basis(
-                        &get_reference_coordinates().convert()
+                        &get_reference_coordinates().into()
                     )
                 }
             }
@@ -265,7 +266,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 else
                 {
                     $element::<$constitutive_model>::calculate_dual_basis(
-                        &(get_rotation_reference_configuration() * get_reference_coordinates()).convert()
+                        &(get_rotation_reference_configuration() * get_reference_coordinates()).into()
                     )
                 }
             }
@@ -280,7 +281,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 else
                 {
                     $element::<$constitutive_model>::calculate_dual_basis(
-                        &get_reference_coordinates().convert()
+                        &get_reference_coordinates().into()
                     )
                 }
             }
@@ -298,7 +299,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 else
                 {
                     $element::<$constitutive_model>::calculate_normal(
-                        &(get_rotation_reference_configuration() * get_reference_coordinates()).convert()
+                        &(get_rotation_reference_configuration() * get_reference_coordinates()).into()
                     )
                 }
             }
@@ -313,7 +314,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 else
                 {
                     $element::<$constitutive_model>::calculate_normal(
-                        &get_reference_coordinates().convert()
+                        &get_reference_coordinates().into()
                     )
                 }
             }
@@ -331,7 +332,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 else
                 {
                     $element::<$constitutive_model>::calculate_normal_gradients(
-                        &(get_rotation_reference_configuration() * get_reference_coordinates()).convert()
+                        &(get_rotation_reference_configuration() * get_reference_coordinates()).into()
                     )
                 }
             }
@@ -346,7 +347,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 else
                 {
                     $element::<$constitutive_model>::calculate_normal_gradients(
-                        &get_reference_coordinates().convert()
+                        &get_reference_coordinates().into()
                     )
                 }
             }
@@ -364,7 +365,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                         }
                         else
                         {
-                            get_reference_coordinates().convert()
+                            get_reference_coordinates().into()
                         };
                         nodal_coordinates[a][m] += 0.5 * EPSILON;
                         finite_difference = $element::<$constitutive_model>::calculate_normal(
@@ -393,7 +394,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 else
                 {
                     $element::<$constitutive_model>::calculate_normal_rate(
-                        &(get_rotation_reference_configuration() * get_reference_coordinates()).convert(),
+                        &(get_rotation_reference_configuration() * get_reference_coordinates()).into(),
                         &NodalVelocities::zero()
                     )
                 }
@@ -410,7 +411,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 else
                 {
                     $element::<$constitutive_model>::calculate_normal_rate(
-                        &get_reference_coordinates().convert(),
+                        &get_reference_coordinates().into(),
                         &NodalVelocities::zero()
                     )
                 }
@@ -431,7 +432,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                         }
                         else
                         {
-                            get_reference_coordinates().convert()
+                            get_reference_coordinates().into()
                         };
                         nodal_coordinates[a][k] += 0.5 * EPSILON;
                         finite_difference = $element::<$constitutive_model>::calculate_normal(
@@ -459,7 +460,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 else
                 {
                     $element::<$constitutive_model>::calculate_normal_tangents(
-                        &(get_rotation_reference_configuration() * get_reference_coordinates()).convert()
+                        &(get_rotation_reference_configuration() * get_reference_coordinates()).into()
                     )
                 }
             }
@@ -474,7 +475,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 else
                 {
                     $element::<$constitutive_model>::calculate_normal_tangents(
-                        &get_reference_coordinates().convert()
+                        &get_reference_coordinates().into()
                     )
                 }
             }
@@ -494,7 +495,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                                 }
                                 else
                                 {
-                                    get_reference_coordinates().convert()
+                                    get_reference_coordinates().into()
                                 };
                                 nodal_coordinates[b][n] += 0.5 * EPSILON;
                                 finite_difference = $element::<$constitutive_model>::calculate_normal_gradients(
@@ -563,7 +564,7 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                     .zip(get_basis(false, true).iter())
                     .for_each(|(basis_m, res_basis_m)|
                         basis_m.iter()
-                        .zip(( get_rotation_reference_configuration().transpose() * res_basis_m.convert()
+                        .zip((get_rotation_reference_configuration().transpose() * res_basis_m.convert()
                         ).iter())
                         .for_each(|(basis_m_i, res_basis_m_i)|
                             assert_eq_within_tols(basis_m_i, res_basis_m_i)

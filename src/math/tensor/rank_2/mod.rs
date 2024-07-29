@@ -101,6 +101,8 @@ where
     fn inverse_transpose(&self) -> Self;
     /// Returns the inverse transpose and determinant of the rank-2 tensor.
     fn inverse_transpose_and_determinant(&self) -> (Self, TensorRank0);
+    /// Checks whether the tensor is the identity tensor.
+    fn is_identity(&self) -> bool;
     /// Returns the LU decomposition of the rank-2 tensor.
     fn lu_decomposition(&self) -> (TensorRank2<D, I, 88>, TensorRank2<D, 88, J>);
     /// Returns the inverse of the LU decomposition of the rank-2 tensor.
@@ -109,6 +111,8 @@ where
     fn new(array: [[TensorRank0; D]; D]) -> Self;
     /// Returns the rank-2 tensor norm.
     fn norm(&self) -> TensorRank0;
+    /// Returns the rank-2 tensor norm squared.
+    fn norm_squared(&self) -> TensorRank0;
     /// Returns the second invariant of the rank-2 tensor.
     fn second_invariant(&self) -> TensorRank0;
     /// Returns the trace of the rank-2 tensor squared.
@@ -477,6 +481,28 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2Trait<D, I, J> f
             panic!()
         }
     }
+    fn is_identity(&self) -> bool
+    {
+        // let identity = Self::identity();
+        // self.iter()
+        //     .zip(identity.iter())
+        //     .map(|(self_i, identity_i)|
+        //     self_i.iter()
+        //     .zip(identity_i.iter())
+        //     .map(|(self_ij, identity_ij)|
+        //         (self_ij == identity_ij) as u8
+        //     ).sum::<u8>()
+        // ).sum::<u8>() == (D * D) as u8
+        self.iter()
+            .enumerate()
+            .map(|(i, self_i)|
+            self_i.iter()
+            .enumerate()
+            .map(|(j, self_ij)|
+                (self_ij == &((i == j) as u8 as f64)) as u8
+            ).sum::<u8>()
+        ).sum::<u8>() == (D * D) as u8
+    }
     fn lu_decomposition(&self) -> (TensorRank2<D, I, 88>, TensorRank2<D, 88, J>)
     {
         let mut tensor_l = TensorRank2::zero();
@@ -588,11 +614,15 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2Trait<D, I, J> f
     }
     fn norm(&self) -> TensorRank0
     {
-        (self.iter().map(|self_i|
+        self.norm_squared().sqrt()
+    }
+    fn norm_squared(&self) -> TensorRank0
+    {
+        self.iter().map(|self_i|
             self_i.iter().map(|self_ij|
                 self_ij.powi(2)
             ).sum::<TensorRank0>()
-        ).sum::<TensorRank0>()).sqrt()
+        ).sum()
     }
     fn second_invariant(&self) -> TensorRank0
     {
@@ -623,6 +653,56 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2Trait<D, I, J> f
     fn zero() -> Self
     {
         Self(std::array::from_fn(|_| TensorRank1::zero()))
+    }
+}
+
+impl<const D: usize> From<TensorRank2<D, 0, 0>> for TensorRank2<D, 1, 0>
+{
+    fn from(tensor_rank_2: TensorRank2<D, 0, 0>) -> Self
+    {
+        tensor_rank_2.iter().map(|tensor_rank_1|
+            tensor_rank_1.into()
+        ).collect()
+    }
+}
+
+impl<const D: usize> From<TensorRank2<D, 0, 0>> for TensorRank2<D, 1, 1>
+{
+    fn from(tensor_rank_2: TensorRank2<D, 0, 0>) -> Self
+    {
+        tensor_rank_2.iter().map(|tensor_rank_1|
+            tensor_rank_1.into()
+        ).collect()
+    }
+}
+
+impl<const D: usize> From<TensorRank2<D, 0, 1>> for TensorRank2<D, 0, 0>
+{
+    fn from(tensor_rank_2: TensorRank2<D, 0, 1>) -> Self
+    {
+        tensor_rank_2.iter().map(|tensor_rank_1|
+            tensor_rank_1.into()
+        ).collect()
+    }
+}
+
+impl<const D: usize> From<TensorRank2<D, 1, 0>> for TensorRank2<D, 0, 0>
+{
+    fn from(tensor_rank_2: TensorRank2<D, 1, 0>) -> Self
+    {
+        tensor_rank_2.iter().map(|tensor_rank_1|
+            tensor_rank_1.into()
+        ).collect()
+    }
+}
+
+impl<const D: usize> From<TensorRank2<D, 1, 1>> for TensorRank2<D, 1, 0>
+{
+    fn from(tensor_rank_2: TensorRank2<D, 1, 1>) -> Self
+    {
+        tensor_rank_2.iter().map(|tensor_rank_1|
+            tensor_rank_1.into()
+        ).collect()
     }
 }
 

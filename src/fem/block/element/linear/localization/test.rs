@@ -50,7 +50,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                     $element::<$constitutive_model>::calculate_basis(
                         &$element::<$constitutive_model>::calculate_midplane(
                             &(get_rotation_reference_configuration() * get_reference_coordinates())
-                        ).convert()
+                        ).into()
                     )
                 }
             }
@@ -65,7 +65,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 else
                 {
                     $element::<$constitutive_model>::calculate_basis(
-                        &$element::<$constitutive_model>::calculate_midplane(&get_reference_coordinates()).convert()
+                        &$element::<$constitutive_model>::calculate_midplane(&get_reference_coordinates()).into()
                     )
                 }
             }
@@ -87,7 +87,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                     $element::<$constitutive_model>::calculate_dual_basis(
                         &$element::<$constitutive_model>::calculate_midplane(
                             &(get_rotation_reference_configuration() * get_reference_coordinates())
-                        ).convert()
+                        ).into()
                     )
                 }
             }
@@ -102,7 +102,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 else
                 {
                     $element::<$constitutive_model>::calculate_dual_basis(
-                        &$element::<$constitutive_model>::calculate_midplane(&get_reference_coordinates()).convert()
+                        &$element::<$constitutive_model>::calculate_midplane(&get_reference_coordinates()).into()
                     )
                 }
             }
@@ -124,7 +124,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                     $element::<$constitutive_model>::calculate_normal(
                         &$element::<$constitutive_model>::calculate_midplane(
                             &(get_rotation_reference_configuration() * get_reference_coordinates())
-                        ).convert()
+                        ).into()
                     )
                 }
             }
@@ -143,7 +143,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                     $element::<$constitutive_model>::calculate_normal(
                         &$element::<$constitutive_model>::calculate_midplane(
                             &get_reference_coordinates()
-                        ).convert()
+                        ).into()
                     )
                 }
             }
@@ -165,7 +165,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                     $element::<$constitutive_model>::calculate_normal_gradients(
                         &$element::<$constitutive_model>::calculate_midplane(
                             &(get_rotation_reference_configuration() * get_reference_coordinates())
-                        ).convert()
+                        ).into()
                     )
                 }
             }
@@ -184,7 +184,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                     $element::<$constitutive_model>::calculate_normal_gradients(
                         &$element::<$constitutive_model>::calculate_midplane(
                             &get_reference_coordinates()
-                        ).convert()
+                        ).into()
                     )
                 }
             }
@@ -206,7 +206,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                         {
                             $element::<$constitutive_model>::calculate_midplane(
                                 &get_reference_coordinates()
-                            ).convert()
+                            ).into()
                         };
                         nodal_coordinates[a][i] += 0.5 * EPSILON;
                         finite_difference = $element::<$constitutive_model>::calculate_normal(
@@ -241,7 +241,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                     $element::<$constitutive_model>::calculate_normal_rate(
                         &$element::<$constitutive_model>::calculate_midplane(
                             &(get_rotation_reference_configuration() * get_reference_coordinates())
-                        ).convert(),
+                        ).into(),
                         &NodalVelocities::zero()
                     )
                 }
@@ -258,7 +258,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 else
                 {
                     $element::<$constitutive_model>::calculate_normal_rate(
-                        &$element::<$constitutive_model>::calculate_midplane(&get_reference_coordinates()).convert(),
+                        &$element::<$constitutive_model>::calculate_midplane(&get_reference_coordinates()).into(),
                         &NodalVelocities::zero()
                     )
                 }
@@ -279,7 +279,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                         }
                         else
                         {
-                            $element::<$constitutive_model>::calculate_midplane(&get_reference_coordinates()).convert()
+                            $element::<$constitutive_model>::calculate_midplane(&get_reference_coordinates()).into()
                         };
                         nodal_coordinates[a][k] += 0.5 * EPSILON;
                         finite_difference = $element::<$constitutive_model>::calculate_normal(
@@ -311,7 +311,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                     $element::<$constitutive_model>::calculate_normal_tangents(
                         &$element::<$constitutive_model>::calculate_midplane(
                             &(get_rotation_reference_configuration() * get_reference_coordinates())
-                        ).convert()
+                        ).into()
                     )
                 }
             }
@@ -330,7 +330,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                     $element::<$constitutive_model>::calculate_normal_tangents(
                         &$element::<$constitutive_model>::calculate_midplane(
                             &get_reference_coordinates()
-                        ).convert()
+                        ).into()
                     )
                 }
             }
@@ -354,7 +354,7 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                                 {
                                     $element::<$constitutive_model>::calculate_midplane(
                                         &get_reference_coordinates()
-                                    ).convert()
+                                    ).into()
                                 };
                                 nodal_coordinates[b][n] += 0.5 * EPSILON;
                                 finite_difference = $element::<$constitutive_model>::calculate_normal_gradients(
