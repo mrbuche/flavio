@@ -91,3 +91,59 @@ macro_rules! test_hybrid_hyperelastic_constitutive_models
     }
 }
 pub(crate) use test_hybrid_hyperelastic_constitutive_models;
+
+macro_rules! test_hybrid_hyperelastic_constitutive_models_no_tangents
+{
+    ($hybrid_type: ident) =>
+    {
+        use crate::
+        {
+            constitutive::
+            {
+                Constitutive,
+                hybrid::Hybrid,
+                solid::
+                {
+                    elastic::Elastic,
+                    hyperelastic::
+                    {
+                        ArrudaBoyce,
+                        Fung,
+                        Gent,
+                        Hyperelastic,
+                        MooneyRivlin,
+                        test::*
+                    }
+                }
+            },
+            math::TensorRank2Trait,
+            mechanics::
+            {
+                DeformationGradient,
+                FirstPiolaKirchoffStress
+            }
+        };
+        use_elastic_macros_no_tangents!();
+        mod hybrid_1
+        {
+            use super::*;
+            test_solid_hyperelastic_constitutive_model_no_tangents!(
+                $hybrid_type::construct(
+                    ArrudaBoyce::new(ARRUDABOYCEPARAMETERS),
+                    Fung::new(FUNGPARAMETERS)
+                )
+            );
+        }
+        mod hybrid_2
+        {
+            use super::*;
+            test_solid_hyperelastic_constitutive_model_no_tangents!(
+                $hybrid_type::construct(
+                    Gent::new(GENTPARAMETERS),
+                    MooneyRivlin::new(MOONEYRIVLINPARAMETERS)
+                )
+            );
+        }
+    }
+}
+pub(crate) use test_hybrid_hyperelastic_constitutive_models_no_tangents;

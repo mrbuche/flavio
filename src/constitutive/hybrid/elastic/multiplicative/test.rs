@@ -1,5 +1,7 @@
-#[test]
-fn todo()
+use crate::constitutive::hybrid::
 {
-    todo!()
-}
+    Multiplicative,
+    elastic::test::test_hybrid_elastic_constitutive_models_no_tangents
+};
+
+test_hybrid_elastic_constitutive_models_no_tangents!(Multiplicative);

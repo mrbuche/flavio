@@ -37,14 +37,6 @@ pub struct Multiplicative<C1, C2>
 /// Required methods for hybrid constitutive models based on the multiplicative decomposition.
 pub trait MultiplicativeTrait
 {
-    fn calculate_deformation_gradient_1(&self, deformation_gradient: &DeformationGradient) -> DeformationGradient
-    {
-        self.calculate_deformation_gradients(deformation_gradient).0
-    }
-    fn calculate_deformation_gradient_2(&self, deformation_gradient: &DeformationGradient) -> DeformationGradient
-    {
-        self.calculate_deformation_gradients(deformation_gradient).1
-    }
     fn calculate_deformation_gradients(&self, deformation_gradient: &DeformationGradient) -> (DeformationGradient, DeformationGradient);
 }
 

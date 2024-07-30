@@ -178,11 +178,16 @@ macro_rules! test_solid_viscous_constitutive_model
 {
     ($constitutive_model: ident, $constitutive_model_parameters: expr, $constitutive_model_constructed: expr) =>
     {
-        use crate::mechanics::test::
+        use crate::
         {
-            get_deformation_gradient_rate,
-            get_deformation_gradient_rate_rotated,
-            get_deformation_gradient_rate_rotated_undeformed
+            math::ContractAllIndicesWithFirstIndicesOf,
+            mechanics::test::
+            {
+                get_deformation_gradient_rotated_undeformed,
+                get_deformation_gradient_rate,
+                get_deformation_gradient_rate_rotated,
+                get_deformation_gradient_rate_rotated_undeformed
+            }
         };
         #[test]
         fn get_bulk_viscosity()

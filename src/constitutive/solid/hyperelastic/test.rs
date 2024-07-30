@@ -47,6 +47,26 @@ macro_rules! use_elastic_macros
 }
 pub(crate) use use_elastic_macros;
 
+macro_rules! use_elastic_macros_no_tangents
+{
+    () =>
+    {
+        use crate::constitutive::solid::elastic::test::
+        {
+            calculate_cauchy_stress_from_deformation_gradient,
+            calculate_cauchy_stress_from_deformation_gradient_simple,
+            calculate_cauchy_stress_from_deformation_gradient_rotated,
+            calculate_first_piola_kirchoff_stress_from_deformation_gradient,
+            calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple,
+            calculate_first_piola_kirchoff_stress_from_deformation_gradient_rotated,
+            calculate_second_piola_kirchoff_stress_from_deformation_gradient,
+            calculate_second_piola_kirchoff_stress_from_deformation_gradient_simple,
+            calculate_second_piola_kirchoff_stress_from_deformation_gradient_rotated
+        };
+    }
+}
+pub(crate) use use_elastic_macros_no_tangents;
+
 macro_rules! test_solid_hyperelastic_constitutive_model
 {
     ($constitutive_model: ident, $constitutive_model_parameters: expr, $constitutive_model_constructed: expr) =>

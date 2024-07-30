@@ -19,11 +19,7 @@ macro_rules! test_hybrid_elastic_constitutive_models
                     hyperelastic::
                     {
                         NeoHookean,
-                        test::
-                        {
-                            NEOHOOKEANPARAMETERS,
-                            use_elastic_macros
-                        }
+                        test::NEOHOOKEANPARAMETERS
                     }
                 }
             },
@@ -36,18 +32,7 @@ macro_rules! test_hybrid_elastic_constitutive_models
                 SecondPiolaKirchoffTangentStiffness
             }
         };
-        use_elastic_macros!();
         mod hybrid_1
-        {
-            use super::*;
-            test_constructed_solid_constitutive_model!(
-                $hybrid_type::construct(
-                    AlmansiHamel::new(ALMANSIHAMELPARAMETERS),
-                    AlmansiHamel::new(ALMANSIHAMELPARAMETERS)
-                )
-            );
-        }
-        mod hybrid_2
         {
             use super::*;
             test_constructed_solid_constitutive_model!(
@@ -92,3 +77,45 @@ macro_rules! test_hybrid_elastic_constitutive_models
     }
 }
 pub(crate) use test_hybrid_elastic_constitutive_models;
+
+macro_rules! test_hybrid_elastic_constitutive_models_no_tangents
+{
+    ($hybrid_type: ident) =>
+    {
+        use crate::
+        {
+            constitutive::
+            {
+                Constitutive,
+                hybrid::Hybrid,
+                solid::
+                {
+                    elastic::
+                    {
+                        AlmansiHamel,
+                        Elastic,
+                        test::*
+                    },
+                    hyperelastic::
+                    {
+                        NeoHookean,
+                        test::NEOHOOKEANPARAMETERS
+                    }
+                }
+            },
+            math::TensorRank2Trait,
+            mechanics::DeformationGradient
+        };
+        mod hybrid_1
+        {
+            use super::*;
+            test_solid_constitutive_model_no_tangents!(
+                $hybrid_type::construct(
+                    AlmansiHamel::new(ALMANSIHAMELPARAMETERS),
+                    NeoHookean::new(NEOHOOKEANPARAMETERS)
+                )
+            );
+        }
+    }
+}
+pub(crate) use test_hybrid_elastic_constitutive_models_no_tangents;
