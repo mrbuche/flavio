@@ -44,10 +44,12 @@ impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> Constitutive<'a> for Additive<C1, C2>
 /// Solid constitutive model implementation of hybrid elastic constitutive models that are based on the additive decomposition.
 impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> Solid<'a> for Additive<C1, C2>
 {
+    /// Dummy method that will panic.
     fn get_bulk_modulus(&self) -> &Scalar
     {
         panic!()
     }
+    /// Dummy method that will panic.
     fn get_shear_modulus(&self) -> &Scalar
     {
         panic!()

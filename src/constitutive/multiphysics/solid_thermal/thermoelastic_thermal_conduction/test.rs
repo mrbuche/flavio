@@ -50,6 +50,12 @@ macro_rules! test_thermoelastic_thermal_conduction_constitutive_model
             )
         }
         #[test]
+        #[should_panic]
+        fn new()
+        {
+            $thermoelastic_thermal_conduction_constitutive_model::<$thermoelastic_constitutive_model, $thermal_conduction_constitutive_model>::new(FOURIERPARAMETERS);
+        }
+        #[test]
         fn get_bulk_modulus()
         {
             assert_eq!(

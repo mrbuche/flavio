@@ -34,6 +34,18 @@ fn get_coordinates() -> NodalCoordinates<N>
     ])
 }
 
+fn get_velocities() -> NodalVelocities<N>
+{
+    NodalVelocities::new([
+        [0.0, 0.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 0.0, 1.0],
+        [1.0, 0.0, 2.0],
+        [0.0, 1.0, 3.0]
+    ])
+}
+
 #[test]
 fn zero()
 {
@@ -91,4 +103,102 @@ fn finite_difference()
             )
         )
     )
+}
+
+#[test]
+#[should_panic]
+fn calculate_deformation_gradient()
+{
+    Wedge::<SmithFerrante>::new(
+        SMITHFERRANTEPARAMETERS,
+        get_reference_coordinates()
+    ).calculate_deformation_gradient(
+        &get_coordinates()
+    );
+}
+
+#[test]
+#[should_panic]
+fn calculate_deformation_gradient_rate()
+{
+    Wedge::<SmithFerrante>::new(
+        SMITHFERRANTEPARAMETERS,
+        get_reference_coordinates()
+    ).calculate_deformation_gradient_rate(
+        &get_coordinates(),
+        &get_velocities()
+    );
+}
+
+#[test]
+#[should_panic]
+fn calculate_gradient_vectors()
+{
+    Wedge::<SmithFerrante>::calculate_gradient_vectors(
+        &Wedge::<SmithFerrante>::calculate_midplane(
+            &get_reference_coordinates()
+        ).into()
+    );
+}
+
+#[test]
+#[should_panic]
+fn get_gradient_vectors()
+{
+    Wedge::<SmithFerrante>::new(
+        SMITHFERRANTEPARAMETERS,
+        get_reference_coordinates()
+    ).get_gradient_vectors();
+}
+
+#[test]
+#[should_panic]
+fn calculate_deformation_gradient_linear_surface_element()
+{
+    Wedge::<SmithFerrante>::new(
+        SMITHFERRANTEPARAMETERS,
+        get_reference_coordinates()
+    ).calculate_deformation_gradient_linear_surface_element(
+        &Wedge::<SmithFerrante>::calculate_midplane(
+            &get_coordinates()
+        ).into()
+    );
+}
+
+#[test]
+#[should_panic]
+fn calculate_deformation_gradient_rate_linear_surface_element()
+{
+    Wedge::<SmithFerrante>::new(
+        SMITHFERRANTEPARAMETERS,
+        get_reference_coordinates()
+    ).calculate_deformation_gradient_rate_linear_surface_element(
+        &Wedge::<SmithFerrante>::calculate_midplane(
+            &get_coordinates()
+        ).into(),
+        &Wedge::<SmithFerrante>::calculate_midplane(
+            &get_velocities()
+        ).into()
+    );
+}
+
+#[test]
+#[should_panic]
+fn calculate_gradient_vectors_linear_surface_element()
+{
+    Wedge::<SmithFerrante>::calculate_gradient_vectors_linear_surface_element(
+        &Wedge::<SmithFerrante>::calculate_midplane(
+            &get_reference_coordinates()
+        ).into()
+    );
+}
+
+#[test]
+#[should_panic]
+fn get_reference_normal()
+{
+    Wedge::<SmithFerrante>::new(
+        SMITHFERRANTEPARAMETERS,
+        get_reference_coordinates()
+    ).get_reference_normal();
 }

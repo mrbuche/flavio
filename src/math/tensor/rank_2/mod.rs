@@ -483,16 +483,6 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2Trait<D, I, J> f
     }
     fn is_identity(&self) -> bool
     {
-        // let identity = Self::identity();
-        // self.iter()
-        //     .zip(identity.iter())
-        //     .map(|(self_i, identity_i)|
-        //     self_i.iter()
-        //     .zip(identity_i.iter())
-        //     .map(|(self_ij, identity_ij)|
-        //         (self_ij == identity_ij) as u8
-        //     ).sum::<u8>()
-        // ).sum::<u8>() == (D * D) as u8
         self.iter()
             .enumerate()
             .map(|(i, self_i)|

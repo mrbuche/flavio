@@ -382,6 +382,16 @@ macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
                 + std::mem::size_of::<Scalar>()
             )
         }
+        #[test]
+        #[should_panic]
+        fn calculate_gradient_vectors()
+        {
+            $element::<$constitutive_model>::calculate_gradient_vectors(
+                &$element::<$constitutive_model>::calculate_midplane(
+                    &get_reference_coordinates()
+                ).into()
+            );
+        }
     }
 }
 pub(crate) use setup_for_test_linear_surface_element_with_constitutive_model;

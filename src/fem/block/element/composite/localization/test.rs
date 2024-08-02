@@ -68,6 +68,16 @@ macro_rules! setup_for_test_composite_element_with_constitutive_model
                 + std::mem::size_of::<ScaledReferenceNormals<G, P>>()
             )
         }
+        #[test]
+        #[should_panic]
+        fn calculate_projected_gradient_vectors()
+        {
+            $element::<$constitutive_model>::calculate_projected_gradient_vectors(
+                &$element::<$constitutive_model>::calculate_midplane(
+                    &get_reference_coordinates()
+                ).into()
+            );
+        }
     }
 }
 pub(crate) use setup_for_test_composite_element_with_constitutive_model;
