@@ -1,13 +1,13 @@
 name: Publish
 on:
+  pull_request:
+    branches: main
   release:
-    branches: [ main ]
-    types: [ published ]
+    types: published
 env:
   CARGO_TERM_COLOR: always
 jobs:
   Publish:
-    if: github.event_name == 'release'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -20,6 +20,8 @@ jobs:
       - name: Package
         run: cargo package
       - name: Login
+        if: github.event_name == 'release'
         run: cargo login ${{ secrets.CRATES_IO_TOKEN }}
       - name: Publish
+        if: github.event_name == 'release'
         run: cargo publish
