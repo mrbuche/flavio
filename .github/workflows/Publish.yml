@@ -12,6 +12,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          default: true
+          toolchain: stable
       - name: Package
         run: cargo package
       - name: Login

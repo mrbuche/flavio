@@ -10,10 +10,20 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
+        toolchain:
+          - beta
+          - nightly
+          - stable
     runs-on: ${{ matrix.os }}
     steps:
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v4
+      - name: Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          components: clippy
+          default: true
+          toolchain: ${{ matrix.toolchain }}
       - name: Lint math
         run: cargo clippy --release --features math -- -D warnings
       - name: Lint mechanics
