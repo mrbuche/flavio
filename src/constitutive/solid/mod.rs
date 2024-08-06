@@ -2,9 +2,7 @@
 
 pub mod elastic;
 pub mod elastic_hyperviscous;
-pub mod elastoplastic;
 pub mod hyperelastic;
-pub mod hyperelastoplastic;
 pub mod hyperviscoelastic;
 pub mod thermoelastic;
 pub mod thermohyperelastic;
@@ -25,8 +23,6 @@ use crate::
         CauchyTangentStiffness,
         CauchyRateTangentStiffness,
         DeformationGradient,
-        DeformationGradientElastic,
-        DeformationGradientPlastic,
         DeformationGradientRate,
         FirstPiolaKirchoffStress,
         FirstPiolaKirchoffTangentStiffness,

@@ -1,18 +1,8 @@
 //! Fluid constitutive models.
 
-pub mod plastic;
 pub mod viscous;
 
-use crate::
-{
-    math::TensorRank2Trait,
-    mechanics::
-    {
-        MandelStress,
-        Scalar,
-        StretchingRatePlastic
-    }
-};
+use crate::mechanics::Scalar;
 use super::Constitutive;
 
 /// Required methods for fluid constitutive models.
