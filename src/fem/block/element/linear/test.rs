@@ -19,7 +19,6 @@ macro_rules! test_linear_element_inner
             use crate::
             {
                 fem::block::element::linear::test::test_linear_element_with_constitutive_model,
-                math::Convert,
                 test::assert_eq_within_tols
             };
             use super::*;
@@ -311,7 +310,7 @@ macro_rules! test_linear_element_with_constitutive_model
                 fn calculate()
                 {
                     get_element().calculate_deformation_gradient(
-                        &get_reference_coordinates().convert()
+                        &get_reference_coordinates().into()
                     ).iter().enumerate()
                     .for_each(|(i, calculated_deformation_gradient_i)|
                         calculated_deformation_gradient_i.iter().enumerate()
@@ -331,7 +330,7 @@ macro_rules! test_linear_element_with_constitutive_model
                 fn objectivity()
                 {
                     get_element_transformed().calculate_deformation_gradient(
-                        &get_reference_coordinates_transformed().convert()
+                        &get_reference_coordinates_transformed().into()
                     ).iter().enumerate()
                     .for_each(|(i, deformation_gradient_i)|
                         deformation_gradient_i.iter()
@@ -406,8 +405,8 @@ macro_rules! test_linear_element_with_constitutive_model
                 fn calculate()
                 {
                     get_element().calculate_deformation_gradient_rate(
-                        &get_reference_coordinates().convert(),
-                        &NodalVelocities::zero().convert()
+                        &get_reference_coordinates().into(),
+                        &NodalVelocities::zero().into()
                     ).iter()
                     .for_each(|calculated_deformation_gradient_rate_i|
                         calculated_deformation_gradient_rate_i.iter()
@@ -420,8 +419,8 @@ macro_rules! test_linear_element_with_constitutive_model
                 fn objectivity()
                 {
                     get_element_transformed().calculate_deformation_gradient_rate(
-                        &get_reference_coordinates_transformed().convert(),
-                        &NodalVelocities::zero().convert()
+                        &get_reference_coordinates_transformed().into(),
+                        &NodalVelocities::zero().into()
                     ).iter()
                     .for_each(|deformation_gradient_rate_i|
                         deformation_gradient_rate_i.iter()

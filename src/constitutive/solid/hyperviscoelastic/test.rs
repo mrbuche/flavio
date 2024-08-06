@@ -36,20 +36,17 @@ macro_rules! test_solid_hyperviscoelastic_constitutive_model
 {
     ($constitutive_model: ident, $constitutive_model_parameters: expr, $constitutive_model_constructed: expr) =>
     {
+        crate::constitutive::solid::elastic::test::test_solid_constitutive_construction!(
+            $constitutive_model, $constitutive_model_parameters, $constitutive_model_constructed
+        );
         crate::constitutive::solid::hyperelastic::test::test_solid_hyperelastic_constitutive_model_no_tangents!(
-            $constitutive_model,
-            $constitutive_model_parameters,
             $constitutive_model_constructed
         );
         crate::constitutive::solid::viscoelastic::test::test_solid_viscous_constitutive_model!(
-            $constitutive_model,
-            $constitutive_model_parameters,
-            $constitutive_model_constructed
+            $constitutive_model, $constitutive_model_parameters, $constitutive_model_constructed
         );
         crate::constitutive::solid::elastic_hyperviscous::test::test_solid_elastic_hyperviscous_specifics!(
-            $constitutive_model,
-            $constitutive_model_parameters,
-            $constitutive_model_constructed
+            $constitutive_model, $constitutive_model_parameters, $constitutive_model_constructed
         );
         #[test]
         fn dissipation_potential_deformed_positive()

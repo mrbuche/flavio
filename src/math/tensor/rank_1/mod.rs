@@ -134,6 +134,14 @@ impl<const D: usize, const I: usize, const J: usize> Convert<TensorRank1<D, J>> 
     }
 }
 
+impl<const D: usize, const I: usize, const J: usize> From<&TensorRank1<D, I>> for TensorRank1<D, J>
+{
+    fn from(tensor_rank_1: &TensorRank1<D, I>) -> Self
+    {
+        TensorRank1(tensor_rank_1.0)
+    }
+}
+
 impl<const D: usize, const I: usize> FromIterator<TensorRank0> for TensorRank1<D, I>
 {
     fn from_iter<Ii: IntoIterator<Item=TensorRank0>>(into_iterator: Ii) -> Self

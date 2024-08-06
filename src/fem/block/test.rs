@@ -413,7 +413,7 @@ macro_rules! test_helmholtz_free_energy
                     }
                     else
                     {
-                        get_reference_coordinates_block().convert()
+                        get_reference_coordinates_block().into()
                     };
                     nodal_coordinates[node][i] += 0.5 * EPSILON;
                     block.set_nodal_coordinates(nodal_coordinates);
@@ -425,7 +425,7 @@ macro_rules! test_helmholtz_free_energy
                     }
                     else
                     {
-                        get_reference_coordinates_block().convert()
+                        get_reference_coordinates_block().into()
                     };
                     nodal_coordinates[node][i] -= 0.5 * EPSILON;
                     block.set_nodal_coordinates(nodal_coordinates);
@@ -588,10 +588,10 @@ macro_rules! test_helmholtz_free_energy
                         &block_2.calculate_helmholtz_free_energy()
                     );
                     block_1.set_nodal_coordinates(
-                        get_reference_coordinates_block().convert()
+                        get_reference_coordinates_block().into()
                     );
                     block_2.set_nodal_coordinates(
-                        get_reference_coordinates_transformed_block().convert()
+                        get_reference_coordinates_transformed_block().into()
                     );
                     assert_eq_within_tols(
                         &block_1.calculate_helmholtz_free_energy(),
@@ -604,7 +604,7 @@ macro_rules! test_helmholtz_free_energy
                     let mut block = get_block();
                     assert!(block.calculate_helmholtz_free_energy().abs() < ABS_TOL);
                     block.set_nodal_coordinates(
-                        get_reference_coordinates_block().convert()
+                        get_reference_coordinates_block().into()
                     );
                     assert!(block.calculate_helmholtz_free_energy().abs() < ABS_TOL);
                 }
@@ -705,7 +705,7 @@ macro_rules! test_finite_element_block_with_elastic_constitutive_model
                             }
                             else
                             {
-                                get_reference_coordinates_block().convert()
+                                get_reference_coordinates_block().into()
                             };
                             nodal_coordinates[node_b][j] += 0.5 * EPSILON;
                             block.set_nodal_coordinates(nodal_coordinates);
@@ -717,7 +717,7 @@ macro_rules! test_finite_element_block_with_elastic_constitutive_model
                             }
                             else
                             {
-                                get_reference_coordinates_block().convert()
+                                get_reference_coordinates_block().into()
                             };
                             nodal_coordinates[node_b][j] -= 0.5 * EPSILON;
                             block.set_nodal_coordinates(nodal_coordinates);
@@ -743,7 +743,7 @@ macro_rules! test_finite_element_block_with_elastic_constitutive_model
                 }
                 else
                 {
-                    let converted: TensorRank2<3, 1, 1> = get_rotation_reference_configuration().convert();
+                    let converted: TensorRank2<3, 1, 1> = get_rotation_reference_configuration().into();
                     converted.transpose() *
                     get_block_transformed().calculate_nodal_forces()
                 }
@@ -780,7 +780,7 @@ macro_rules! test_finite_element_block_with_elastic_constitutive_model
                 }
                 else
                 {
-                    let converted: TensorRank2<3, 1, 1> = get_rotation_reference_configuration().convert();
+                    let converted: TensorRank2<3, 1, 1> = get_rotation_reference_configuration().into();
                     converted.transpose() *
                     get_block_transformed().calculate_nodal_stiffnesses()
                     * converted
@@ -855,7 +855,7 @@ macro_rules! test_finite_element_block_with_viscoelastic_constitutive_model
                 }
                 else
                 {
-                    let converted: TensorRank2<3, 1, 1> = get_rotation_reference_configuration().convert();
+                    let converted: TensorRank2<3, 1, 1> = get_rotation_reference_configuration().into();
                     converted.transpose() *
                     get_block_transformed().calculate_nodal_forces()
                 }
@@ -898,7 +898,7 @@ macro_rules! test_finite_element_block_with_viscoelastic_constitutive_model
                 }
                 else
                 {
-                    let converted: TensorRank2<3, 1, 1> = get_rotation_reference_configuration().convert();
+                    let converted: TensorRank2<3, 1, 1> = get_rotation_reference_configuration().into();
                     converted.transpose() *
                     get_block_transformed().calculate_nodal_stiffnesses()
                     * converted
@@ -932,7 +932,7 @@ macro_rules! test_finite_element_block_with_viscoelastic_constitutive_model
             }
             else
             {
-                block.set_nodal_coordinates(get_reference_coordinates_block().convert());
+                block.set_nodal_coordinates(get_reference_coordinates_block().into());
             }
             let mut finite_difference = 0.0;
             (0..D).map(|node_a|
@@ -992,7 +992,7 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
             }
             else
             {
-                block.set_nodal_coordinates(get_reference_coordinates_block().convert());
+                block.set_nodal_coordinates(get_reference_coordinates_block().into());
             }
             let mut finite_difference = 0.0;
             (0..D).map(|node|
@@ -1034,7 +1034,7 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
             }
             else
             {
-                block.set_nodal_coordinates(get_reference_coordinates_block().convert());
+                block.set_nodal_coordinates(get_reference_coordinates_block().into());
             }
             let mut finite_difference = 0.0;
             (0..D).map(|node|
@@ -1226,13 +1226,13 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
                         &block_2.calculate_viscous_dissipation()
                     );
                     block_1.set_nodal_coordinates(
-                        get_reference_coordinates_block().convert()
+                        get_reference_coordinates_block().into()
                     );
                     block_1.set_nodal_velocities(
                         NodalVelocities::zero()
                     );
                     block_2.set_nodal_coordinates(
-                        get_reference_coordinates_transformed_block().convert()
+                        get_reference_coordinates_transformed_block().into()
                     );
                     block_2.set_nodal_velocities(
                         NodalVelocities::zero()
@@ -1248,7 +1248,7 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
                     let mut block = get_block();
                     assert_eq!(block.calculate_viscous_dissipation(), 0.0);
                     block.set_nodal_coordinates(
-                        get_reference_coordinates_block().convert()
+                        get_reference_coordinates_block().into()
                     );
                     assert_eq!(block.calculate_viscous_dissipation(), 0.0);
                 }
@@ -1398,13 +1398,13 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
                         &block_2.calculate_dissipation_potential()
                     );
                     block_1.set_nodal_coordinates(
-                        get_reference_coordinates_block().convert()
+                        get_reference_coordinates_block().into()
                     );
                     block_1.set_nodal_velocities(
                         NodalVelocities::zero()
                     );
                     block_2.set_nodal_coordinates(
-                        get_reference_coordinates_transformed_block().convert()
+                        get_reference_coordinates_transformed_block().into()
                     );
                     block_2.set_nodal_velocities(
                         NodalVelocities::zero()
@@ -1420,7 +1420,7 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
                     let mut block = get_block();
                     assert_eq!(block.calculate_dissipation_potential(), 0.0);
                     block.set_nodal_coordinates(
-                        get_reference_coordinates_block().convert()
+                        get_reference_coordinates_block().into()
                     );
                     assert_eq!(block.calculate_dissipation_potential(), 0.0);
                 }

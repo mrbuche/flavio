@@ -5,6 +5,18 @@ mod inverse_langevin
 {
     use super::*;
     #[test]
+    #[should_panic]
+    fn above_one()
+    {
+        inverse_langevin(1.3);
+    }
+    #[test]
+    #[should_panic]
+    fn one()
+    {
+        inverse_langevin(1.0);
+    }
+    #[test]
     fn range()
     {
         let mut gamma = -1.0;

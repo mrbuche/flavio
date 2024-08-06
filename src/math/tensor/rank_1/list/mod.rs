@@ -67,6 +67,16 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> Convert<Ten
     }
 }
 
+impl<const D: usize, const W: usize> From<TensorRank1List<D, 0, W>> for TensorRank1List<D, 1, W>
+{
+    fn from(tensor_rank_1_list: TensorRank1List<D, 0, W>) -> Self
+    {
+        tensor_rank_1_list.iter().map(|tensor_rank_1|
+            tensor_rank_1.into()
+        ).collect()
+    }
+}
+
 /// Required methods for rank-1 tensor lists.
 pub trait TensorRank1ListTrait<const D: usize, const W: usize>
 {

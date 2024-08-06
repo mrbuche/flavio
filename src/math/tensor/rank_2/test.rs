@@ -1312,25 +1312,25 @@ fn new()
 #[test]
 fn norm_dim_2()
 {
-    assert_eq!(get_tensor_rank_2_dim_2().norm(), 3.872_983_346_207_417);
+    assert_eq!(get_tensor_rank_2_dim_2().norm(), 5.477_225_575_051_661);
 }
 
 #[test]
 fn norm_dim_3()
 {
-    assert_eq!(get_tensor_rank_2_dim_3().norm(), 11.937_336_386_313_323);
+    assert_eq!(get_tensor_rank_2_dim_3().norm(), 16.881_943_016_134_134);
 }
 
 #[test]
 fn norm_dim_4()
 {
-    assert_eq!(get_tensor_rank_2_dim_4().norm(), 10.099_504_938_362_077);
+    assert_eq!(get_tensor_rank_2_dim_4().norm(), 14.282_856_857_085_700);
 }
 
 #[test]
 fn norm_dim_9()
 {
-    assert_eq!(get_tensor_rank_2_dim_9().norm(), 14.832_396_974_191_326);
+    assert_eq!(get_tensor_rank_2_dim_9().norm(), 20.976_176_963_403_030);
 }
 
 #[test]

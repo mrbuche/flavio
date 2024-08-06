@@ -149,40 +149,34 @@ macro_rules! test_solid_constitutive_model
 {
     ($constitutive_model: ident, $constitutive_model_parameters: expr, $constitutive_model_constructed: expr) =>
     {
-        crate::constitutive::solid::elastic::test::test_solid_constitutive_model_no_tangents!(
+        crate::constitutive::solid::elastic::test::test_solid_constitutive_construction!(
             $constitutive_model, $constitutive_model_parameters, $constitutive_model_constructed
         );
-        crate::constitutive::solid::elastic::test::test_solid_constitutive_model_tangents!(
-            $constitutive_model, $constitutive_model_parameters, $constitutive_model_constructed
+        crate::constitutive::solid::elastic::test::test_constructed_solid_constitutive_model!(
+            $constitutive_model_constructed
         );
     }
 }
 pub(crate) use test_solid_constitutive_model;
 
-macro_rules! test_solid_constitutive_model_no_tangents
+macro_rules! test_constructed_solid_constitutive_model
+{
+    ($constitutive_model_constructed: expr) =>
+    {
+        crate::constitutive::solid::elastic::test::test_solid_constitutive_model_no_tangents!(
+            $constitutive_model_constructed
+        );
+        crate::constitutive::solid::elastic::test::test_solid_constitutive_model_tangents!(
+            $constitutive_model_constructed
+        );
+    }
+}
+pub(crate) use test_constructed_solid_constitutive_model;
+
+macro_rules! test_solid_constitutive_construction
 {
     ($constitutive_model: ident, $constitutive_model_parameters: expr, $constitutive_model_constructed: expr) =>
     {
-        use crate::
-        {
-            EPSILON,
-            math::
-            {
-                ContractAllIndicesWithFirstIndicesOf
-            },
-            mechanics::
-            {
-                test::
-                {
-                    get_deformation_gradient,
-                    get_deformation_gradient_rotated,
-                    get_deformation_gradient_rotated_undeformed,
-                    get_rotation_current_configuration,
-                    get_rotation_reference_configuration
-                }
-            },
-            test::assert_eq_within_tols
-        };
         fn get_constitutive_model<'a>() -> $constitutive_model<'a>
         {
             $constitutive_model::new($constitutive_model_parameters)
@@ -201,18 +195,18 @@ macro_rules! test_solid_constitutive_model_no_tangents
         fn bulk_modulus()
         {
             let model = get_constitutive_model();
-            let deformation_gradient = DeformationGradient::identity()*(1.0 + EPSILON/3.0);
+            let deformation_gradient = DeformationGradient::identity()*(1.0 + crate::EPSILON/3.0);
             let first_piola_kirchoff_stress = calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple!(&model, &deformation_gradient);
-            assert!((3.0*EPSILON*model.get_bulk_modulus()/first_piola_kirchoff_stress.trace() - 1.0).abs() < EPSILON);
+            assert!((3.0*crate::EPSILON*model.get_bulk_modulus()/first_piola_kirchoff_stress.trace() - 1.0).abs() < crate::EPSILON);
         }
         #[test]
         fn shear_modulus()
         {
             let model = get_constitutive_model();
             let mut deformation_gradient = DeformationGradient::identity();
-            deformation_gradient[0][1] = EPSILON;
+            deformation_gradient[0][1] = crate::EPSILON;
             let first_piola_kirchoff_stress = calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple!(&model, &deformation_gradient);
-            assert!((EPSILON*model.get_shear_modulus()/first_piola_kirchoff_stress[0][1] - 1.0).abs() < EPSILON)
+            assert!((crate::EPSILON*model.get_shear_modulus()/first_piola_kirchoff_stress[0][1] - 1.0).abs() < crate::EPSILON)
         }
         #[test]
         fn size()
@@ -222,6 +216,29 @@ macro_rules! test_solid_constitutive_model_no_tangents
                 std::mem::size_of::<crate::constitutive::Parameters>()
             )
         }
+    }
+}
+pub(crate) use test_solid_constitutive_construction;
+
+macro_rules! test_solid_constitutive_model_no_tangents
+{
+    ($constitutive_model_constructed: expr) =>
+    {
+        use crate::
+        {
+            EPSILON,
+            mechanics::
+            {
+                test::
+                {
+                    get_deformation_gradient,
+                    get_deformation_gradient_rotated,
+                    get_rotation_current_configuration,
+                    get_rotation_reference_configuration
+                }
+            },
+            test::assert_eq_within_tols
+        };
         mod cauchy_stress
         {
             use super::*;
@@ -231,6 +248,7 @@ macro_rules! test_solid_constitutive_model_no_tangents
                 #[test]
                 fn objectivity()
                 {
+                    let _ = EPSILON * 1.0;
                     calculate_cauchy_stress_from_deformation_gradient!(
                         &$constitutive_model_constructed, &get_deformation_gradient()
                     ).iter().zip((
@@ -369,10 +387,15 @@ pub(crate) use test_solid_constitutive_model_no_tangents;
 
 macro_rules! test_solid_constitutive_model_tangents
 {
-    ($constitutive_model: ident, $constitutive_model_parameters: expr, $constitutive_model_constructed: expr) =>
+    ($constitutive_model_constructed: expr) =>
     {
         mod tangents
         {
+            use crate::
+            {
+                math::ContractAllIndicesWithFirstIndicesOf,
+                mechanics::test::get_deformation_gradient_rotated_undeformed
+            };
             use super::*;
             fn calculate_cauchy_tangent_stiffness_from_finite_difference_of_cauchy_stress(is_deformed: bool) -> CauchyTangentStiffness
             {

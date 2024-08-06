@@ -164,7 +164,7 @@ where
         {
             connectivity,
             elements,
-            nodal_coordinates: reference_nodal_coordinates.convert()
+            nodal_coordinates: reference_nodal_coordinates.into()
         }
     }
 }
@@ -192,7 +192,7 @@ where
         {
             connectivity,
             elements,
-            nodal_coordinates: reference_nodal_coordinates.convert()
+            nodal_coordinates: reference_nodal_coordinates.into()
         }
     }
 }
@@ -324,7 +324,7 @@ where
         {
             connectivity,
             elements,
-            nodal_coordinates: reference_nodal_coordinates.convert(),
+            nodal_coordinates: reference_nodal_coordinates.into(),
             nodal_velocities: NodalVelocities::zero()
         }
     }
@@ -353,7 +353,7 @@ where
         {
             connectivity,
             elements,
-            nodal_coordinates: reference_nodal_coordinates.convert(),
+            nodal_coordinates: reference_nodal_coordinates.into(),
             nodal_velocities: NodalVelocities::zero()
         }
     }

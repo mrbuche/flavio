@@ -47,27 +47,59 @@ macro_rules! use_elastic_macros
 }
 pub(crate) use use_elastic_macros;
 
+macro_rules! use_elastic_macros_no_tangents
+{
+    () =>
+    {
+        use crate::constitutive::solid::elastic::test::
+        {
+            calculate_cauchy_stress_from_deformation_gradient,
+            calculate_cauchy_stress_from_deformation_gradient_simple,
+            calculate_cauchy_stress_from_deformation_gradient_rotated,
+            calculate_first_piola_kirchoff_stress_from_deformation_gradient,
+            calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple,
+            calculate_first_piola_kirchoff_stress_from_deformation_gradient_rotated,
+            calculate_second_piola_kirchoff_stress_from_deformation_gradient,
+            calculate_second_piola_kirchoff_stress_from_deformation_gradient_simple,
+            calculate_second_piola_kirchoff_stress_from_deformation_gradient_rotated
+        };
+    }
+}
+pub(crate) use use_elastic_macros_no_tangents;
+
 macro_rules! test_solid_hyperelastic_constitutive_model
 {
     ($constitutive_model: ident, $constitutive_model_parameters: expr, $constitutive_model_constructed: expr) =>
     {
-        crate::constitutive::solid::hyperelastic::test::test_solid_hyperelastic_constitutive_model_no_tangents!(
+        crate::constitutive::solid::elastic::test::test_solid_constitutive_construction!(
             $constitutive_model, $constitutive_model_parameters, $constitutive_model_constructed
         );
-        crate::constitutive::solid::hyperelastic::test::test_solid_hyperelastic_constitutive_model_tangents!(
-            $constitutive_model, $constitutive_model_parameters, $constitutive_model_constructed
+        crate::constitutive::solid::hyperelastic::test::test_constructed_solid_hyperelastic_constitutive_model!(
+            $constitutive_model_constructed
         );
     }
 }
 pub(crate) use test_solid_hyperelastic_constitutive_model;
 
+macro_rules! test_constructed_solid_hyperelastic_constitutive_model
+{
+    ($constitutive_model_constructed: expr) =>
+    {
+        crate::constitutive::solid::hyperelastic::test::test_solid_hyperelastic_constitutive_model_no_tangents!(
+            $constitutive_model_constructed
+        );
+        crate::constitutive::solid::hyperelastic::test::test_solid_hyperelastic_constitutive_model_tangents!(
+            $constitutive_model_constructed
+        );
+    }
+}
+pub(crate) use test_constructed_solid_hyperelastic_constitutive_model;
+
 macro_rules! test_solid_hyperelastic_constitutive_model_no_tangents
 {
-    ($constitutive_model: ident, $constitutive_model_parameters: expr, $constitutive_model_constructed: expr) =>
+    ($constitutive_model_constructed: expr) =>
     {
         crate::constitutive::solid::elastic::test::test_solid_constitutive_model_no_tangents!(
-            $constitutive_model,
-            $constitutive_model_parameters,
             $constitutive_model_constructed
         );
         fn calculate_first_piola_kirchoff_stress_from_finite_difference_of_helmholtz_free_energy_density(is_deformed: bool) -> FirstPiolaKirchoffStress
@@ -248,11 +280,9 @@ pub(crate) use test_solid_hyperelastic_constitutive_model_no_tangents;
 
 macro_rules! test_solid_hyperelastic_constitutive_model_tangents
 {
-    ($constitutive_model: ident, $constitutive_model_parameters: expr, $constitutive_model_constructed: expr) =>
+    ($constitutive_model_constructed: expr) =>
     {
         crate::constitutive::solid::elastic::test::test_solid_constitutive_model_tangents!(
-            $constitutive_model,
-            $constitutive_model_parameters,
             $constitutive_model_constructed
         );
         mod hyperelastic

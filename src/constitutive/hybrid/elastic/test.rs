@@ -1,0 +1,196 @@
+macro_rules! test_hybrid_elastic_constitutive_models
+{
+    ($hybrid_type: ident) =>
+    {
+        use crate::
+        {
+            constitutive::
+            {
+                Constitutive,
+                hybrid::Hybrid,
+                solid::
+                {
+                    Solid,
+                    elastic::
+                    {
+                        AlmansiHamel,
+                        Elastic,
+                        test::*
+                    },
+                    hyperelastic::
+                    {
+                        NeoHookean,
+                        test::NEOHOOKEANPARAMETERS
+                    }
+                }
+            },
+            math::TensorRank2Trait,
+            mechanics::
+            {
+                CauchyTangentStiffness,
+                DeformationGradient,
+                FirstPiolaKirchoffTangentStiffness,
+                SecondPiolaKirchoffTangentStiffness
+            }
+        };
+        mod hybrid_1
+        {
+            use super::*;
+            test_constructed_solid_constitutive_model!(
+                $hybrid_type::construct(
+                    AlmansiHamel::new(ALMANSIHAMELPARAMETERS),
+                    NeoHookean::new(NEOHOOKEANPARAMETERS)
+                )
+            );
+        }
+        mod hybrid_nested_1
+        {
+            use super::*;
+            test_constructed_solid_constitutive_model!(
+                $hybrid_type::construct(
+                    AlmansiHamel::new(ALMANSIHAMELPARAMETERS),
+                    $hybrid_type::construct(
+                        AlmansiHamel::new(ALMANSIHAMELPARAMETERS),
+                        NeoHookean::new(NEOHOOKEANPARAMETERS)
+                    )
+                )
+            );
+        }
+        mod hybrid_nested_2
+        {
+            use super::*;
+            test_constructed_solid_constitutive_model!(
+                $hybrid_type::construct(
+                    $hybrid_type::construct(
+                        NeoHookean::new(NEOHOOKEANPARAMETERS),
+                        AlmansiHamel::new(ALMANSIHAMELPARAMETERS)
+                    ),
+                    $hybrid_type::construct(
+                        NeoHookean::new(NEOHOOKEANPARAMETERS),
+                        $hybrid_type::construct(
+                            AlmansiHamel::new(ALMANSIHAMELPARAMETERS),
+                            NeoHookean::new(NEOHOOKEANPARAMETERS)
+                        )
+                    )
+                )
+            );
+        }
+        crate::constitutive::hybrid::elastic::test::test_panics!($hybrid_type);
+    }
+}
+pub(crate) use test_hybrid_elastic_constitutive_models;
+
+macro_rules! test_hybrid_elastic_constitutive_models_no_tangents
+{
+    ($hybrid_type: ident) =>
+    {
+        use crate::
+        {
+            constitutive::
+            {
+                Constitutive,
+                hybrid::Hybrid,
+                solid::
+                {
+                    Solid,
+                    elastic::
+                    {
+                        AlmansiHamel,
+                        Elastic,
+                        test::*
+                    },
+                    hyperelastic::
+                    {
+                        NeoHookean,
+                        test::NEOHOOKEANPARAMETERS
+                    }
+                }
+            },
+            math::TensorRank2Trait,
+            mechanics::DeformationGradient
+        };
+        mod hybrid_1
+        {
+            use super::*;
+            test_solid_constitutive_model_no_tangents!(
+                $hybrid_type::construct(
+                    AlmansiHamel::new(ALMANSIHAMELPARAMETERS),
+                    NeoHookean::new(NEOHOOKEANPARAMETERS)
+                )
+            );
+        }
+        crate::constitutive::hybrid::elastic::test::test_panics!($hybrid_type);
+        mod panic_tangents
+        {
+            use crate::mechanics::test::get_deformation_gradient;
+            use super::*;
+            #[test]
+            #[should_panic]
+            fn calculate_cauchy_tangent_stiffness() {
+                $hybrid_type::construct(
+                    AlmansiHamel::new(ALMANSIHAMELPARAMETERS),
+                    NeoHookean::new(NEOHOOKEANPARAMETERS)
+                ).calculate_cauchy_tangent_stiffness(
+                    &get_deformation_gradient()
+                );
+            }
+            #[test]
+            #[should_panic]
+            fn calculate_first_piola_kirchoff_tangent_stiffness() {
+                $hybrid_type::construct(
+                    AlmansiHamel::new(ALMANSIHAMELPARAMETERS),
+                    NeoHookean::new(NEOHOOKEANPARAMETERS)
+                ).calculate_cauchy_tangent_stiffness(
+                    &get_deformation_gradient()
+                );
+            }
+            #[test]
+            #[should_panic]
+            fn calculate_second_piola_kirchoff_tangent_stiffness() {
+                $hybrid_type::construct(
+                    AlmansiHamel::new(ALMANSIHAMELPARAMETERS),
+                    NeoHookean::new(NEOHOOKEANPARAMETERS)
+                ).calculate_cauchy_tangent_stiffness(
+                    &get_deformation_gradient()
+                );
+            }
+        }
+    }
+}
+pub(crate) use test_hybrid_elastic_constitutive_models_no_tangents;
+
+macro_rules! test_panics
+{
+    ($hybrid_type: ident) =>
+    {
+        mod panic
+        {
+            use super::*;
+            #[test]
+            #[should_panic]
+            fn get_bulk_modulus()
+            {
+                $hybrid_type::construct(
+                    AlmansiHamel::new(ALMANSIHAMELPARAMETERS),
+                    NeoHookean::new(NEOHOOKEANPARAMETERS)
+                ).get_bulk_modulus();
+            }
+            #[test]
+            #[should_panic]
+            fn get_shear_modulus()
+            {
+                $hybrid_type::construct(
+                    AlmansiHamel::new(ALMANSIHAMELPARAMETERS),
+                    NeoHookean::new(NEOHOOKEANPARAMETERS)
+                ).get_shear_modulus();
+            }
+            #[test]
+            #[should_panic]
+            fn new()
+            {
+                $hybrid_type::<AlmansiHamel, NeoHookean>::new(ALMANSIHAMELPARAMETERS);
+            }
+        }
+    }
+}
+pub(crate) use test_panics;

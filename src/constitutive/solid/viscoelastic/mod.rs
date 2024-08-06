@@ -1,5 +1,7 @@
 //! Viscoelastic constitutive models.
 //!
+//! ---
+//!
 //! Viscoelastic constitutive models cannot be defined by a Helmholtz free energy density function and viscous dissipation function.
 //! These constitutive models are therefore defined by a relation for the stress as a function of the deformation gradient and rate.
 //! Consequently, the rate tangent stiffness associated with the first Piola-Kirchoff stress is not symmetric for viscoelastic models.

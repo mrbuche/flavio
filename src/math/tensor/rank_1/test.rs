@@ -100,6 +100,15 @@ fn as_array()
 }
 
 #[test]
+#[should_panic]
+fn cross_panic()
+{
+    get_tensor_rank_1().cross(
+        &get_tensor_rank_1_a()
+    );
+}
+
+#[test]
 fn div_tensor_rank_0_to_self()
 {
     (get_tensor_rank_1() / 3.3).iter()

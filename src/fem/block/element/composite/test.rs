@@ -238,7 +238,7 @@ macro_rules! test_composite_element_with_constitutive_model
                 fn calculate()
                 {
                     get_element().calculate_deformation_gradients(
-                        &get_reference_coordinates().convert()
+                        &get_reference_coordinates().into()
                     ).iter()
                     .for_each(|deformation_gradient|
                         deformation_gradient.iter().enumerate()
@@ -261,7 +261,7 @@ macro_rules! test_composite_element_with_constitutive_model
                 fn objectivity()
                 {
                     get_element_transformed().calculate_deformation_gradients(
-                        &get_reference_coordinates_transformed().convert()
+                        &get_reference_coordinates_transformed().into()
                     ).iter()
                     .for_each(|deformation_gradient|
                         deformation_gradient.iter().enumerate()
@@ -350,8 +350,8 @@ macro_rules! test_composite_element_with_constitutive_model
                 fn calculate()
                 {
                     get_element().calculate_deformation_gradient_rates(
-                        &get_reference_coordinates().convert(),
-                        &NodalVelocities::zero().convert()
+                        &get_reference_coordinates().into(),
+                        &NodalVelocities::zero().into()
                     ).iter()
                     .for_each(|deformation_gradient_rate|
                         deformation_gradient_rate.iter()
@@ -367,8 +367,8 @@ macro_rules! test_composite_element_with_constitutive_model
                 fn objectivity()
                 {
                     get_element_transformed().calculate_deformation_gradient_rates(
-                        &get_reference_coordinates_transformed().convert(),
-                        &NodalVelocities::zero().convert()
+                        &get_reference_coordinates_transformed().into(),
+                        &NodalVelocities::zero().into()
                     ).iter()
                     .for_each(|deformation_gradient_rate|
                         deformation_gradient_rate.iter()

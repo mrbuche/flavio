@@ -181,12 +181,12 @@ macro_rules! test_solid_thermal_constitutive_model
         {
             let model = get_thermoelastic_constitutive_model();
             let deformation_gradient = DeformationGradient::identity();
-            let temperature = model.get_reference_temperature() - EPSILON;
+            let temperature = model.get_reference_temperature() - crate::EPSILON;
             let first_piola_kirchoff_stress = model.calculate_first_piola_kirchoff_stress(&deformation_gradient, &temperature);
-            let compare = 3.0*model.get_bulk_modulus()*EPSILON;
-            assert!((first_piola_kirchoff_stress[0][0]/compare - model.get_coefficient_of_thermal_expansion()).abs() < EPSILON);
-            assert!((first_piola_kirchoff_stress[1][1]/compare - model.get_coefficient_of_thermal_expansion()).abs() < EPSILON);
-            assert!((first_piola_kirchoff_stress[2][2]/compare - model.get_coefficient_of_thermal_expansion()).abs() < EPSILON);
+            let compare = 3.0*model.get_bulk_modulus()*crate::EPSILON;
+            assert!((first_piola_kirchoff_stress[0][0]/compare - model.get_coefficient_of_thermal_expansion()).abs() < crate::EPSILON);
+            assert!((first_piola_kirchoff_stress[1][1]/compare - model.get_coefficient_of_thermal_expansion()).abs() < crate::EPSILON);
+            assert!((first_piola_kirchoff_stress[2][2]/compare - model.get_coefficient_of_thermal_expansion()).abs() < crate::EPSILON);
             assert_eq!(first_piola_kirchoff_stress[0][1], 0.0);
             assert_eq!(first_piola_kirchoff_stress[0][2], 0.0);
             assert_eq!(first_piola_kirchoff_stress[1][0], 0.0);

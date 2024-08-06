@@ -1,5 +1,7 @@
 //! Hyperelastic constitutive models.
 //!
+//! ---
+//!
 //! Hyperelastic constitutive models are completely defined by a Helmholtz free energy density function of the deformation gradient.
 //!
 //! ```math

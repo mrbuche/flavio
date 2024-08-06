@@ -68,6 +68,16 @@ macro_rules! setup_for_test_composite_element_with_constitutive_model
                 + std::mem::size_of::<ScaledReferenceNormals<G, P>>()
             )
         }
+        #[test]
+        #[should_panic]
+        fn calculate_projected_gradient_vectors()
+        {
+            $element::<$constitutive_model>::calculate_projected_gradient_vectors(
+                &$element::<$constitutive_model>::calculate_midplane(
+                    &get_reference_coordinates()
+                ).into()
+            );
+        }
     }
 }
 pub(crate) use setup_for_test_composite_element_with_constitutive_model;
@@ -92,7 +102,7 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                 {
                     $element::<$constitutive_model>::calculate_bases(
                         &$element::<$constitutive_model>::calculate_midplane(
-                            &(get_rotation_reference_configuration() * get_reference_coordinates()).convert()
+                            &(get_rotation_reference_configuration() * get_reference_coordinates()).into()
                         )
                     )
                 }
@@ -111,7 +121,7 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                 {
                     $element::<$constitutive_model>::calculate_bases(
                         &$element::<$constitutive_model>::calculate_midplane(
-                            &get_reference_coordinates().convert()
+                            &get_reference_coordinates().into()
                         )
                     )
                 }
@@ -133,7 +143,7 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                 {
                     $element::<$constitutive_model>::calculate_dual_bases(
                         &$element::<$constitutive_model>::calculate_midplane(
-                            &(get_rotation_reference_configuration() * get_reference_coordinates()).convert()
+                            &(get_rotation_reference_configuration() * get_reference_coordinates()).into()
                         )
                     )
                 }
@@ -152,7 +162,7 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                 {
                     $element::<$constitutive_model>::calculate_dual_bases(
                         &$element::<$constitutive_model>::calculate_midplane(
-                            &get_reference_coordinates().convert()
+                            &get_reference_coordinates().into()
                         )
                     )
                 }
@@ -174,7 +184,7 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                 {
                     $element::<$constitutive_model>::calculate_normals(
                         &$element::<$constitutive_model>::calculate_midplane(
-                            &(get_rotation_reference_configuration() * get_reference_coordinates()).convert()
+                            &(get_rotation_reference_configuration() * get_reference_coordinates()).into()
                         )
                     )
                 }
@@ -193,7 +203,7 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                 {
                     $element::<$constitutive_model>::calculate_normals(
                         &$element::<$constitutive_model>::calculate_midplane(
-                            &get_reference_coordinates().convert()
+                            &get_reference_coordinates().into()
                         )
                     )
                 }
@@ -215,7 +225,7 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                 {
                     $element::<$constitutive_model>::calculate_normal_gradients(
                         &$element::<$constitutive_model>::calculate_midplane(
-                            &(get_rotation_reference_configuration() * get_reference_coordinates()).convert()
+                            &(get_rotation_reference_configuration() * get_reference_coordinates()).into()
                         )
                     )
                 }
@@ -234,7 +244,7 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                 {
                     $element::<$constitutive_model>::calculate_normal_gradients(
                         &$element::<$constitutive_model>::calculate_midplane(
-                            &get_reference_coordinates().convert()
+                            &get_reference_coordinates().into()
                         )
                     )
                 }
@@ -257,7 +267,7 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                             else
                             {
                                 $element::<$constitutive_model>::calculate_midplane(
-                                    &get_reference_coordinates().convert()
+                                    &get_reference_coordinates().into()
                                 )
                             };
                             nodal_coordinates[a][m] += 0.5 * EPSILON;
@@ -293,7 +303,7 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                 {
                     $element::<$constitutive_model>::calculate_normal_rates(
                         &$element::<$constitutive_model>::calculate_midplane(
-                            &(get_rotation_reference_configuration() * get_reference_coordinates()).convert()
+                            &(get_rotation_reference_configuration() * get_reference_coordinates()).into()
                         ),
                         &$element::<$constitutive_model>::calculate_midplane(
                             &NodalVelocities::zero()
@@ -318,7 +328,7 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                 {
                     $element::<$constitutive_model>::calculate_normal_rates(
                         &$element::<$constitutive_model>::calculate_midplane(
-                            &get_reference_coordinates().convert()
+                            &get_reference_coordinates().into()
                         ),
                         &$element::<$constitutive_model>::calculate_midplane(
                             &NodalVelocities::zero()
@@ -346,7 +356,7 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                             else
                             {
                                 $element::<$constitutive_model>::calculate_midplane(
-                                    &get_reference_coordinates().convert()
+                                    &get_reference_coordinates().into()
                                 )
                             };
                             nodal_coordinates[a][k] += 0.5 * EPSILON;
@@ -379,7 +389,7 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                 {
                     $element::<$constitutive_model>::calculate_normal_tangents(
                         &$element::<$constitutive_model>::calculate_midplane(
-                            &(get_rotation_reference_configuration() * get_reference_coordinates()).convert()
+                            &(get_rotation_reference_configuration() * get_reference_coordinates()).into()
                         )
                     )
                 }
@@ -398,7 +408,7 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                 {
                     $element::<$constitutive_model>::calculate_normal_tangents(
                         &$element::<$constitutive_model>::calculate_midplane(
-                            &get_reference_coordinates().convert()
+                            &get_reference_coordinates().into()
                         )
                     )
                 }
@@ -423,7 +433,7 @@ macro_rules! setup_for_test_composite_surface_element_with_constitutive_model
                                     else
                                     {
                                         $element::<$constitutive_model>::calculate_midplane(
-                                            &get_reference_coordinates().convert()
+                                            &get_reference_coordinates().into()
                                         )
                                     };
                                     nodal_coordinates[b][n] += 0.5 * EPSILON;

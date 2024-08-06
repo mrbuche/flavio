@@ -41,8 +41,20 @@ pub type CurrentVelocity = TensorRank1<3, 1>;
 /// The deformation gradient $`\mathbf{F}`$.
 pub type DeformationGradient = TensorRank2<3, 1, 0>;
 
+/// The elastic deformation gradient $`\mathbf{F}_\mathrm{e}`$.
+pub type DeformationGradientElastic = TensorRank2<3, 1, 2>;
+
+/// A general deformation gradient.
+pub type DeformationGradientGeneral<const I: usize, const J: usize> = TensorRank2<3, I, J>;
+
+/// The plastic deformation gradient $`\mathbf{F}_\mathrm{p}`$.
+pub type DeformationGradientPlastic = TensorRank2<3, 2, 0>;
+
 /// The deformation gradient rate $`\dot{\mathbf{F}}`$.
 pub type DeformationGradientRate = TensorRank2<3, 1, 0>;
+
+/// The plastic deformation gradient rate $`\dot{\mathbf{F}}_\mathrm{p}`$.
+pub type DeformationGradientRatePlastic = TensorRank2<3, 2, 0>;
 
 /// A list of deformation gradients.
 pub type DeformationGradients<const W: usize> = TensorRank2List<3, 1, 0, W>;
@@ -86,6 +98,9 @@ pub type HeatFlux = TensorRank1<3, 1>;
 /// The left Cauchy-Green deformation $`\mathbf{B}`$.
 pub type LeftCauchyGreenDeformation = TensorRank2<3, 1, 1>;
 
+/// The Mandel stress $`\mathbf{M}`$.
+pub type MandelStress = TensorRank2<3, 2, 2>;
+
 /// A normal.
 pub type Normal = TensorRank1<3, 1>;
 
@@ -127,6 +142,12 @@ pub type Stiffness = TensorRank2<3, 1, 1>;
 
 /// A list of stiffnesses.
 pub type Stiffnesses<const W: usize> = TensorRank2List2D<3, 1, 1, W, W>;
+
+/// The stretching rate $`\mathbf{D}`$.
+pub type StretchingRate = TensorRank2<3, 1, 1>;
+
+/// The plastic stretching rate $`\mathbf{D}^\mathrm{p}`$.
+pub type StretchingRatePlastic = TensorRank2<3, 2, 2>;
 
 /// The temperature gradient.
 pub type TemperatureGradient = TensorRank1<3, 1>;
