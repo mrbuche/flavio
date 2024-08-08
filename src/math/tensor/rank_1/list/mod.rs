@@ -141,7 +141,7 @@ impl<const D: usize, const I: usize, const W: usize> TensorRank1ListTrait<D, W> 
     }
     fn zero() -> Self
     {
-        Self(from_fn(|_| TensorRank1::zero()))
+        Self(from_fn(|_| super::zero()))
     }
 }
 

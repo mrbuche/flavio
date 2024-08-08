@@ -37,7 +37,7 @@ use list_2d::TensorRank2List2D;
 /// `D` is the dimension, `I`, `J` are the configurations.
 pub struct TensorRank2<const D: usize, const I: usize, const J: usize>
 (
-    [TensorRank1<D, J>; D]
+    pub [TensorRank1<D, J>; D]
 );
 
 /// Inherent implementation of [`TensorRank2`].
@@ -642,7 +642,7 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2Trait<D, I, J> f
     }
     fn zero() -> Self
     {
-        Self(std::array::from_fn(|_| TensorRank1::zero()))
+        Self(std::array::from_fn(|_| super::rank_1::zero()))
     }
 }
 

@@ -20,6 +20,21 @@ fn get_tensor_rank_1_a() -> TensorRank1<4, 1>
     TensorRank1::new([5.0, 7.0, 6.0, 8.0])
 }
 
+fn get_tensor_rank_1_b() -> TensorRank1<3, 1>
+{
+    TensorRank1::new([7.0, 2.0, 3.0])
+}
+
+fn get_tensor_rank_1_c() -> TensorRank1<3, 1>
+{
+    TensorRank1::new([4.0, 5.0, 6.0])
+}
+
+fn get_tensor_rank_1_b_cross_c() -> TensorRank1<3, 1>
+{
+    TensorRank1::new([-3.0, -30.0, 27.0])
+}
+
 fn get_tensor_rank_1_add_tensor_rank_1_a() -> TensorRank1<4, 1>
 {
     TensorRank1::new([6.0, 9.0, 9.0, 12.0])
@@ -96,6 +111,18 @@ fn as_array()
     .zip(get_array().iter())
     .for_each(|(tensor_rank_1_as_array_i, array_i)|
         assert_eq!(tensor_rank_1_as_array_i, array_i)
+    );
+}
+
+#[test]
+fn cross()
+{
+    get_tensor_rank_1_b().cross(
+        &get_tensor_rank_1_c()
+    ).iter()
+    .zip(get_tensor_rank_1_b_cross_c().iter())
+    .for_each(|(tensor_rank_1_i, array_i)|
+        assert_eq!(tensor_rank_1_i, array_i)
     );
 }
 

@@ -17,6 +17,10 @@ use crate::math::
     TensorRank4List
 };
 
+pub const IDENTITY: TensorRank2<3, 1, 1> = TensorRank2([
+    TensorRank1([1.0, 0.0, 0.0]), TensorRank1([0.0, 1.0, 0.0]), TensorRank1([0.0, 0.0, 1.0])
+]);
+
 /// The Cauchy stress $`\boldsymbol{\sigma}`$.
 pub type CauchyStress = TensorRank2<3, 1, 1>;
 

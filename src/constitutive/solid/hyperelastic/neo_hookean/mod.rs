@@ -55,7 +55,7 @@ impl<'a> Elastic<'a> for NeoHookean<'a>
     fn calculate_cauchy_stress(&self, deformation_gradient: &DeformationGradient) -> CauchyStress
     {
         let jacobian = deformation_gradient.determinant();
-        self.calculate_left_cauchy_green_deformation(deformation_gradient).deviatoric()/jacobian.powf(5.0/3.0)*self.get_shear_modulus() + LeftCauchyGreenDeformation::identity()*self.get_bulk_modulus()*0.5*(jacobian - 1.0/jacobian)
+        self.calculate_left_cauchy_green_deformation(deformation_gradient).deviatoric()/jacobian.powf(FIVE_THIRDS)*self.get_shear_modulus() + IDENTITY*self.get_bulk_modulus()*0.5*(jacobian - 1.0/jacobian)
     }
     /// Calculates and returns the tangent stiffness associated with the Cauchy stress.
     ///
@@ -64,10 +64,9 @@ impl<'a> Elastic<'a> for NeoHookean<'a>
     /// ```
     fn calculate_cauchy_tangent_stiffness(&self, deformation_gradient: &DeformationGradient) -> CauchyTangentStiffness
     {
-        let identity = CauchyStress::identity();
         let (inverse_transpose_deformation_gradient, jacobian) = deformation_gradient.inverse_transpose_and_determinant();
-        let scaled_shear_modulus = self.get_shear_modulus()/jacobian.powf(5.0/3.0);
-        (CauchyTangentStiffness::dyad_ik_jl(&identity, deformation_gradient) + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &identity) - CauchyTangentStiffness::dyad_ij_kl(&identity, deformation_gradient)*(2.0/3.0))*scaled_shear_modulus + CauchyTangentStiffness::dyad_ij_kl(&(identity*(0.5*self.get_bulk_modulus()*(jacobian + 1.0/jacobian)) - self.calculate_left_cauchy_green_deformation(deformation_gradient).deviatoric()*(scaled_shear_modulus*5.0/3.0)), &inverse_transpose_deformation_gradient)
+        let scaled_shear_modulus = self.get_shear_modulus()/jacobian.powf(FIVE_THIRDS);
+        (CauchyTangentStiffness::dyad_ik_jl(&IDENTITY, deformation_gradient) + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &IDENTITY) - CauchyTangentStiffness::dyad_ij_kl(&IDENTITY, deformation_gradient)*(TWO_THIRDS))*scaled_shear_modulus + CauchyTangentStiffness::dyad_ij_kl(&(IDENTITY*(0.5*self.get_bulk_modulus()*(jacobian + 1.0/jacobian)) - self.calculate_left_cauchy_green_deformation(deformation_gradient).deviatoric()*(scaled_shear_modulus*FIVE_THIRDS)), &inverse_transpose_deformation_gradient)
     }
 }
 
@@ -82,6 +81,6 @@ impl<'a> Hyperelastic<'a> for NeoHookean<'a>
     fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar
     {
         let jacobian = deformation_gradient.determinant();
-        0.5*(self.get_shear_modulus()*(self.calculate_left_cauchy_green_deformation(deformation_gradient).trace()/jacobian.powf(2.0/3.0) - 3.0) + self.get_bulk_modulus()*(0.5*(jacobian.powi(2) - 1.0) - jacobian.ln()))
+        0.5*(self.get_shear_modulus()*(self.calculate_left_cauchy_green_deformation(deformation_gradient).trace()/jacobian.powf(TWO_THIRDS) - 3.0) + self.get_bulk_modulus()*(0.5*(jacobian.powi(2) - 1.0) - jacobian.ln()))
     }
 }
