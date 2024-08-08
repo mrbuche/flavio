@@ -6,7 +6,9 @@ pub mod special;
 mod tensor;
 
 pub const TWO_THIRDS: TensorRank0 = 2.0 / 3.0;
+pub const FOUR_THIRDS: TensorRank0 = 4.0 / 3.0;
 pub const FIVE_THIRDS: TensorRank0 = 5.0 / 3.0;
+pub const SEVEN_THIRDS: TensorRank0 = 7.0 / 3.0;
 
 pub use tensor::
 {

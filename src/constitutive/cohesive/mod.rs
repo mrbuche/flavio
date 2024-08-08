@@ -20,7 +20,8 @@ use crate::
         Normal,
         Scalar,
         Stiffness,
-        Traction
+        Traction,
+        IDENTITY
     }
 };
 use super::

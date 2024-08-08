@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod test;
 
+use crate::math::{FOUR_THIRDS, TWO_THIRDS}
 use super::*;
 
 const G: usize = 4;
@@ -195,8 +196,8 @@ where
     }
     fn calculate_standard_gradient_operators_transposed() -> StandardGradientOperatorsTransposed<M, O, P>
     {
-        let n23: Scalar = 2.0/3.0;
-        let n43: Scalar = 4.0/3.0;
+        let n23: Scalar = TWO_THIRDS;
+        let n43: Scalar = FOUR_THIRDS;
         StandardGradientOperatorsTransposed::new([[
             [-2.0, -2.0, -2.0],
             [ 0.0,  0.0,  0.0],

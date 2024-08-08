@@ -32,9 +32,8 @@ where
     {
         let deformation_gradient_inverse_transpose = deformation_gradient.inverse_transpose();
         let cauchy_stress = self.calculate_cauchy_stress(deformation_gradient, temperature);
-        let identity = CauchyStress::identity();
         let some_stress = &cauchy_stress * &deformation_gradient_inverse_transpose;
-        self.calculate_second_piola_kirchoff_tangent_stiffness(deformation_gradient, temperature).contract_first_second_indices_with_second_indices_of(deformation_gradient, deformation_gradient)/deformation_gradient.determinant() - CauchyTangentStiffness::dyad_ij_kl(&cauchy_stress, &deformation_gradient_inverse_transpose) + CauchyTangentStiffness::dyad_il_kj(&some_stress, &identity) + CauchyTangentStiffness::dyad_ik_jl(&identity, &some_stress)
+        self.calculate_second_piola_kirchoff_tangent_stiffness(deformation_gradient, temperature).contract_first_second_indices_with_second_indices_of(deformation_gradient, deformation_gradient)/deformation_gradient.determinant() - CauchyTangentStiffness::dyad_ij_kl(&cauchy_stress, &deformation_gradient_inverse_transpose) + CauchyTangentStiffness::dyad_il_kj(&some_stress, &IDENTITY) + CauchyTangentStiffness::dyad_ik_jl(&IDENTITY, &some_stress)
     }
     /// Calculates and returns the first Piola-Kirchoff stress.
     ///

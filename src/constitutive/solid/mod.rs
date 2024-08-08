@@ -17,6 +17,7 @@ use crate::
         TensorRank2Trait,
         TensorRank4Trait,
         FIVE_THIRDS,
+        SEVEN_THIRDS,
         TWO_THIRDS
     },
     mechanics::
@@ -35,7 +36,8 @@ use crate::
         SecondPiolaKirchoffStress,
         SecondPiolaKirchoffTangentStiffness,
         SecondPiolaKirchoffRateTangentStiffness,
-        IDENTITY
+        IDENTITY,
+        IDENTITY_00
     }
 };
 use super::

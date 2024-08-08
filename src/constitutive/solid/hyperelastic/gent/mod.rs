@@ -69,14 +69,14 @@ impl<'a> Elastic<'a> for Gent<'a>
     fn calculate_cauchy_stress(&self, deformation_gradient: &DeformationGradient) -> CauchyStress
     {
         let jacobian = deformation_gradient.determinant();
-        let isochoric_left_cauchy_green_deformation = self.calculate_left_cauchy_green_deformation(deformation_gradient)/jacobian.powf(2.0/3.0);
+        let isochoric_left_cauchy_green_deformation = self.calculate_left_cauchy_green_deformation(deformation_gradient)/jacobian.powf(TWO_THIRDS);
         let (deviatoric_isochoric_left_cauchy_green_deformation, isochoric_left_cauchy_green_deformation_trace) = isochoric_left_cauchy_green_deformation.deviatoric_and_trace();
         let denominator = self.get_extensibility() - isochoric_left_cauchy_green_deformation_trace + 3.0;
         if denominator < 0.0
         {
             panic!()
         }
-        (deviatoric_isochoric_left_cauchy_green_deformation*self.get_shear_modulus()*self.get_extensibility()/jacobian)/denominator + LeftCauchyGreenDeformation::identity()*self.get_bulk_modulus()*0.5*(jacobian - 1.0/jacobian)
+        (deviatoric_isochoric_left_cauchy_green_deformation*self.get_shear_modulus()*self.get_extensibility()/jacobian)/denominator + IDENTITY*self.get_bulk_modulus()*0.5*(jacobian - 1.0/jacobian)
     }
     /// Calculates and returns the tangent stiffness associated with the Cauchy stress.
     ///
@@ -85,9 +85,8 @@ impl<'a> Elastic<'a> for Gent<'a>
     /// ```
     fn calculate_cauchy_tangent_stiffness(&self, deformation_gradient: &DeformationGradient) -> CauchyTangentStiffness
     {
-        let identity = CauchyStress::identity();
         let (inverse_transpose_deformation_gradient, jacobian) = deformation_gradient.inverse_transpose_and_determinant();
-        let isochoric_left_cauchy_green_deformation = self.calculate_left_cauchy_green_deformation(deformation_gradient)/jacobian.powf(2.0/3.0);
+        let isochoric_left_cauchy_green_deformation = self.calculate_left_cauchy_green_deformation(deformation_gradient)/jacobian.powf(TWO_THIRDS);
         let (deviatoric_isochoric_left_cauchy_green_deformation, isochoric_left_cauchy_green_deformation_trace) = isochoric_left_cauchy_green_deformation.deviatoric_and_trace();
         let denominator = self.get_extensibility() - isochoric_left_cauchy_green_deformation_trace + 3.0;
         if denominator < 0.0
@@ -95,7 +94,7 @@ impl<'a> Elastic<'a> for Gent<'a>
             panic!()
         }
         let prefactor = self.get_shear_modulus()*self.get_extensibility()/jacobian/denominator;
-        (CauchyTangentStiffness::dyad_ik_jl(&identity, deformation_gradient) + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &identity) - CauchyTangentStiffness::dyad_ij_kl(&identity, deformation_gradient)*(2.0/3.0) + CauchyTangentStiffness::dyad_ij_kl(&deviatoric_isochoric_left_cauchy_green_deformation, deformation_gradient)*(2.0/denominator))*(prefactor/jacobian.powf(2.0/3.0)) + CauchyTangentStiffness::dyad_ij_kl(&(identity*(0.5*self.get_bulk_modulus()*(jacobian + 1.0/jacobian)) - deviatoric_isochoric_left_cauchy_green_deformation*prefactor*((5.0 + 2.0*isochoric_left_cauchy_green_deformation_trace/denominator)/3.0)), &inverse_transpose_deformation_gradient)
+        (CauchyTangentStiffness::dyad_ik_jl(&IDENTITY, deformation_gradient) + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &IDENTITY) - CauchyTangentStiffness::dyad_ij_kl(&IDENTITY, deformation_gradient)*(TWO_THIRDS) + CauchyTangentStiffness::dyad_ij_kl(&deviatoric_isochoric_left_cauchy_green_deformation, deformation_gradient)*(2.0/denominator))*(prefactor/jacobian.powf(TWO_THIRDS)) + CauchyTangentStiffness::dyad_ij_kl(&(IDENTITY*(0.5*self.get_bulk_modulus()*(jacobian + 1.0/jacobian)) - deviatoric_isochoric_left_cauchy_green_deformation*prefactor*((5.0 + 2.0*isochoric_left_cauchy_green_deformation_trace/denominator)/3.0)), &inverse_transpose_deformation_gradient)
     }
 }
 
@@ -110,7 +109,7 @@ impl<'a> Hyperelastic<'a> for Gent<'a>
     fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar
     {
         let jacobian = deformation_gradient.determinant();
-        let factor = (self.calculate_left_cauchy_green_deformation(deformation_gradient).trace()/jacobian.powf(2.0/3.0) - 3.0)/self.get_extensibility();
+        let factor = (self.calculate_left_cauchy_green_deformation(deformation_gradient).trace()/jacobian.powf(TWO_THIRDS) - 3.0)/self.get_extensibility();
         if factor > 1.0
         {
             panic!()

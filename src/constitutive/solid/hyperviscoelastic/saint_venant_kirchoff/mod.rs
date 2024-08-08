@@ -73,10 +73,10 @@ impl<'a> Viscoelastic<'a> for SaintVenantKirchoff<'a>
     /// ```
     fn calculate_second_piola_kirchoff_stress(&self, deformation_gradient: &DeformationGradient, deformation_gradient_rate: &DeformationGradientRate) -> SecondPiolaKirchoffStress
     {
-        let (deviatoric_strain, strain_trace) = ((self.calculate_right_cauchy_green_deformation(deformation_gradient) - RightCauchyGreenDeformation::identity())*0.5).deviatoric_and_trace();
+        let (deviatoric_strain, strain_trace) = ((self.calculate_right_cauchy_green_deformation(deformation_gradient) - IDENTITY_00)*0.5).deviatoric_and_trace();
         let first_term = deformation_gradient_rate.transpose()*deformation_gradient;
         let (deviatoric_strain_rate, strain_rate_trace) = ((&first_term + first_term.transpose())*0.5).deviatoric_and_trace();
-        deviatoric_strain*(2.0*self.get_shear_modulus()) + deviatoric_strain_rate*(2.0*self.get_shear_viscosity()) + RightCauchyGreenDeformation::identity()*(self.get_bulk_modulus()*strain_trace + self.get_bulk_viscosity()*strain_rate_trace)
+        deviatoric_strain*(2.0*self.get_shear_modulus()) + deviatoric_strain_rate*(2.0*self.get_shear_viscosity()) + IDENTITY_00*(self.get_bulk_modulus()*strain_trace + self.get_bulk_viscosity()*strain_rate_trace)
     }
     /// Calculates and returns the rate tangent stiffness associated with the second Piola-Kirchoff stress.
     ///
@@ -85,9 +85,8 @@ impl<'a> Viscoelastic<'a> for SaintVenantKirchoff<'a>
     /// ```
     fn calculate_second_piola_kirchoff_rate_tangent_stiffness(&self, deformation_gradient: &DeformationGradient, _: &DeformationGradientRate) -> SecondPiolaKirchoffRateTangentStiffness
     {
-        let identity = SecondPiolaKirchoffStress::identity();
         let scaled_deformation_gradient_transpose = deformation_gradient.transpose()*self.get_shear_viscosity();
-        SecondPiolaKirchoffRateTangentStiffness::dyad_ik_jl(&scaled_deformation_gradient_transpose, &identity) + SecondPiolaKirchoffRateTangentStiffness::dyad_il_jk(&identity, &scaled_deformation_gradient_transpose) + SecondPiolaKirchoffRateTangentStiffness::dyad_ij_kl(&(identity*(self.get_bulk_viscosity() - 2.0/3.0*self.get_shear_viscosity())), deformation_gradient)
+        SecondPiolaKirchoffRateTangentStiffness::dyad_ik_jl(&scaled_deformation_gradient_transpose, &IDENTITY_00) + SecondPiolaKirchoffRateTangentStiffness::dyad_il_jk(&IDENTITY_00, &scaled_deformation_gradient_transpose) + SecondPiolaKirchoffRateTangentStiffness::dyad_ij_kl(&(IDENTITY_00*(self.get_bulk_viscosity() - TWO_THIRDS*self.get_shear_viscosity())), deformation_gradient)
     }
 }
 
@@ -103,7 +102,7 @@ impl<'a> ElasticHyperviscous<'a> for SaintVenantKirchoff<'a>
     {
         let first_term = deformation_gradient_rate.transpose()*deformation_gradient;
         let strain_rate = (&first_term + first_term.transpose())*0.5;
-        self.get_shear_viscosity()*strain_rate.squared_trace() + 0.5*(self.get_bulk_viscosity() - 2.0/3.0*self.get_shear_viscosity())*strain_rate.trace().powi(2)
+        self.get_shear_viscosity()*strain_rate.squared_trace() + 0.5*(self.get_bulk_viscosity() - TWO_THIRDS*self.get_shear_viscosity())*strain_rate.trace().powi(2)
     }
 }
 
@@ -117,7 +116,7 @@ impl<'a> Hyperviscoelastic<'a> for SaintVenantKirchoff<'a>
     /// ```
     fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar
     {
-        let strain = (self.calculate_right_cauchy_green_deformation(deformation_gradient) - RightCauchyGreenDeformation::identity())*0.5;
-        self.get_shear_modulus()*strain.squared_trace() + 0.5*(self.get_bulk_modulus() - 2.0/3.0*self.get_shear_modulus())*strain.trace().powi(2)
+        let strain = (self.calculate_right_cauchy_green_deformation(deformation_gradient) - IDENTITY_00)*0.5;
+        self.get_shear_modulus()*strain.squared_trace() + 0.5*(self.get_bulk_modulus() - TWO_THIRDS*self.get_shear_modulus())*strain.trace().powi(2)
     }
 }

@@ -75,8 +75,8 @@ impl<'a> Elastic<'a> for Yeoh<'a>
     {
         let jacobian = deformation_gradient.determinant();
         let (deviatoric_left_cauchy_green_deformation, left_cauchy_green_deformation_trace) = self.calculate_left_cauchy_green_deformation(deformation_gradient).deviatoric_and_trace();
-        let scalar_term = left_cauchy_green_deformation_trace/jacobian.powf(2.0/3.0) - 3.0;
-        deviatoric_left_cauchy_green_deformation*self.get_moduli().iter().enumerate().map(|(n, modulus)| ((n as Scalar) + 1.0)*modulus*scalar_term.powi(n.try_into().unwrap())).sum::<Scalar>()/jacobian.powf(5.0/3.0) + LeftCauchyGreenDeformation::identity()*self.get_bulk_modulus()*0.5*(jacobian - 1.0/jacobian)
+        let scalar_term = left_cauchy_green_deformation_trace/jacobian.powf(TWO_THIRDS) - 3.0;
+        deviatoric_left_cauchy_green_deformation*self.get_moduli().iter().enumerate().map(|(n, modulus)| ((n as Scalar) + 1.0)*modulus*scalar_term.powi(n.try_into().unwrap())).sum::<Scalar>()/jacobian.powf(FIVE_THIRDS) + IDENTITY*self.get_bulk_modulus()*0.5*(jacobian - 1.0/jacobian)
     }
     /// Calculates and returns the tangent stiffness associated with the Cauchy stress.
     ///
@@ -85,14 +85,13 @@ impl<'a> Elastic<'a> for Yeoh<'a>
     /// ```
     fn calculate_cauchy_tangent_stiffness(&self, deformation_gradient: &DeformationGradient) -> CauchyTangentStiffness
     {
-        let identity = CauchyStress::identity();
         let (inverse_transpose_deformation_gradient, jacobian) = deformation_gradient.inverse_transpose_and_determinant();
         let left_cauchy_green_deformation = self.calculate_left_cauchy_green_deformation(deformation_gradient);
-        let scalar_term = left_cauchy_green_deformation.trace()/jacobian.powf(2.0/3.0) - 3.0;
-        let scaled_modulus = self.get_moduli().iter().enumerate().map(|(n, modulus)| ((n as Scalar) + 1.0)*modulus*scalar_term.powi(n.try_into().unwrap())).sum::<Scalar>()/jacobian.powf(5.0/3.0);
+        let scalar_term = left_cauchy_green_deformation.trace()/jacobian.powf(TWO_THIRDS) - 3.0;
+        let scaled_modulus = self.get_moduli().iter().enumerate().map(|(n, modulus)| ((n as Scalar) + 1.0)*modulus*scalar_term.powi(n.try_into().unwrap())).sum::<Scalar>()/jacobian.powf(FIVE_THIRDS);
         let deviatoric_left_cauchy_green_deformation = left_cauchy_green_deformation.deviatoric();
-        let last_term = CauchyTangentStiffness::dyad_ij_kl(&deviatoric_left_cauchy_green_deformation, &((left_cauchy_green_deformation.deviatoric() * &inverse_transpose_deformation_gradient) * (2.0*self.get_extra_moduli().iter().enumerate().map(|(n, modulus)| ((n as Scalar) + 2.0)*((n as Scalar) + 1.0)*modulus*scalar_term.powi(n.try_into().unwrap())).sum::<Scalar>()/jacobian.powf(7.0/3.0))));
-        (CauchyTangentStiffness::dyad_ik_jl(&identity, deformation_gradient) + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &identity) - CauchyTangentStiffness::dyad_ij_kl(&identity, deformation_gradient)*(2.0/3.0))*scaled_modulus + CauchyTangentStiffness::dyad_ij_kl(&(identity*(0.5*self.get_bulk_modulus()*(jacobian + 1.0/jacobian)) - deviatoric_left_cauchy_green_deformation*(scaled_modulus*5.0/3.0)), &inverse_transpose_deformation_gradient) + last_term
+        let last_term = CauchyTangentStiffness::dyad_ij_kl(&deviatoric_left_cauchy_green_deformation, &((left_cauchy_green_deformation.deviatoric() * &inverse_transpose_deformation_gradient) * (2.0*self.get_extra_moduli().iter().enumerate().map(|(n, modulus)| ((n as Scalar) + 2.0)*((n as Scalar) + 1.0)*modulus*scalar_term.powi(n.try_into().unwrap())).sum::<Scalar>()/jacobian.powf(SEVEN_THIRDS))));
+        (CauchyTangentStiffness::dyad_ik_jl(&IDENTITY, deformation_gradient) + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &IDENTITY) - CauchyTangentStiffness::dyad_ij_kl(&IDENTITY, deformation_gradient)*(TWO_THIRDS))*scaled_modulus + CauchyTangentStiffness::dyad_ij_kl(&(IDENTITY*(0.5*self.get_bulk_modulus()*(jacobian + 1.0/jacobian)) - deviatoric_left_cauchy_green_deformation*(scaled_modulus*FIVE_THIRDS)), &inverse_transpose_deformation_gradient) + last_term
     }
 }
 
@@ -107,7 +106,7 @@ impl<'a> Hyperelastic<'a> for Yeoh<'a>
     fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar
     {
         let jacobian = deformation_gradient.determinant();
-        let scalar_term = self.calculate_left_cauchy_green_deformation(deformation_gradient).trace()/jacobian.powf(2.0/3.0) - 3.0;
+        let scalar_term = self.calculate_left_cauchy_green_deformation(deformation_gradient).trace()/jacobian.powf(TWO_THIRDS) - 3.0;
         0.5*(self.get_moduli().iter().enumerate().map(|(n, modulus)| modulus*scalar_term.powi(<usize as TryInto<i32>>::try_into(n).unwrap() + 1)).sum::<Scalar>() + self.get_bulk_modulus()*(0.5*(jacobian.powi(2) - 1.0) - jacobian.ln()))
     }
 }
