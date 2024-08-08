@@ -180,7 +180,7 @@ macro_rules! test_solid_thermal_constitutive_model
         fn coefficient_of_thermal_expansion()
         {
             let model = get_thermoelastic_constitutive_model();
-            let deformation_gradient = DeformationGradient::identity();
+            let deformation_gradient = IDENTITY_10;
             let temperature = model.get_reference_temperature() - crate::EPSILON;
             let first_piola_kirchoff_stress = model.calculate_first_piola_kirchoff_stress(&deformation_gradient, &temperature);
             let compare = 3.0*model.get_bulk_modulus()*crate::EPSILON;
