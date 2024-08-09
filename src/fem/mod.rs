@@ -100,7 +100,6 @@ use crate::
         TensorRank2,
         TensorRank2List,
         TensorRank2Trait,
-        TensorRank2ListTrait,
         TensorRank2List2D,
         TensorRank2List2DTrait,
         TensorRank3,

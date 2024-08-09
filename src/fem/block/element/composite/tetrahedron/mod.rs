@@ -13,7 +13,7 @@ const Q: usize = 4;
 
 const INTEGRATION_WEIGHT: Scalar = ONE_TWENTY_FOURTH;
 
-const NORMALIED_PROJECTION_MATRIX: NormalizedProjectionMatrix<Q> =
+const INVERSE_NORMALIED_PROJECTION_MATRIX: NormalizedProjectionMatrix<Q> =
 TensorRank2::<Q, 9, 9>([
     TensorRank1([ 4.0 / 640.0, -1.0 / 640.0, -1.0 / 640.0, -1.0 / 640.0]),
     TensorRank1([-1.0 / 640.0,  4.0 / 640.0, -1.0 / 640.0, -1.0 / 640.0]),
@@ -404,7 +404,7 @@ where
 {
     fn calculate_inverse_normalized_projection_matrix() -> NormalizedProjectionMatrix<Q>
     {
-        NORMALIED_PROJECTION_MATRIX
+        INVERSE_NORMALIED_PROJECTION_MATRIX
     }
     fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ProjectedGradientVectors<G, N>
     {

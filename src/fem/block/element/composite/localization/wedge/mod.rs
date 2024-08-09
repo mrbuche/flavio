@@ -1,7 +1,18 @@
 #[cfg(test)]
 mod test;
 
-use super::*;
+use super::
+{
+    *, super::surface::triangle::
+    {
+        INVERSE_NORMALIED_PROJECTION_MATRIX,
+        SHAPE_FUNCTION_INTEGRALS,
+        SHAPE_FUNCTION_INTEGRALS_PRODUCTS,
+        SHAPE_FUNCTIONS_AT_INTEGRATION_POINTS,
+        STANDARD_GRADIENT_OPERATORS,
+        STANDARD_GRADIENT_OPERATORS_TRANSPOSED
+    }
+};
 
 const G: usize = 3;
 const M: usize = 2;
@@ -11,6 +22,40 @@ const P: usize = 4;
 const Q: usize = 3;
 
 const INTEGRATION_WEIGHT: Scalar = ONE_SIXTH;
+
+const SHAPE_FUNCTION_INTEGRALS_PRODUCTS_MIXED: ShapeFunctionIntegralsProductsMixed<O, P>
+= TensorRank1List2D::<3, 9, P, O>([
+    TensorRank1List([
+        TensorRank1([12.0,  2.0,  2.0]),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero()
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        TensorRank1([ 2.0, 12.0,  2.0]),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero()
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([ 2.0,  2.0, 12.0]),
+        tensor_rank_1_zero()
+    ]), TensorRank1List([
+        TensorRank1([10.0,  4.0,  2.0]),
+        TensorRank1([ 4.0, 10.0,  2.0]),
+        tensor_rank_1_zero(),
+        TensorRank1([ 6.0,  6.0,  4.0])
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        TensorRank1([ 2.0, 10.0,  4.0]),
+        TensorRank1([ 2.0,  4.0, 10.0]),
+        TensorRank1([ 4.0,  6.0,  6.0])
+    ]), TensorRank1List([
+        TensorRank1([10.0,  2.0,  4.0]),
+        tensor_rank_1_zero(),
+        TensorRank1([ 4.0,  2.0, 10.0]),
+        TensorRank1([ 6.0,  4.0,  6.0])
+])]);
 
 pub struct Wedge<C>
 {
@@ -51,13 +96,7 @@ where
     }
     fn calculate_inverse_normalized_projection_matrix() -> NormalizedProjectionMatrix<Q>
     {
-        let diag: Scalar = 3.0/64.0;
-        let off: Scalar = -1.0/64.0;
-        NormalizedProjectionMatrix::new([
-            [diag,  off,  off],
-            [ off, diag,  off],
-            [ off,  off, diag]
-        ])
+        INVERSE_NORMALIED_PROJECTION_MATRIX
     }
     fn calculate_projected_gradient_vectors(_reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ProjectedGradientVectors<G, N>
     {
@@ -72,92 +111,23 @@ where
     }
     fn calculate_shape_function_integrals() -> ShapeFunctionIntegrals<P, Q>
     {
-        ShapeFunctionIntegrals::new([
-            [32.0,  8.0,  8.0],
-            [ 8.0, 32.0,  8.0],
-            [ 8.0,  8.0, 32.0],
-            [16.0, 16.0, 16.0]
-        ])
+        SHAPE_FUNCTION_INTEGRALS
     }
     fn calculate_shape_function_integrals_products() -> ShapeFunctionIntegralsProducts<P, Q>
     {
-        ShapeFunctionIntegralsProducts::new([[
-            [22.0,  5.0,  5.0],
-            [ 5.0,  2.0,  1.0],
-            [ 5.0,  1.0,  2.0]
-        ], [
-            [ 2.0,  5.0,  1.0],
-            [ 5.0, 22.0,  5.0],
-            [ 1.0,  5.0,  2.0]
-        ], [
-            [ 2.0,  1.0,  5.0],
-            [ 1.0,  2.0,  5.0],
-            [ 5.0,  5.0, 22.0]
-        ], [
-            [ 6.0,  5.0,  5.0],
-            [ 5.0,  6.0,  5.0],
-            [ 5.0,  5.0,  6.0]
-        ]])
+        SHAPE_FUNCTION_INTEGRALS_PRODUCTS
     }
     fn calculate_shape_functions_at_integration_points() -> ShapeFunctionsAtIntegrationPoints<G, Q>
     {
-        let diag: Scalar = 0.666_666_666_666_666_6;
-        let off: Scalar = 0.166_666_666_666_666_7;
-        ShapeFunctionsAtIntegrationPoints::new([
-            [diag,  off,  off],
-            [ off, diag,  off],
-            [ off,  off, diag]
-        ])
+        SHAPE_FUNCTIONS_AT_INTEGRATION_POINTS
     }
     fn calculate_standard_gradient_operators() -> StandardGradientOperators<M, O, P>
     {
-        StandardGradientOperators::new([[
-            [ 2.0,  0.0],
-            [ 0.0,  0.0],
-            [ 0.0,  0.0],
-            [ 0.0,  2.0],
-            [ 0.0,  0.0],
-            [-2.0, -2.0]
-        ], [
-            [ 0.0,  0.0],
-            [ 0.0,  2.0],
-            [ 0.0,  0.0],
-            [ 2.0,  0.0],
-            [-2.0, -2.0],
-            [ 0.0,  0.0]
-        ], [
-            [ 0.0,  0.0],
-            [ 0.0,  0.0],
-            [-2.0, -2.0],
-            [ 0.0,  0.0],
-            [ 0.0,  2.0],
-            [ 2.0,  0.0]
-        ], [
-            [ 0.0,  0.0],
-            [ 0.0,  0.0],
-            [ 0.0,  0.0],
-            [ 2.0,  2.0],
-            [-2.0,  0.0],
-            [ 0.0, -2.0]
-        ]])
+        STANDARD_GRADIENT_OPERATORS
     }
     fn calculate_standard_gradient_operators_transposed() -> StandardGradientOperatorsTransposed<M, O, P>
     {
-        let standard_gradient_operators = Self::calculate_standard_gradient_operators();
-        let mut standard_gradient_operators_transposed = StandardGradientOperatorsTransposed::zero();
-        standard_gradient_operators_transposed.iter_mut().enumerate()
-        .for_each(|(n, standard_gradient_operators_transposed_n)|
-            standard_gradient_operators_transposed_n.iter_mut()
-            .zip(standard_gradient_operators.iter())
-            .for_each(|(standard_gradient_operators_transposed_n_e, standard_gradient_operators_e)|
-                standard_gradient_operators_transposed_n_e.iter_mut()
-                .zip(standard_gradient_operators_e[n].iter())
-                .for_each(|(standard_gradient_operators_transposed_n_e_i, standard_gradient_operators_e_n_i)|
-                    *standard_gradient_operators_transposed_n_e_i = *standard_gradient_operators_e_n_i
-                )
-            )
-        );
-        standard_gradient_operators_transposed
+        STANDARD_GRADIENT_OPERATORS_TRANSPOSED
     }
     fn get_constitutive_models(&self) -> &[C; G]
     {
@@ -193,37 +163,7 @@ where
     }
     fn calculate_mixed_shape_function_integrals_products() -> ShapeFunctionIntegralsProductsMixed<O, P>
     {
-        ShapeFunctionIntegralsProductsMixed::new([[
-            [12.0,  2.0,  2.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0]
-            ], [
-            [ 0.0,  0.0,  0.0],
-            [ 2.0, 12.0,  2.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0]
-            ], [
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 2.0,  2.0, 12.0],
-            [ 0.0,  0.0,  0.0]
-            ], [
-            [10.0,  4.0,  2.0],
-            [ 4.0, 10.0,  2.0],
-            [ 0.0,  0.0,  0.0],
-            [ 6.0,  6.0,  4.0]
-            ], [
-            [ 0.0,  0.0,  0.0],
-            [ 2.0, 10.0,  4.0],
-            [ 2.0,  4.0, 10.0],
-            [ 4.0,  6.0,  6.0]
-            ], [
-            [10.0,  2.0,  4.0],
-            [ 0.0,  0.0,  0.0],
-            [ 4.0,  2.0, 10.0],
-            [ 6.0,  4.0,  6.0]
-        ]])
+        SHAPE_FUNCTION_INTEGRALS_PRODUCTS_MIXED
     }
     fn calculate_projected_gradient_vectors_composite_localization_element(reference_nodal_coordinates_midplane: &ReferenceNodalCoordinates<O>, thickness: &Scalar) -> ProjectedGradientVectors<G, N>
     {
@@ -232,11 +172,11 @@ where
         let reference_normals = Self::calculate_reference_normals(reference_nodal_coordinates_midplane);
         let inverse_projection_matrix = Self::calculate_inverse_projection_matrix(&reference_jacobians_subelements);
         let projected_gradient_vectors_midplane =
-        Self::calculate_shape_functions_at_integration_points().iter()
+        SHAPE_FUNCTIONS_AT_INTEGRATION_POINTS.iter()
         .map(|shape_functions_at_integration_point|
-            Self::calculate_standard_gradient_operators_transposed().iter()
+            STANDARD_GRADIENT_OPERATORS_TRANSPOSED.iter()
             .map(|standard_gradient_operators_a|
-                Self::calculate_shape_function_integrals().iter()
+                SHAPE_FUNCTION_INTEGRALS.iter()
                 .zip(standard_gradient_operators_a.iter()
                 .zip(reference_dual_bases.iter()
                 .zip(reference_jacobians_subelements.iter())))
@@ -252,9 +192,9 @@ where
             ).collect()
         ).collect::<ProjectedGradientVectors<G, N>>();
         let other_scaled_reference_normals =
-        Self::calculate_shape_functions_at_integration_points().iter()
+        SHAPE_FUNCTIONS_AT_INTEGRATION_POINTS.iter()
         .map(|shape_function|
-            Self::calculate_mixed_shape_function_integrals_products().iter()
+            SHAPE_FUNCTION_INTEGRALS_PRODUCTS_MIXED.iter()
             .map(|mixed_shape_function_integrals_products|
                 reference_normals.iter()
                 .zip(reference_jacobians_subelements.iter()
