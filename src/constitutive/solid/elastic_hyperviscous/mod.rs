@@ -44,7 +44,7 @@ where
     /// ```
     fn calculate_dissipation_potential(&self, deformation_gradient: &DeformationGradient, deformation_gradient_rate: &DeformationGradientRate) -> Scalar
     {
-        self.calculate_first_piola_kirchoff_stress(deformation_gradient, &DeformationGradientRate::zero()).full_contraction(deformation_gradient_rate) + self.calculate_viscous_dissipation(deformation_gradient, deformation_gradient_rate)
+        self.calculate_first_piola_kirchoff_stress(deformation_gradient, &ZERO_10).full_contraction(deformation_gradient_rate) + self.calculate_viscous_dissipation(deformation_gradient, deformation_gradient_rate)
     }
     /// Calculates and returns the viscous dissipation.
     ///

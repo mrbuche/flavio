@@ -284,7 +284,7 @@ where
         let midplane = Self::calculate_midplane(nodal_coordinates);
         let normal_tangentss = Self::calculate_normal_tangents(&midplane);
         let objectss = self.calculate_objects(&Self::calculate_normal_gradients(&midplane));
-        let mut scaled_traction = Vector::zero();
+        let mut scaled_traction = ZERO_VECTOR;
         self.get_constitutive_models().iter()
         .zip(deformation_gradients.iter())
         .map(|(constitutive_model, deformation_gradient)|

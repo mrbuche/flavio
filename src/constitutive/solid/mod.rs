@@ -37,7 +37,8 @@ use crate::
         SecondPiolaKirchoffTangentStiffness,
         SecondPiolaKirchoffRateTangentStiffness,
         IDENTITY,
-        IDENTITY_00
+        IDENTITY_00,
+        ZERO_10
     }
 };
 use super::

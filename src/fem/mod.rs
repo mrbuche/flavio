@@ -129,7 +129,8 @@ use crate::
         Vector,
         Vectors,
         Vectors2D,
-        IDENTITY
+        IDENTITY,
+        ZERO_VECTOR
     }
 };
 

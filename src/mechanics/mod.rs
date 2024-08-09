@@ -5,6 +5,7 @@ pub mod test;
 
 use crate::math::
 {
+    tensor_rank_1_zero,
     TensorRank0,
     TensorRank0List,
     TensorRank1,
@@ -28,6 +29,12 @@ pub const IDENTITY_00: TensorRank2<3, 0, 0> = TensorRank2([
 pub const IDENTITY_10: TensorRank2<3, 1, 0> = TensorRank2([
     TensorRank1([1.0, 0.0, 0.0]), TensorRank1([0.0, 1.0, 0.0]), TensorRank1([0.0, 0.0, 1.0])
 ]);
+
+pub const ZERO_10: TensorRank2<3, 1, 0> = TensorRank2([
+    tensor_rank_1_zero(), tensor_rank_1_zero(), tensor_rank_1_zero()
+]);
+
+pub const ZERO_VECTOR: TensorRank1<3, 1> = tensor_rank_1_zero();
 
 /// The Cauchy stress $`\boldsymbol{\sigma}`$.
 pub type CauchyStress = TensorRank2<3, 1, 1>;

@@ -35,7 +35,8 @@ use crate::
         Scalar,
         SecondPiolaKirchoffStress,
         SecondPiolaKirchoffTangentStiffness,
-        IDENTITY_10
+        IDENTITY_10,
+        ZERO_10
     }
 };
 
@@ -134,7 +135,7 @@ impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> MultiplicativeTrait for Multiplicativ
             let mut residual: FirstPiolaKirchoffStress;
             let mut residual_increment: FirstPiolaKirchoffStress;
             let mut residual_norm = 1.0;
-            let mut residual_old = FirstPiolaKirchoffStress::zero();
+            let mut residual_old = ZERO_10;
             let mut right_hand_side: FirstPiolaKirchoffStress;
             let mut steps: u8 = 0;
             let steps_maximum: u8 = 50;

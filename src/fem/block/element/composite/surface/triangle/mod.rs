@@ -248,7 +248,7 @@ where
         let deformation_gradients = self.calculate_deformation_gradients(nodal_coordinates);
         let normal_tangentss = Self::calculate_normal_tangents(nodal_coordinates);
         let objectss = self.calculate_objects(&Self::calculate_normal_gradients(nodal_coordinates));
-        let mut scaled_traction = Vector::zero();
+        let mut scaled_traction = ZERO_VECTOR;
         self.get_constitutive_models().iter()
         .zip(deformation_gradients.iter())
         .map(|(constitutive_model, deformation_gradient)|
