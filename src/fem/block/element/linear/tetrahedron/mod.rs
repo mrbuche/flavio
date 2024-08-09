@@ -8,7 +8,7 @@ const M: usize = 3;
 const N: usize = 4;
 const O: usize = 4;
 
-const INTEGRATION_WEIGHT: Scalar = 1.0/6.0;
+const INTEGRATION_WEIGHT: Scalar = ONE_SIXTH;
 
 pub struct Tetrahedron<C>
 {

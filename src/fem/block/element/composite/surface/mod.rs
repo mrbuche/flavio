@@ -91,7 +91,6 @@ where
     }
     fn calculate_normal_gradients(nodal_coordinates: &Coordinates<1, O>) -> NormalGradientss<P, O>
     {
-        let identity = TensorRank2::<3, 1, 1>::identity();
         let levi_civita_symbol = levi_civita::<1, 1, 1>();
         let mut normalization: Scalar = 0.0;
         let mut normal_vector = Normal::new([0.0, 0.0, 0.0]);
@@ -104,7 +103,7 @@ where
             .map(|standard_gradient_operator_a|
                 levi_civita_symbol.iter()
                 .map(|levi_civita_symbol_m|
-                    identity.iter()
+                    IDENTITY.iter()
                     .zip(normal_vector.iter())
                     .map(|(identity_i, normal_vector_i)|
                         levi_civita_symbol_m.iter()
@@ -128,7 +127,6 @@ where
     }
     fn calculate_normal_rates(nodal_coordinates: &NodalCoordinates<O>, nodal_velocities: &NodalVelocities<O>) -> NormalRates<P>
     {
-        let identity = TensorRank2::<3, 1, 1>::identity();
         let levi_civita_symbol = levi_civita::<1, 1, 1>();
         let mut normalization: Scalar = 0.0;
         let mut normal_vector = Normal::new([0.0, 0.0, 0.0]);
@@ -137,7 +135,7 @@ where
         .map(|(standard_gradient_operator, basis_vectors)|{
             normalization = basis_vectors[0].cross(&basis_vectors[1]).norm();
             normal_vector = basis_vectors[0].cross(&basis_vectors[1])/normalization;
-            identity.iter()
+            IDENTITY.iter()
             .zip(normal_vector.iter())
             .map(|(identity_i, normal_vector_i)|
                 nodal_velocities.iter()
@@ -167,7 +165,6 @@ where
     }
     fn calculate_normal_tangents(nodal_coordinates: &Coordinates<1, O>) -> NormalTangentss<P, O>
     {
-        let identity = TensorRank2::<3, 1, 1>::identity();
         let levi_civita_symbol = levi_civita::<1, 1, 1>();
         let mut normalization: Scalar = 0.0;
         let mut normal_vector = Normal::new([0.0, 0.0, 0.0]);
@@ -193,7 +190,7 @@ where
                             normal_gradient_a_m.iter()
                             .zip(normal_gradient_b_n.iter()
                             .zip(normal_vector.iter()
-                            .zip(identity.iter())))
+                            .zip(IDENTITY.iter())))
                             .map(|(normal_gradient_a_m_i, (normal_gradient_b_n_i, (normal_vector_i, identity_i)))|
                                 (levi_civita_symbol_m.iter()
                                 .zip(levi_civita_symbol_n.iter()

@@ -105,7 +105,9 @@ use crate::
         TensorRank3,
         TensorRank3List,
         TensorRank3List2D,
-        TensorRank3List3D
+        TensorRank3List3D,
+        ONE_SIXTH,
+        ONE_TWENTY_FOURTH
     },
     mechanics::
     {

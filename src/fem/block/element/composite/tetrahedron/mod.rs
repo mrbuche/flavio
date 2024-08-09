@@ -11,7 +11,7 @@ const O: usize = 10;
 const P: usize = 12;
 const Q: usize = 4;
 
-const INTEGRATION_WEIGHT: Scalar = 1.0/24.0;
+const INTEGRATION_WEIGHT: Scalar = ONE_TWENTY_FOURTH;
 
 pub struct Tetrahedron<C>
 {

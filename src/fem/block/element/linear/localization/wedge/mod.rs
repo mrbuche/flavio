@@ -8,7 +8,7 @@ const M: usize = 2;
 const N: usize = 6;
 const O: usize = 3;
 
-const INTEGRATION_WEIGHT: Scalar = 1.0/2.0;
+const INTEGRATION_WEIGHT: Scalar = 0.5;
 
 pub struct Wedge<C>
 {
@@ -148,7 +148,6 @@ where
         let first_piola_kirchoff_stress = self.get_constitutive_model().calculate_first_piola_kirchoff_stress(&deformation_gradient);
         let first_piola_kirchoff_tangent_stiffness = self.get_constitutive_model().calculate_first_piola_kirchoff_tangent_stiffness(&deformation_gradient);
         let gradient_vectors = self.get_gradient_vectors();
-        let identity = TensorRank2::<3, 1, 1>::identity();
         let midplane = Self::calculate_midplane(nodal_coordinates);
         let normal_gradients = Self::calculate_normal_gradients(&midplane);
         let normal_tangents = Self::calculate_normal_tangents(&midplane);
@@ -162,10 +161,10 @@ where
             .zip(normal_gradients.iter()
             .chain(normal_gradients.iter()))
             .map(|(gradient_vector_b, normal_gradient_b)|
-                identity.iter()
+                IDENTITY.iter()
                 .zip(normal_gradient_a.iter())
                 .map(|(identity_m, normal_gradient_a_m)|
-                    identity.iter()
+                    IDENTITY.iter()
                     .zip(normal_gradient_b.iter())
                     .map(|(identity_n, normal_gradient_b_n)|
                         first_piola_kirchoff_tangent_stiffness.iter()
@@ -245,7 +244,6 @@ where
             &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
         );
         let gradient_vectors = self.get_gradient_vectors();
-        let identity = TensorRank2::<3, 1, 1>::identity();
         let normal_gradients = Self::calculate_normal_gradients(
             &Self::calculate_midplane(nodal_coordinates)
         );
@@ -258,10 +256,10 @@ where
             .zip(normal_gradients.iter()
             .chain(normal_gradients.iter()))
             .map(|(gradient_vector_b, normal_gradient_b)|
-                identity.iter()
+                IDENTITY.iter()
                 .zip(normal_gradient_a.iter())
                 .map(|(identity_m, normal_gradient_a_m)|
-                    identity.iter()
+                    IDENTITY.iter()
                     .zip(normal_gradient_b.iter())
                     .map(|(identity_n, normal_gradient_b_n)|
                         first_piola_kirchoff_tangent_stiffness.iter()

@@ -10,7 +10,7 @@ const O: usize = 6;
 const P: usize = 4;
 const Q: usize = 3;
 
-const INTEGRATION_WEIGHT: Scalar = 1.0/6.0;
+const INTEGRATION_WEIGHT: Scalar = ONE_SIXTH;
 
 pub struct Wedge<C>
 {
@@ -303,7 +303,6 @@ where
 {
     fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
     {
-        let identity = TensorRank2::<3, 1, 1>::identity();
         self.get_constitutive_models().iter()
         .zip(self.calculate_deformation_gradients(nodal_coordinates).iter())
         .map(|(constitutive_model, deformation_gradient)|
@@ -319,7 +318,7 @@ where
             .chain(objects.iter().skip(3))
             .chain(objects.iter().skip(3)))
             .map(|(projected_gradient_vector, object)|
-                identity.iter()
+                IDENTITY.iter()
                 .zip(object.iter())
                 .map(|(identity_m, object_m)|
                     first_piola_kirchoff_stress.iter()
@@ -342,7 +341,6 @@ where
     fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
     {
         let deformation_gradients = self.calculate_deformation_gradients(nodal_coordinates);
-        let identity = TensorRank2::<3, 1, 1>::identity();
         let midplane = Self::calculate_midplane(nodal_coordinates);
         let normal_tangentss = Self::calculate_normal_tangents(&midplane);
         let objectss = self.calculate_objects(&Self::calculate_normal_gradients(&midplane));
@@ -374,10 +372,10 @@ where
                 .chain(objects.iter().skip(3))
                 .chain(objects.iter().skip(3)))
                 .map(|(projected_gradient_vector_b, object_b)|
-                    identity.iter()
+                    IDENTITY.iter()
                     .zip(object_a.iter())
                     .map(|(identity_m, object_a_m)|
-                        identity.iter()
+                        IDENTITY.iter()
                         .zip(object_b.iter())
                         .map(|(identity_n, object_b_n)|
                             first_piola_kirchoff_tangent_stiffness.iter()
@@ -442,7 +440,6 @@ where
 {
     fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalForces<N>
     {
-        let identity = TensorRank2::<3, 1, 1>::identity();
         self.get_constitutive_models().iter()
         .zip(self.calculate_deformation_gradients(nodal_coordinates).iter()
         .zip(self.calculate_deformation_gradient_rates(nodal_coordinates, nodal_velocities).iter()))
@@ -459,7 +456,7 @@ where
             .chain(objects.iter().skip(3))
             .chain(objects.iter().skip(3)))
             .map(|(projected_gradient_vector, object)|
-                identity.iter()
+                IDENTITY.iter()
                 .zip(object.iter())
                 .map(|(identity_m, object_m)|
                     first_piola_kirchoff_stress.iter()
@@ -481,7 +478,6 @@ where
     }
     fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalStiffnesses<N>
     {
-        let identity = TensorRank2::<3, 1, 1>::identity();
         let midplane = Self::calculate_midplane(nodal_coordinates);
         let objectss = self.calculate_objects(&Self::calculate_normal_gradients(&midplane));
         self.get_constitutive_models().iter()
@@ -506,10 +502,10 @@ where
                 .chain(objects.iter().skip(3))
                 .chain(objects.iter().skip(3)))
                 .map(|(projected_gradient_vector_b, object_b)|
-                    identity.iter()
+                    IDENTITY.iter()
                     .zip(object_a.iter())
                     .map(|(identity_m, object_a_m)|
-                        identity.iter()
+                        IDENTITY.iter()
                         .zip(object_b.iter())
                         .map(|(identity_n, object_b_n)|
                             first_piola_kirchoff_tangent_stiffness.iter()
