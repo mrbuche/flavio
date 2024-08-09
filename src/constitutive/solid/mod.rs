@@ -15,7 +15,10 @@ use crate::
         ContractFirstSecondIndicesWithSecondIndicesOf,
         ContractSecondIndexWithFirstIndexOf,
         TensorRank2Trait,
-        TensorRank4Trait
+        TensorRank4Trait,
+        FIVE_THIRDS,
+        SEVEN_THIRDS,
+        TWO_THIRDS
     },
     mechanics::
     {
@@ -32,7 +35,10 @@ use crate::
         Scalar,
         SecondPiolaKirchoffStress,
         SecondPiolaKirchoffTangentStiffness,
-        SecondPiolaKirchoffRateTangentStiffness
+        SecondPiolaKirchoffRateTangentStiffness,
+        IDENTITY,
+        IDENTITY_00,
+        ZERO_10
     }
 };
 use super::

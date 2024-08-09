@@ -29,7 +29,7 @@ use super::
 /// `D` is the dimension, `I` is the configuration.
 pub struct TensorRank1<const D: usize, const I: usize>
 (
-    [TensorRank0; D]
+    pub [TensorRank0; D]
 );
 
 /// Inherent implementation of [`TensorRank1`].
@@ -85,10 +85,10 @@ impl<const D: usize, const I: usize> TensorRank1Trait<D, I> for TensorRank1<D, I
     {
         if D == 3
         {
-            let mut output = TensorRank1::<D, I>::zero();
-            output[0] = self[1]*tensor_rank_1[2] - self[2]*tensor_rank_1[1];
-            output[1] = self[2]*tensor_rank_1[0] - self[0]*tensor_rank_1[2];
-            output[2] = self[0]*tensor_rank_1[1] - self[1]*tensor_rank_1[0];
+            let mut output = zero();
+            output[0] = self[1] * tensor_rank_1[2] - self[2] * tensor_rank_1[1];
+            output[1] = self[2] * tensor_rank_1[0] - self[0] * tensor_rank_1[2];
+            output[2] = self[0] * tensor_rank_1[1] - self[1] * tensor_rank_1[0];
             output
         }
         else
@@ -122,8 +122,13 @@ impl<const D: usize, const I: usize> TensorRank1Trait<D, I> for TensorRank1<D, I
     }
     fn zero() -> Self
     {
-        Self([0.0; D])
+        zero()
     }
+}
+
+pub const fn zero<const D: usize, const I: usize>() -> TensorRank1<D, I>
+{
+    TensorRank1([0.0; D])
 }
 
 impl<const D: usize, const I: usize, const J: usize> Convert<TensorRank1<D, J>> for TensorRank1<D, I>
@@ -146,7 +151,7 @@ impl<const D: usize, const I: usize> FromIterator<TensorRank0> for TensorRank1<D
 {
     fn from_iter<Ii: IntoIterator<Item=TensorRank0>>(into_iterator: Ii) -> Self
     {
-        let mut tensor_rank_1 = Self::zero();
+        let mut tensor_rank_1 = zero();
         tensor_rank_1.iter_mut().zip(into_iterator).for_each(|(tensor_rank_1_i, value_i)|
             *tensor_rank_1_i = value_i
         );
@@ -177,7 +182,7 @@ impl<const D: usize, const I: usize> std::iter::Sum for TensorRank1<D, I>
     where
         Ii: Iterator<Item = Self>
     {
-        let mut output = TensorRank1::zero();
+        let mut output = zero();
         iter.for_each(|item|
             output += item
         );

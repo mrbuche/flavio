@@ -57,8 +57,8 @@ impl<'a> Elastic<'a> for SaintVenantKirchoff<'a>
     /// ```
     fn calculate_second_piola_kirchoff_stress(&self, deformation_gradient: &DeformationGradient) -> SecondPiolaKirchoffStress
     {
-        let (deviatoric_strain, strain_trace) = ((self.calculate_right_cauchy_green_deformation(deformation_gradient) - RightCauchyGreenDeformation::identity())*0.5).deviatoric_and_trace();
-        deviatoric_strain*(2.0*self.get_shear_modulus()) + RightCauchyGreenDeformation::identity()*(self.get_bulk_modulus()*strain_trace)
+        let (deviatoric_strain, strain_trace) = ((self.calculate_right_cauchy_green_deformation(deformation_gradient) - IDENTITY_00)*0.5).deviatoric_and_trace();
+        deviatoric_strain*(2.0*self.get_shear_modulus()) + IDENTITY_00*(self.get_bulk_modulus()*strain_trace)
     }
     /// Calculates and returns the tangent stiffness associated with the second Piola-Kirchoff stress.
     ///
@@ -67,9 +67,8 @@ impl<'a> Elastic<'a> for SaintVenantKirchoff<'a>
     /// ```
     fn calculate_second_piola_kirchoff_tangent_stiffness(&self, deformation_gradient: &DeformationGradient) -> SecondPiolaKirchoffTangentStiffness
     {
-        let identity = SecondPiolaKirchoffStress::identity();
         let scaled_deformation_gradient_transpose = deformation_gradient.transpose()*self.get_shear_modulus();
-        SecondPiolaKirchoffTangentStiffness::dyad_ik_jl(&scaled_deformation_gradient_transpose, &identity) + SecondPiolaKirchoffTangentStiffness::dyad_il_jk(&identity, &scaled_deformation_gradient_transpose) + SecondPiolaKirchoffTangentStiffness::dyad_ij_kl(&(identity*(self.get_bulk_modulus() - 2.0/3.0*self.get_shear_modulus())), deformation_gradient)
+        SecondPiolaKirchoffTangentStiffness::dyad_ik_jl(&scaled_deformation_gradient_transpose, &IDENTITY_00) + SecondPiolaKirchoffTangentStiffness::dyad_il_jk(&IDENTITY_00, &scaled_deformation_gradient_transpose) + SecondPiolaKirchoffTangentStiffness::dyad_ij_kl(&(IDENTITY_00*(self.get_bulk_modulus() - TWO_THIRDS*self.get_shear_modulus())), deformation_gradient)
     }
 }
 
@@ -83,7 +82,7 @@ impl<'a> Hyperelastic<'a> for SaintVenantKirchoff<'a>
     /// ```
     fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar
     {
-        let strain = (self.calculate_right_cauchy_green_deformation(deformation_gradient) - RightCauchyGreenDeformation::identity())*0.5;
-        self.get_shear_modulus()*strain.squared_trace() + 0.5*(self.get_bulk_modulus() - 2.0/3.0*self.get_shear_modulus())*strain.trace().powi(2)
+        let strain = (self.calculate_right_cauchy_green_deformation(deformation_gradient) - IDENTITY_00)*0.5;
+        self.get_shear_modulus()*strain.squared_trace() + 0.5*(self.get_bulk_modulus() - TWO_THIRDS*self.get_shear_modulus())*strain.trace().powi(2)
     }
 }

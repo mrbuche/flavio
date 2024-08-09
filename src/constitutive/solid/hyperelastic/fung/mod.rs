@@ -75,9 +75,9 @@ impl<'a> Elastic<'a> for Fung<'a>
     fn calculate_cauchy_stress(&self, deformation_gradient: &DeformationGradient) -> CauchyStress
     {
         let jacobian = deformation_gradient.determinant();
-        let isochoric_left_cauchy_green_deformation = self.calculate_left_cauchy_green_deformation(deformation_gradient)/jacobian.powf(2.0/3.0);
+        let isochoric_left_cauchy_green_deformation = self.calculate_left_cauchy_green_deformation(deformation_gradient)/jacobian.powf(TWO_THIRDS);
         let (deviatoric_isochoric_left_cauchy_green_deformation, isochoric_left_cauchy_green_deformation_trace) = isochoric_left_cauchy_green_deformation.deviatoric_and_trace();
-        deviatoric_isochoric_left_cauchy_green_deformation*((self.get_shear_modulus() + self.get_extra_modulus()*((self.get_exponent()*(isochoric_left_cauchy_green_deformation_trace - 3.0)).exp() - 1.0))/jacobian) + LeftCauchyGreenDeformation::identity()*self.get_bulk_modulus()*0.5*(jacobian - 1.0/jacobian)
+        deviatoric_isochoric_left_cauchy_green_deformation*((self.get_shear_modulus() + self.get_extra_modulus()*((self.get_exponent()*(isochoric_left_cauchy_green_deformation_trace - 3.0)).exp() - 1.0))/jacobian) + IDENTITY*self.get_bulk_modulus()*0.5*(jacobian - 1.0/jacobian)
     }
     /// Calculates and returns the tangent stiffness associated with the Cauchy stress.
     ///
@@ -86,13 +86,12 @@ impl<'a> Elastic<'a> for Fung<'a>
     /// ```
     fn calculate_cauchy_tangent_stiffness(&self, deformation_gradient: &DeformationGradient) -> CauchyTangentStiffness
     {
-        let identity = CauchyStress::identity();
         let (inverse_transpose_deformation_gradient, jacobian) = deformation_gradient.inverse_transpose_and_determinant();
-        let isochoric_left_cauchy_green_deformation = self.calculate_left_cauchy_green_deformation(deformation_gradient)/jacobian.powf(2.0/3.0);
+        let isochoric_left_cauchy_green_deformation = self.calculate_left_cauchy_green_deformation(deformation_gradient)/jacobian.powf(TWO_THIRDS);
         let (deviatoric_isochoric_left_cauchy_green_deformation, isochoric_left_cauchy_green_deformation_trace) = isochoric_left_cauchy_green_deformation.deviatoric_and_trace();
         let exponential = (self.get_exponent()*(isochoric_left_cauchy_green_deformation_trace - 3.0)).exp();
-        let scaled_shear_modulus_0 = (self.get_shear_modulus() + self.get_extra_modulus()*(exponential - 1.0))/jacobian.powf(5.0/3.0);
-        (CauchyTangentStiffness::dyad_ik_jl(&identity, deformation_gradient) + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &identity) - CauchyTangentStiffness::dyad_ij_kl(&identity, deformation_gradient)*(2.0/3.0))*scaled_shear_modulus_0 + CauchyTangentStiffness::dyad_ij_kl(&deviatoric_isochoric_left_cauchy_green_deformation, &((&deviatoric_isochoric_left_cauchy_green_deformation*&inverse_transpose_deformation_gradient)*(2.0*self.get_exponent()*self.get_extra_modulus()*exponential/jacobian))) + CauchyTangentStiffness::dyad_ij_kl(&(identity*(0.5*self.get_bulk_modulus()*(jacobian + 1.0/jacobian)) - self.calculate_left_cauchy_green_deformation(deformation_gradient).deviatoric()*(scaled_shear_modulus_0*5.0/3.0)), &inverse_transpose_deformation_gradient)
+        let scaled_shear_modulus_0 = (self.get_shear_modulus() + self.get_extra_modulus()*(exponential - 1.0))/jacobian.powf(FIVE_THIRDS);
+        (CauchyTangentStiffness::dyad_ik_jl(&IDENTITY, deformation_gradient) + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &IDENTITY) - CauchyTangentStiffness::dyad_ij_kl(&IDENTITY, deformation_gradient)*(TWO_THIRDS))*scaled_shear_modulus_0 + CauchyTangentStiffness::dyad_ij_kl(&deviatoric_isochoric_left_cauchy_green_deformation, &((&deviatoric_isochoric_left_cauchy_green_deformation*&inverse_transpose_deformation_gradient)*(2.0*self.get_exponent()*self.get_extra_modulus()*exponential/jacobian))) + CauchyTangentStiffness::dyad_ij_kl(&(IDENTITY*(0.5*self.get_bulk_modulus()*(jacobian + 1.0/jacobian)) - self.calculate_left_cauchy_green_deformation(deformation_gradient).deviatoric()*(scaled_shear_modulus_0*FIVE_THIRDS)), &inverse_transpose_deformation_gradient)
     }
 }
 
@@ -107,7 +106,7 @@ impl<'a> Hyperelastic<'a> for Fung<'a>
     fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar
     {
         let jacobian = deformation_gradient.determinant();
-        let scalar_term = self.calculate_left_cauchy_green_deformation(deformation_gradient).trace()/jacobian.powf(2.0/3.0) - 3.0;
+        let scalar_term = self.calculate_left_cauchy_green_deformation(deformation_gradient).trace()/jacobian.powf(TWO_THIRDS) - 3.0;
         0.5*((self.get_shear_modulus() - self.get_extra_modulus())*scalar_term + self.get_extra_modulus()/self.get_exponent()*((self.get_exponent()*scalar_term).exp() - 1.0) + self.get_bulk_modulus()*(0.5*(jacobian.powi(2) - 1.0) - jacobian.ln()))
     }
 }

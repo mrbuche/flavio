@@ -8,7 +8,14 @@ const M: usize = 2;
 const N: usize = 3;
 const O: usize = 3;
 
-const INTEGRATION_WEIGHT: Scalar = 1.0/2.0;
+const INTEGRATION_WEIGHT: Scalar = 0.5;
+
+pub const STANDARD_GRADIENT_OPERATOR: StandardGradientOperator<M, O> =
+TensorRank1List([
+    TensorRank1([-1.0, -1.0,]),
+    TensorRank1([ 1.0,  0.0]),
+    TensorRank1([ 0.0,  1.0])
+]);
 
 pub struct Triangle<C>
 {
@@ -56,11 +63,7 @@ where
     }
     fn calculate_standard_gradient_operator() -> StandardGradientOperator<M, O>
     {
-        StandardGradientOperator::new([
-            [-1.0, -1.0],
-            [ 1.0,  0.0],
-            [ 0.0,  1.0]
-        ])
+        STANDARD_GRADIENT_OPERATOR
     }
     fn get_constitutive_model(&self) -> &C
     {
@@ -91,7 +94,6 @@ where
             &self.calculate_deformation_gradient(nodal_coordinates)
         );
         let gradient_vectors = self.get_gradient_vectors();
-        let identity = TensorRank2::<3, 1, 1>::identity();
         let normal_gradients = Self::calculate_normal_gradients(nodal_coordinates);
         let reference_normal = self.get_reference_normal();
         gradient_vectors.iter()
@@ -101,7 +103,7 @@ where
             .map(|(gradient_vector_b, normal_gradient_b)|
                 first_piola_kirchoff_tangent_stiffness.iter()
                 .map(|first_piola_kirchoff_tangent_stiffness_m|
-                    identity.iter()
+                    IDENTITY.iter()
                     .zip(normal_gradient_b.iter())
                     .map(|(identity_n, normal_gradient_b_n)|
                         first_piola_kirchoff_tangent_stiffness_m.iter()
@@ -144,7 +146,6 @@ where
             &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities)
         );
         let gradient_vectors = self.get_gradient_vectors();
-        let identity = TensorRank2::<3, 1, 1>::identity();
         let normal_gradients = Self::calculate_normal_gradients(nodal_coordinates);
         let reference_normal = self.get_reference_normal();
         gradient_vectors.iter()
@@ -154,7 +155,7 @@ where
             .map(|(gradient_vector_b, normal_gradient_b)|
                 first_piola_kirchoff_rate_tangent_stiffness.iter()
                 .map(|first_piola_kirchoff_rate_tangent_stiffness_m|
-                    identity.iter()
+                    IDENTITY.iter()
                     .zip(normal_gradient_b.iter())
                     .map(|(identity_n, normal_gradient_b_n)|
                         first_piola_kirchoff_rate_tangent_stiffness_m.iter()

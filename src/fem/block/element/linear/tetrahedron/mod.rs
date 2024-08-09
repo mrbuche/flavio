@@ -8,7 +8,15 @@ const M: usize = 3;
 const N: usize = 4;
 const O: usize = 4;
 
-const INTEGRATION_WEIGHT: Scalar = 1.0/6.0;
+const INTEGRATION_WEIGHT: Scalar = ONE_SIXTH;
+
+const STANDARD_GRADIENT_OPERATOR: StandardGradientOperator<M, O> =
+TensorRank1List([
+    TensorRank1([-1.0, -1.0, -1.0]),
+    TensorRank1([ 1.0,  0.0,  0.0]),
+    TensorRank1([ 0.0,  1.0,  0.0]),
+    TensorRank1([ 0.0,  0.0,  1.0])
+]);
 
 pub struct Tetrahedron<C>
 {
@@ -38,21 +46,15 @@ where
 {
     fn calculate_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> GradientVectors<N>
     {
-        let standard_gradient_operator = Self::calculate_standard_gradient_operator();
-        (reference_nodal_coordinates * &standard_gradient_operator).inverse_transpose() * standard_gradient_operator
+        (reference_nodal_coordinates * &STANDARD_GRADIENT_OPERATOR).inverse_transpose() * STANDARD_GRADIENT_OPERATOR
     }
     fn calculate_reference_jacobian(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> Scalar
     {
-        (reference_nodal_coordinates * Self::calculate_standard_gradient_operator()).determinant()
+        (reference_nodal_coordinates * STANDARD_GRADIENT_OPERATOR).determinant()
     }
     fn calculate_standard_gradient_operator() -> StandardGradientOperator<M, O>
     {
-        StandardGradientOperator::new([
-            [-1.0, -1.0, -1.0],
-            [ 1.0,  0.0,  0.0],
-            [ 0.0,  1.0,  0.0],
-            [ 0.0,  0.0,  1.0]
-        ])
+        STANDARD_GRADIENT_OPERATOR
     }
     fn get_constitutive_model(&self) -> &C
     {

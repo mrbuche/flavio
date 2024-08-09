@@ -19,7 +19,10 @@ use super::
     RotationReferenceConfiguration,
     ReferenceCoordinate,
     TemperatureGradient,
-    Scalar
+    Scalar,
+    IDENTITY,
+    IDENTITY_00,
+    IDENTITY_10
 };
 
 pub fn get_deformation_gradient() -> DeformationGradient
@@ -47,7 +50,7 @@ pub fn get_deformation_gradient_rotated() -> DeformationGradient
 
 pub fn get_deformation_gradient_rotated_undeformed() -> DeformationGradient
 {
-    get_rotation_current_configuration() * DeformationGradient::identity() * get_rotation_reference_configuration().transpose()
+    get_rotation_current_configuration() * IDENTITY_10 * get_rotation_reference_configuration().transpose()
 }
 
 pub fn get_deformation_gradient_rate_rotated() -> DeformationGradientRate
@@ -144,7 +147,7 @@ fn rotation_current_configuration()
 {
     (get_rotation_current_configuration() *
         get_rotation_current_configuration().transpose()
-    ).iter().zip(RotationCurrentConfiguration::identity().iter())
+    ).iter().zip(IDENTITY.iter())
     .for_each(|(res_i, identity_i)|
         res_i.iter().zip(identity_i.iter())
         .for_each(|(res_ij, identity_ij)|
@@ -158,7 +161,7 @@ fn rotation_reference_configuration()
 {
     (get_rotation_reference_configuration() *
         get_rotation_reference_configuration().transpose()
-    ).iter().zip(RotationReferenceConfiguration::identity().iter())
+    ).iter().zip(IDENTITY_00.iter())
     .for_each(|(res_i, identity_i)|
         res_i.iter().zip(identity_i.iter())
         .for_each(|(res_ij, identity_ij)|

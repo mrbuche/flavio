@@ -10,7 +10,115 @@ const O: usize = 6;
 const P: usize = 4;
 const Q: usize = 3;
 
-const INTEGRATION_WEIGHT: Scalar = 1.0/6.0;
+const INTEGRATION_WEIGHT: Scalar = ONE_SIXTH;
+
+pub const INVERSE_NORMALIED_PROJECTION_MATRIX: NormalizedProjectionMatrix<Q> =
+TensorRank2::<Q, 9, 9>([
+    TensorRank1([ 3.0 / 64.0, -1.0 / 64.0, -1.0 / 64.0]),
+    TensorRank1([-1.0 / 64.0,  3.0 / 64.0, -1.0 / 64.0]),
+    TensorRank1([-1.0 / 64.0, -1.0 / 64.0,  3.0 / 64.0])
+]);
+pub const SHAPE_FUNCTION_INTEGRALS: ShapeFunctionIntegrals<P, Q> =
+TensorRank1List::<Q, 9, P>([
+    TensorRank1([32.0,  8.0,  8.0]),
+    TensorRank1([ 8.0, 32.0,  8.0]),
+    TensorRank1([ 8.0,  8.0, 32.0]),
+    TensorRank1([16.0, 16.0, 16.0])
+]);
+pub const SHAPE_FUNCTION_INTEGRALS_PRODUCTS: ShapeFunctionIntegralsProducts<P, Q> =
+TensorRank2List::<Q, 9, 9, P>([
+    TensorRank2([
+        TensorRank1([22.0,  5.0,  5.0]),
+        TensorRank1([ 5.0,  2.0,  1.0]),
+        TensorRank1([ 5.0,  1.0,  2.0])
+    ]), TensorRank2([
+        TensorRank1([ 2.0,  5.0,  1.0]),
+        TensorRank1([ 5.0, 22.0,  5.0]),
+        TensorRank1([ 1.0,  5.0,  2.0])
+    ]), TensorRank2([
+        TensorRank1([ 2.0,  1.0,  5.0]),
+        TensorRank1([ 1.0,  2.0,  5.0]),
+        TensorRank1([ 5.0,  5.0, 22.0])
+    ]), TensorRank2([
+        TensorRank1([ 6.0,  5.0,  5.0]),
+        TensorRank1([ 5.0,  6.0,  5.0]),
+        TensorRank1([ 5.0,  5.0,  6.0])
+    ])
+]);
+const DIAG: Scalar = 0.666_666_666_666_666_6;
+const OFF: Scalar = 0.166_666_666_666_666_7;
+pub const SHAPE_FUNCTIONS_AT_INTEGRATION_POINTS: ShapeFunctionsAtIntegrationPoints<G, Q> =
+TensorRank1List::<Q, 9, G>([
+    TensorRank1([DIAG,  OFF,  OFF]),
+    TensorRank1([ OFF, DIAG,  OFF]),
+    TensorRank1([ OFF,  OFF, DIAG])
+]);
+pub const STANDARD_GRADIENT_OPERATORS: StandardGradientOperators<M, O, P> =
+TensorRank1List2D::<M, 9, O, P>([
+    TensorRank1List([
+        TensorRank1([ 2.0,  0.0]),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([ 0.0,  2.0]),
+        tensor_rank_1_zero(),
+        TensorRank1([-2.0, -2.0])
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        TensorRank1([ 0.0,  2.0]),
+        tensor_rank_1_zero(),
+        TensorRank1([ 2.0,  0.0]),
+        TensorRank1([-2.0, -2.0]),
+        tensor_rank_1_zero()
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([-2.0, -2.0]),
+        tensor_rank_1_zero(),
+        TensorRank1([ 0.0,  2.0]),
+        TensorRank1([ 2.0,  0.0])
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([ 2.0,  2.0]),
+        TensorRank1([-2.0,  0.0]),
+        TensorRank1([ 0.0, -2.0])
+    ])
+]);
+
+pub const STANDARD_GRADIENT_OPERATORS_TRANSPOSED: StandardGradientOperatorsTransposed<M, O, P> =
+TensorRank1List2D::<M, 9, P, O>([
+    TensorRank1List([
+        TensorRank1([ 2.0,  0.0]),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero()
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        TensorRank1([ 0.0,  2.0]),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero()
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([-2.0, -2.0]),
+        tensor_rank_1_zero()
+    ]), TensorRank1List([
+        TensorRank1([ 0.0,  2.0]),
+        TensorRank1([ 2.0,  0.0]),
+        tensor_rank_1_zero(),
+        TensorRank1([ 2.0,  2.0]),
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        TensorRank1([-2.0, -2.0]),
+        TensorRank1([ 0.0,  2.0]),
+        TensorRank1([-2.0,  0.0]),
+    ]), TensorRank1List([
+        TensorRank1([-2.0, -2.0]),
+        tensor_rank_1_zero(),
+        TensorRank1([ 2.0,  0.0]),
+        TensorRank1([ 0.0, -2.0]),
+])]);
 
 pub struct Triangle<C>
 {
@@ -50,13 +158,7 @@ where
     }
     fn calculate_inverse_normalized_projection_matrix() -> NormalizedProjectionMatrix<Q>
     {
-        let diag: Scalar = 3.0/64.0;
-        let off: Scalar = -1.0/64.0;
-        NormalizedProjectionMatrix::new([
-            [diag,  off,  off],
-            [ off, diag,  off],
-            [ off,  off, diag]
-        ])
+        INVERSE_NORMALIED_PROJECTION_MATRIX
     }
     fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ProjectedGradientVectors<G, N>
     {
@@ -71,92 +173,23 @@ where
     }
     fn calculate_shape_function_integrals() -> ShapeFunctionIntegrals<P, Q>
     {
-        ShapeFunctionIntegrals::new([
-            [32.0,  8.0,  8.0],
-            [ 8.0, 32.0,  8.0],
-            [ 8.0,  8.0, 32.0],
-            [16.0, 16.0, 16.0]
-        ])
+        SHAPE_FUNCTION_INTEGRALS
     }
     fn calculate_shape_function_integrals_products() -> ShapeFunctionIntegralsProducts<P, Q>
     {
-        ShapeFunctionIntegralsProducts::new([[
-            [22.0,  5.0,  5.0],
-            [ 5.0,  2.0,  1.0],
-            [ 5.0,  1.0,  2.0]
-        ], [
-            [ 2.0,  5.0,  1.0],
-            [ 5.0, 22.0,  5.0],
-            [ 1.0,  5.0,  2.0]
-        ], [
-            [ 2.0,  1.0,  5.0],
-            [ 1.0,  2.0,  5.0],
-            [ 5.0,  5.0, 22.0]
-        ], [
-            [ 6.0,  5.0,  5.0],
-            [ 5.0,  6.0,  5.0],
-            [ 5.0,  5.0,  6.0]
-        ]])
+        SHAPE_FUNCTION_INTEGRALS_PRODUCTS
     }
     fn calculate_shape_functions_at_integration_points() -> ShapeFunctionsAtIntegrationPoints<G, Q>
     {
-        let diag: Scalar = 0.666_666_666_666_666_6;
-        let off: Scalar = 0.166_666_666_666_666_7;
-        ShapeFunctionsAtIntegrationPoints::new([
-            [diag,  off,  off],
-            [ off, diag,  off],
-            [ off,  off, diag]
-        ])
+        SHAPE_FUNCTIONS_AT_INTEGRATION_POINTS
     }
     fn calculate_standard_gradient_operators() -> StandardGradientOperators<M, O, P>
     {
-        StandardGradientOperators::new([[
-            [ 2.0,  0.0],
-            [ 0.0,  0.0],
-            [ 0.0,  0.0],
-            [ 0.0,  2.0],
-            [ 0.0,  0.0],
-            [-2.0, -2.0]
-        ], [
-            [ 0.0,  0.0],
-            [ 0.0,  2.0],
-            [ 0.0,  0.0],
-            [ 2.0,  0.0],
-            [-2.0, -2.0],
-            [ 0.0,  0.0]
-        ], [
-            [ 0.0,  0.0],
-            [ 0.0,  0.0],
-            [-2.0, -2.0],
-            [ 0.0,  0.0],
-            [ 0.0,  2.0],
-            [ 2.0,  0.0]
-        ], [
-            [ 0.0,  0.0],
-            [ 0.0,  0.0],
-            [ 0.0,  0.0],
-            [ 2.0,  2.0],
-            [-2.0,  0.0],
-            [ 0.0, -2.0]
-        ]])
+        STANDARD_GRADIENT_OPERATORS
     }
     fn calculate_standard_gradient_operators_transposed() -> StandardGradientOperatorsTransposed<M, O, P>
     {
-        let standard_gradient_operators = Self::calculate_standard_gradient_operators();
-        let mut standard_gradient_operators_transposed = StandardGradientOperatorsTransposed::zero();
-        standard_gradient_operators_transposed.iter_mut().enumerate()
-        .for_each(|(n, standard_gradient_operators_transposed_n)|
-            standard_gradient_operators_transposed_n.iter_mut()
-            .zip(standard_gradient_operators.iter())
-            .for_each(|(standard_gradient_operators_transposed_n_e, standard_gradient_operators_e)|
-                standard_gradient_operators_transposed_n_e.iter_mut()
-                .zip(standard_gradient_operators_e[n].iter())
-                .for_each(|(standard_gradient_operators_transposed_n_e_i, standard_gradient_operators_e_n_i)|
-                    *standard_gradient_operators_transposed_n_e_i = *standard_gradient_operators_e_n_i
-                )
-            )
-        );
-        standard_gradient_operators_transposed
+        STANDARD_GRADIENT_OPERATORS_TRANSPOSED
     }
     fn get_constitutive_models(&self) -> &[C; G]
     {
@@ -178,7 +211,6 @@ where
 {
     fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>
     {
-        let identity = TensorRank2::<3, 1, 1>::identity();
         self.get_constitutive_models().iter()
         .zip(self.calculate_deformation_gradients(nodal_coordinates).iter())
         .map(|(constitutive_model, deformation_gradient)|
@@ -191,7 +223,7 @@ where
             projected_gradient_vectors.iter()
             .zip(objects.iter())
             .map(|(projected_gradient_vector, object)|
-                identity.iter()
+                IDENTITY.iter()
                 .zip(object.iter())
                 .map(|(identity_m, object_m)|
                     first_piola_kirchoff_stress.iter()
@@ -214,10 +246,9 @@ where
     fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalStiffnesses<N>
     {
         let deformation_gradients = self.calculate_deformation_gradients(nodal_coordinates);
-        let identity = TensorRank2::<3, 1, 1>::identity();
         let normal_tangentss = Self::calculate_normal_tangents(nodal_coordinates);
         let objectss = self.calculate_objects(&Self::calculate_normal_gradients(nodal_coordinates));
-        let mut scaled_traction = Vector::zero();
+        let mut scaled_traction = ZERO_VECTOR;
         self.get_constitutive_models().iter()
         .zip(deformation_gradients.iter())
         .map(|(constitutive_model, deformation_gradient)|
@@ -239,10 +270,10 @@ where
                 projected_gradient_vectors.iter()
                 .zip(objects.iter())
                 .map(|(projected_gradient_vector_b, object_b)|
-                    identity.iter()
+                    IDENTITY.iter()
                     .zip(object_a.iter())
                     .map(|(identity_m, object_a_m)|
-                        identity.iter()
+                        IDENTITY.iter()
                         .zip(object_b.iter())
                         .map(|(identity_n, object_b_n)|
                             first_piola_kirchoff_tangent_stiffness.iter()
@@ -302,7 +333,6 @@ where
 {
     fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalForces<N>
     {
-        let identity = TensorRank2::<3, 1, 1>::identity();
         let normal_gradients = Self::calculate_normal_gradients(nodal_coordinates);
         self.get_constitutive_models().iter()
         .zip(self.calculate_deformation_gradients(nodal_coordinates).iter()
@@ -317,7 +347,7 @@ where
             projected_gradient_vectors.iter()
             .zip(objects.iter())
             .map(|(projected_gradient_vector, object)|
-                identity.iter()
+                IDENTITY.iter()
                 .zip(object.iter())
                 .map(|(identity_m, object_m)|
                     first_piola_kirchoff_stress.iter()
@@ -339,7 +369,6 @@ where
     }
     fn calculate_nodal_stiffnesses(&self, nodal_coordinates: &NodalCoordinates<N>, nodal_velocities: &NodalVelocities<N>) -> NodalStiffnesses<N>
     {
-        let identity = TensorRank2::<3, 1, 1>::identity();
         let normal_gradients = Self::calculate_normal_gradients(nodal_coordinates);
         let objectss = self.calculate_objects(&normal_gradients);
         self.get_constitutive_models().iter()
@@ -358,10 +387,10 @@ where
                 projected_gradient_vectors.iter()
                 .zip(objects.iter())
                 .map(|(projected_gradient_vector_b, object_b)|
-                    identity.iter()
+                    IDENTITY.iter()
                     .zip(object_a.iter())
                     .map(|(identity_m, object_a_m)|
-                        identity.iter()
+                        IDENTITY.iter()
                         .zip(object_b.iter())
                         .map(|(identity_n, object_b_n)|
                             first_piola_kirchoff_rate_tangent_stiffness.iter()

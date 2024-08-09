@@ -34,7 +34,9 @@ use crate::
         FirstPiolaKirchoffTangentStiffness,
         Scalar,
         SecondPiolaKirchoffStress,
-        SecondPiolaKirchoffTangentStiffness
+        SecondPiolaKirchoffTangentStiffness,
+        IDENTITY_10,
+        ZERO_10
     }
 };
 
@@ -122,18 +124,18 @@ impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> MultiplicativeTrait for Multiplicativ
     {
         if deformation_gradient.is_identity()
         {
-            (DeformationGradient::identity(), DeformationGradient::identity())
+            (IDENTITY_10, IDENTITY_10)
         }
         else
         {
-            let mut deformation_gradient_1 = DeformationGradient::identity();
+            let mut deformation_gradient_1 = IDENTITY_10;
             let mut deformation_gradient_2 = deformation_gradient * 1.0;
-            let mut deformation_gradient_2_old = DeformationGradient::identity();
+            let mut deformation_gradient_2_old = IDENTITY_10;
             let mut deformation_gradient_2_inverse_transpose: TensorRank2<3, 0, 0>;
             let mut residual: FirstPiolaKirchoffStress;
             let mut residual_increment: FirstPiolaKirchoffStress;
             let mut residual_norm = 1.0;
-            let mut residual_old = FirstPiolaKirchoffStress::zero();
+            let mut residual_old = ZERO_10;
             let mut right_hand_side: FirstPiolaKirchoffStress;
             let mut steps: u8 = 0;
             let steps_maximum: u8 = 50;
