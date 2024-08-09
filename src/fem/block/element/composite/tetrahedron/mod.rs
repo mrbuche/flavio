@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod test;
 
-use crate::math::{FOUR_THIRDS, TWO_THIRDS}
+use crate::math::{FOUR_THIRDS, TWO_THIRDS};
 use super::*;
 
 const G: usize = 4;

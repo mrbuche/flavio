@@ -40,10 +40,7 @@ pub use block::
                 CompositeSurfaceElement,
                 triangle::Triangle as CompositeTriangle
             },
-            tetrahedron::
-            {
-                Tetrahedron as CompositeTetrahedron
-            }
+            tetrahedron::Tetrahedron as CompositeTetrahedron
         },
         linear::
         {
@@ -68,10 +65,7 @@ pub use block::
                 LinearSurfaceElement,
                 triangle::Triangle as LinearTriangle
             },
-            tetrahedron::
-            {
-                Tetrahedron as LinearTetrahedron
-            }
+            tetrahedron::Tetrahedron as LinearTetrahedron
         }
     }
 };
@@ -94,6 +88,7 @@ use crate::
     },
     math::
     {
+        levi_civita,
         ContractSecondFourthIndicesWithFirstIndicesOf,
         TensorRank1,
         TensorRank1Trait,
@@ -110,8 +105,7 @@ use crate::
         TensorRank3,
         TensorRank3List,
         TensorRank3List2D,
-        TensorRank3List3D,
-        levi_civita
+        TensorRank3List3D
     },
     mechanics::
     {
@@ -132,7 +126,8 @@ use crate::
         Stiffnesses,
         Vector,
         Vectors,
-        Vectors2D
+        Vectors2D,
+        IDENTITY
     }
 };
 
