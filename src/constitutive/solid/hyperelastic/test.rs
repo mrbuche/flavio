@@ -116,7 +116,7 @@ macro_rules! test_solid_hyperelastic_constitutive_model_no_tangents
                         }
                         else
                         {
-                            IDENTITY_10
+                            DeformationGradient::identity()
                         };
                     deformation_gradient_plus[i][j] += 0.5*EPSILON;
                     let helmholtz_free_energy_density_plus =
@@ -130,7 +130,7 @@ macro_rules! test_solid_hyperelastic_constitutive_model_no_tangents
                         }
                         else
                         {
-                            IDENTITY_10
+                            DeformationGradient::identity()
                         };
                     deformation_gradient_minus[i][j] -= 0.5*EPSILON;
                     let helmholtz_free_energy_density_minus =
@@ -242,12 +242,12 @@ macro_rules! test_solid_hyperelastic_constitutive_model_no_tangents
                 {
                     let minimum =
                     calculate_helmholtz_free_energy_density_from_deformation_gradient_simple!(
-                        $constitutive_model_constructed, &IDENTITY_10
+                        $constitutive_model_constructed, &DeformationGradient::identity()
                     );
-                    let mut perturbed_deformation_gradient = IDENTITY_10;
+                    let mut perturbed_deformation_gradient = DeformationGradient::identity();
                     (0..3).for_each(|i|
                         (0..3).for_each(|j|{
-                            perturbed_deformation_gradient = IDENTITY_10;
+                            perturbed_deformation_gradient = DeformationGradient::identity();
                             perturbed_deformation_gradient[i][j] += 0.5 * EPSILON;
                             assert!(
                                 calculate_helmholtz_free_energy_density_from_deformation_gradient_simple!(
@@ -268,7 +268,7 @@ macro_rules! test_solid_hyperelastic_constitutive_model_no_tangents
                 {
                     assert_eq!(
                         calculate_helmholtz_free_energy_density_from_deformation_gradient_simple!(
-                            $constitutive_model_constructed,  &IDENTITY_10
+                            $constitutive_model_constructed,  &DeformationGradient::identity()
                         ), 0.0
                     )
                 }
@@ -328,7 +328,7 @@ macro_rules! test_solid_hyperelastic_constitutive_model_tangents
                     {
                         let first_piola_kirchoff_tangent_stiffness =
                         calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient_simple!(
-                            $constitutive_model_constructed, &IDENTITY_10
+                            $constitutive_model_constructed, &DeformationGradient::identity()
                         );
                         first_piola_kirchoff_tangent_stiffness.iter().enumerate()
                         .for_each(|(i, first_piola_kirchoff_tangent_stiffness_i)|

@@ -102,7 +102,7 @@ macro_rules! calculate_first_piola_kirchoff_stress_from_deformation_gradient_rat
     ($constitutive_model_constructed: expr, $deformation_gradient_rate: expr) =>
     {
         $constitutive_model_constructed.calculate_first_piola_kirchoff_stress(
-            &IDENTITY_10, $deformation_gradient_rate
+            &DeformationGradient::identity(), $deformation_gradient_rate
         )
     }
 }
@@ -229,7 +229,7 @@ macro_rules! test_solid_viscous_constitutive_model
                     }
                     else
                     {
-                        IDENTITY_10
+                        DeformationGradient::identity()
                     };
                 let mut cauchy_rate_tangent_stiffness = CauchyTangentStiffness::zero();
                 for k in 0..3
@@ -286,7 +286,7 @@ macro_rules! test_solid_viscous_constitutive_model
                     }
                     else
                     {
-                        IDENTITY_10
+                        DeformationGradient::identity()
                     };
                 let mut first_piola_kirchoff_rate_tangent_stiffness = FirstPiolaKirchoffTangentStiffness::zero();
                 for k in 0..3
@@ -343,7 +343,7 @@ macro_rules! test_solid_viscous_constitutive_model
                     }
                     else
                     {
-                        IDENTITY_10
+                        DeformationGradient::identity()
                     };
                 let mut second_piola_kirchoff_rate_tangent_stiffness = SecondPiolaKirchoffTangentStiffness::zero();
                 for k in 0..3
@@ -431,7 +431,7 @@ macro_rules! test_solid_viscous_constitutive_model
                     fn finite_difference()
                     {
                         calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
-                            &$constitutive_model_constructed, &IDENTITY_10, &DeformationGradientRate::zero()
+                            &$constitutive_model_constructed, &DeformationGradient::identity(), &DeformationGradientRate::zero()
                         ).iter()
                         .zip(calculate_cauchy_rate_tangent_stiffness_from_finite_difference_of_cauchy_stress(false).iter())
                         .for_each(|(cauchy_rate_tangent_stiffness_i, fd_cauchy_rate_tangent_stiffness_i)|
@@ -526,7 +526,7 @@ macro_rules! test_solid_viscous_constitutive_model
                     fn objectivity()
                     {
                         calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
-                            &$constitutive_model_constructed, &IDENTITY_10, &DeformationGradientRate::zero()
+                            &$constitutive_model_constructed, &DeformationGradient::identity(), &DeformationGradientRate::zero()
                         ).iter().zip((
                             calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
                                 &$constitutive_model_constructed, &get_deformation_gradient_rotated_undeformed(), &get_deformation_gradient_rate_rotated_undeformed()
@@ -558,7 +558,7 @@ macro_rules! test_solid_viscous_constitutive_model
                     {
                         let cauchy_rate_tangent_stiffness =
                         calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
-                            &$constitutive_model_constructed, &IDENTITY_10, &DeformationGradientRate::zero()
+                            &$constitutive_model_constructed, &DeformationGradient::identity(), &DeformationGradientRate::zero()
                         );
                         cauchy_rate_tangent_stiffness.iter().enumerate()
                         .for_each(|(i, cauchy_rate_tangent_stiffness_i)|
@@ -621,7 +621,7 @@ macro_rules! test_solid_viscous_constitutive_model
                     fn finite_difference()
                     {
                         calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
-                            &$constitutive_model_constructed, &IDENTITY_10, &DeformationGradientRate::zero()
+                            &$constitutive_model_constructed, &DeformationGradient::identity(), &DeformationGradientRate::zero()
                         ).iter()
                         .zip(calculate_first_piola_kirchoff_rate_tangent_stiffness_from_finite_difference_of_first_piola_kirchoff_stress(false).iter())
                         .for_each(|(first_piola_kirchoff_rate_tangent_stiffness_i, fd_first_piola_kirchoff_rate_tangent_stiffness_i)|
@@ -690,7 +690,7 @@ macro_rules! test_solid_viscous_constitutive_model
                     fn objectivity()
                     {
                         calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
-                            &$constitutive_model_constructed, &IDENTITY_10, &DeformationGradientRate::zero()
+                            &$constitutive_model_constructed, &DeformationGradient::identity(), &DeformationGradientRate::zero()
                         ).iter().zip((
                             calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
                                 &$constitutive_model_constructed, &get_deformation_gradient_rotated_undeformed(), &get_deformation_gradient_rate_rotated_undeformed()
@@ -759,7 +759,7 @@ macro_rules! test_solid_viscous_constitutive_model
                     fn finite_difference()
                     {
                         calculate_second_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
-                            &$constitutive_model_constructed, &IDENTITY_10, &DeformationGradientRate::zero()
+                            &$constitutive_model_constructed, &DeformationGradient::identity(), &DeformationGradientRate::zero()
                         ).iter()
                         .zip(calculate_second_piola_kirchoff_rate_tangent_stiffness_from_finite_difference_of_second_piola_kirchoff_stress(false).iter())
                         .for_each(|(second_piola_kirchoff_rate_tangent_stiffness_i, fd_second_piola_kirchoff_rate_tangent_stiffness_i)|
@@ -828,7 +828,7 @@ macro_rules! test_solid_viscous_constitutive_model
                     fn objectivity()
                     {
                         calculate_second_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
-                            &$constitutive_model_constructed, &IDENTITY_10, &DeformationGradientRate::zero()
+                            &$constitutive_model_constructed, &DeformationGradient::identity(), &DeformationGradientRate::zero()
                         ).iter().zip((
                             calculate_second_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
                                 &$constitutive_model_constructed, &get_deformation_gradient_rotated_undeformed(), &get_deformation_gradient_rate_rotated_undeformed()
