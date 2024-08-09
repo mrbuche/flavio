@@ -10,7 +10,8 @@ const O: usize = 4;
 
 const INTEGRATION_WEIGHT: Scalar = ONE_SIXTH;
 
-const STANDARD_GRADIENT_OPERATOR: StandardGradientOperator<M, O> = TensorRank1List([
+const STANDARD_GRADIENT_OPERATOR: StandardGradientOperator<M, O> =
+TensorRank1List([
     TensorRank1([-1.0, -1.0, -1.0]),
     TensorRank1([ 1.0,  0.0,  0.0]),
     TensorRank1([ 0.0,  1.0,  0.0]),

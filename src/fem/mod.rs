@@ -89,6 +89,7 @@ use crate::
     math::
     {
         levi_civita,
+        tensor_rank_1_zero,
         ContractSecondFourthIndicesWithFirstIndicesOf,
         TensorRank1,
         TensorRank1Trait,

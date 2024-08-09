@@ -13,6 +13,234 @@ const Q: usize = 4;
 
 const INTEGRATION_WEIGHT: Scalar = ONE_TWENTY_FOURTH;
 
+const NORMALIED_PROJECTION_MATRIX: NormalizedProjectionMatrix<Q> =
+TensorRank2::<Q, 9, 9>([
+    TensorRank1([ 4.0 / 640.0, -1.0 / 640.0, -1.0 / 640.0, -1.0 / 640.0]),
+    TensorRank1([-1.0 / 640.0,  4.0 / 640.0, -1.0 / 640.0, -1.0 / 640.0]),
+    TensorRank1([-1.0 / 640.0, -1.0 / 640.0,  4.0 / 640.0, -1.0 / 640.0]),
+    TensorRank1([-1.0 / 640.0, -1.0 / 640.0, -1.0 / 640.0,  4.0 / 640.0])
+]);
+const SHAPE_FUNCTION_INTEGRALS: ShapeFunctionIntegrals<P, Q> =
+TensorRank1List::<Q, 9, P>([
+    TensorRank1([200.0,  40.0,  40.0,  40.0]),
+    TensorRank1([ 40.0, 200.0,  40.0,  40.0]),
+    TensorRank1([ 40.0,  40.0, 200.0,  40.0]),
+    TensorRank1([ 40.0,  40.0,  40.0, 200.0]),
+    TensorRank1([ 30.0,  70.0,  30.0,  30.0]),
+    TensorRank1([ 10.0,  50.0,  50.0,  50.0]),
+    TensorRank1([ 30.0,  30.0,  30.0,  70.0]),
+    TensorRank1([ 50.0,  50.0,  10.0,  50.0]),
+    TensorRank1([ 50.0,  50.0,  50.0,  10.0]),
+    TensorRank1([ 30.0,  30.0,  70.0,  30.0]),
+    TensorRank1([ 50.0,  10.0,  50.0,  50.0]),
+    TensorRank1([ 70.0,  30.0,  30.0,  30.0])
+]);
+const SHAPE_FUNCTION_INTEGRALS_PRODUCTS: ShapeFunctionIntegralsProducts<P, Q> =
+TensorRank2List::<Q, 9, 9, P>([
+    TensorRank2([
+        TensorRank1([128.0,  24.0,  24.0,  24.0]),
+        TensorRank1([ 24.0,   8.0,   4.0,   4.0]),
+        TensorRank1([ 24.0,   4.0,   8.0,   4.0]),
+        TensorRank1([ 24.0,   4.0,   4.0,   8.0])
+    ]), TensorRank2([
+        TensorRank1([  8.0,  24.0,   4.0,   4.0]),
+        TensorRank1([ 24.0, 128.0,  24.0,  24.0]),
+        TensorRank1([  4.0,  24.0,   8.0,   4.0]),
+        TensorRank1([  4.0,  24.0,   4.0,   8.0])
+    ]), TensorRank2([
+        TensorRank1([  8.0,   4.0,  24.0,   4.0]),
+        TensorRank1([  4.0,   8.0,  24.0,   4.0]),
+        TensorRank1([ 24.0,  24.0, 128.0,  24.0]),
+        TensorRank1([  4.0,   4.0,  24.0,   8.0])
+    ]), TensorRank2([
+        TensorRank1([  8.0,   4.0,   4.0,  24.0]),
+        TensorRank1([  4.0,   8.0,   4.0,  24.0]),
+        TensorRank1([  4.0,   4.0,   8.0,  24.0]),
+        TensorRank1([ 24.0,  24.0,  24.0, 128.0])
+    ]), TensorRank2([
+        TensorRank1([  7.0,  13.0,   5.0,   5.0]),
+        TensorRank1([ 13.0,  31.0,  13.0,  13.0]),
+        TensorRank1([  5.0,  13.0,   7.0,   5.0]),
+        TensorRank1([  5.0,  13.0,   5.0,   7.0])
+    ]), TensorRank2([
+        TensorRank1([  1.0,   3.0,   3.0,   3.0]),
+        TensorRank1([  3.0,  17.0,  15.0,  15.0]),
+        TensorRank1([  3.0,  15.0,  17.0,  15.0]),
+        TensorRank1([  3.0,  15.0,  15.0,  17.0])
+    ]), TensorRank2([
+        TensorRank1([  7.0,   5.0,   5.0,  13.0]),
+        TensorRank1([  5.0,   7.0,   5.0,  13.0]),
+        TensorRank1([  5.0,   5.0,   7.0,  13.0]),
+        TensorRank1([ 13.0,  13.0,  13.0,  31.0])
+    ]), TensorRank2([
+        TensorRank1([ 17.0,  15.0,   3.0,  15.0]),
+        TensorRank1([ 15.0,  17.0,   3.0,  15.0]),
+        TensorRank1([  3.0,   3.0,   1.0,   3.0]),
+        TensorRank1([ 15.0,  15.0,   3.0,  17.0])
+    ]), TensorRank2([
+        TensorRank1([ 17.0,  15.0,  15.0,   3.0]),
+        TensorRank1([ 15.0,  17.0,  15.0,   3.0]),
+        TensorRank1([ 15.0,  15.0,  17.0,   3.0]),
+        TensorRank1([  3.0,   3.0,   3.0,   1.0])
+    ]), TensorRank2([
+        TensorRank1([  7.0,   5.0,  13.0,   5.0]),
+        TensorRank1([  5.0,   7.0,  13.0,   5.0]),
+        TensorRank1([ 13.0,  13.0,  31.0,  13.0]),
+        TensorRank1([  5.0,   5.0,  13.0,   7.0])
+    ]), TensorRank2([
+        TensorRank1([ 17.0,   3.0,  15.0,  15.0]),
+        TensorRank1([  3.0,   1.0,   3.0,   3.0]),
+        TensorRank1([ 15.0,   3.0,  17.0,  15.0]),
+        TensorRank1([ 15.0,   3.0,  15.0,  17.0])
+    ]), TensorRank2([
+        TensorRank1([ 31.0,  13.0,  13.0,  13.0]),
+        TensorRank1([ 13.0,   7.0,   5.0,   5.0]),
+        TensorRank1([ 13.0,   5.0,   7.0,   5.0]),
+        TensorRank1([ 13.0,   5.0,   5.0,   7.0])
+])]);
+const DIAG: Scalar = 0.585_410_196_624_968_5;
+const OFF: Scalar = 0.138_196_601_125_010_5;
+const SHAPE_FUNCTIONS_AT_INTEGRATION_POINTS: ShapeFunctionsAtIntegrationPoints<G, Q> =
+TensorRank1List::<Q, 9, G>([
+    TensorRank1([DIAG,  OFF,  OFF,  OFF]),
+    TensorRank1([ OFF, DIAG,  OFF,  OFF]),
+    TensorRank1([ OFF,  OFF, DIAG,  OFF]),
+    TensorRank1([ OFF,  OFF,  OFF, DIAG])
+]);
+const STANDARD_GRADIENT_OPERATORS_TRANSPOSED: StandardGradientOperatorsTransposed<M, O, P> =
+TensorRank1List2D::<M, 9, P, O>([
+    TensorRank1List([
+        TensorRank1([-2.0, -2.0, -2.0]),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero()
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        TensorRank1([ 2.0,  0.0,  0.0]),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero()
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([ 0.0,  2.0,  0.0]),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero()
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([ 0.0,  0.0,  2.0]),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero()
+    ]), TensorRank1List([
+        TensorRank1([ 2.0,  0.0,  0.0]),
+        TensorRank1([-2.0, -2.0, -2.0]),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([-TWO_THIRDS, -2.0, -2.0]),
+        TensorRank1([-TWO_THIRDS, -TWO_THIRDS, -TWO_THIRDS]),
+        TensorRank1([ 0.0,  0.0, -TWO_THIRDS]),
+        TensorRank1([ 0.0, -FOUR_THIRDS, -2.0]),
+        TensorRank1([ 0.0, -2.0, -FOUR_THIRDS]),
+        TensorRank1([ 0.0, -TWO_THIRDS,  0.0]),
+        TensorRank1([ TWO_THIRDS,  0.0,  0.0]),
+        TensorRank1([ TWO_THIRDS, -FOUR_THIRDS, -FOUR_THIRDS])
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        TensorRank1([ 0.0,  2.0,  0.0]),
+        TensorRank1([ 2.0,  0.0,  0.0]),
+        tensor_rank_1_zero(),
+        TensorRank1([ FOUR_THIRDS,  2.0,  0.0]),
+        TensorRank1([ FOUR_THIRDS,  FOUR_THIRDS, -TWO_THIRDS]),
+        TensorRank1([ 0.0,  0.0, -TWO_THIRDS]),
+        TensorRank1([ 0.0,  TWO_THIRDS,  0.0]),
+        TensorRank1([ 2.0,  2.0,  TWO_THIRDS]),
+        TensorRank1([ 2.0,  FOUR_THIRDS,  0.0]),
+        TensorRank1([ TWO_THIRDS,  0.0,  0.0]),
+        TensorRank1([ TWO_THIRDS,  TWO_THIRDS,  TWO_THIRDS])
+    ]), TensorRank1List([
+        TensorRank1([ 0.0,  2.0,  0.0]),
+        tensor_rank_1_zero(),
+        TensorRank1([-2.0, -2.0, -2.0]),
+        tensor_rank_1_zero(),
+        TensorRank1([-TWO_THIRDS,  0.0,  0.0]),
+        TensorRank1([-TWO_THIRDS, -TWO_THIRDS, -TWO_THIRDS]),
+        TensorRank1([ 0.0,  0.0, -TWO_THIRDS]),
+        TensorRank1([ 0.0,  TWO_THIRDS,  0.0]),
+        TensorRank1([-2.0,  0.0, -FOUR_THIRDS]),
+        TensorRank1([-2.0, -TWO_THIRDS, -2.0]),
+        TensorRank1([-FOUR_THIRDS,  0.0, -2.0]),
+        TensorRank1([-FOUR_THIRDS,  TWO_THIRDS, -FOUR_THIRDS])
+    ]), TensorRank1List([
+        TensorRank1([ 0.0,  0.0,  2.0]),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([-2.0, -2.0, -2.0]),
+        TensorRank1([-TWO_THIRDS,  0.0,  0.0]),
+        TensorRank1([-TWO_THIRDS, -TWO_THIRDS, -TWO_THIRDS]),
+        TensorRank1([-2.0, -2.0, -TWO_THIRDS]),
+        TensorRank1([-2.0, -FOUR_THIRDS,  0.0]),
+        TensorRank1([ 0.0,  0.0,  TWO_THIRDS]),
+        TensorRank1([ 0.0, -TWO_THIRDS,  0.0]),
+        TensorRank1([-FOUR_THIRDS, -2.0,  0.0]),
+        TensorRank1([-FOUR_THIRDS, -FOUR_THIRDS,  TWO_THIRDS])
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        TensorRank1([ 0.0,  0.0,  2.0]),
+        tensor_rank_1_zero(),
+        TensorRank1([ 2.0,  0.0,  0.0]),
+        TensorRank1([ FOUR_THIRDS,  0.0,  2.0]),
+        TensorRank1([ FOUR_THIRDS, -TWO_THIRDS,  FOUR_THIRDS]),
+        TensorRank1([ 2.0,  0.0,  FOUR_THIRDS]),
+        TensorRank1([ 2.0,  TWO_THIRDS,  2.0]),
+        TensorRank1([ 0.0,  0.0,  TWO_THIRDS]),
+        TensorRank1([ 0.0, -TWO_THIRDS,  0.0]),
+        TensorRank1([ TWO_THIRDS,  0.0,  0.0]),
+        TensorRank1([ TWO_THIRDS,  TWO_THIRDS,  TWO_THIRDS])
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([ 0.0,  0.0,  2.0]),
+        TensorRank1([ 0.0,  2.0,  0.0]),
+        TensorRank1([-TWO_THIRDS,  0.0,  0.0]),
+        TensorRank1([-TWO_THIRDS,  FOUR_THIRDS,  FOUR_THIRDS]),
+        TensorRank1([ 0.0,  2.0,  FOUR_THIRDS]),
+        TensorRank1([ 0.0,  TWO_THIRDS,  0.0]),
+        TensorRank1([ 0.0,  0.0,  TWO_THIRDS]),
+        TensorRank1([ 0.0,  FOUR_THIRDS,  2.0]),
+        TensorRank1([ TWO_THIRDS,  2.0,  2.0]),
+        TensorRank1([ TWO_THIRDS,  TWO_THIRDS,  TWO_THIRDS])
+])]);
+
 pub struct Tetrahedron<C>
 {
     constitutive_models: [C; G],
@@ -41,14 +269,7 @@ where
 {
     fn calculate_inverse_normalized_projection_matrix() -> NormalizedProjectionMatrix<Q>
     {
-        let diag: Scalar = 4.0/640.0;
-        let off: Scalar = -1.0/640.0;
-        NormalizedProjectionMatrix::new([
-            [diag,  off,  off,  off],
-            [ off, diag,  off,  off],
-            [ off,  off, diag,  off],
-            [ off,  off,  off, diag]
-        ])
+        NORMALIED_PROJECTION_MATRIX
     }
     fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ProjectedGradientVectors<G, N>
     {
@@ -59,11 +280,11 @@ where
         ).collect::<ParametricGradientOperators<P>>();
         let reference_jacobians_subelements = Self::calculate_reference_jacobians_subelements(reference_nodal_coordinates);
         let inverse_projection_matrix = Self::calculate_inverse_projection_matrix(&reference_jacobians_subelements);
-        Self::calculate_shape_functions_at_integration_points().iter()
+        SHAPE_FUNCTIONS_AT_INTEGRATION_POINTS.iter()
         .map(|shape_functions_at_integration_point|
-            Self::calculate_standard_gradient_operators_transposed().iter()
+            STANDARD_GRADIENT_OPERATORS_TRANSPOSED.iter()
             .map(|standard_gradient_operators_a|
-                Self::calculate_shape_function_integrals().iter()
+                SHAPE_FUNCTION_INTEGRALS.iter()
                 .zip(standard_gradient_operators_a.iter()
                 .zip(parametric_gradient_operators.iter()
                 .zip(reference_jacobians_subelements.iter())))
@@ -86,100 +307,20 @@ where
     }
     fn calculate_shape_function_integrals() -> ShapeFunctionIntegrals<P, Q>
     {
-        ShapeFunctionIntegrals::new([
-            [200.0,  40.0,  40.0,  40.0],
-            [ 40.0, 200.0,  40.0,  40.0],
-            [ 40.0,  40.0, 200.0,  40.0],
-            [ 40.0,  40.0,  40.0, 200.0],
-            [ 30.0,  70.0,  30.0,  30.0],
-            [ 10.0,  50.0,  50.0,  50.0],
-            [ 30.0,  30.0,  30.0,  70.0],
-            [ 50.0,  50.0,  10.0,  50.0],
-            [ 50.0,  50.0,  50.0,  10.0],
-            [ 30.0,  30.0,  70.0,  30.0],
-            [ 50.0,  10.0,  50.0,  50.0],
-            [ 70.0,  30.0,  30.0,  30.0]
-        ])
+        SHAPE_FUNCTION_INTEGRALS
     }
     fn calculate_shape_function_integrals_products() -> ShapeFunctionIntegralsProducts<P, Q>
     {
-        ShapeFunctionIntegralsProducts::new([[
-            [128.0,  24.0,  24.0,  24.0],
-            [ 24.0,   8.0,   4.0,   4.0],
-            [ 24.0,   4.0,   8.0,   4.0],
-            [ 24.0,   4.0,   4.0,   8.0]
-        ], [
-            [  8.0,  24.0,   4.0,   4.0],
-            [ 24.0, 128.0,  24.0,  24.0],
-            [  4.0,  24.0,   8.0,   4.0],
-            [  4.0,  24.0,   4.0,   8.0]
-        ], [
-            [  8.0,   4.0,  24.0,   4.0],
-            [  4.0,   8.0,  24.0,   4.0],
-            [ 24.0,  24.0, 128.0,  24.0],
-            [  4.0,   4.0,  24.0,   8.0]
-        ], [
-            [  8.0,   4.0,   4.0,  24.0],
-            [  4.0,   8.0,   4.0,  24.0],
-            [  4.0,   4.0,   8.0,  24.0],
-            [ 24.0,  24.0,  24.0, 128.0]
-        ], [
-            [  7.0,  13.0,   5.0,   5.0],
-            [ 13.0,  31.0,  13.0,  13.0],
-            [  5.0,  13.0,   7.0,   5.0],
-            [  5.0,  13.0,   5.0,   7.0]
-        ], [
-            [  1.0,   3.0,   3.0,   3.0],
-            [  3.0,  17.0,  15.0,  15.0],
-            [  3.0,  15.0,  17.0,  15.0],
-            [  3.0,  15.0,  15.0,  17.0]
-        ], [
-            [  7.0,   5.0,   5.0,  13.0],
-            [  5.0,   7.0,   5.0,  13.0],
-            [  5.0,   5.0,   7.0,  13.0],
-            [ 13.0,  13.0,  13.0,  31.0]
-        ], [
-            [ 17.0,  15.0,   3.0,  15.0],
-            [ 15.0,  17.0,   3.0,  15.0],
-            [  3.0,   3.0,   1.0,   3.0],
-            [ 15.0,  15.0,   3.0,  17.0]
-        ], [
-            [ 17.0,  15.0,  15.0,   3.0],
-            [ 15.0,  17.0,  15.0,   3.0],
-            [ 15.0,  15.0,  17.0,   3.0],
-            [  3.0,   3.0,   3.0,   1.0]
-        ], [
-            [  7.0,   5.0,  13.0,   5.0],
-            [  5.0,   7.0,  13.0,   5.0],
-            [ 13.0,  13.0,  31.0,  13.0],
-            [  5.0,   5.0,  13.0,   7.0]
-        ], [
-            [ 17.0,   3.0,  15.0,  15.0],
-            [  3.0,   1.0,   3.0,   3.0],
-            [ 15.0,   3.0,  17.0,  15.0],
-            [ 15.0,   3.0,  15.0,  17.0]
-        ], [
-            [ 31.0,  13.0,  13.0,  13.0],
-            [ 13.0,   7.0,   5.0,   5.0],
-            [ 13.0,   5.0,   7.0,   5.0],
-            [ 13.0,   5.0,   5.0,   7.0]
-        ]])
+        SHAPE_FUNCTION_INTEGRALS_PRODUCTS
     }
     fn calculate_shape_functions_at_integration_points() -> ShapeFunctionsAtIntegrationPoints<G, Q>
     {
-        let diag: Scalar = 0.585_410_196_624_968_5;
-        let off: Scalar = 0.138_196_601_125_010_5;
-        ShapeFunctionsAtIntegrationPoints::new([
-            [diag,  off,  off,  off],
-            [ off, diag,  off,  off],
-            [ off,  off, diag,  off],
-            [ off,  off,  off, diag]
-        ])
+        SHAPE_FUNCTIONS_AT_INTEGRATION_POINTS
     }
     fn calculate_standard_gradient_operators() -> StandardGradientOperators<M, O, P>
     {
         let mut standard_gradient_operators = StandardGradientOperators::zero();
-        let standard_gradient_operators_transposed = Self::calculate_standard_gradient_operators_transposed();
+        let standard_gradient_operators_transposed = STANDARD_GRADIENT_OPERATORS_TRANSPOSED;
         standard_gradient_operators.iter_mut().enumerate()
         .for_each(|(e, standard_gradient_operator_e)|
             standard_gradient_operator_e.iter_mut()
@@ -196,139 +337,7 @@ where
     }
     fn calculate_standard_gradient_operators_transposed() -> StandardGradientOperatorsTransposed<M, O, P>
     {
-        let n23: Scalar = TWO_THIRDS;
-        let n43: Scalar = FOUR_THIRDS;
-        StandardGradientOperatorsTransposed::new([[
-            [-2.0, -2.0, -2.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0]
-        ], [
-            [ 0.0,  0.0,  0.0],
-            [ 2.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0]
-        ], [
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  2.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0]
-        ], [
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  2.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0]
-        ], [
-            [ 2.0,  0.0,  0.0],
-            [-2.0, -2.0, -2.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [-n23, -2.0, -2.0],
-            [-n23, -n23, -n23],
-            [ 0.0,  0.0, -n23],
-            [ 0.0, -n43, -2.0],
-            [ 0.0, -2.0, -n43],
-            [ 0.0, -n23,  0.0],
-            [ n23,  0.0,  0.0],
-            [ n23, -n43, -n43]
-        ], [
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  2.0,  0.0],
-            [ 2.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ n43,  2.0,  0.0],
-            [ n43,  n43, -n23],
-            [ 0.0,  0.0, -n23],
-            [ 0.0,  n23,  0.0],
-            [ 2.0,  2.0,  n23],
-            [ 2.0,  n43,  0.0],
-            [ n23,  0.0,  0.0],
-            [ n23,  n23,  n23]
-        ], [
-            [ 0.0,  2.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [-2.0, -2.0, -2.0],
-            [ 0.0,  0.0,  0.0],
-            [-n23,  0.0,  0.0],
-            [-n23, -n23, -n23],
-            [ 0.0,  0.0, -n23],
-            [ 0.0,  n23,  0.0],
-            [-2.0,  0.0, -n43],
-            [-2.0, -n23, -2.0],
-            [-n43,  0.0, -2.0],
-            [-n43,  n23, -n43]
-        ], [
-            [ 0.0,  0.0,  2.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [-2.0, -2.0, -2.0],
-            [-n23,  0.0,  0.0],
-            [-n23, -n23, -n23],
-            [-2.0, -2.0, -n23],
-            [-2.0, -n43,  0.0],
-            [ 0.0,  0.0,  n23],
-            [ 0.0, -n23,  0.0],
-            [-n43, -2.0,  0.0],
-            [-n43, -n43,  n23]
-        ], [
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  2.0],
-            [ 0.0,  0.0,  0.0],
-            [ 2.0,  0.0,  0.0],
-            [ n43,  0.0,  2.0],
-            [ n43, -n23,  n43],
-            [ 2.0,  0.0,  n43],
-            [ 2.0,  n23,  2.0],
-            [ 0.0,  0.0,  n23],
-            [ 0.0, -n23,  0.0],
-            [ n23,  0.0,  0.0],
-            [ n23,  n23,  n23]
-        ], [
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  0.0],
-            [ 0.0,  0.0,  2.0],
-            [ 0.0,  2.0,  0.0],
-            [-n23,  0.0,  0.0],
-            [-n23,  n43,  n43],
-            [ 0.0,  2.0,  n43],
-            [ 0.0,  n23,  0.0],
-            [ 0.0,  0.0,  n23],
-            [ 0.0,  n43,  2.0],
-            [ n23,  2.0,  2.0],
-            [ n23,  n23,  n23]
-        ]])
+        STANDARD_GRADIENT_OPERATORS_TRANSPOSED
     }
     fn get_constitutive_models(&self) -> &[C; G]
     {

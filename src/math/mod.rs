@@ -26,6 +26,7 @@ pub use tensor::
     },
     rank_1::
     {
+        zero as tensor_rank_1_zero,
         TensorRank1,
         TensorRank1Trait,
         list::
