@@ -107,6 +107,141 @@ TensorRank1List::<Q, 9, G>([
     TensorRank1([ OFF,  OFF, DIAG,  OFF]),
     TensorRank1([ OFF,  OFF,  OFF, DIAG])
 ]);
+const STANDARD_GRADIENT_OPERATORS: StandardGradientOperators<M, O, P> =
+TensorRank1List2D::<M, 9, O, P>([
+    TensorRank1List([
+        TensorRank1([-2.0, -2.0, -2.0]),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([2.0, 0.0, 0.0]),
+        tensor_rank_1_zero(),
+        TensorRank1([0.0, 2.0, 0.0]),
+        TensorRank1([0.0, 0.0, 2.0]),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        TensorRank1([2.0, 0.0, 0.0]),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([-2.0, -2.0, -2.0]),
+        TensorRank1([0.0, 2.0, 0.0]),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([0.0, 0.0, 2.0]),
+        tensor_rank_1_zero(),
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([0.0, 2.0, 0.0]),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([2.0, 0.0, 0.0]),
+        TensorRank1([-2.0, -2.0, -2.0]),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([0.0, 0.0, 2.0]),
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([0.0, 0.0, 2.0]),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([-2.0, -2.0, -2.0]),
+        TensorRank1([2.0, 0.0, 0.0]),
+        TensorRank1([0.0, 2.0, 0.0]),
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([-TWO_THIRDS, -2.0, -2.0]),
+        TensorRank1([FOUR_THIRDS, 2.0, 0.0]),
+        TensorRank1([-TWO_THIRDS, 0.0, 0.0]),
+        TensorRank1([-TWO_THIRDS, 0.0, 0.0]),
+        TensorRank1([FOUR_THIRDS, 0.0, 2.0]),
+        TensorRank1([-TWO_THIRDS, 0.0, 0.0]),
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([-TWO_THIRDS, -TWO_THIRDS, -TWO_THIRDS]),
+        TensorRank1([FOUR_THIRDS, FOUR_THIRDS, -TWO_THIRDS]),
+        TensorRank1([-TWO_THIRDS, -TWO_THIRDS, -TWO_THIRDS]),
+        TensorRank1([-TWO_THIRDS, -TWO_THIRDS, -TWO_THIRDS]),
+        TensorRank1([FOUR_THIRDS, -TWO_THIRDS, FOUR_THIRDS]),
+        TensorRank1([-TWO_THIRDS, FOUR_THIRDS, FOUR_THIRDS]),
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([0.0, 0.0, -TWO_THIRDS]),
+        TensorRank1([0.0, 0.0, -TWO_THIRDS]),
+        TensorRank1([0.0, 0.0, -TWO_THIRDS]),
+        TensorRank1([-2.0, -2.0, -TWO_THIRDS]),
+        TensorRank1([2.0, 0.0, FOUR_THIRDS]),
+        TensorRank1([0.0, 2.0, FOUR_THIRDS]),
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([0.0, -FOUR_THIRDS, -2.0]),
+        TensorRank1([0.0, TWO_THIRDS, 0.0]),
+        TensorRank1([0.0, TWO_THIRDS, 0.0]),
+        TensorRank1([-2.0, -FOUR_THIRDS, 0.0]),
+        TensorRank1([2.0, TWO_THIRDS, 2.0]),
+        TensorRank1([0.0, TWO_THIRDS, 0.0]),
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([0.0, -2.0, -FOUR_THIRDS]),
+        TensorRank1([2.0, 2.0, TWO_THIRDS]),
+        TensorRank1([-2.0, 0.0, -FOUR_THIRDS]),
+        TensorRank1([0.0, 0.0, TWO_THIRDS]),
+        TensorRank1([0.0, 0.0, TWO_THIRDS]),
+        TensorRank1([0.0, 0.0, TWO_THIRDS]),
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([0.0, -TWO_THIRDS, 0.0]),
+        TensorRank1([2.0, FOUR_THIRDS, 0.0]),
+        TensorRank1([-2.0, -TWO_THIRDS, -2.0]),
+        TensorRank1([0.0, -TWO_THIRDS, 0.0]),
+        TensorRank1([0.0, -TWO_THIRDS, 0.0]),
+        TensorRank1([0.0, FOUR_THIRDS, 2.0]),
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([TWO_THIRDS, 0.0, 0.0]),
+        TensorRank1([TWO_THIRDS, 0.0, 0.0]),
+        TensorRank1([-FOUR_THIRDS, 0.0, -2.0]),
+        TensorRank1([-FOUR_THIRDS, -2.0, 0.0]),
+        TensorRank1([TWO_THIRDS, 0.0, 0.0]),
+        TensorRank1([TWO_THIRDS, 2.0, 2.0]),
+    ]), TensorRank1List([
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        tensor_rank_1_zero(),
+        TensorRank1([TWO_THIRDS, -FOUR_THIRDS, -FOUR_THIRDS]),
+        TensorRank1([TWO_THIRDS, TWO_THIRDS, TWO_THIRDS]),
+        TensorRank1([-FOUR_THIRDS, TWO_THIRDS, -FOUR_THIRDS]),
+        TensorRank1([-FOUR_THIRDS, -FOUR_THIRDS, TWO_THIRDS]),
+        TensorRank1([TWO_THIRDS, TWO_THIRDS, TWO_THIRDS]),
+        TensorRank1([TWO_THIRDS, TWO_THIRDS, TWO_THIRDS]),
+])]);
 const STANDARD_GRADIENT_OPERATORS_TRANSPOSED: StandardGradientOperatorsTransposed<M, O, P> =
 TensorRank1List2D::<M, 9, P, O>([
     TensorRank1List([
@@ -274,7 +409,7 @@ where
     fn calculate_projected_gradient_vectors(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ProjectedGradientVectors<G, N>
     {
         let parametric_gradient_operators =
-        Self::calculate_standard_gradient_operators().iter()
+        STANDARD_GRADIENT_OPERATORS.iter()
         .map(|standard_gradient_operator|
             reference_nodal_coordinates * standard_gradient_operator
         ).collect::<ParametricGradientOperators<P>>();
@@ -297,7 +432,7 @@ where
     }
     fn calculate_reference_jacobians_subelements(reference_nodal_coordinates: &ReferenceNodalCoordinates<N>) -> Scalars<P>
     {
-        Self::calculate_standard_gradient_operators().iter()
+        STANDARD_GRADIENT_OPERATORS.iter()
         .map(|standard_gradient_operator|
             reference_nodal_coordinates * standard_gradient_operator
         ).collect::<ParametricGradientOperators<P>>().iter()
@@ -319,21 +454,7 @@ where
     }
     fn calculate_standard_gradient_operators() -> StandardGradientOperators<M, O, P>
     {
-        let mut standard_gradient_operators = StandardGradientOperators::zero();
-        let standard_gradient_operators_transposed = STANDARD_GRADIENT_OPERATORS_TRANSPOSED;
-        standard_gradient_operators.iter_mut().enumerate()
-        .for_each(|(e, standard_gradient_operator_e)|
-            standard_gradient_operator_e.iter_mut()
-            .zip(standard_gradient_operators_transposed.iter())
-            .for_each(|(standard_gradient_operator_e_n, standard_gradient_operator_transposed_n)|
-                standard_gradient_operator_e_n.iter_mut()
-                .zip(standard_gradient_operator_transposed_n[e].iter())
-                .for_each(|(standard_gradient_operator_e_n_i, standard_gradient_operator_transposed_n_e_i)|
-                    *standard_gradient_operator_e_n_i = *standard_gradient_operator_transposed_n_e_i
-                )
-            )
-        );
-        standard_gradient_operators
+        STANDARD_GRADIENT_OPERATORS
     }
     fn calculate_standard_gradient_operators_transposed() -> StandardGradientOperatorsTransposed<M, O, P>
     {
