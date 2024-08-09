@@ -1,7 +1,10 @@
 #[cfg(test)]
 mod test;
 
-use super::*;
+use super::
+{
+    *, super::surface::triangle::STANDARD_GRADIENT_OPERATOR
+};
 
 const G: usize = 1;
 const M: usize = 2;
@@ -57,11 +60,7 @@ where
     }
     fn calculate_standard_gradient_operator() -> StandardGradientOperator<M, O>
     {
-        StandardGradientOperator::new([
-            [-1.0, -1.0],
-            [ 1.0,  0.0],
-            [ 0.0,  1.0]
-        ])
+        STANDARD_GRADIENT_OPERATOR
     }
     fn get_constitutive_model(&self) -> &C
     {
@@ -86,7 +85,7 @@ where
         let reference_dual_basis_vectors = Self::calculate_dual_basis(reference_nodal_coordinates_midplane);
         let scaled_reference_normal = Self::calculate_reference_normal(reference_nodal_coordinates_midplane) / (3.0 * thickness);
         let gradient_vectors_midplane =
-        Self::calculate_standard_gradient_operator().iter()
+        STANDARD_GRADIENT_OPERATOR.iter()
         .map(|standard_gradient_operator_a|
             standard_gradient_operator_a.iter()
             .zip(reference_dual_basis_vectors.iter())

@@ -10,6 +10,12 @@ const O: usize = 3;
 
 const INTEGRATION_WEIGHT: Scalar = 0.5;
 
+pub const STANDARD_GRADIENT_OPERATOR: StandardGradientOperator<M, O> = TensorRank1List([
+    TensorRank1([-1.0, -1.0,]),
+    TensorRank1([ 1.0,  0.0]),
+    TensorRank1([ 0.0,  1.0])
+]);
+
 pub struct Triangle<C>
 {
     constitutive_model: C,
@@ -56,11 +62,7 @@ where
     }
     fn calculate_standard_gradient_operator() -> StandardGradientOperator<M, O>
     {
-        StandardGradientOperator::new([
-            [-1.0, -1.0],
-            [ 1.0,  0.0],
-            [ 0.0,  1.0]
-        ])
+        STANDARD_GRADIENT_OPERATOR
     }
     fn get_constitutive_model(&self) -> &C
     {

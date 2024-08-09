@@ -35,7 +35,7 @@ use super::
 /// `D` is the dimension, `I` is the configuration, `W` is the list length.
 pub struct TensorRank1List<const D: usize, const I: usize, const W: usize>
 (
-    [TensorRank1<D, I>; W]
+    pub [TensorRank1<D, I>; W]
 );
 
 /// Inherent implementation of [`TensorRank1List`].
