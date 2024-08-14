@@ -43,5 +43,24 @@ where
     /// ```math
     /// a = a(\mathbf{F})
     /// ```
-    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar;
+    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Result<Scalar, MyError>;
+}
+
+
+
+use crate::get_error_message;
+
+#[derive(Debug)]
+pub enum MyError {
+    InvalidJacobian(Scalar),
+}
+// Shouldn't determinant() have Err(Invalid) and pass that up here?
+
+impl std::fmt::Display for MyError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let error = match self {
+            Self::InvalidJacobian(jacobian) => format!("Invalid Jacobian of {}", jacobian)
+        };
+        write!(f, "\x1b[91m{}\n\x1b[0;2;31m{}\x1b[0m\n", error, get_error_message())
+    }
 }
