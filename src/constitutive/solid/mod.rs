@@ -10,6 +10,7 @@ pub mod viscoelastic;
 
 use crate::
 {
+    constitutive::ConstitutiveError,
     math::
     {
         ContractFirstSecondIndicesWithSecondIndicesOf,
@@ -31,7 +32,6 @@ use crate::
         FirstPiolaKirchoffTangentStiffness,
         FirstPiolaKirchoffRateTangentStiffness,
         LeftCauchyGreenDeformation,
-        MechanicsError,
         RightCauchyGreenDeformation,
         Scalar,
         SecondPiolaKirchoffStress,

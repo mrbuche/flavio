@@ -43,5 +43,5 @@ where
     /// ```math
     /// a = a(\mathbf{F})
     /// ```
-    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Result<Scalar, MechanicsError>;
+    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Result<Scalar, ConstitutiveError>;
 }

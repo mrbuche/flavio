@@ -3,40 +3,20 @@
 #[cfg(test)]
 pub mod test;
 
-use crate::
+use crate::math::
 {
-    get_error_message,
-    math::
-    {
-        tensor_rank_1_zero,
-        TensorRank0,
-        TensorRank0List,
-        TensorRank1,
-        TensorRank1List,
-        TensorRank1List2D,
-        TensorRank2,
-        TensorRank2List,
-        TensorRank2List2D,
-        TensorRank4,
-        TensorRank4List
-    }
+    tensor_rank_1_zero,
+    TensorRank0,
+    TensorRank0List,
+    TensorRank1,
+    TensorRank1List,
+    TensorRank1List2D,
+    TensorRank2,
+    TensorRank2List,
+    TensorRank2List2D,
+    TensorRank4,
+    TensorRank4List
 };
-use std::fmt;
-
-/// Possible errors encountered in mechanics.
-#[derive(Debug)]
-pub enum MechanicsError {
-    InvalidJacobian(Scalar),
-}
-
-impl fmt::Display for MechanicsError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let error = match self {
-            Self::InvalidJacobian(jacobian) => format!("Invalid Jacobian: {}.", jacobian)
-        };
-        write!(f, "\x1b[91m{}\n\x1b[0;2;31m{}\x1b[0m\n", error, get_error_message())
-    }
-}
 
 pub const IDENTITY: TensorRank2<3, 1, 1> = TensorRank2([
     TensorRank1([1.0, 0.0, 0.0]), TensorRank1([0.0, 1.0, 0.0]), TensorRank1([0.0, 0.0, 1.0])

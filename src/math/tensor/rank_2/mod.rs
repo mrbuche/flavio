@@ -31,6 +31,7 @@ use super::
     }
 };
 use list_2d::TensorRank2List2D;
+use std::fmt;
 
 /// A *d*-dimensional tensor of rank 2.
 ///
@@ -39,6 +40,26 @@ pub struct TensorRank2<const D: usize, const I: usize, const J: usize>
 (
     pub [TensorRank1<D, J>; D]
 );
+
+/// ???
+impl<const D: usize, const I: usize, const J: usize> fmt::Display for TensorRank2<D, I, J> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "\x1B[s")?;
+        write!(f, "[[")?;
+        self.iter().enumerate().for_each(|(i, row)|{
+            row.iter().for_each(|entry|
+                write!(f, "{:>11.6e}, ", entry).unwrap()
+            );
+            if i + 1 < D {
+                write!(f, "\x1B[2D],\n").unwrap();
+                write!(f, "\x1B[u").unwrap();
+                write!(f, "\x1B[{}B[ ", i + 1).unwrap();
+            }
+        });
+        write!(f, "\x1B[2D]]")?;
+        Ok(())
+    }
+}
 
 /// Inherent implementation of [`TensorRank2`].
 impl<const D: usize, const I: usize, const J: usize> TensorRank2<D, I, J>
