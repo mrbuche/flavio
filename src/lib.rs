@@ -32,12 +32,14 @@ fn get_error_message<'a>() -> &'a str {
     let number = std::str::from_utf8(&now.as_bytes()[length - 3.. length - 2]).unwrap().parse::<u8>().unwrap();
     match number {
         0 => "I am Error.",
-        1..3 => "Game over.",
-        3..5 => "Oh dear, you are dead!",
-        5 => "Press F to pay respects.",
-        6..7 => "Surprise! You're dead!",
-        7 => "The cake is a lie.",
-        8 => "What a horrible night to have a curse.",
-        9.. => "You have died of dysentery."
+        1 => "Game over.",
+        2 => "This is not your grave, but you are welcome in it.",
+        3 => "Oh dear, you are dead!",
+        4 => "Press F to pay respects.",
+        5 => "Surprise! You're dead!",
+        6 => "The cake is a lie.",
+        7 => "What a horrible night to have a curse.",
+        8 => "You have died of dysentery.",
+        9.. => "You've met with a terrible fate, haven't you?"
     }
 }
