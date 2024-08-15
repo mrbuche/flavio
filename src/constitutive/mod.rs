@@ -18,11 +18,11 @@ use crate::
 use std::fmt;
 
 /// Possible errors encountered in constitutive models.
-pub enum ConstitutiveError {
-    InvalidJacobian(Scalar, DeformationGradient, String),
+pub enum ConstitutiveError<'a> {
+    InvalidJacobian(Scalar, &'a DeformationGradient, String),
 }
 
-impl fmt::Display for ConstitutiveError {
+impl<'a> fmt::Display for ConstitutiveError<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let error = match self {
             Self::InvalidJacobian(jacobian, deformation_gradient, model) => format!(
