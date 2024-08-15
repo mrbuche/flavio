@@ -31,6 +31,7 @@ use crate::
         FirstPiolaKirchoffTangentStiffness,
         FirstPiolaKirchoffRateTangentStiffness,
         LeftCauchyGreenDeformation,
+        MechanicsError,
         RightCauchyGreenDeformation,
         Scalar,
         SecondPiolaKirchoffStress,
