@@ -171,12 +171,12 @@ macro_rules! test_solid_hyperelastic_constitutive_model_no_tangents
                     )
                 }
                 #[test]
-                #[should_panic(expected = "InvalidJacobian")]
+                #[should_panic(expected = "Invalid Jacobian")]
                 fn invalid_jacobian()
                 {
                     let mut deformation_gradient = DeformationGradient::identity();
                     deformation_gradient[0][0] *= -1.0;
-                    calculate_helmholtz_free_energy_density_from_deformation_gradient_simple!(
+                    let _ = calculate_helmholtz_free_energy_density_from_deformation_gradient_simple!(
                         $constitutive_model_constructed, &deformation_gradient
                     );
                 }

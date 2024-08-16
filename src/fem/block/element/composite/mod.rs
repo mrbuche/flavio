@@ -232,7 +232,7 @@ pub trait HyperelasticCompositeElement<
                 |(constitutive_model, (deformation_gradient, scaled_composite_jacobian))| {
                     constitutive_model
                         .calculate_helmholtz_free_energy_density(deformation_gradient)
-                        .expect("Constitutive model error")
+                        .expect("\x1b[91mConstitutive model error.\x1b[0\n")
                         * scaled_composite_jacobian
                 },
             )
@@ -474,7 +474,7 @@ pub trait HyperviscoelasticCompositeElement<
                 |(constitutive_model, (deformation_gradient, scaled_composite_jacobian))| {
                     constitutive_model
                         .calculate_helmholtz_free_energy_density(deformation_gradient)
-                        .expect("Constitutive model error")
+                        .expect("\x1b[91mConstitutive model error.\x1b[0\n")
                         * scaled_composite_jacobian
                 },
             )
