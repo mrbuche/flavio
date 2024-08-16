@@ -25,31 +25,35 @@ mod almansi_hamel;
 
 pub use almansi_hamel::AlmansiHamel;
 
-use super::
-{
-    *,
-    viscoelastic::Viscoelastic,
-    super::fluid::viscous::Viscous
-};
+use super::{super::fluid::viscous::Viscous, viscoelastic::Viscoelastic, *};
 
 /// Required methods for elastic-hyperviscous constitutive models.
 pub trait ElasticHyperviscous<'a>
 where
-    Self: Viscoelastic<'a>
+    Self: Viscoelastic<'a>,
 {
     /// Calculates and returns the dissipation potential.
     ///
     /// ```math
     /// \mathbf{P}^e(\mathbf{F}):\dot{\mathbf{F}} + \phi(\mathbf{F},\dot{\mathbf{F}})
     /// ```
-    fn calculate_dissipation_potential(&self, deformation_gradient: &DeformationGradient, deformation_gradient_rate: &DeformationGradientRate) -> Scalar
-    {
-        self.calculate_first_piola_kirchoff_stress(deformation_gradient, &ZERO_10).full_contraction(deformation_gradient_rate) + self.calculate_viscous_dissipation(deformation_gradient, deformation_gradient_rate)
+    fn calculate_dissipation_potential(
+        &self,
+        deformation_gradient: &DeformationGradient,
+        deformation_gradient_rate: &DeformationGradientRate,
+    ) -> Scalar {
+        self.calculate_first_piola_kirchoff_stress(deformation_gradient, &ZERO_10)
+            .full_contraction(deformation_gradient_rate)
+            + self.calculate_viscous_dissipation(deformation_gradient, deformation_gradient_rate)
     }
     /// Calculates and returns the viscous dissipation.
     ///
     /// ```math
     /// \phi = \phi(\mathbf{F},\dot{\mathbf{F}})
     /// ```
-    fn calculate_viscous_dissipation(&self, deformation_gradient: &DeformationGradient, deformation_gradient_rate: &DeformationGradientRate) -> Scalar;
+    fn calculate_viscous_dissipation(
+        &self,
+        deformation_gradient: &DeformationGradient,
+        deformation_gradient_rate: &DeformationGradientRate,
+    ) -> Scalar;
 }

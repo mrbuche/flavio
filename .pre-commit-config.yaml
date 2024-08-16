@@ -10,6 +10,17 @@ repos:
     rev: v1.1.0
     hooks:
     -   id: clippy
-        args: ['--features', 'fem', '--release']
+        args: ['--features', 'math', '--', '-D',  'warnings']
+        name: cargo clippy math
+    -   id: clippy
+        args: ['--features', 'mechanics', '--', '-D',  'warnings']
+        name: cargo clippy mechanics
+    -   id: clippy
+        args: ['--features', 'constitutive', '--', '-D',  'warnings']
+        name: cargo clippy constitutive
+    -   id: clippy
+        args: ['--features', 'fem']
+        name: cargo clippy fem
+    -   id: fmt
 # what about fmt now?
 # if do, need to add to .github/workflows/ as a test

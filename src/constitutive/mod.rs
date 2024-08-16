@@ -10,10 +10,9 @@ pub mod multiphysics;
 pub mod solid;
 pub mod thermal;
 
-use crate::
-{
+use crate::{
     get_error_message,
-    mechanics::{DeformationGradient, Scalar}
+    mechanics::{DeformationGradient, Scalar},
 };
 use std::fmt;
 
@@ -21,8 +20,7 @@ use std::fmt;
 pub type Parameters<'a> = &'a [Scalar];
 
 /// Required methods for constitutive models.
-pub trait Constitutive<'a>
-{
+pub trait Constitutive<'a> {
     /// Constructs and returns a new constitutive model.
     fn new(parameters: Parameters<'a>) -> Self;
 }
@@ -51,7 +49,12 @@ impl fmt::Display for ConstitutiveError {
                  In constitutive model: {}.",
                 jacobian, deformation_gradient, model
             ),
-            Self::InvalidJacobianThermoelastic(jacobian, deformation_gradient, temperature, model) => format!(
+            Self::InvalidJacobianThermoelastic(
+                jacobian,
+                deformation_gradient,
+                temperature,
+                model,
+            ) => format!(
                 "Invalid Jacobian: {:.6e}.\n\
                  From deformation gradient: {}.\n\
                  For temperature: {:.6e}.\n\
@@ -59,6 +62,11 @@ impl fmt::Display for ConstitutiveError {
                 jacobian, deformation_gradient, temperature, model
             ),
         };
-        write!(f, "\x1b[91m{}\n\x1b[0;2;31m{}\x1b[0m\n", error, get_error_message())
+        write!(
+            f,
+            "\x1b[91m{}\n\x1b[0;2;31m{}\x1b[0m\n",
+            error,
+            get_error_message()
+        )
     }
 }

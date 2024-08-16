@@ -25,24 +25,24 @@ mod saint_venant_kirchoff;
 
 pub use saint_venant_kirchoff::SaintVenantKirchoff;
 
-use super::
-{
-    *,
-    elastic_hyperviscous::ElasticHyperviscous,
-    viscoelastic::Viscoelastic,
-    super::fluid::viscous::Viscous
+use super::{
+    super::fluid::viscous::Viscous, elastic_hyperviscous::ElasticHyperviscous,
+    viscoelastic::Viscoelastic, *,
 };
 use std::fmt::Debug;
 
 /// Required methods for hyperviscoelastic constitutive models.
 pub trait Hyperviscoelastic<'a>
 where
-    Self: ElasticHyperviscous<'a>
+    Self: ElasticHyperviscous<'a>,
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///
     /// ```math
     /// a = a(\mathbf{F})
     /// ```
-    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Result<Scalar, ConstitutiveError>;
+    fn calculate_helmholtz_free_energy_density(
+        &self,
+        deformation_gradient: &DeformationGradient,
+    ) -> Result<Scalar, ConstitutiveError>;
 }

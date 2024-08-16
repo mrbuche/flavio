@@ -2,24 +2,13 @@
 
 pub mod conduction;
 
-use crate::
-{
-    mechanics::
-    {
-        HeatFlux,
-        Scalar,
-        TemperatureGradient
-    }
-};
+use crate::mechanics::{HeatFlux, Scalar, TemperatureGradient};
 
-use super::
-{
-    Constitutive,
-    Parameters
-};
+use super::{Constitutive, Parameters};
 
 /// Required methods for thermal constitutive models.
 pub trait Thermal<'a>
 where
-    Self: Constitutive<'a>
-{}
+    Self: Constitutive<'a>,
+{
+}

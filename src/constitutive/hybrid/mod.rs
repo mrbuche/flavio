@@ -3,15 +3,10 @@
 mod elastic;
 mod hyperelastic;
 
-use crate::
-{
-    constitutive::Constitutive,
-    mechanics::DeformationGradient
-};
+use crate::{constitutive::Constitutive, mechanics::DeformationGradient};
 
 /// Required methods for hybrid constitutive models.
-pub trait Hybrid<'a, C1: Constitutive<'a>, C2: Constitutive<'a>>
-{
+pub trait Hybrid<'a, C1: Constitutive<'a>, C2: Constitutive<'a>> {
     /// Constructs and returns a new hybrid constitutive model.
     fn construct(constitutive_model_1: C1, constitutive_model_2: C2) -> Self;
     /// Returns a reference to the first constitutive model.
@@ -21,63 +16,53 @@ pub trait Hybrid<'a, C1: Constitutive<'a>, C2: Constitutive<'a>>
 }
 
 /// A hybrid constitutive model based on the additive decomposition.
-pub struct Additive<C1, C2>
-{
+pub struct Additive<C1, C2> {
     constitutive_model_1: C1,
-    constitutive_model_2: C2
+    constitutive_model_2: C2,
 }
 
 /// A hybrid constitutive model based on the multiplicative decomposition.
-pub struct Multiplicative<C1, C2>
-{
+pub struct Multiplicative<C1, C2> {
     constitutive_model_1: C1,
-    constitutive_model_2: C2
+    constitutive_model_2: C2,
 }
 
 /// Required methods for hybrid constitutive models based on the multiplicative decomposition.
-pub trait MultiplicativeTrait
-{
-    fn calculate_deformation_gradients(&self, deformation_gradient: &DeformationGradient) -> (DeformationGradient, DeformationGradient);
+pub trait MultiplicativeTrait {
+    fn calculate_deformation_gradients(
+        &self,
+        deformation_gradient: &DeformationGradient,
+    ) -> (DeformationGradient, DeformationGradient);
 }
 
 /// Hybrid constitutive model implementation of hybrid constitutive models based on the additive decomposition.
-impl<'a, C1: Constitutive<'a>, C2: Constitutive<'a>> Hybrid<'a, C1, C2> for Additive<C1, C2>
-{
-    fn construct(constitutive_model_1: C1, constitutive_model_2: C2) -> Self
-    {
-        Self
-        {
+impl<'a, C1: Constitutive<'a>, C2: Constitutive<'a>> Hybrid<'a, C1, C2> for Additive<C1, C2> {
+    fn construct(constitutive_model_1: C1, constitutive_model_2: C2) -> Self {
+        Self {
             constitutive_model_1,
-            constitutive_model_2
+            constitutive_model_2,
         }
     }
-    fn get_constitutive_model_1(&self) -> &C1
-    {
+    fn get_constitutive_model_1(&self) -> &C1 {
         &self.constitutive_model_1
     }
-    fn get_constitutive_model_2(&self) -> &C2
-    {
+    fn get_constitutive_model_2(&self) -> &C2 {
         &self.constitutive_model_2
     }
 }
 
 /// Hybrid constitutive model implementation of hybrid constitutive models based on the multiplicative decomposition.
-impl<'a, C1: Constitutive<'a>, C2: Constitutive<'a>> Hybrid<'a, C1, C2> for Multiplicative<C1, C2>
-{
-    fn construct(constitutive_model_1: C1, constitutive_model_2: C2) -> Self
-    {
-        Self
-        {
+impl<'a, C1: Constitutive<'a>, C2: Constitutive<'a>> Hybrid<'a, C1, C2> for Multiplicative<C1, C2> {
+    fn construct(constitutive_model_1: C1, constitutive_model_2: C2) -> Self {
+        Self {
             constitutive_model_1,
-            constitutive_model_2
+            constitutive_model_2,
         }
     }
-    fn get_constitutive_model_1(&self) -> &C1
-    {
+    fn get_constitutive_model_1(&self) -> &C1 {
         &self.constitutive_model_1
     }
-    fn get_constitutive_model_2(&self) -> &C2
-    {
+    fn get_constitutive_model_2(&self) -> &C2 {
         &self.constitutive_model_2
     }
 }

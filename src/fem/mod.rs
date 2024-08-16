@@ -2,136 +2,58 @@
 
 mod block;
 
-pub use block::
-{
-    ElasticBlock,
-    ViscoelasticBlock,
-    FiniteElementBlock,
-    BasicFiniteElementBlock,
-    SurfaceElementBlock,
-    ElasticFiniteElementBlock,
-    HyperelasticFiniteElementBlock,
-    ViscoelasticFiniteElementBlock,
-    HyperviscoelasticFiniteElementBlock,
-    element::
-    {
-        FiniteElement,
-        ElasticFiniteElement,
-        HyperelasticFiniteElement,
-        ViscoelasticFiniteElement,
-        HyperviscoelasticFiniteElement,
-        SurfaceElement,
-        CohesiveElement,
-        composite::
-        {
-            CompositeElement,
-            ElasticCompositeElement,
-            HyperelasticCompositeElement,
+pub use block::{
+    element::{
+        composite::{
+            localization::{
+                wedge::Wedge as CompositeWedgeLocalization, CompositeLocalizationElement,
+            },
+            surface::{triangle::Triangle as CompositeTriangle, CompositeSurfaceElement},
+            tetrahedron::Tetrahedron as CompositeTetrahedron,
+            CompositeElement, ElasticCompositeElement, ElasticHyperviscousCompositeElement,
+            HyperelasticCompositeElement, HyperviscoelasticCompositeElement,
             ViscoelasticCompositeElement,
-            ElasticHyperviscousCompositeElement,
-            HyperviscoelasticCompositeElement,
-            localization::
-            {
-                CompositeLocalizationElement,
-                wedge::Wedge as CompositeWedgeLocalization
-            },
-            surface::
-            {
-                CompositeSurfaceElement,
-                triangle::Triangle as CompositeTriangle
-            },
-            tetrahedron::Tetrahedron as CompositeTetrahedron
         },
-        linear::
-        {
-            LinearElement,
-            ElasticLinearElement,
-            HyperelasticLinearElement,
-            ViscoelasticLinearElement,
-            ElasticHyperviscousLinearElement,
-            HyperviscoelasticLinearElement,
-            cohesive::
-            {
-                LinearCohesiveElement,
-                wedge::Wedge as LinearWedgeCohesive
-            },
-            localization::
-            {
-                LinearLocalizationElement,
-                wedge::Wedge as LinearWedgeLocalization
-            },
-            surface::
-            {
-                LinearSurfaceElement,
-                triangle::Triangle as LinearTriangle
-            },
-            tetrahedron::Tetrahedron as LinearTetrahedron
-        }
-    }
+        linear::{
+            cohesive::{wedge::Wedge as LinearWedgeCohesive, LinearCohesiveElement},
+            localization::{wedge::Wedge as LinearWedgeLocalization, LinearLocalizationElement},
+            surface::{triangle::Triangle as LinearTriangle, LinearSurfaceElement},
+            tetrahedron::Tetrahedron as LinearTetrahedron,
+            ElasticHyperviscousLinearElement, ElasticLinearElement, HyperelasticLinearElement,
+            HyperviscoelasticLinearElement, LinearElement, ViscoelasticLinearElement,
+        },
+        CohesiveElement, ElasticFiniteElement, FiniteElement, HyperelasticFiniteElement,
+        HyperviscoelasticFiniteElement, SurfaceElement, ViscoelasticFiniteElement,
+    },
+    BasicFiniteElementBlock, ElasticBlock, ElasticFiniteElementBlock, FiniteElementBlock,
+    HyperelasticFiniteElementBlock, HyperviscoelasticFiniteElementBlock, SurfaceElementBlock,
+    ViscoelasticBlock, ViscoelasticFiniteElementBlock,
 };
 
-use crate::
-{
-    constitutive::
-    {
-        Constitutive,
-        Parameters,
+use crate::{
+    constitutive::{
         cohesive::Cohesive,
-        solid::
-        {
-            elastic::Elastic,
-            hyperelastic::Hyperelastic,
+        solid::{
+            elastic::Elastic, elastic_hyperviscous::ElasticHyperviscous,
+            hyperelastic::Hyperelastic, hyperviscoelastic::Hyperviscoelastic,
             viscoelastic::Viscoelastic,
-            elastic_hyperviscous::ElasticHyperviscous,
-            hyperviscoelastic::Hyperviscoelastic
-        }
+        },
+        Constitutive, Parameters,
     },
-    math::
-    {
-        levi_civita,
-        tensor_rank_1_zero,
-        ContractSecondFourthIndicesWithFirstIndicesOf,
-        TensorRank1,
-        TensorRank1Trait,
-        TensorRank1List,
-        TensorRank1ListTrait,
-        TensorRank1List2D,
-        TensorRank1List2DTrait,
-        TensorRank2,
-        TensorRank2List,
-        TensorRank2Trait,
-        TensorRank2List2D,
-        TensorRank2List2DTrait,
-        TensorRank3,
-        TensorRank3List,
-        TensorRank3List2D,
-        TensorRank3List3D,
-        ONE_SIXTH,
-        ONE_TWENTY_FOURTH
+    math::{
+        levi_civita, tensor_rank_1_zero, ContractSecondFourthIndicesWithFirstIndicesOf,
+        TensorRank1, TensorRank1List, TensorRank1List2D, TensorRank1List2DTrait,
+        TensorRank1ListTrait, TensorRank1Trait, TensorRank2, TensorRank2List, TensorRank2List2D,
+        TensorRank2List2DTrait, TensorRank2Trait, TensorRank3, TensorRank3List, TensorRank3List2D,
+        TensorRank3List3D, ONE_SIXTH, ONE_TWENTY_FOURTH,
     },
-    mechanics::
-    {
-        Coordinates,
-        CurrentCoordinates,
-        DeformationGradient,
-        DeformationGradients,
-        DeformationGradientRate,
-        DeformationGradientRates,
-        Displacement,
-        FirstPiolaKirchoffStresses,
-        FirstPiolaKirchoffTangentStiffnesses,
-        FirstPiolaKirchoffRateTangentStiffnesses,
-        Forces,
-        ReferenceCoordinates,
-        Scalar,
-        Scalars,
-        Stiffnesses,
-        Vector,
-        Vectors,
-        Vectors2D,
-        IDENTITY,
-        ZERO_VECTOR
-    }
+    mechanics::{
+        Coordinates, CurrentCoordinates, DeformationGradient, DeformationGradientRate,
+        DeformationGradientRates, DeformationGradients, Displacement,
+        FirstPiolaKirchoffRateTangentStiffnesses, FirstPiolaKirchoffStresses,
+        FirstPiolaKirchoffTangentStiffnesses, Forces, ReferenceCoordinates, Scalar, Scalars,
+        Stiffnesses, Vector, Vectors, Vectors2D, IDENTITY, ZERO_VECTOR,
+    },
 };
 
 type Basis<const I: usize> = Vectors<I, 2>;
@@ -160,8 +82,11 @@ type ReferenceNormals<const P: usize> = Vectors<0, P>;
 type ScaledReferenceNormals<const G: usize, const P: usize> = TensorRank1List2D<3, 0, P, G>;
 type ShapeFunctionIntegrals<const P: usize, const Q: usize> = TensorRank1List<Q, 9, P>;
 type ShapeFunctionIntegralsProducts<const P: usize, const Q: usize> = TensorRank2List<Q, 9, 9, P>;
-type ShapeFunctionIntegralsProductsMixed<const O: usize, const P: usize> = TensorRank1List2D<3, 9, P, O>;
+type ShapeFunctionIntegralsProductsMixed<const O: usize, const P: usize> =
+    TensorRank1List2D<3, 9, P, O>;
 type ShapeFunctionsAtIntegrationPoints<const G: usize, const Q: usize> = TensorRank1List<Q, 9, G>;
 type StandardGradientOperator<const M: usize, const O: usize> = TensorRank1List<M, 9, O>;
-type StandardGradientOperators<const M: usize, const O: usize, const P: usize> = TensorRank1List2D<M, 9, O, P>;
-type StandardGradientOperatorsTransposed<const M: usize, const O: usize, const P: usize> = TensorRank1List2D<M, 9, P, O>;
+type StandardGradientOperators<const M: usize, const O: usize, const P: usize> =
+    TensorRank1List2D<M, 9, O, P>;
+type StandardGradientOperatorsTransposed<const M: usize, const O: usize, const P: usize> =
+    TensorRank1List2D<M, 9, P, O>;

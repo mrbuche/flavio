@@ -13,85 +13,35 @@ pub const ONE_TWENTY_FOURTH: TensorRank0 = 1.0 / 24.0;
 pub const SEVEN_THIRDS: TensorRank0 = 7.0 / 3.0;
 pub const TWO_THIRDS: TensorRank0 = 2.0 / 3.0;
 
-pub use tensor::
-{
-    Convert,
-    rank_0::
-    {
+pub use tensor::{
+    rank_0::{
+        list::{TensorRank0List, TensorRank0ListTrait},
         TensorRank0,
-        list::
-        {
-            TensorRank0List,
-            TensorRank0ListTrait
-        }
     },
-    rank_1::
-    {
-        zero as tensor_rank_1_zero,
-        TensorRank1,
-        TensorRank1Trait,
-        list::
-        {
-            TensorRank1List,
-            TensorRank1ListTrait
-        },
-        list_2d::
-        {
-            TensorRank1List2D,
-            TensorRank1List2DTrait
-        }
+    rank_1::{
+        list::{TensorRank1List, TensorRank1ListTrait},
+        list_2d::{TensorRank1List2D, TensorRank1List2DTrait},
+        zero as tensor_rank_1_zero, TensorRank1, TensorRank1Trait,
     },
-    rank_2::
-    {
-        TensorRank2,
-        TensorRank2Trait,
-        list::
-        {
-            TensorRank2List,
-            TensorRank2ListTrait
-        },
-        list_2d::
-        {
-            TensorRank2List2D,
-            TensorRank2List2DTrait
-        }
+    rank_2::{
+        list::{TensorRank2List, TensorRank2ListTrait},
+        list_2d::{TensorRank2List2D, TensorRank2List2DTrait},
+        TensorRank2, TensorRank2Trait,
     },
-    rank_3::
-    {
-        TensorRank3,
-        TensorRank3Trait,
+    rank_3::{
         levi_civita,
-        list::
-        {
-            TensorRank3List,
-            TensorRank3ListTrait
-        },
-        list_2d::
-        {
-            TensorRank3List2D,
-            TensorRank3List2DTrait
-        },
-        list_3d::
-        {
-            TensorRank3List3D,
-            TensorRank3List3DTrait
-        }
+        list::{TensorRank3List, TensorRank3ListTrait},
+        list_2d::{TensorRank3List2D, TensorRank3List2DTrait},
+        list_3d::{TensorRank3List3D, TensorRank3List3DTrait},
+        TensorRank3, TensorRank3Trait,
     },
-    rank_4::
-    {
-        ContractAllIndicesWithFirstIndicesOf,
-        ContractFirstSecondIndicesWithSecondIndicesOf,
+    rank_4::{
+        list::{TensorRank4List, TensorRank4ListTrait},
+        ContractAllIndicesWithFirstIndicesOf, ContractFirstSecondIndicesWithSecondIndicesOf,
         ContractFirstThirdFourthIndicesWithFirstIndicesOf,
-        ContractSecondIndexWithFirstIndexOf,
-        ContractSecondFourthIndicesWithFirstIndicesOf,
-        ContractThirdFourthIndicesWithFirstSecondIndicesOf,
-        TensorRank4,
-        TensorRank4Inverse,
+        ContractSecondFourthIndicesWithFirstIndicesOf, ContractSecondIndexWithFirstIndexOf,
+        ContractThirdFourthIndicesWithFirstSecondIndicesOf, TensorRank4, TensorRank4Inverse,
         TensorRank4Trait,
-        list::
-        {
-            TensorRank4List,
-            TensorRank4ListTrait
-        }
-    }
+    },
+    Convert,
 };
