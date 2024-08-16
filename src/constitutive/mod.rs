@@ -17,6 +17,16 @@ use crate::
 };
 use std::fmt;
 
+/// Array of constitutive model parameters.
+pub type Parameters<'a> = &'a [Scalar];
+
+/// Required methods for constitutive models.
+pub trait Constitutive<'a>
+{
+    /// Constructs and returns a new constitutive model.
+    fn new(parameters: Parameters<'a>) -> Self;
+}
+
 /// Possible errors encountered in constitutive models.
 pub enum ConstitutiveError<'a> {
     Custom(String, &'a DeformationGradient, String),
@@ -50,14 +60,4 @@ impl<'a> fmt::Display for ConstitutiveError<'a> {
         };
         write!(f, "\x1b[91m{}\n\x1b[0;2;31m{}\x1b[0m\n", error, get_error_message())
     }
-}
-
-/// Array of constitutive model parameters.
-pub type Parameters<'a> = &'a [Scalar];
-
-/// Required methods for constitutive models.
-pub trait Constitutive<'a>
-{
-    /// Constructs and returns a new constitutive model.
-    fn new(parameters: Parameters<'a>) -> Self;
 }
