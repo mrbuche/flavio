@@ -122,7 +122,7 @@ impl<'a> Hyperviscoelastic<'a> for SaintVenantKirchoff<'a>
             let strain = (self.calculate_right_cauchy_green_deformation(deformation_gradient) - IDENTITY_00)*0.5;
             Ok(self.get_shear_modulus()*strain.squared_trace() + 0.5*(self.get_bulk_modulus() - TWO_THIRDS*self.get_shear_modulus())*strain.trace().powi(2))
         } else {
-            Err(ConstitutiveError::InvalidJacobian(jacobian, &deformation_gradient, format!("{:?}", &self)))
+            Err(ConstitutiveError::InvalidJacobianElastic(jacobian, deformation_gradient, format!("{:?}", &self)))
         }
     }
 }

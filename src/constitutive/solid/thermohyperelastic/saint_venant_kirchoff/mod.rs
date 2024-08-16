@@ -92,7 +92,7 @@ impl<'a> Thermohyperelastic<'a> for SaintVenantKirchoff<'a>
     /// ```math
     /// a(\mathbf{F}, T) = \mu\,\mathrm{tr}(\mathbf{E}^2) + \frac{1}{2}\left(\kappa - \frac{2}{3}\,\mu\right)\mathrm{tr}(\mathbf{E})^2 - 3\alpha\kappa\,\mathrm{tr}(\mathbf{E})(T - T_\mathrm{ref})
     /// ```
-    fn calculate_helmholtz_free_energy_density(&'a self, deformation_gradient: &'a DeformationGradient, temperature: &Scalar) -> Result<Scalar, ConstitutiveError>
+    fn calculate_helmholtz_free_energy_density(&'a self, deformation_gradient: &'a DeformationGradient, temperature: &'a Scalar) -> Result<Scalar, ConstitutiveError>
     {
         let jacobian = deformation_gradient.determinant();
         if jacobian > 0.0 {
@@ -100,7 +100,7 @@ impl<'a> Thermohyperelastic<'a> for SaintVenantKirchoff<'a>
             let strain_trace = strain.trace();
             Ok(self.get_shear_modulus()*strain.squared_trace() + 0.5*(self.get_bulk_modulus() - TWO_THIRDS*self.get_shear_modulus())*strain_trace.powi(2) - 3.0*self.get_bulk_modulus()*self.get_coefficient_of_thermal_expansion()*(temperature - self.get_reference_temperature())*strain_trace)
         } else {
-            Err(ConstitutiveError::InvalidJacobian(jacobian, &deformation_gradient, format!("{:?}", &self)))
+            Err(ConstitutiveError::InvalidJacobianThermoelastic(jacobian, deformation_gradient, temperature, format!("{:?}", &self)))
         }
     }
 }
