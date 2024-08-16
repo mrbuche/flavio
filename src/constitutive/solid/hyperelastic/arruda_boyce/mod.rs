@@ -119,7 +119,7 @@ impl<'a> Hyperelastic<'a> for ArrudaBoyce<'a>
             let isochoric_left_cauchy_green_deformation = self.calculate_left_cauchy_green_deformation(deformation_gradient) / jacobian.powf(TWO_THIRDS);
             let gamma = (isochoric_left_cauchy_green_deformation.trace() / 3.0 / self.get_number_of_links()).sqrt();
             if gamma >= 1.0 {
-                Err(ConstitutiveError::Custom(format!("Maximum extensibility reached."), deformation_gradient * 1.0, format!("{:?}", &self)))
+                Err(ConstitutiveError::Custom(format!("Maximum extensibility reached."), deformation_gradient.copy(), format!("{:?}", &self)))
             } else {
                 let eta = inverse_langevin(gamma);
                 let gamma_0 = (1.0 / self.get_number_of_links()).sqrt();
@@ -127,7 +127,7 @@ impl<'a> Hyperelastic<'a> for ArrudaBoyce<'a>
                 Ok(3.0 * gamma_0 / eta_0 * self.get_shear_modulus() * self.get_number_of_links() * (gamma * eta - gamma_0 * eta_0 - (eta_0 * eta.sinh() / (eta * eta_0.sinh())).ln()) + 0.5 * self.get_bulk_modulus() * (0.5 * (jacobian.powi(2) - 1.0) - jacobian.ln()))
             }
         } else {
-            Err(ConstitutiveError::InvalidJacobianElastic(jacobian, deformation_gradient * 1.0, format!("{:?}", &self)))
+            Err(ConstitutiveError::InvalidJacobianElastic(jacobian, deformation_gradient.copy(), format!("{:?}", &self)))
         }
     }
 }

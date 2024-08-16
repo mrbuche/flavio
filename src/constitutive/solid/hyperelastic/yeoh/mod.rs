@@ -111,7 +111,7 @@ impl<'a> Hyperelastic<'a> for Yeoh<'a>
             let scalar_term = self.calculate_left_cauchy_green_deformation(deformation_gradient).trace()/jacobian.powf(TWO_THIRDS) - 3.0;
             Ok(0.5*(self.get_moduli().iter().enumerate().map(|(n, modulus)| modulus*scalar_term.powi(<usize as TryInto<i32>>::try_into(n).unwrap() + 1)).sum::<Scalar>() + self.get_bulk_modulus()*(0.5*(jacobian.powi(2) - 1.0) - jacobian.ln())))
         } else {
-            Err(ConstitutiveError::InvalidJacobianElastic(jacobian, deformation_gradient * 1.0, format!("{:?}", &self)))
+            Err(ConstitutiveError::InvalidJacobianElastic(jacobian, deformation_gradient.copy(), format!("{:?}", &self)))
         }
     }
 }

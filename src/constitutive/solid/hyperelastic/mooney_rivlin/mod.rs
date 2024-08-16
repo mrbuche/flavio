@@ -106,7 +106,7 @@ impl<'a> Hyperelastic<'a> for MooneyRivlin<'a>
             let isochoric_left_cauchy_green_deformation = self.calculate_left_cauchy_green_deformation(deformation_gradient)/jacobian.powf(TWO_THIRDS);
             Ok(0.5*((self.get_shear_modulus() - self.get_extra_modulus())*(isochoric_left_cauchy_green_deformation.trace() - 3.0) + self.get_extra_modulus()*(isochoric_left_cauchy_green_deformation.second_invariant() - 3.0) + self.get_bulk_modulus()*(0.5*(jacobian.powi(2) - 1.0) - jacobian.ln())))
         } else {
-            Err(ConstitutiveError::InvalidJacobianElastic(jacobian, deformation_gradient * 1.0, format!("{:?}", &self)))
+            Err(ConstitutiveError::InvalidJacobianElastic(jacobian, deformation_gradient.copy(), format!("{:?}", &self)))
         }
     }
 }

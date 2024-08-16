@@ -248,7 +248,7 @@ macro_rules! test_solid_constitutive_model_no_tangents
                 #[test]
                 fn objectivity()
                 {
-                    let _ = EPSILON * 1.0;
+                    let _ = EPSILON;
                     calculate_cauchy_stress_from_deformation_gradient!(
                         &$constitutive_model_constructed, &get_deformation_gradient()
                     ).iter().zip((

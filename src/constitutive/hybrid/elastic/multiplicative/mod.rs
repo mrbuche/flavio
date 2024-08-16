@@ -129,7 +129,7 @@ impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> MultiplicativeTrait for Multiplicativ
         else
         {
             let mut deformation_gradient_1 = IDENTITY_10;
-            let mut deformation_gradient_2 = deformation_gradient * 1.0;
+            let mut deformation_gradient_2 = deformation_gradient.copy();
             let mut deformation_gradient_2_old = IDENTITY_10;
             let mut deformation_gradient_2_inverse_transpose: TensorRank2<3, 0, 0>;
             let mut residual: FirstPiolaKirchoffStress;
@@ -151,8 +151,8 @@ impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> MultiplicativeTrait for Multiplicativ
                 {
                     residual_increment = residual_old - &residual;
                     step_size = (deformation_gradient_2_old - &deformation_gradient_2).full_contraction(&residual_increment).abs() / residual_increment.norm_squared();
-                    deformation_gradient_2_old = &deformation_gradient_2 * 1.0;
-                    residual_old = &residual * 1.0;
+                    deformation_gradient_2_old = deformation_gradient_2.copy();
+                    residual_old = residual.copy();
                     deformation_gradient_2 -= residual * step_size;
                 }
                 else

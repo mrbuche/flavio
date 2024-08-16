@@ -113,12 +113,12 @@ impl<'a> Hyperelastic<'a> for Gent<'a>
         if jacobian > 0.0 {
             let factor = (self.calculate_left_cauchy_green_deformation(deformation_gradient).trace()/jacobian.powf(TWO_THIRDS) - 3.0)/self.get_extensibility();
             if factor >= 1.0 {
-                Err(ConstitutiveError::Custom(format!("Maximum extensibility reached."), deformation_gradient * 1.0, format!("{:?}", &self)))
+                Err(ConstitutiveError::Custom(format!("Maximum extensibility reached."), deformation_gradient.copy(), format!("{:?}", &self)))
             } else {
                 Ok(0.5*(-self.get_shear_modulus()*self.get_extensibility()*(1.0 - factor).ln() + self.get_bulk_modulus()*(0.5*(jacobian.powi(2) - 1.0) - jacobian.ln())))
             }
         } else {
-            Err(ConstitutiveError::InvalidJacobianElastic(jacobian, deformation_gradient * 1.0, format!("{:?}", &self)))
+            Err(ConstitutiveError::InvalidJacobianElastic(jacobian, deformation_gradient.copy(), format!("{:?}", &self)))
         }
     }
 }
