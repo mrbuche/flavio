@@ -119,13 +119,13 @@ pub trait HyperelasticLinearElement<
     fn calculate_helmholtz_free_energy_linear_element(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
-    ) -> Result<Scalar, FiniteElementError> {
-        Ok(self
-            .get_constitutive_model()
+    ) -> Scalar {
+        self.get_constitutive_model()
             .calculate_helmholtz_free_energy_density(
                 &self.calculate_deformation_gradient(nodal_coordinates),
-            )?
-            * self.get_integration_weight())
+            )
+            .expect("Constitutive model error")
+            * self.get_integration_weight()
     }
 }
 
@@ -238,12 +238,12 @@ pub trait HyperviscoelasticLinearElement<
     fn calculate_helmholtz_free_energy_linear_element(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
-    ) -> Result<Scalar, FiniteElementError> {
-        Ok(self
-            .get_constitutive_model()
+    ) -> Scalar {
+        self.get_constitutive_model()
             .calculate_helmholtz_free_energy_density(
                 &self.calculate_deformation_gradient(nodal_coordinates),
-            )?
-            * self.get_integration_weight())
+            )
+            .expect("Constitutive model error")
+            * self.get_integration_weight()
     }
 }

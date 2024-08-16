@@ -220,9 +220,8 @@ pub trait HyperelasticCompositeElement<
     fn calculate_helmholtz_free_energy_composite_element(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
-    ) -> Result<Scalar, FiniteElementError> {
-        Ok(self
-            .get_constitutive_models()
+    ) -> Scalar {
+        self.get_constitutive_models()
             .iter()
             .zip(
                 self.calculate_deformation_gradients(nodal_coordinates)
@@ -233,11 +232,11 @@ pub trait HyperelasticCompositeElement<
                 |(constitutive_model, (deformation_gradient, scaled_composite_jacobian))| {
                     constitutive_model
                         .calculate_helmholtz_free_energy_density(deformation_gradient)
-                        .expect("NEED TO HANDLE THIS PROPERLY")
+                        .expect("Constitutive model error")
                         * scaled_composite_jacobian
                 },
             )
-            .sum())
+            .sum()
     }
 }
 
@@ -463,9 +462,8 @@ pub trait HyperviscoelasticCompositeElement<
     fn calculate_helmholtz_free_energy_composite_element(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
-    ) -> Result<Scalar, FiniteElementError> {
-        Ok(self
-            .get_constitutive_models()
+    ) -> Scalar {
+        self.get_constitutive_models()
             .iter()
             .zip(
                 self.calculate_deformation_gradients(nodal_coordinates)
@@ -476,10 +474,10 @@ pub trait HyperviscoelasticCompositeElement<
                 |(constitutive_model, (deformation_gradient, scaled_composite_jacobian))| {
                     constitutive_model
                         .calculate_helmholtz_free_energy_density(deformation_gradient)
-                        .expect("NEED TO HANDLE THIS PROPERLY")
+                        .expect("Constitutive model error")
                         * scaled_composite_jacobian
                 },
             )
-            .sum())
+            .sum()
     }
 }

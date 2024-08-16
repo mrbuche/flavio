@@ -453,23 +453,17 @@ macro_rules! test_helmholtz_free_energy {
                 if is_deformed {
                     get_element_transformed()
                         .calculate_helmholtz_free_energy(&get_coordinates_transformed())
-                        .expect("the unexpected")
                 } else {
-                    get_element_transformed()
-                        .calculate_helmholtz_free_energy(
-                            &get_reference_coordinates_transformed().into(),
-                        )
-                        .expect("the unexpected")
+                    get_element_transformed().calculate_helmholtz_free_energy(
+                        &get_reference_coordinates_transformed().into(),
+                    )
                 }
             } else {
                 if is_deformed {
-                    get_element()
-                        .calculate_helmholtz_free_energy(&get_coordinates())
-                        .expect("the unexpected")
+                    get_element().calculate_helmholtz_free_energy(&get_coordinates())
                 } else {
                     get_element()
                         .calculate_helmholtz_free_energy(&get_reference_coordinates().into())
-                        .expect("the unexpected")
                 }
             }
         }
@@ -486,13 +480,11 @@ macro_rules! test_helmholtz_free_energy {
                                 get_reference_coordinates().into()
                             };
                             nodal_coordinates[node][i] += 0.5 * EPSILON;
-                            finite_difference = element
-                                .calculate_helmholtz_free_energy(&nodal_coordinates)
-                                .expect("the unexpected");
+                            finite_difference =
+                                element.calculate_helmholtz_free_energy(&nodal_coordinates);
                             nodal_coordinates[node][i] -= EPSILON;
-                            finite_difference -= element
-                                .calculate_helmholtz_free_energy(&nodal_coordinates)
-                                .expect("the unexpected");
+                            finite_difference -=
+                                element.calculate_helmholtz_free_energy(&nodal_coordinates);
                             finite_difference / EPSILON
                         })
                         .collect()
@@ -534,7 +526,6 @@ macro_rules! test_helmholtz_free_energy {
                             perturbed_coordinates[node][i] += 0.5 * EPSILON;
                             perturbed = element
                                 .calculate_helmholtz_free_energy(&perturbed_coordinates)
-                                .expect("the unexpected")
                                 - nodal_forces.dot(&perturbed_coordinates);
                             assert!(
                                 perturbed > minimum || check_eq_within_tols(&perturbed, &minimum)
@@ -542,7 +533,6 @@ macro_rules! test_helmholtz_free_energy {
                             perturbed_coordinates[node][i] -= EPSILON;
                             perturbed = element
                                 .calculate_helmholtz_free_energy(&perturbed_coordinates)
-                                .expect("the unexpected")
                                 - nodal_forces.dot(&perturbed_coordinates);
                             assert!(
                                 perturbed > minimum || check_eq_within_tols(&perturbed, &minimum)
@@ -585,15 +575,13 @@ macro_rules! test_helmholtz_free_energy {
                             perturbed_coordinates = get_reference_coordinates();
                             perturbed_coordinates[node][i] += 0.5 * EPSILON;
                             perturbed = element
-                                .calculate_helmholtz_free_energy(&perturbed_coordinates.convert())
-                                .expect("the unexpected");
+                                .calculate_helmholtz_free_energy(&perturbed_coordinates.convert());
                             assert!(
                                 perturbed > minimum || check_eq_within_tols(&perturbed, &minimum)
                             );
                             perturbed_coordinates[node][i] -= EPSILON;
                             perturbed = element
-                                .calculate_helmholtz_free_energy(&perturbed_coordinates.convert())
-                                .expect("the unexpected");
+                                .calculate_helmholtz_free_energy(&perturbed_coordinates.convert());
                             assert!(
                                 perturbed > minimum || check_eq_within_tols(&perturbed, &minimum)
                             );

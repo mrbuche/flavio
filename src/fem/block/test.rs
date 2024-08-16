@@ -378,9 +378,7 @@ macro_rules! test_helmholtz_free_energy {
                             };
                             nodal_coordinates[node][i] += 0.5 * EPSILON;
                             block.set_nodal_coordinates(nodal_coordinates);
-                            finite_difference = block
-                                .calculate_helmholtz_free_energy()
-                                .expect("the unexpected");
+                            finite_difference = block.calculate_helmholtz_free_energy();
                             let mut nodal_coordinates = if is_deformed {
                                 get_coordinates_block()
                             } else {
@@ -388,9 +386,7 @@ macro_rules! test_helmholtz_free_energy {
                             };
                             nodal_coordinates[node][i] -= 0.5 * EPSILON;
                             block.set_nodal_coordinates(nodal_coordinates);
-                            finite_difference -= block
-                                .calculate_helmholtz_free_energy()
-                                .expect("the unexpected");
+                            finite_difference -= block.calculate_helmholtz_free_energy();
                             finite_difference / EPSILON
                         })
                         .collect()
@@ -425,9 +421,7 @@ macro_rules! test_helmholtz_free_energy {
                     let mut block = get_block();
                     block.set_nodal_coordinates(get_coordinates_block());
                     let nodal_forces = block.calculate_nodal_forces();
-                    let minimum = block
-                        .calculate_helmholtz_free_energy()
-                        .expect("the unexpected")
+                    let minimum = block.calculate_helmholtz_free_energy()
                         - nodal_forces.dot(&get_coordinates_block());
                     let mut perturbed = 0.0;
                     let mut perturbed_coordinates = get_coordinates_block();
@@ -436,18 +430,14 @@ macro_rules! test_helmholtz_free_energy {
                             perturbed_coordinates = get_coordinates_block();
                             perturbed_coordinates[node][i] += 0.5 * EPSILON;
                             block.set_nodal_coordinates(&perturbed_coordinates * 1.0);
-                            perturbed = block
-                                .calculate_helmholtz_free_energy()
-                                .expect("the unexpected")
+                            perturbed = block.calculate_helmholtz_free_energy()
                                 - nodal_forces.dot(&perturbed_coordinates);
                             assert!(
                                 perturbed > minimum || check_eq_within_tols(&perturbed, &minimum)
                             );
                             perturbed_coordinates[node][i] -= EPSILON;
                             block.set_nodal_coordinates(&perturbed_coordinates * 1.0);
-                            perturbed = block
-                                .calculate_helmholtz_free_energy()
-                                .expect("the unexpected")
+                            perturbed = block.calculate_helmholtz_free_energy()
                                 - nodal_forces.dot(&perturbed_coordinates);
                             assert!(
                                 perturbed > minimum || check_eq_within_tols(&perturbed, &minimum)
@@ -462,31 +452,16 @@ macro_rules! test_helmholtz_free_energy {
                     block_1.set_nodal_coordinates(get_coordinates_block());
                     block_2.set_nodal_coordinates(get_coordinates_transformed_block());
                     assert_eq_within_tols(
-                        &block_1
-                            .calculate_helmholtz_free_energy()
-                            .expect("the unexpected"),
-                        &block_2
-                            .calculate_helmholtz_free_energy()
-                            .expect("the unexpected"),
+                        &block_1.calculate_helmholtz_free_energy(),
+                        &block_2.calculate_helmholtz_free_energy(),
                     );
                 }
                 #[test]
                 fn positive() {
                     let mut block = get_block();
-                    assert!(
-                        block
-                            .calculate_helmholtz_free_energy()
-                            .expect("the unexpected")
-                            .abs()
-                            < ABS_TOL
-                    );
+                    assert!(block.calculate_helmholtz_free_energy().abs() < ABS_TOL);
                     block.set_nodal_coordinates(get_coordinates_block());
-                    assert!(
-                        block
-                            .calculate_helmholtz_free_energy()
-                            .expect("the unexpected")
-                            > 0.0
-                    );
+                    assert!(block.calculate_helmholtz_free_energy() > 0.0);
                 }
             }
             mod undeformed {
@@ -504,9 +479,7 @@ macro_rules! test_helmholtz_free_energy {
                 #[test]
                 fn minimized() {
                     let mut block = get_block();
-                    let minimum = block
-                        .calculate_helmholtz_free_energy()
-                        .expect("the unexpected");
+                    let minimum = block.calculate_helmholtz_free_energy();
                     let mut perturbed = 0.0;
                     let mut perturbed_coordinates = get_reference_coordinates_block();
                     (0..D).for_each(|node| {
@@ -514,17 +487,13 @@ macro_rules! test_helmholtz_free_energy {
                             perturbed_coordinates = get_reference_coordinates_block();
                             perturbed_coordinates[node][i] += 0.5 * EPSILON;
                             block.set_nodal_coordinates(perturbed_coordinates.convert());
-                            perturbed = block
-                                .calculate_helmholtz_free_energy()
-                                .expect("the unexpected");
+                            perturbed = block.calculate_helmholtz_free_energy();
                             assert!(
                                 perturbed > minimum || check_eq_within_tols(&perturbed, &minimum)
                             );
                             perturbed_coordinates[node][i] -= EPSILON;
                             block.set_nodal_coordinates(perturbed_coordinates.convert());
-                            perturbed = block
-                                .calculate_helmholtz_free_energy()
-                                .expect("the unexpected");
+                            perturbed = block.calculate_helmholtz_free_energy();
                             assert!(
                                 perturbed > minimum || check_eq_within_tols(&perturbed, &minimum)
                             );
@@ -536,44 +505,24 @@ macro_rules! test_helmholtz_free_energy {
                     let mut block_1 = get_block();
                     let mut block_2 = get_block_transformed();
                     assert_eq_within_tols(
-                        &block_1
-                            .calculate_helmholtz_free_energy()
-                            .expect("the unexpected"),
-                        &block_2
-                            .calculate_helmholtz_free_energy()
-                            .expect("the unexpected"),
+                        &block_1.calculate_helmholtz_free_energy(),
+                        &block_2.calculate_helmholtz_free_energy(),
                     );
                     block_1.set_nodal_coordinates(get_reference_coordinates_block().into());
                     block_2.set_nodal_coordinates(
                         get_reference_coordinates_transformed_block().into(),
                     );
                     assert_eq_within_tols(
-                        &block_1
-                            .calculate_helmholtz_free_energy()
-                            .expect("the unexpected"),
-                        &block_2
-                            .calculate_helmholtz_free_energy()
-                            .expect("the unexpected"),
+                        &block_1.calculate_helmholtz_free_energy(),
+                        &block_2.calculate_helmholtz_free_energy(),
                     );
                 }
                 #[test]
                 fn zero() {
                     let mut block = get_block();
-                    assert!(
-                        block
-                            .calculate_helmholtz_free_energy()
-                            .expect("the unexpected")
-                            .abs()
-                            < ABS_TOL
-                    );
+                    assert!(block.calculate_helmholtz_free_energy().abs() < ABS_TOL);
                     block.set_nodal_coordinates(get_reference_coordinates_block().into());
-                    assert!(
-                        block
-                            .calculate_helmholtz_free_energy()
-                            .expect("the unexpected")
-                            .abs()
-                            < ABS_TOL
-                    );
+                    assert!(block.calculate_helmholtz_free_energy().abs() < ABS_TOL);
                 }
             }
         }

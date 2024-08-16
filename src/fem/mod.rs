@@ -38,9 +38,8 @@ use crate::{
             hyperelastic::Hyperelastic, hyperviscoelastic::Hyperviscoelastic,
             viscoelastic::Viscoelastic,
         },
-        Constitutive, ConstitutiveError, Parameters,
+        Constitutive, Parameters,
     },
-    get_error_message,
     math::{
         levi_civita, tensor_rank_1_zero, ContractSecondFourthIndicesWithFirstIndicesOf,
         TensorRank1, TensorRank1List, TensorRank1List2D, TensorRank1List2DTrait,
