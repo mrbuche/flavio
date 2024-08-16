@@ -26,6 +26,7 @@ use super::*;
 /// - The nondimensional force is given by the inverse Langevin function as $`\eta=\mathcal{L}^{-1}(\gamma)`$.
 /// - The initial values are given by $`\gamma_0=\sqrt{1/3N_b}`$ and $`\eta_0=\mathcal{L}^{-1}(\gamma_0)`$.
 /// - The Arruda-Boyce model reduces to the [Neo-Hookean model](NeoHookean) when $`N_b\to\infty`$.
+#[derive(Debug)]
 pub struct ArrudaBoyce<'a>
 {
     parameters: Parameters<'a>
@@ -111,15 +112,22 @@ impl<'a> Hyperelastic<'a> for ArrudaBoyce<'a>
     /// ```math
     /// a(\mathbf{F}) = \frac{3\mu N_b\gamma_0}{\eta_0}\left[\gamma\eta - \gamma_0\eta_0 - \ln\left(\frac{\eta_0\sinh\eta}{\eta\sinh\eta_0}\right) \right] + \frac{\kappa}{2}\left[\frac{1}{2}\left(J^2 - 1\right) - \ln J\right]
     /// ```
-    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar
+    fn calculate_helmholtz_free_energy_density(&'a self, deformation_gradient: &'a DeformationGradient) -> Result<Scalar, ConstitutiveError>
     {
         let jacobian = deformation_gradient.determinant();
-        let isochoric_left_cauchy_green_deformation = self.calculate_left_cauchy_green_deformation(deformation_gradient)/jacobian.powf(TWO_THIRDS);
-        let gamma = (isochoric_left_cauchy_green_deformation.trace()/3.0/self.get_number_of_links()).sqrt();
-        let eta = inverse_langevin(gamma);
-        let gamma_0 = (1.0/self.get_number_of_links()).sqrt();
-        let eta_0 = inverse_langevin(gamma_0);
-        3.0*gamma_0/eta_0*self.get_shear_modulus()*self.get_number_of_links()*(gamma*eta - gamma_0*eta_0 - (eta_0*eta.sinh()/(eta*eta_0.sinh())).ln()) + 0.5*self.get_bulk_modulus()*(0.5*(jacobian.powi(2) - 1.0) - jacobian.ln())
-
+        if jacobian > 0.0 {
+            let isochoric_left_cauchy_green_deformation = self.calculate_left_cauchy_green_deformation(deformation_gradient) / jacobian.powf(TWO_THIRDS);
+            let gamma = (isochoric_left_cauchy_green_deformation.trace() / 3.0 / self.get_number_of_links()).sqrt();
+            if gamma >= 0.0 {
+                Err(ConstitutiveError::Custom(format!("Maximum extensibility reached."), deformation_gradient, format!("{:?}", &self)))
+            } else {
+                let eta = inverse_langevin(gamma);
+                let gamma_0 = (1.0 / self.get_number_of_links()).sqrt();
+                let eta_0 = inverse_langevin(gamma_0);
+                Ok(3.0 * gamma_0 / eta_0 * self.get_shear_modulus() * self.get_number_of_links() * (gamma * eta - gamma_0 * eta_0 - (eta_0 * eta.sinh() / (eta * eta_0.sinh())).ln()) + 0.5 * self.get_bulk_modulus() * (0.5 * (jacobian.powi(2) - 1.0) - jacobian.ln()))
+            }
+        } else {
+            Err(ConstitutiveError::InvalidJacobianElastic(jacobian, deformation_gradient, format!("{:?}", &self)))
+        }
     }
 }

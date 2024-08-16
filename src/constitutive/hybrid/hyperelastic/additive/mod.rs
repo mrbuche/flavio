@@ -5,6 +5,7 @@ use crate::
 {
     constitutive::
     {
+        ConstitutiveError,
         hybrid::
         {
             Additive,
@@ -27,8 +28,9 @@ impl<'a, C1: Hyperelastic<'a>, C2: Hyperelastic<'a>> Hyperelastic<'a> for Additi
     /// ```math
     /// a(\mathbf{F}) = a_1(\mathbf{F}) + a_2(\mathbf{F})
     /// ```
-    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar
+    fn calculate_helmholtz_free_energy_density(&'a self, deformation_gradient: &'a DeformationGradient) -> Result<Scalar, ConstitutiveError>
     {
-        self.get_constitutive_model_1().calculate_helmholtz_free_energy_density(deformation_gradient) + self.get_constitutive_model_2().calculate_helmholtz_free_energy_density(deformation_gradient)
+        // self.get_constitutive_model_1().calculate_helmholtz_free_energy_density(deformation_gradient) + self.get_constitutive_model_2().calculate_helmholtz_free_energy_density(deformation_gradient)
+        todo!()
     }
 }

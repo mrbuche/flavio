@@ -1,6 +1,8 @@
 #[cfg(test)]
 mod test;
 
+use super::NINE_FIFTHS;
+
 /// Returns the inverse Langevin function.
 ///
 /// Improves [inverse_langevin_approximate()] using two iterations of Newton's method.
@@ -13,7 +15,7 @@ pub fn inverse_langevin(y: f64) -> f64
     }
     else if y_abs <= 1e-3
     {
-        3.0 * y + 9.0/5.0 * y.powi(3)
+        3.0 * y + NINE_FIFTHS * y.powi(3)
     }
     else
     {
@@ -42,7 +44,7 @@ pub fn inverse_langevin(y: f64) -> f64
 /// ```
 pub fn inverse_langevin_approximate(y: f64) -> f64
 {
-    (2.14234*y.powi(3) - 4.22785*y.powi(2) + 3.0*y)/(1.0 - y)/(0.71716*y.powi(3) - 0.41103*y.powi(2) - 0.39165*y + 1.0)
+    (2.14234 * y.powi(3) - 4.22785 * y.powi(2) + 3.0 * y) / (1.0 - y) / (0.71716 * y.powi(3) - 0.41103 * y.powi(2) - 0.39165 * y + 1.0)
 }
 
 /// Returns the Langevin function.
@@ -52,7 +54,7 @@ pub fn inverse_langevin_approximate(y: f64) -> f64
 /// ```
 pub fn langevin(x: f64) -> f64
 {
-    1.0/x.tanh() - 1.0/x
+    1.0 / x.tanh() - 1.0 / x
 }
 
 /// Returns derivative of the Langevin function.
@@ -62,5 +64,5 @@ pub fn langevin(x: f64) -> f64
 /// ```
 pub fn langevin_derivative(x: f64) -> f64
 {
-    1.0/x.powi(2) - 1.0/x.sinh().powi(2)
+    1.0 / x.powi(2) - 1.0 / x.sinh().powi(2)
 }

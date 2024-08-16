@@ -5,12 +5,13 @@ pub mod special;
 
 mod tensor;
 
-pub const ONE_SIXTH: TensorRank0 = 1.0 / 6.0;
-pub const TWO_THIRDS: TensorRank0 = 2.0 / 3.0;
 pub const FOUR_THIRDS: TensorRank0 = 4.0 / 3.0;
 pub const FIVE_THIRDS: TensorRank0 = 5.0 / 3.0;
-pub const SEVEN_THIRDS: TensorRank0 = 7.0 / 3.0;
+pub const NINE_FIFTHS: TensorRank0 = 9.0 / 5.0;
+pub const ONE_SIXTH: TensorRank0 = 1.0 / 6.0;
 pub const ONE_TWENTY_FOURTH: TensorRank0 = 1.0 / 24.0;
+pub const SEVEN_THIRDS: TensorRank0 = 7.0 / 3.0;
+pub const TWO_THIRDS: TensorRank0 = 2.0 / 3.0;
 
 pub use tensor::
 {

@@ -17,6 +17,7 @@ use super::*;
 ///
 /// **Notes**
 /// - The Green-Saint Venant strain measure is given by $`\mathbf{E}=\tfrac{1}{2}(\mathbf{C}-\mathbf{1})`$.
+#[derive(Debug)]
 pub struct SaintVenantKirchoff<'a>
 {
     parameters: Parameters<'a>
@@ -80,9 +81,14 @@ impl<'a> Hyperelastic<'a> for SaintVenantKirchoff<'a>
     /// ```math
     /// a(\mathbf{F}) = \mu\,\mathrm{tr}(\mathbf{E}^2) + \frac{1}{2}\left(\kappa - \frac{2}{3}\,\mu\right)\mathrm{tr}(\mathbf{E})^2
     /// ```
-    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar
+    fn calculate_helmholtz_free_energy_density(&'a self, deformation_gradient: &'a DeformationGradient) -> Result<Scalar, ConstitutiveError>
     {
-        let strain = (self.calculate_right_cauchy_green_deformation(deformation_gradient) - IDENTITY_00)*0.5;
-        self.get_shear_modulus()*strain.squared_trace() + 0.5*(self.get_bulk_modulus() - TWO_THIRDS*self.get_shear_modulus())*strain.trace().powi(2)
+        let jacobian = deformation_gradient.determinant();
+        if jacobian > 0.0 {
+            let strain = (self.calculate_right_cauchy_green_deformation(deformation_gradient) - IDENTITY_00)*0.5;
+            Ok(self.get_shear_modulus()*strain.squared_trace() + 0.5*(self.get_bulk_modulus() - TWO_THIRDS*self.get_shear_modulus())*strain.trace().powi(2))
+        } else {
+            Err(ConstitutiveError::InvalidJacobianElastic(jacobian, deformation_gradient, format!("{:?}", &self)))
+        }
     }
 }

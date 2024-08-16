@@ -9,14 +9,21 @@ mod public
             {
                 solid::
                 {
+                    hyperelastic::
+                    {
+                        ArrudaBoyce,
+                        Gent,
+                        SaintVenantKirchoff as SaintVenantKirchoff1,
+                        Hyperelastic
+                    },
                     hyperviscoelastic::
                     {
-                        SaintVenantKirchoff as SaintVenantKirchoff1,
+                        SaintVenantKirchoff as SaintVenantKirchoff2,
                         Hyperviscoelastic
                     },
                     thermohyperelastic::
                     {
-                        SaintVenantKirchoff as SaintVenantKirchoff2,
+                        SaintVenantKirchoff as SaintVenantKirchoff3,
                         Thermohyperelastic
                     },
                 },
@@ -25,9 +32,35 @@ mod public
             mechanics::DeformationGradient
         };
         #[test]
+        fn arruda_boyce()
+        {
+            let model = ArrudaBoyce::new(&[13.0, 3.0, 8.0]);
+            let mut deformation_gradient = DeformationGradient::zero();
+            deformation_gradient[0][0] = 8.0;
+            (1..3).for_each(|i| deformation_gradient[i][i] = 1.0 / deformation_gradient[0][0].sqrt());
+            let result = model.calculate_helmholtz_free_energy_density(&deformation_gradient);
+            match result {
+                Ok(helmholtz_free_energy_density) => println!("{}", helmholtz_free_energy_density),
+                Err(why) => panic!("{}", why)
+            }
+        }
+        #[test]
+        fn gent()
+        {
+            let model = Gent::new(&[13.0, 3.0, 23.0]);
+            let mut deformation_gradient = DeformationGradient::zero();
+            deformation_gradient[0][0] = 8.0;
+            (1..3).for_each(|i| deformation_gradient[i][i] = 1.0 / deformation_gradient[0][0].sqrt());
+            let result = model.calculate_helmholtz_free_energy_density(&deformation_gradient);
+            match result {
+                Ok(helmholtz_free_energy_density) => println!("{}", helmholtz_free_energy_density),
+                Err(why) => panic!("{}", why)
+            }
+        }
+        #[test]
         fn saint_venant_kirchoff_1()
         {
-            let model = SaintVenantKirchoff1::new(&[1.0, 1.0, 1.0, 1.0]);
+            let model = SaintVenantKirchoff1::new(&[1.0, 1.0]);
             let mut deformation_gradient = DeformationGradient::zero();
             (0..3).for_each(|i| deformation_gradient[i][i] = -1.23);
             let result = model.calculate_helmholtz_free_energy_density(&deformation_gradient);
@@ -40,6 +73,18 @@ mod public
         fn saint_venant_kirchoff_2()
         {
             let model = SaintVenantKirchoff2::new(&[1.0, 1.0, 1.0, 1.0]);
+            let mut deformation_gradient = DeformationGradient::zero();
+            (0..3).for_each(|i| deformation_gradient[i][i] = -1.23);
+            let result = model.calculate_helmholtz_free_energy_density(&deformation_gradient);
+            match result {
+                Ok(helmholtz_free_energy_density) => println!("{}", helmholtz_free_energy_density),
+                Err(why) => panic!("{}", why)
+            }
+        }
+        #[test]
+        fn saint_venant_kirchoff_3()
+        {
+            let model = SaintVenantKirchoff3::new(&[1.0, 1.0, 1.0, 1.0]);
             let mut deformation_gradient = DeformationGradient::zero();
             (0..3).for_each(|i| deformation_gradient[i][i] = -1.23);
             let result = model.calculate_helmholtz_free_energy_density(&deformation_gradient, &123.0);

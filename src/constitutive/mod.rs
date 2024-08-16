@@ -19,13 +19,21 @@ use std::fmt;
 
 /// Possible errors encountered in constitutive models.
 pub enum ConstitutiveError<'a> {
+    Custom(String, &'a DeformationGradient, String),
     InvalidJacobianElastic(Scalar, &'a DeformationGradient, String),
     InvalidJacobianThermoelastic(Scalar, &'a DeformationGradient, &'a Scalar, String),
 }
 
+/// Display implementation for constitutive model errors.
 impl<'a> fmt::Display for ConstitutiveError<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let error = match self {
+            Self::Custom(message, deformation_gradient, model) => format!(
+                "{}\n\
+                 From deformation gradient: {}.\n\
+                 In constitutive model: {}.",
+                message, deformation_gradient, model
+            ),
             Self::InvalidJacobianElastic(jacobian, deformation_gradient, model) => format!(
                 "Invalid Jacobian: {:.6e}.\n\
                  From deformation gradient: {}.\n\
@@ -38,7 +46,7 @@ impl<'a> fmt::Display for ConstitutiveError<'a> {
                  For temperature: {:.6e}.\n\
                  In constitutive model: {}.",
                 jacobian, deformation_gradient, temperature, model
-            )
+            ),
         };
         write!(f, "\x1b[91m{}\n\x1b[0;2;31m{}\x1b[0m\n", error, get_error_message())
     }

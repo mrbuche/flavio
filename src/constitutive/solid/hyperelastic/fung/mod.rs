@@ -19,6 +19,7 @@ use super::*;
 ///
 /// **Notes**
 /// - The Fung model reduces to the [Neo-Hookean model](NeoHookean) when $`\mu_m\to 0`$ or $`a\to 0`$.
+#[derive(Debug)]
 pub struct Fung<'a>
 {
     parameters: Parameters<'a>
@@ -103,10 +104,14 @@ impl<'a> Hyperelastic<'a> for Fung<'a>
     /// ```math
     /// a(\mathbf{F}) = \frac{\mu - \mu_m}{2}\left[\mathrm{tr}(\mathbf{B}^* ) - 3\right] + \frac{\mu_m}{2a}\left(e^{a[\mathrm{tr}(\mathbf{B}^* ) - 3]} - 1\right)
     /// ```
-    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar
+    fn calculate_helmholtz_free_energy_density(&'a self, deformation_gradient: &'a DeformationGradient) -> Result<Scalar, ConstitutiveError>
     {
         let jacobian = deformation_gradient.determinant();
-        let scalar_term = self.calculate_left_cauchy_green_deformation(deformation_gradient).trace()/jacobian.powf(TWO_THIRDS) - 3.0;
-        0.5*((self.get_shear_modulus() - self.get_extra_modulus())*scalar_term + self.get_extra_modulus()/self.get_exponent()*((self.get_exponent()*scalar_term).exp() - 1.0) + self.get_bulk_modulus()*(0.5*(jacobian.powi(2) - 1.0) - jacobian.ln()))
+        if jacobian > 0.0 {
+            let scalar_term = self.calculate_left_cauchy_green_deformation(deformation_gradient).trace()/jacobian.powf(TWO_THIRDS) - 3.0;
+            Ok(0.5*((self.get_shear_modulus() - self.get_extra_modulus())*scalar_term + self.get_extra_modulus()/self.get_exponent()*((self.get_exponent()*scalar_term).exp() - 1.0) + self.get_bulk_modulus()*(0.5*(jacobian.powi(2) - 1.0) - jacobian.ln())))
+        } else {
+            Err(ConstitutiveError::InvalidJacobianElastic(jacobian, deformation_gradient, format!("{:?}", &self)))
+        }
     }
 }
