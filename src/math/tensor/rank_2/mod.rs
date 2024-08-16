@@ -52,7 +52,7 @@ impl<const D: usize, const I: usize, const J: usize> fmt::Display for TensorRank
                 write!(f, "{:>11.6e}, ", entry).unwrap()
             );
             if i + 1 < D {
-                write!(f, "\x1B[2D],\n").unwrap();
+                writeln!(f, "\x1B[2D],").unwrap();
                 write!(f, "\x1B[u").unwrap();
                 write!(f, "\x1B[{}B[ ", i + 1).unwrap();
             }

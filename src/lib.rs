@@ -29,7 +29,7 @@ pub const EPSILON: f64 = 1e-6;
 fn get_error_message<'a>() -> &'a str {
     let now = format!("{:?}", std::time::SystemTime::now());
     let length = now.as_bytes().len();
-    let number = std::str::from_utf8(&now.as_bytes()[length - 3.. length - 2]).unwrap().parse::<u8>().unwrap();
+    let number = &now[length - 3.. length - 2].parse::<u8>().unwrap();
     match number {
         0 => "I am Error.",
         1 => "Game over.",
