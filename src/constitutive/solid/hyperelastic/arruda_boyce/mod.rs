@@ -70,6 +70,9 @@ impl<'a> Elastic<'a> for ArrudaBoyce<'a> {
         let gamma =
             (isochoric_left_cauchy_green_deformation_trace / 3.0 / self.get_number_of_links())
                 .sqrt();
+        if gamma >= 1.0 {
+            panic!("Maximum extensibility reached.")
+        }
         let gamma_0 = (1.0 / self.get_number_of_links()).sqrt();
         deviatoric_isochoric_left_cauchy_green_deformation
             * (self.get_shear_modulus() * inverse_langevin(gamma) / inverse_langevin(gamma_0)
@@ -99,6 +102,9 @@ impl<'a> Elastic<'a> for ArrudaBoyce<'a> {
         let gamma =
             (isochoric_left_cauchy_green_deformation_trace / 3.0 / self.get_number_of_links())
                 .sqrt();
+        if gamma >= 1.0 {
+            panic!("Maximum extensibility reached.")
+        }
         let gamma_0 = (1.0 / self.get_number_of_links()).sqrt();
         let eta = inverse_langevin(gamma);
         let scaled_shear_modulus =

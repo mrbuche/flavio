@@ -67,7 +67,7 @@ impl<'a> Elastic<'a> for Gent<'a> {
         let denominator =
             self.get_extensibility() - isochoric_left_cauchy_green_deformation_trace + 3.0;
         if denominator < 0.0 {
-            panic!()
+            panic!("Maximum extensibility reached.")
         }
         (deviatoric_isochoric_left_cauchy_green_deformation
             * self.get_shear_modulus()
@@ -97,7 +97,7 @@ impl<'a> Elastic<'a> for Gent<'a> {
         let denominator =
             self.get_extensibility() - isochoric_left_cauchy_green_deformation_trace + 3.0;
         if denominator < 0.0 {
-            panic!()
+            panic!("Maximum extensibility reached.")
         }
         let prefactor =
             self.get_shear_modulus() * self.get_extensibility() / jacobian / denominator;
