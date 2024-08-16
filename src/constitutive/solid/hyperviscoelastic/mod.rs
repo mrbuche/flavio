@@ -44,18 +44,5 @@ where
     /// ```math
     /// a = a(\mathbf{F})
     /// ```
-    fn calculate_helmholtz_free_energy_density(&'a self, deformation_gradient: &'a DeformationGradient) -> Result<Scalar, ConstitutiveError>
-    {
-        let jacobian = deformation_gradient.determinant();
-        if jacobian > 0.0 {
-            Ok(self.calculate_helmholtz_free_energy_density_inner(deformation_gradient))
-        } else {
-            Err(ConstitutiveError::InvalidJacobian(jacobian, deformation_gradient, format!("{:?}", &self)))
-        }
-    }
-    #[doc(hidden)]
-    fn calculate_helmholtz_free_energy_density_inner(&self, deformation_gradient: &DeformationGradient) -> Scalar;
-
-    this is good but you lost the docstring in SVK!
-
+    fn calculate_helmholtz_free_energy_density(&'a self, deformation_gradient: &'a DeformationGradient) -> Result<Scalar, ConstitutiveError>;
 }
