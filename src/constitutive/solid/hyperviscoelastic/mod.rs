@@ -55,4 +55,7 @@ where
     }
     #[doc(hidden)]
     fn calculate_helmholtz_free_energy_density_inner(&self, deformation_gradient: &DeformationGradient) -> Scalar;
+
+    this is good but you lost the docstring in SVK!
+
 }
