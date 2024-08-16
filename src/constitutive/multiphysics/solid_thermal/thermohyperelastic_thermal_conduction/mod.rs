@@ -19,6 +19,7 @@ use crate::mechanics::
 use super::*;
 
 /// A thermohyperelastic-thermal conduction constitutive model.
+#[derive(Debug)]
 pub struct ThermohyperelasticThermalConduction<C1, C2>
 {
     thermohyperelastic_constitutive_model: C1,
@@ -97,7 +98,7 @@ where
     C1: Thermohyperelastic<'a>,
     C2: ThermalConduction<'a>
 {
-    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient, temperature: &Scalar) -> Scalar
+    fn calculate_helmholtz_free_energy_density(&'a self, deformation_gradient: &'a DeformationGradient, temperature: &'a Scalar) -> Result<Scalar, ConstitutiveError>
     {
         self.get_solid_constitutive_model().calculate_helmholtz_free_energy_density(deformation_gradient, temperature)
     }

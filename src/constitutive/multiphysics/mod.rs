@@ -12,6 +12,7 @@ pub use solid_thermal::
 use super::
 {
     Constitutive,
+    ConstitutiveError,
     Parameters,
     solid::
     {
