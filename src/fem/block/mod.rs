@@ -4,15 +4,83 @@ mod test;
 pub mod element;
 
 use self::element::{
-    ElasticFiniteElement, ElasticHyperviscousFiniteElement, FiniteElement,
+    ElasticFiniteElement, ElasticHyperviscousFiniteElement, FiniteElement, FiniteElementError,
     HyperelasticFiniteElement, HyperviscoelasticFiniteElement, SurfaceElement,
     ViscoelasticFiniteElement,
 };
 use super::*;
-use std::array::from_fn;
+use std::{array::from_fn, fmt};
 
-pub enum FiniteElementBlockError<'a> {
-    InvalidJacobianElastic(Scalar, &'a DeformationGradient, String),
+#[derive(Debug)]
+pub enum FiniteElementBlockError {
+    Custom(String, DeformationGradient, String),
+    InvalidJacobianElastic(Scalar, DeformationGradient, String),
+    InvalidJacobianThermoelastic(Scalar, DeformationGradient, Scalar, String),
+}
+
+impl From<FiniteElementError> for FiniteElementBlockError {
+    fn from(finite_element_error: FiniteElementError) -> Self {
+        match finite_element_error {
+            FiniteElementError::Custom(message, deformation_gradient, constitutive_model) => {
+                Self::Custom(message, deformation_gradient, constitutive_model)
+            }
+            FiniteElementError::InvalidJacobianElastic(
+                jacobian,
+                deformation_gradient,
+                constitutive_model,
+            ) => Self::InvalidJacobianElastic(jacobian, deformation_gradient, constitutive_model),
+            FiniteElementError::InvalidJacobianThermoelastic(
+                jacobian,
+                deformation_gradient,
+                temperature,
+                constitutive_model,
+            ) => Self::InvalidJacobianThermoelastic(
+                jacobian,
+                deformation_gradient,
+                temperature,
+                constitutive_model,
+            ),
+        }
+    }
+}
+
+impl fmt::Display for FiniteElementBlockError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let error = match self {
+            Self::Custom(message, deformation_gradient, constitutive_model) => format!(
+                "{}\n\
+                 From deformation gradient: {}.\n\
+                 In constitutive model: {}.",
+                message, deformation_gradient, constitutive_model
+            ),
+            Self::InvalidJacobianElastic(jacobian, deformation_gradient, constitutive_model) => {
+                format!(
+                    "Invalid Jacobian: {:.6e}.\n\
+                 From deformation gradient: {}.\n\
+                 In constitutive model: {}.",
+                    jacobian, deformation_gradient, constitutive_model
+                )
+            }
+            Self::InvalidJacobianThermoelastic(
+                jacobian,
+                deformation_gradient,
+                temperature,
+                constitutive_model,
+            ) => format!(
+                "Invalid Jacobian: {:.6e}.\n\
+                 From deformation gradient: {}.\n\
+                 For temperature: {:.6e}.\n\
+                 In constitutive model: {}.",
+                jacobian, deformation_gradient, temperature, constitutive_model
+            ),
+        };
+        write!(
+            f,
+            "\x1b[91m{}\n\x1b[0;2;31m{}\x1b[0m\n",
+            error,
+            get_error_message()
+        )
+    }
 }
 
 pub struct ElasticBlock<const D: usize, const E: usize, F, const G: usize, const N: usize> {
@@ -320,16 +388,16 @@ where
     Self: ElasticFiniteElementBlock<'a, C, D, E, F, G, N>,
 {
     fn calculate_helmholtz_free_energy(&self) -> Result<Scalar, FiniteElementBlockError> {
-        // self.get_elements().iter()
-        // .zip(self.get_connectivity().iter())
-        // .map(|(element, element_connectivity)|
-        //     element.calculate_helmholtz_free_energy(
-        //         &self.calculate_nodal_coordinates_element(
-        //             element_connectivity
-        //         )
-        //     )
-        // ).sum()
-        todo!()
+        Ok(self
+            .get_elements()
+            .iter()
+            .zip(self.get_connectivity().iter())
+            .map(|(element, element_connectivity)| {
+                element.calculate_helmholtz_free_energy(
+                    &self.calculate_nodal_coordinates_element(element_connectivity),
+                )
+            })
+            .sum::<Result<Scalar, FiniteElementError>>()?)
     }
 }
 
@@ -529,15 +597,15 @@ where
     Self: ElasticHyperviscousFiniteElementBlock<'a, C, D, E, F, G, N>,
 {
     fn calculate_helmholtz_free_energy(&self) -> Result<Scalar, FiniteElementBlockError> {
-        // self.get_elements().iter()
-        // .zip(self.get_connectivity().iter())
-        // .map(|(element, element_connectivity)|
-        //     element.calculate_helmholtz_free_energy(
-        //         &self.calculate_nodal_coordinates_element(
-        //             element_connectivity
-        //         )
-        //     )
-        // ).sum()
-        todo!()
+        Ok(self
+            .get_elements()
+            .iter()
+            .zip(self.get_connectivity().iter())
+            .map(|(element, element_connectivity)| {
+                element.calculate_helmholtz_free_energy(
+                    &self.calculate_nodal_coordinates_element(element_connectivity),
+                )
+            })
+            .sum::<Result<Scalar, FiniteElementError>>()?)
     }
 }

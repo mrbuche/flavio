@@ -37,29 +37,31 @@ pub enum ConstitutiveError {
 impl fmt::Display for ConstitutiveError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let error = match self {
-            Self::Custom(message, deformation_gradient, model) => format!(
+            Self::Custom(message, deformation_gradient, constitutive_model) => format!(
                 "{}\n\
                  From deformation gradient: {}.\n\
                  In constitutive model: {}.",
-                message, deformation_gradient, model
+                message, deformation_gradient, constitutive_model
             ),
-            Self::InvalidJacobianElastic(jacobian, deformation_gradient, model) => format!(
-                "Invalid Jacobian: {:.6e}.\n\
+            Self::InvalidJacobianElastic(jacobian, deformation_gradient, constitutive_model) => {
+                format!(
+                    "Invalid Jacobian: {:.6e}.\n\
                  From deformation gradient: {}.\n\
                  In constitutive model: {}.",
-                jacobian, deformation_gradient, model
-            ),
+                    jacobian, deformation_gradient, constitutive_model
+                )
+            }
             Self::InvalidJacobianThermoelastic(
                 jacobian,
                 deformation_gradient,
                 temperature,
-                model,
+                constitutive_model,
             ) => format!(
                 "Invalid Jacobian: {:.6e}.\n\
                  From deformation gradient: {}.\n\
                  For temperature: {:.6e}.\n\
                  In constitutive model: {}.",
-                jacobian, deformation_gradient, temperature, model
+                jacobian, deformation_gradient, temperature, constitutive_model
             ),
         };
         write!(

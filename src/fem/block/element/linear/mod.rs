@@ -120,11 +120,12 @@ pub trait HyperelasticLinearElement<
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
     ) -> Result<Scalar, FiniteElementError> {
-        // self.get_constitutive_model()
-        // .calculate_helmholtz_free_energy_density(
-        //     &self.calculate_deformation_gradient(nodal_coordinates)
-        // ) * self.get_integration_weight()
-        todo!()
+        Ok(self
+            .get_constitutive_model()
+            .calculate_helmholtz_free_energy_density(
+                &self.calculate_deformation_gradient(nodal_coordinates),
+            )?
+            * self.get_integration_weight())
     }
 }
 
@@ -238,10 +239,11 @@ pub trait HyperviscoelasticLinearElement<
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
     ) -> Result<Scalar, FiniteElementError> {
-        // self.get_constitutive_model()
-        // .calculate_helmholtz_free_energy_density(
-        //     &self.calculate_deformation_gradient(nodal_coordinates)
-        // ) * self.get_integration_weight()
-        todo!()
+        Ok(self
+            .get_constitutive_model()
+            .calculate_helmholtz_free_energy_density(
+                &self.calculate_deformation_gradient(nodal_coordinates),
+            )?
+            * self.get_integration_weight())
     }
 }

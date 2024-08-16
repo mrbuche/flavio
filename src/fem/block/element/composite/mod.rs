@@ -221,13 +221,23 @@ pub trait HyperelasticCompositeElement<
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
     ) -> Result<Scalar, FiniteElementError> {
-        // self.get_constitutive_models().iter()
-        // .zip(self.calculate_deformation_gradients(nodal_coordinates).iter()
-        // .zip(self.get_integration_weights().iter()))
-        // .map(|(constitutive_model, (deformation_gradient, scaled_composite_jacobian))|
-        //     constitutive_model.calculate_helmholtz_free_energy_density(deformation_gradient) * scaled_composite_jacobian
-        // ).sum()
-        todo!()
+        Ok(self
+            .get_constitutive_models()
+            .iter()
+            .zip(
+                self.calculate_deformation_gradients(nodal_coordinates)
+                    .iter()
+                    .zip(self.get_integration_weights().iter()),
+            )
+            .map(
+                |(constitutive_model, (deformation_gradient, scaled_composite_jacobian))| {
+                    constitutive_model
+                        .calculate_helmholtz_free_energy_density(deformation_gradient)
+                        .expect("NEED TO HANDLE THIS PROPERLY")
+                        * scaled_composite_jacobian
+                },
+            )
+            .sum())
     }
 }
 
@@ -454,12 +464,22 @@ pub trait HyperviscoelasticCompositeElement<
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
     ) -> Result<Scalar, FiniteElementError> {
-        // self.get_constitutive_models().iter()
-        // .zip(self.calculate_deformation_gradients(nodal_coordinates).iter()
-        // .zip(self.get_integration_weights().iter()))
-        // .map(|(constitutive_model, (deformation_gradient, scaled_composite_jacobian))|
-        //     constitutive_model.calculate_helmholtz_free_energy_density(deformation_gradient) * scaled_composite_jacobian
-        // ).sum()
-        todo!()
+        Ok(self
+            .get_constitutive_models()
+            .iter()
+            .zip(
+                self.calculate_deformation_gradients(nodal_coordinates)
+                    .iter()
+                    .zip(self.get_integration_weights().iter()),
+            )
+            .map(
+                |(constitutive_model, (deformation_gradient, scaled_composite_jacobian))| {
+                    constitutive_model
+                        .calculate_helmholtz_free_energy_density(deformation_gradient)
+                        .expect("NEED TO HANDLE THIS PROPERLY")
+                        * scaled_composite_jacobian
+                },
+            )
+            .sum())
     }
 }
