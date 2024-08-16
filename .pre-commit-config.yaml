@@ -19,6 +19,6 @@ repos:
         args: ['--features', 'constitutive', '--', '-D',  'warnings']
         name: cargo clippy constitutive
     -   id: clippy
-        args: ['--features', 'fem']
+        args: ['--features', 'fem', '--', '-D',  'warnings']
         name: cargo clippy fem
     -   id: fmt
