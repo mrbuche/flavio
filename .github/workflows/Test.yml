@@ -21,9 +21,11 @@ jobs:
       - name: Toolchain
         uses: actions-rs/toolchain@v1
         with:
-          components: clippy
+          components: clippy, rustfmt
           default: true
           toolchain: ${{ matrix.toolchain }}
+      - name: Format
+        run: cargo fmt --all -- --check
       - name: Lint math
         run: cargo clippy --release --features math -- -D warnings
       - name: Lint mechanics
