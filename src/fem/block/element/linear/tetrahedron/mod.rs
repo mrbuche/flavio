@@ -91,7 +91,7 @@ impl<'a, C> HyperelasticFiniteElement<'a, C, G, N> for Tetrahedron<C>
 where
     C: Hyperelastic<'a>
 {
-    fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
+    fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Result<Scalar, FiniteElementError>
     {
         self.calculate_helmholtz_free_energy_linear_element(nodal_coordinates)
     }
@@ -138,7 +138,7 @@ impl<'a, C> HyperviscoelasticFiniteElement<'a, C, G, N> for Tetrahedron<C>
 where
     C: Hyperviscoelastic<'a>
 {
-    fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
+    fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Result<Scalar, FiniteElementError>
     {
         self.calculate_helmholtz_free_energy_linear_element(nodal_coordinates)
     }

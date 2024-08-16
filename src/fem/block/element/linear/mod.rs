@@ -77,12 +77,13 @@ where
     C: Hyperelastic<'a>,
     Self: ElasticLinearElement<'a, C, G, M, N, O>
 {
-    fn calculate_helmholtz_free_energy_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
+    fn calculate_helmholtz_free_energy_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> Result<Scalar, FiniteElementError>
     {
-        self.get_constitutive_model()
-        .calculate_helmholtz_free_energy_density(
-            &self.calculate_deformation_gradient(nodal_coordinates)
-        ) * self.get_integration_weight()
+        // self.get_constitutive_model()
+        // .calculate_helmholtz_free_energy_density(
+        //     &self.calculate_deformation_gradient(nodal_coordinates)
+        // ) * self.get_integration_weight()
+        todo!()
     }
 }
 
@@ -152,11 +153,12 @@ where
     C: Hyperviscoelastic<'a>,
     Self: ElasticHyperviscousLinearElement<'a, C, G, M, N, O>
 {
-    fn calculate_helmholtz_free_energy_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar
+    fn calculate_helmholtz_free_energy_linear_element(&self, nodal_coordinates: &NodalCoordinates<N>) -> Result<Scalar, FiniteElementError>
     {
-        self.get_constitutive_model()
-        .calculate_helmholtz_free_energy_density(
-            &self.calculate_deformation_gradient(nodal_coordinates)
-        ) * self.get_integration_weight()
+        // self.get_constitutive_model()
+        // .calculate_helmholtz_free_energy_density(
+        //     &self.calculate_deformation_gradient(nodal_coordinates)
+        // ) * self.get_integration_weight()
+        todo!()
     }
 }

@@ -6,6 +6,10 @@ pub mod linear;
 
 use super::*;
 
+pub enum FiniteElementError<'a> {
+    InvalidJacobianElastic(Scalar, &'a DeformationGradient, String),
+}
+
 pub trait FiniteElement<'a, C, const G: usize, const N: usize>
 where
     C: Constitutive<'a>
@@ -42,7 +46,7 @@ where
     C: Hyperelastic<'a>,
     Self: ElasticFiniteElement<'a, C, G, N>
 {
-    fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar;
+    fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Result<Scalar, FiniteElementError>;
 }
 
 pub trait ViscoelasticFiniteElement<'a, C, const G: usize, const N: usize>
@@ -67,5 +71,5 @@ where
     C: Hyperviscoelastic<'a>,
     Self: ElasticHyperviscousFiniteElement<'a, C, G, N>
 {
-    fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar;
+    fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Result<Scalar, FiniteElementError>;
 }

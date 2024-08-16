@@ -16,6 +16,10 @@ use self::element::
 };
 use std::array::from_fn;
 
+pub enum FiniteElementBlockError<'a> {
+    InvalidJacobianElastic(Scalar, &'a DeformationGradient, String),
+}
+
 pub struct ElasticBlock<const D: usize, const E: usize, F, const G: usize, const N: usize>
 {
     connectivity: Connectivity<E, N>,
@@ -75,7 +79,7 @@ where
     F: HyperelasticFiniteElement<'a, C, G, N>,
     Self: ElasticFiniteElementBlock<'a, C, D, E, F, G, N>
 {
-    fn calculate_helmholtz_free_energy(&self) -> Scalar;
+    fn calculate_helmholtz_free_energy(&self) -> Result<Scalar, FiniteElementBlockError>;
 }
 
 pub trait ViscoelasticFiniteElementBlock<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
@@ -106,7 +110,7 @@ where
     F: HyperviscoelasticFiniteElement<'a, C, G, N>,
     Self: ElasticHyperviscousFiniteElementBlock<'a, C, D, E, F, G, N>
 {
-    fn calculate_helmholtz_free_energy(&self) -> Scalar;
+    fn calculate_helmholtz_free_energy(&self) -> Result<Scalar, FiniteElementBlockError>;
 }
 
 impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
@@ -255,17 +259,18 @@ where
     F: HyperelasticFiniteElement<'a, C, G, N>,
     Self: ElasticFiniteElementBlock<'a, C, D, E, F, G, N>
 {
-    fn calculate_helmholtz_free_energy(&self) -> Scalar
+    fn calculate_helmholtz_free_energy(&self) -> Result<Scalar, FiniteElementBlockError>
     {
-        self.get_elements().iter()
-        .zip(self.get_connectivity().iter())
-        .map(|(element, element_connectivity)|
-            element.calculate_helmholtz_free_energy(
-                &self.calculate_nodal_coordinates_element(
-                    element_connectivity
-                )
-            )
-        ).sum()
+        // self.get_elements().iter()
+        // .zip(self.get_connectivity().iter())
+        // .map(|(element, element_connectivity)|
+        //     element.calculate_helmholtz_free_energy(
+        //         &self.calculate_nodal_coordinates_element(
+        //             element_connectivity
+        //         )
+        //     )
+        // ).sum()
+        todo!()
     }
 }
 
@@ -479,16 +484,17 @@ where
     F: HyperviscoelasticFiniteElement<'a, C, G, N>,
     Self: ElasticHyperviscousFiniteElementBlock<'a, C, D, E, F, G, N>
 {
-    fn calculate_helmholtz_free_energy(&self) -> Scalar
+    fn calculate_helmholtz_free_energy(&self) -> Result<Scalar, FiniteElementBlockError>
     {
-        self.get_elements().iter()
-        .zip(self.get_connectivity().iter())
-        .map(|(element, element_connectivity)|
-            element.calculate_helmholtz_free_energy(
-                &self.calculate_nodal_coordinates_element(
-                    element_connectivity
-                )
-            )
-        ).sum()
+        // self.get_elements().iter()
+        // .zip(self.get_connectivity().iter())
+        // .map(|(element, element_connectivity)|
+        //     element.calculate_helmholtz_free_energy(
+        //         &self.calculate_nodal_coordinates_element(
+        //             element_connectivity
+        //         )
+        //     )
+        // ).sum()
+        todo!()
     }
 }
