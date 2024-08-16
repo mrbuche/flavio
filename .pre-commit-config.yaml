@@ -22,5 +22,3 @@ repos:
         args: ['--features', 'fem']
         name: cargo clippy fem
     -   id: fmt
-# what about fmt now?
-# if do, need to add to .github/workflows/ as a test
