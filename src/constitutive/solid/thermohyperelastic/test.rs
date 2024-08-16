@@ -11,7 +11,7 @@ macro_rules! calculate_helmholtz_free_energy_density_from_deformation_gradient_s
     {
         $constitutive_model_constructed.calculate_helmholtz_free_energy_density(
             $deformation_gradient, $constitutive_model_constructed.get_reference_temperature()
-        )
+        ).unwrap()
     }
 }
 pub(crate) use calculate_helmholtz_free_energy_density_from_deformation_gradient_simple;

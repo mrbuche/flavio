@@ -36,12 +36,13 @@ use std::fmt;
 /// A *d*-dimensional tensor of rank 2.
 ///
 /// `D` is the dimension, `I`, `J` are the configurations.
+#[derive(Debug)]
 pub struct TensorRank2<const D: usize, const I: usize, const J: usize>
 (
     pub [TensorRank1<D, J>; D]
 );
 
-/// ???
+/// Display implementation for rank-2 tensors.
 impl<const D: usize, const I: usize, const J: usize> fmt::Display for TensorRank2<D, I, J> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "\x1B[s")?;
@@ -64,6 +65,15 @@ impl<const D: usize, const I: usize, const J: usize> fmt::Display for TensorRank
 /// Inherent implementation of [`TensorRank2`].
 impl<const D: usize, const I: usize, const J: usize> TensorRank2<D, I, J>
 {
+    /// Returns a copy.
+    ///
+    /// This method was implemented instead of the Copy trait to avoid unintended copy creations.
+    pub fn copy(&self) -> Self
+    {
+        self.iter().map(|self_i|
+            self_i.iter().copied().collect()
+        ).collect()
+    }
     /// Returns an iterator.
     ///
     /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)

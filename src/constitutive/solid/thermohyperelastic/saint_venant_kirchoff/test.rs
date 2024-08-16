@@ -32,9 +32,9 @@ mod consistency
         let hyperelastic_model = HyperelasticSaintVenantKirchoff::new(HYPERELASTICSAINTVENANTKIRCHOFFPARAMETERS);
         assert!((model.calculate_helmholtz_free_energy_density(
                 &get_deformation_gradient(), &model.get_reference_temperature()
-            ) - hyperelastic_model.calculate_helmholtz_free_energy_density(
+            ).unwrap() - hyperelastic_model.calculate_helmholtz_free_energy_density(
                 &get_deformation_gradient()
-            )).abs() < ABS_TOL)
+            ).unwrap()).abs() < ABS_TOL)
     }
     #[test]
     fn cauchy_stress()

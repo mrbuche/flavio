@@ -12,3 +12,4 @@ repos:
 #     -   id: clippy
 #         args: ['--features', 'fem', '--release']
 # what about fmt now?
+# if do, need to add to .github/workflows/ as a test

@@ -22,5 +22,5 @@ where
     /// ```math
     /// a = a(\mathbf{F},T)
     /// ```
-    fn calculate_helmholtz_free_energy_density(&'a self, deformation_gradient: &'a DeformationGradient, temperature: &'a Scalar) -> Result<Scalar, ConstitutiveError>;
+    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient, temperature: &Scalar) -> Result<Scalar, ConstitutiveError>;
 }

@@ -27,6 +27,7 @@ use super::
 /// A *d*-dimensional tensor of rank 1.
 ///
 /// `D` is the dimension, `I` is the configuration.
+#[derive(Debug)]
 pub struct TensorRank1<const D: usize, const I: usize>
 (
     pub [TensorRank0; D]

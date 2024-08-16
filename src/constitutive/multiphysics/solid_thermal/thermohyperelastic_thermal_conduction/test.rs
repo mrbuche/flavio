@@ -28,11 +28,11 @@ macro_rules! test_thermohyperelastic_thermal_conduction_constitutive_model
                 get_thermoelastic_thermal_conduction_constitutive_model()
                 .calculate_helmholtz_free_energy_density(
                     &get_deformation_gradient(), &get_temperature()
-                ),
+                ).unwrap(),
                 get_thermoelastic_constitutive_model()
                 .calculate_helmholtz_free_energy_density(
                     &get_deformation_gradient(), &get_temperature()
-                )
+                ).unwrap()
             )
         }
     }

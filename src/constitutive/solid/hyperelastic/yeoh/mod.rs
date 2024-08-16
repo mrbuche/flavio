@@ -104,14 +104,14 @@ impl<'a> Hyperelastic<'a> for Yeoh<'a>
     /// ```math
     /// a(\mathbf{F}) = \sum_{n=1}^N \frac{\mu_n}{2}\left[\mathrm{tr}(\mathbf{B}^* ) - 3\right]^n + \frac{\kappa}{2}\left[\frac{1}{2}\left(J^2 - 1\right) - \ln J\right]
     /// ```
-    fn calculate_helmholtz_free_energy_density(&'a self, deformation_gradient: &'a DeformationGradient) -> Result<Scalar, ConstitutiveError>
+    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Result<Scalar, ConstitutiveError>
     {
         let jacobian = deformation_gradient.determinant();
         if jacobian > 0.0 {
             let scalar_term = self.calculate_left_cauchy_green_deformation(deformation_gradient).trace()/jacobian.powf(TWO_THIRDS) - 3.0;
             Ok(0.5*(self.get_moduli().iter().enumerate().map(|(n, modulus)| modulus*scalar_term.powi(<usize as TryInto<i32>>::try_into(n).unwrap() + 1)).sum::<Scalar>() + self.get_bulk_modulus()*(0.5*(jacobian.powi(2) - 1.0) - jacobian.ln())))
         } else {
-            Err(ConstitutiveError::InvalidJacobianElastic(jacobian, deformation_gradient, format!("{:?}", &self)))
+            Err(ConstitutiveError::InvalidJacobianElastic(jacobian, deformation_gradient * 1.0, format!("{:?}", &self)))
         }
     }
 }

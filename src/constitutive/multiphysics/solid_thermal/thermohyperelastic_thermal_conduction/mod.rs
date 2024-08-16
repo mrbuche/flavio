@@ -98,7 +98,7 @@ where
     C1: Thermohyperelastic<'a>,
     C2: ThermalConduction<'a>
 {
-    fn calculate_helmholtz_free_energy_density(&'a self, deformation_gradient: &'a DeformationGradient, temperature: &'a Scalar) -> Result<Scalar, ConstitutiveError>
+    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient, temperature: &Scalar) -> Result<Scalar, ConstitutiveError>
     {
         self.get_solid_constitutive_model().calculate_helmholtz_free_energy_density(deformation_gradient, temperature)
     }

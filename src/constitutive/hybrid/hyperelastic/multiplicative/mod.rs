@@ -29,10 +29,9 @@ impl<'a, C1: Hyperelastic<'a>, C2: Hyperelastic<'a>> Hyperelastic<'a> for Multip
     /// ```math
     /// a(\mathbf{F}) = a_1(\mathbf{F}_1) + a_2(\mathbf{F}_2)
     /// ```
-    fn calculate_helmholtz_free_energy_density(&'a self, deformation_gradient: &'a DeformationGradient) -> Result<Scalar, ConstitutiveError>
+    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Result<Scalar, ConstitutiveError>
     {
         let (deformation_gradient_1, deformation_gradient_2) = self.calculate_deformation_gradients(deformation_gradient);
-        // self.get_constitutive_model_1().calculate_helmholtz_free_energy_density(&deformation_gradient_1) + self.get_constitutive_model_2().calculate_helmholtz_free_energy_density(&deformation_gradient_2)
-        todo!()
+        Ok(self.get_constitutive_model_1().calculate_helmholtz_free_energy_density(&deformation_gradient_1)? + self.get_constitutive_model_2().calculate_helmholtz_free_energy_density(&deformation_gradient_2)?)
     }
 }

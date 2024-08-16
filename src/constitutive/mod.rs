@@ -28,14 +28,15 @@ pub trait Constitutive<'a>
 }
 
 /// Possible errors encountered in constitutive models.
-pub enum ConstitutiveError<'a> {
-    Custom(String, &'a DeformationGradient, String),
-    InvalidJacobianElastic(Scalar, &'a DeformationGradient, String),
-    InvalidJacobianThermoelastic(Scalar, &'a DeformationGradient, &'a Scalar, String),
+#[derive(Debug)]
+pub enum ConstitutiveError {
+    Custom(String, DeformationGradient, String),
+    InvalidJacobianElastic(Scalar, DeformationGradient, String),
+    InvalidJacobianThermoelastic(Scalar, DeformationGradient, Scalar, String),
 }
 
 /// Display implementation for constitutive model errors.
-impl<'a> fmt::Display for ConstitutiveError<'a> {
+impl fmt::Display for ConstitutiveError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let error = match self {
             Self::Custom(message, deformation_gradient, model) => format!(

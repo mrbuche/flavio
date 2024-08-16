@@ -107,18 +107,18 @@ impl<'a> Hyperelastic<'a> for Gent<'a>
     /// ```math
     /// a(\mathbf{F}) = -\frac{\mu J_m}{2}\,\ln\left[1 - \frac{\mathrm{tr}(\mathbf{B}^* ) - 3}{J_m}\right] + \frac{\kappa}{2}\left[\frac{1}{2}\left(J^2 - 1\right) - \ln J\right]
     /// ```
-    fn calculate_helmholtz_free_energy_density(&'a self, deformation_gradient: &'a DeformationGradient) -> Result<Scalar, ConstitutiveError>
+    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Result<Scalar, ConstitutiveError>
     {
         let jacobian = deformation_gradient.determinant();
         if jacobian > 0.0 {
             let factor = (self.calculate_left_cauchy_green_deformation(deformation_gradient).trace()/jacobian.powf(TWO_THIRDS) - 3.0)/self.get_extensibility();
             if factor >= 1.0 {
-                Err(ConstitutiveError::Custom(format!("Maximum extensibility reached."), deformation_gradient, format!("{:?}", &self)))
+                Err(ConstitutiveError::Custom(format!("Maximum extensibility reached."), deformation_gradient * 1.0, format!("{:?}", &self)))
             } else {
                 Ok(0.5*(-self.get_shear_modulus()*self.get_extensibility()*(1.0 - factor).ln() + self.get_bulk_modulus()*(0.5*(jacobian.powi(2) - 1.0) - jacobian.ln())))
             }
         } else {
-            Err(ConstitutiveError::InvalidJacobianElastic(jacobian, deformation_gradient, format!("{:?}", &self)))
+            Err(ConstitutiveError::InvalidJacobianElastic(jacobian, deformation_gradient * 1.0, format!("{:?}", &self)))
         }
     }
 }
