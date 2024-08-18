@@ -33,7 +33,7 @@ fn get_tensor_rank_1_list_2d() -> TensorRank1List2D<3, 1, 8, 2> {
 fn from_iter() {
     let into_iterator = get_tensor_rank_1_list_2d().0.into_iter();
     let tensor_rank_1_list_2d =
-        TensorRank1List2D::<3, 1, 8, 2>::from_iter(get_tensor_rank_1_list_2d().0.into_iter());
+        TensorRank1List2D::<3, 1, 8, 2>::from_iter(get_tensor_rank_1_list_2d().0);
     tensor_rank_1_list_2d
         .iter()
         .zip(into_iterator)

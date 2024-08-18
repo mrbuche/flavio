@@ -77,7 +77,7 @@ fn as_array() {
 fn from_iter() {
     let into_iterator = get_tensor_rank_4_list().0.into_iter();
     let tensor_rank_4_list =
-        TensorRank4List::<3, 1, 1, 1, 1, 2>::from_iter(get_tensor_rank_4_list().0.into_iter());
+        TensorRank4List::<3, 1, 1, 1, 1, 2>::from_iter(get_tensor_rank_4_list().0);
     tensor_rank_4_list
         .iter()
         .zip(into_iterator)

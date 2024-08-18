@@ -328,7 +328,7 @@ fn div_assign_tensor_rank_0_ref() {
 #[test]
 fn from_iter() {
     let into_iterator = get_tensor_rank_3().0.into_iter();
-    let tensor_rank_3 = TensorRank3::<4, 1, 1, 1>::from_iter(get_tensor_rank_3().0.into_iter());
+    let tensor_rank_3 = TensorRank3::<4, 1, 1, 1>::from_iter(get_tensor_rank_3().0);
     tensor_rank_3
         .iter()
         .zip(into_iterator)

@@ -605,7 +605,7 @@ fn dyad() {
 #[test]
 fn from_iter() {
     let into_iterator = get_tensor_rank_2_dim_4().0.into_iter();
-    let tensor_rank_2 = TensorRank2::<4, 1, 1>::from_iter(get_tensor_rank_2_dim_4().0.into_iter());
+    let tensor_rank_2 = TensorRank2::<4, 1, 1>::from_iter(get_tensor_rank_2_dim_4().0);
     tensor_rank_2
         .iter()
         .zip(into_iterator)
@@ -1302,12 +1302,12 @@ fn norm_dim_3() {
 
 #[test]
 fn norm_dim_4() {
-    assert_eq!(get_tensor_rank_2_dim_4().norm(), 14.282_856_857_085_700);
+    assert_eq!(get_tensor_rank_2_dim_4().norm(), 14.282_856_857_085_7);
 }
 
 #[test]
 fn norm_dim_9() {
-    assert_eq!(get_tensor_rank_2_dim_9().norm(), 20.976_176_963_403_030);
+    assert_eq!(get_tensor_rank_2_dim_9().norm(), 20.976_176_963_403_03);
 }
 
 #[test]

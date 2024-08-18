@@ -14,7 +14,7 @@ fn get_other_tensor_rank_0_list() -> TensorRank0List<4> {
 
 #[test]
 fn from_iter() {
-    let into_iterator = (0..8).map(|x| x as TensorRank0).into_iter();
+    let into_iterator = (0..8).map(|x| x as TensorRank0);
     let tensor_rank_0_list = TensorRank0List::<8>::from_iter(into_iterator.clone());
     tensor_rank_0_list
         .iter()

@@ -40,8 +40,7 @@ fn as_array() {
 #[test]
 fn from_iter() {
     let into_iterator = get_tensor_rank_2_list().0.into_iter();
-    let tensor_rank_2_list =
-        TensorRank2List::<3, 1, 1, 8>::from_iter(get_tensor_rank_2_list().0.into_iter());
+    let tensor_rank_2_list = TensorRank2List::<3, 1, 1, 8>::from_iter(get_tensor_rank_2_list().0);
     tensor_rank_2_list
         .iter()
         .zip(into_iterator)

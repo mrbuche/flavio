@@ -37,7 +37,7 @@ fn get_tensor_rank_3_list_2d() -> TensorRank3List2D<3, 1, 1, 1, 2, 2> {
 fn from_iter() {
     let into_iterator = get_tensor_rank_3_list_2d().0.into_iter();
     let tensor_rank_3_list_2d =
-        TensorRank3List2D::<3, 1, 1, 1, 2, 2>::from_iter(get_tensor_rank_3_list_2d().0.into_iter());
+        TensorRank3List2D::<3, 1, 1, 1, 2, 2>::from_iter(get_tensor_rank_3_list_2d().0);
     tensor_rank_3_list_2d.iter().zip(into_iterator).for_each(
         |(tensor_rank_3_list_2d_entry, array_entry)| {
             tensor_rank_3_list_2d_entry

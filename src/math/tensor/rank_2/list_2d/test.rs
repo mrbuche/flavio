@@ -65,7 +65,7 @@ fn as_array() {
 fn from_iter() {
     let into_iterator = get_tensor_rank_2_list_2d().0.into_iter();
     let tensor_rank_2_list_2d =
-        TensorRank2List2D::<3, 1, 1, 2, 2>::from_iter(get_tensor_rank_2_list_2d().0.into_iter());
+        TensorRank2List2D::<3, 1, 1, 2, 2>::from_iter(get_tensor_rank_2_list_2d().0);
     tensor_rank_2_list_2d.iter().zip(into_iterator).for_each(
         |(tensor_rank_2_list_2d_i, array_i)| {
             tensor_rank_2_list_2d_i.iter().zip(array_i.iter()).for_each(

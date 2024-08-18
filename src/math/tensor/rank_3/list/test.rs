@@ -105,7 +105,7 @@ fn add_assign_tensor_rank_3_list_ref() {
 fn from_iter() {
     let into_iterator = get_tensor_rank_3_list().0.into_iter();
     let tensor_rank_3_list =
-        TensorRank3List::<3, 1, 1, 1, 2>::from_iter(get_tensor_rank_3_list().0.into_iter());
+        TensorRank3List::<3, 1, 1, 1, 2>::from_iter(get_tensor_rank_3_list().0);
     tensor_rank_3_list
         .iter()
         .zip(into_iterator)

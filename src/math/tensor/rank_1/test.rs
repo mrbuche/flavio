@@ -170,7 +170,7 @@ fn div_assign_tensor_rank_0_ref() {
 
 #[test]
 fn from_iter() {
-    let into_iterator = (0..8).map(|x| x as TensorRank0).into_iter();
+    let into_iterator = (0..8).map(|x| x as TensorRank0);
     let tensor_rank_1 = TensorRank1::<8, 1>::from_iter(into_iterator.clone());
     tensor_rank_1
         .iter()

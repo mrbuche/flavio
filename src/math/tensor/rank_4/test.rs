@@ -886,7 +886,7 @@ fn dyad_il_kj() {
 #[test]
 fn from_iter() {
     let into_iterator = get_tensor_rank_4().0.into_iter();
-    let tensor_rank_4 = TensorRank4::<3, 1, 1, 1, 1>::from_iter(get_tensor_rank_4().0.into_iter());
+    let tensor_rank_4 = TensorRank4::<3, 1, 1, 1, 1>::from_iter(get_tensor_rank_4().0);
     tensor_rank_4
         .iter()
         .zip(into_iterator)

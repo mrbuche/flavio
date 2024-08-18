@@ -64,9 +64,8 @@ fn get_tensor_rank_3_list_3d() -> TensorRank3List3D<3, 1, 1, 1, 2, 2, 2> {
 #[test]
 fn from_iter() {
     let into_iterator = get_tensor_rank_3_list_3d().0.into_iter();
-    let tensor_rank_3_list_3d = TensorRank3List3D::<3, 1, 1, 1, 2, 2, 2>::from_iter(
-        get_tensor_rank_3_list_3d().0.into_iter(),
-    );
+    let tensor_rank_3_list_3d =
+        TensorRank3List3D::<3, 1, 1, 1, 2, 2, 2>::from_iter(get_tensor_rank_3_list_3d().0);
     tensor_rank_3_list_3d
         .iter()
         .zip(into_iterator)
