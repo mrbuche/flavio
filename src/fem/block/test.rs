@@ -417,6 +417,19 @@ macro_rules! test_helmholtz_free_energy {
                         })
                 }
                 #[test]
+                #[should_panic(expected = "Invalid Jacobian")]
+                fn invalid_jacobian() {
+                    let mut block = get_block();
+                    let mut deformation_gradient = DeformationGradient::identity();
+                    deformation_gradient[0][0] = 0.0;
+                    let coordinates_block = get_reference_coordinates_block()
+                        .iter()
+                        .map(|reference_coordinates| &deformation_gradient * reference_coordinates)
+                        .collect();
+                    block.set_nodal_coordinates(coordinates_block);
+                    let _ = block.calculate_helmholtz_free_energy();
+                }
+                #[test]
                 fn minimized() {
                     let mut block = get_block();
                     block.set_nodal_coordinates(get_coordinates_block());
