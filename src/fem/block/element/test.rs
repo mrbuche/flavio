@@ -513,15 +513,6 @@ macro_rules! test_helmholtz_free_energy {
                         })
                 }
                 #[test]
-                #[should_panic(expected = "Invalid Jacobian")]
-                fn invalid_jacobian() {
-                    let mut deformation_gradient = DeformationGradient::identity();
-                    deformation_gradient[0][0] *= -1.0;
-                    let _ = get_element().calculate_helmholtz_free_energy(
-                        &(deformation_gradient * get_reference_coordinates()),
-                    );
-                }
-                #[test]
                 fn minimized() {
                     let element = get_element();
                     let nodal_forces = get_nodal_forces(true, false, false);

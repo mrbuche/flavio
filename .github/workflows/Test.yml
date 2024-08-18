@@ -34,6 +34,8 @@ jobs:
         run: cargo clippy --release --features constitutive -- -D warnings
       - name: Lint fem
         run: cargo clippy --release --features fem -- -D warnings
+      - name: Lint tests
+        run: cargo clippy --release --features fem --tests -- -D warnings
       - name: Test math
         run: cargo test --release --features math
       - name: Test mechanics
