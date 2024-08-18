@@ -28,13 +28,19 @@ jobs:
         run: cargo fmt --all -- --check
       - name: Lint math
         run: cargo clippy --release --features math -- -D warnings
+      - name: Lint math tests
+        run: cargo clippy --release --features math --tests -- -D warnings
       - name: Lint mechanics
         run: cargo clippy --release --features mechanics -- -D warnings
+      - name: Lint mechanics tests
+        run: cargo clippy --release --features mechanics --tests -- -D warnings
       - name: Lint constitutive
         run: cargo clippy --release --features constitutive -- -D warnings
+      - name: Lint constitutive tests
+        run: cargo clippy --release --features constitutive --tests -- -D warnings
       - name: Lint fem
         run: cargo clippy --release --features fem -- -D warnings
-      - name: Lint tests
+      - name: Lint fem tests
         run: cargo clippy --release --features fem --tests -- -D warnings
       - name: Test math
         run: cargo test --release --features math
