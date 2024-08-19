@@ -4,6 +4,7 @@ use super::{
     TensorRank2Trait,
 };
 use crate::test::assert_eq_within_tols;
+use std::cmp::Ordering;
 
 fn get_array_dim_2() -> [[TensorRank0; 2]; 2] {
     [[1.0, 2.0], [3.0, 4.0]]
@@ -335,6 +336,7 @@ fn div_tensor_rank_0_to_self_ref() {
 }
 
 #[test]
+#[allow(clippy::op_ref)]
 fn div_tensor_rank_0_ref_to_self() {
     (get_tensor_rank_2_dim_4() / &3.3)
         .iter()
@@ -350,6 +352,7 @@ fn div_tensor_rank_0_ref_to_self() {
 }
 
 #[test]
+#[allow(clippy::op_ref)]
 fn div_tensor_rank_0_ref_to_self_ref() {
     (&get_tensor_rank_2_dim_4() / &3.3)
         .iter()
@@ -969,12 +972,10 @@ fn lu_decomposition() {
                 .iter()
                 .enumerate()
                 .zip(tensor_u_i.iter())
-                .for_each(|((j, tensor_l_ij), tensor_u_ij)| {
-                    if i > j {
-                        assert_eq!(tensor_u_ij, &0.0);
-                    } else if i < j {
-                        assert_eq!(tensor_l_ij, &0.0);
-                    }
+                .for_each(|((j, tensor_l_ij), tensor_u_ij)| match i.cmp(&j) {
+                    Ordering::Greater => assert_eq!(tensor_u_ij, &0.0),
+                    Ordering::Less => assert_eq!(tensor_l_ij, &0.0),
+                    Ordering::Equal => panic!(),
                 })
         });
 }
@@ -1010,6 +1011,7 @@ fn mul_tensor_rank_0_to_self_ref() {
 }
 
 #[test]
+#[allow(clippy::op_ref)]
 fn mul_tensor_rank_0_ref_to_self() {
     (get_tensor_rank_2_dim_4() * &3.3)
         .iter()
@@ -1025,6 +1027,7 @@ fn mul_tensor_rank_0_ref_to_self() {
 }
 
 #[test]
+#[allow(clippy::op_ref)]
 fn mul_tensor_rank_0_ref_to_self_ref() {
     (&get_tensor_rank_2_dim_4() * &3.3)
         .iter()

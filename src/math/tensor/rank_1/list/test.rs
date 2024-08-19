@@ -198,6 +198,7 @@ fn div_tensor_rank_0_to_self_ref() {
 }
 
 #[test]
+#[allow(clippy::op_ref)]
 fn div_tensor_rank_0_ref_to_self() {
     (get_tensor_rank_1_list() / &3.3)
         .iter()
@@ -213,6 +214,7 @@ fn div_tensor_rank_0_ref_to_self() {
 }
 
 #[test]
+#[allow(clippy::op_ref)]
 fn div_tensor_rank_0_ref_to_self_ref() {
     (&get_tensor_rank_1_list() / &3.3)
         .iter()
@@ -335,6 +337,7 @@ fn mul_tensor_rank_0_to_self_ref() {
 }
 
 #[test]
+#[allow(clippy::op_ref)]
 fn mul_tensor_rank_0_ref_to_self() {
     (get_tensor_rank_1_list() * &3.3)
         .iter()
@@ -350,6 +353,7 @@ fn mul_tensor_rank_0_ref_to_self() {
 }
 
 #[test]
+#[allow(clippy::op_ref)]
 fn mul_tensor_rank_0_ref_to_self_ref() {
     (&get_tensor_rank_1_list() * &3.3)
         .iter()
