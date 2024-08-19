@@ -57,7 +57,7 @@ where
         &self,
         deformation_gradient: &DeformationGradient,
         temperature: &Scalar,
-    ) -> CauchyTangentStiffness {
+    ) -> Result<CauchyTangentStiffness, ConstitutiveError> {
         self.get_solid_constitutive_model()
             .calculate_cauchy_tangent_stiffness(deformation_gradient, temperature)
     }
@@ -73,7 +73,7 @@ where
         &self,
         deformation_gradient: &DeformationGradient,
         temperature: &Scalar,
-    ) -> FirstPiolaKirchoffTangentStiffness {
+    ) -> Result<FirstPiolaKirchoffTangentStiffness, ConstitutiveError> {
         self.get_solid_constitutive_model()
             .calculate_first_piola_kirchoff_tangent_stiffness(deformation_gradient, temperature)
     }
@@ -89,7 +89,7 @@ where
         &self,
         deformation_gradient: &DeformationGradient,
         temperature: &Scalar,
-    ) -> SecondPiolaKirchoffTangentStiffness {
+    ) -> Result<SecondPiolaKirchoffTangentStiffness, ConstitutiveError> {
         self.get_solid_constitutive_model()
             .calculate_second_piola_kirchoff_tangent_stiffness(deformation_gradient, temperature)
     }

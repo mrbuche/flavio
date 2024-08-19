@@ -43,6 +43,7 @@ macro_rules! calculate_cauchy_tangent_stiffness_from_deformation_gradient {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
         $constitutive_model_constructed
             .calculate_cauchy_tangent_stiffness($deformation_gradient, &get_temperature())
+            .expect("the unexpected")
     };
 }
 pub(crate) use calculate_cauchy_tangent_stiffness_from_deformation_gradient;
@@ -79,20 +80,24 @@ pub(crate) use calculate_first_piola_kirchoff_stress_from_deformation_gradient_r
 
 macro_rules! calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
-        $constitutive_model_constructed.calculate_first_piola_kirchoff_tangent_stiffness(
-            $deformation_gradient,
-            &get_temperature(),
-        )
+        $constitutive_model_constructed
+            .calculate_first_piola_kirchoff_tangent_stiffness(
+                $deformation_gradient,
+                &get_temperature(),
+            )
+            .expect("the unexpected")
     };
 }
 pub(crate) use calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient;
 
 macro_rules! calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient_simple {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
-        $constitutive_model_constructed.calculate_first_piola_kirchoff_tangent_stiffness(
-            $deformation_gradient,
-            &$constitutive_model_constructed.get_reference_temperature(),
-        )
+        $constitutive_model_constructed
+            .calculate_first_piola_kirchoff_tangent_stiffness(
+                $deformation_gradient,
+                &$constitutive_model_constructed.get_reference_temperature(),
+            )
+            .expect("the unexpected")
     };
 }
 pub(crate) use calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient_simple;
@@ -129,10 +134,12 @@ pub(crate) use calculate_second_piola_kirchoff_stress_from_deformation_gradient_
 
 macro_rules! calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
-        $constitutive_model_constructed.calculate_second_piola_kirchoff_tangent_stiffness(
-            $deformation_gradient,
-            &get_temperature(),
-        )
+        $constitutive_model_constructed
+            .calculate_second_piola_kirchoff_tangent_stiffness(
+                $deformation_gradient,
+                &get_temperature(),
+            )
+            .expect("the unexpected")
     };
 }
 pub(crate) use calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient;

@@ -71,22 +71,33 @@ impl<'a> Elastic<'a> for NeoHookean<'a> {
     fn calculate_cauchy_tangent_stiffness(
         &self,
         deformation_gradient: &DeformationGradient,
-    ) -> CauchyTangentStiffness {
-        let (inverse_transpose_deformation_gradient, jacobian) =
-            deformation_gradient.inverse_transpose_and_determinant();
-        let scaled_shear_modulus = self.get_shear_modulus() / jacobian.powf(FIVE_THIRDS);
-        (CauchyTangentStiffness::dyad_ik_jl(&IDENTITY, deformation_gradient)
-            + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &IDENTITY)
-            - CauchyTangentStiffness::dyad_ij_kl(&IDENTITY, deformation_gradient) * (TWO_THIRDS))
-            * scaled_shear_modulus
-            + CauchyTangentStiffness::dyad_ij_kl(
-                &(IDENTITY * (0.5 * self.get_bulk_modulus() * (jacobian + 1.0 / jacobian))
-                    - self
-                        .calculate_left_cauchy_green_deformation(deformation_gradient)
-                        .deviatoric()
-                        * (scaled_shear_modulus * FIVE_THIRDS)),
-                &inverse_transpose_deformation_gradient,
+    ) -> Result<CauchyTangentStiffness, ConstitutiveError> {
+        let jacobian = deformation_gradient.determinant();
+        if jacobian > 0.0 {
+            let inverse_transpose_deformation_gradient = deformation_gradient.inverse_transpose();
+            let scaled_shear_modulus = self.get_shear_modulus() / jacobian.powf(FIVE_THIRDS);
+            Ok(
+                (CauchyTangentStiffness::dyad_ik_jl(&IDENTITY, deformation_gradient)
+                    + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &IDENTITY)
+                    - CauchyTangentStiffness::dyad_ij_kl(&IDENTITY, deformation_gradient)
+                        * (TWO_THIRDS))
+                    * scaled_shear_modulus
+                    + CauchyTangentStiffness::dyad_ij_kl(
+                        &(IDENTITY * (0.5 * self.get_bulk_modulus() * (jacobian + 1.0 / jacobian))
+                            - self
+                                .calculate_left_cauchy_green_deformation(deformation_gradient)
+                                .deviatoric()
+                                * (scaled_shear_modulus * FIVE_THIRDS)),
+                        &inverse_transpose_deformation_gradient,
+                    ),
             )
+        } else {
+            Err(ConstitutiveError::InvalidJacobian(
+                jacobian,
+                deformation_gradient.copy(),
+                format!("{:?}", &self),
+            ))
+        }
     }
 }
 

@@ -100,40 +100,52 @@ impl<'a> Elastic<'a> for Gent<'a> {
     fn calculate_cauchy_tangent_stiffness(
         &self,
         deformation_gradient: &DeformationGradient,
-    ) -> CauchyTangentStiffness {
-        let (inverse_transpose_deformation_gradient, jacobian) =
-            deformation_gradient.inverse_transpose_and_determinant();
-        let isochoric_left_cauchy_green_deformation = self
-            .calculate_left_cauchy_green_deformation(deformation_gradient)
-            / jacobian.powf(TWO_THIRDS);
-        let (
-            deviatoric_isochoric_left_cauchy_green_deformation,
-            isochoric_left_cauchy_green_deformation_trace,
-        ) = isochoric_left_cauchy_green_deformation.deviatoric_and_trace();
-        let denominator =
-            self.get_extensibility() - isochoric_left_cauchy_green_deformation_trace + 3.0;
-        if denominator <= 0.0 {
-            panic!("Maximum extensibility reached.")
-        }
-        let prefactor =
-            self.get_shear_modulus() * self.get_extensibility() / jacobian / denominator;
-        (CauchyTangentStiffness::dyad_ik_jl(&IDENTITY, deformation_gradient)
-            + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &IDENTITY)
-            - CauchyTangentStiffness::dyad_ij_kl(&IDENTITY, deformation_gradient) * (TWO_THIRDS)
-            + CauchyTangentStiffness::dyad_ij_kl(
-                &deviatoric_isochoric_left_cauchy_green_deformation,
-                deformation_gradient,
-            ) * (2.0 / denominator))
-            * (prefactor / jacobian.powf(TWO_THIRDS))
-            + CauchyTangentStiffness::dyad_ij_kl(
-                &(IDENTITY * (0.5 * self.get_bulk_modulus() * (jacobian + 1.0 / jacobian))
-                    - deviatoric_isochoric_left_cauchy_green_deformation
-                        * prefactor
-                        * ((5.0
-                            + 2.0 * isochoric_left_cauchy_green_deformation_trace / denominator)
-                            / 3.0)),
-                &inverse_transpose_deformation_gradient,
+    ) -> Result<CauchyTangentStiffness, ConstitutiveError> {
+        let jacobian = deformation_gradient.determinant();
+        if jacobian > 0.0 {
+            let inverse_transpose_deformation_gradient = deformation_gradient.inverse_transpose();
+            let isochoric_left_cauchy_green_deformation = self
+                .calculate_left_cauchy_green_deformation(deformation_gradient)
+                / jacobian.powf(TWO_THIRDS);
+            let (
+                deviatoric_isochoric_left_cauchy_green_deformation,
+                isochoric_left_cauchy_green_deformation_trace,
+            ) = isochoric_left_cauchy_green_deformation.deviatoric_and_trace();
+            let denominator =
+                self.get_extensibility() - isochoric_left_cauchy_green_deformation_trace + 3.0;
+            if denominator <= 0.0 {
+                panic!("Maximum extensibility reached.")
+            }
+            let prefactor =
+                self.get_shear_modulus() * self.get_extensibility() / jacobian / denominator;
+            Ok(
+                (CauchyTangentStiffness::dyad_ik_jl(&IDENTITY, deformation_gradient)
+                    + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &IDENTITY)
+                    - CauchyTangentStiffness::dyad_ij_kl(&IDENTITY, deformation_gradient)
+                        * (TWO_THIRDS)
+                    + CauchyTangentStiffness::dyad_ij_kl(
+                        &deviatoric_isochoric_left_cauchy_green_deformation,
+                        deformation_gradient,
+                    ) * (2.0 / denominator))
+                    * (prefactor / jacobian.powf(TWO_THIRDS))
+                    + CauchyTangentStiffness::dyad_ij_kl(
+                        &(IDENTITY * (0.5 * self.get_bulk_modulus() * (jacobian + 1.0 / jacobian))
+                            - deviatoric_isochoric_left_cauchy_green_deformation
+                                * prefactor
+                                * ((5.0
+                                    + 2.0 * isochoric_left_cauchy_green_deformation_trace
+                                        / denominator)
+                                    / 3.0)),
+                        &inverse_transpose_deformation_gradient,
+                    ),
             )
+        } else {
+            Err(ConstitutiveError::InvalidJacobian(
+                jacobian,
+                deformation_gradient.copy(),
+                format!("{:?}", &self),
+            ))
+        }
     }
 }
 

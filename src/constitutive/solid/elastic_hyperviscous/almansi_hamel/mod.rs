@@ -99,23 +99,31 @@ impl<'a> Viscoelastic<'a> for AlmansiHamel<'a> {
         &self,
         deformation_gradient: &DeformationGradient,
         _: &DeformationGradientRate,
-    ) -> CauchyRateTangentStiffness {
-        let (deformation_gradient_inverse_transpose, jacobian) =
-            deformation_gradient.inverse_transpose_and_determinant();
-        let scaled_deformation_gradient_inverse_transpose =
-            &deformation_gradient_inverse_transpose * self.get_shear_viscosity() / jacobian;
-        CauchyRateTangentStiffness::dyad_ik_jl(
-            &IDENTITY,
-            &scaled_deformation_gradient_inverse_transpose,
-        ) + CauchyRateTangentStiffness::dyad_il_jk(
-            &scaled_deformation_gradient_inverse_transpose,
-            &IDENTITY,
-        ) + CauchyRateTangentStiffness::dyad_ij_kl(
-            &(IDENTITY
-                * ((self.get_bulk_viscosity() - TWO_THIRDS * self.get_shear_viscosity())
-                    / jacobian)),
-            &deformation_gradient_inverse_transpose,
-        )
+    ) -> Result<CauchyRateTangentStiffness, ConstitutiveError> {
+        let jacobian = deformation_gradient.determinant();
+        if jacobian > 0.0 {
+            let deformation_gradient_inverse_transpose = deformation_gradient.inverse_transpose();
+            let scaled_deformation_gradient_inverse_transpose =
+                &deformation_gradient_inverse_transpose * self.get_shear_viscosity() / jacobian;
+            Ok(CauchyRateTangentStiffness::dyad_ik_jl(
+                &IDENTITY,
+                &scaled_deformation_gradient_inverse_transpose,
+            ) + CauchyRateTangentStiffness::dyad_il_jk(
+                &scaled_deformation_gradient_inverse_transpose,
+                &IDENTITY,
+            ) + CauchyRateTangentStiffness::dyad_ij_kl(
+                &(IDENTITY
+                    * ((self.get_bulk_viscosity() - TWO_THIRDS * self.get_shear_viscosity())
+                        / jacobian)),
+                &deformation_gradient_inverse_transpose,
+            ))
+        } else {
+            Err(ConstitutiveError::InvalidJacobian(
+                jacobian,
+                deformation_gradient.copy(),
+                format!("{:?}", &self),
+            ))
+        }
     }
 }
 

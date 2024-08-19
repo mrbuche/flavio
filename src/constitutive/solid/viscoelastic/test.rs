@@ -147,30 +147,36 @@ pub(crate) use calculate_second_piola_kirchoff_stress_from_deformation_gradient_
 
 macro_rules! calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr, $deformation_gradient_rate: expr) => {
-        $constitutive_model_constructed.calculate_cauchy_rate_tangent_stiffness(
-            $deformation_gradient,
-            $deformation_gradient_rate,
-        )
+        $constitutive_model_constructed
+            .calculate_cauchy_rate_tangent_stiffness(
+                $deformation_gradient,
+                $deformation_gradient_rate,
+            )
+            .expect("the unexpected")
     };
 }
 pub(crate) use calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate;
 
 macro_rules! calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr, $deformation_gradient_rate: expr) => {
-        $constitutive_model_constructed.calculate_first_piola_kirchoff_rate_tangent_stiffness(
-            $deformation_gradient,
-            $deformation_gradient_rate,
-        )
+        $constitutive_model_constructed
+            .calculate_first_piola_kirchoff_rate_tangent_stiffness(
+                $deformation_gradient,
+                $deformation_gradient_rate,
+            )
+            .expect("the unexpected")
     };
 }
 pub(crate) use calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate;
 
 macro_rules! calculate_second_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr, $deformation_gradient_rate: expr) => {
-        $constitutive_model_constructed.calculate_second_piola_kirchoff_rate_tangent_stiffness(
-            $deformation_gradient,
-            $deformation_gradient_rate,
-        )
+        $constitutive_model_constructed
+            .calculate_second_piola_kirchoff_rate_tangent_stiffness(
+                $deformation_gradient,
+                $deformation_gradient_rate,
+            )
+            .expect("the unexpected")
     };
 }
 pub(crate) use calculate_second_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate;

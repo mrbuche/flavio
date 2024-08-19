@@ -58,7 +58,7 @@ impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> Elastic<'a> for Multiplicative<C1, C2
     fn calculate_cauchy_tangent_stiffness(
         &self,
         _: &DeformationGradient,
-    ) -> CauchyTangentStiffness {
+    ) -> Result<CauchyTangentStiffness, ConstitutiveError> {
         panic!()
     }
     /// Calculates and returns the first Piola-Kirchoff stress.
@@ -83,7 +83,7 @@ impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> Elastic<'a> for Multiplicative<C1, C2
     fn calculate_first_piola_kirchoff_tangent_stiffness(
         &self,
         _: &DeformationGradient,
-    ) -> FirstPiolaKirchoffTangentStiffness {
+    ) -> Result<FirstPiolaKirchoffTangentStiffness, ConstitutiveError> {
         panic!()
     }
     /// Calculates and returns the second Piola-Kirchoff stress.
@@ -109,7 +109,7 @@ impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> Elastic<'a> for Multiplicative<C1, C2
     fn calculate_second_piola_kirchoff_tangent_stiffness(
         &self,
         _: &DeformationGradient,
-    ) -> SecondPiolaKirchoffTangentStiffness {
+    ) -> Result<SecondPiolaKirchoffTangentStiffness, ConstitutiveError> {
         panic!()
     }
 }

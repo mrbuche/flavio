@@ -87,7 +87,8 @@ macro_rules! test_hybrid_elastic_constitutive_models_no_tangents {
                     AlmansiHamel::new(ALMANSIHAMELPARAMETERS),
                     NeoHookean::new(NEOHOOKEANPARAMETERS),
                 )
-                .calculate_cauchy_tangent_stiffness(&get_deformation_gradient());
+                .calculate_cauchy_tangent_stiffness(&get_deformation_gradient())
+                .expect("the unexpected");
             }
             #[test]
             #[should_panic]
@@ -96,7 +97,8 @@ macro_rules! test_hybrid_elastic_constitutive_models_no_tangents {
                     AlmansiHamel::new(ALMANSIHAMELPARAMETERS),
                     NeoHookean::new(NEOHOOKEANPARAMETERS),
                 )
-                .calculate_cauchy_tangent_stiffness(&get_deformation_gradient());
+                .calculate_cauchy_tangent_stiffness(&get_deformation_gradient())
+                .expect("the unexpected");
             }
             #[test]
             #[should_panic]
@@ -105,7 +107,8 @@ macro_rules! test_hybrid_elastic_constitutive_models_no_tangents {
                     AlmansiHamel::new(ALMANSIHAMELPARAMETERS),
                     NeoHookean::new(NEOHOOKEANPARAMETERS),
                 )
-                .calculate_cauchy_tangent_stiffness(&get_deformation_gradient());
+                .calculate_cauchy_tangent_stiffness(&get_deformation_gradient())
+                .expect("the unexpected");
             }
         }
     };

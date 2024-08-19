@@ -31,7 +31,9 @@ pub(crate) use calculate_cauchy_stress_from_deformation_gradient_rotated;
 
 macro_rules! calculate_cauchy_tangent_stiffness_from_deformation_gradient {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
-        $constitutive_model_constructed.calculate_cauchy_tangent_stiffness($deformation_gradient)
+        $constitutive_model_constructed
+            .calculate_cauchy_tangent_stiffness($deformation_gradient)
+            .expect("the unexpected")
     };
 }
 pub(crate) use calculate_cauchy_tangent_stiffness_from_deformation_gradient;
@@ -67,6 +69,7 @@ macro_rules! calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_g
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
         $constitutive_model_constructed
             .calculate_first_piola_kirchoff_tangent_stiffness($deformation_gradient)
+            .expect("the unexpected")
     };
 }
 pub(crate) use calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient;
@@ -75,6 +78,7 @@ macro_rules! calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_g
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
         $constitutive_model_constructed
             .calculate_first_piola_kirchoff_tangent_stiffness($deformation_gradient)
+            .expect("the unexpected")
     };
 }
 pub(crate) use calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient_simple;
@@ -110,6 +114,7 @@ macro_rules! calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
         $constitutive_model_constructed
             .calculate_second_piola_kirchoff_tangent_stiffness($deformation_gradient)
+            .expect("the unexpected")
     };
 }
 pub(crate) use calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient;

@@ -47,15 +47,17 @@ where
         &self,
         deformation_gradient: &DeformationGradient,
         deformation_gradient_rate: &DeformationGradientRate,
-    ) -> CauchyRateTangentStiffness {
-        self.calculate_second_piola_kirchoff_rate_tangent_stiffness(
-            deformation_gradient,
-            deformation_gradient_rate,
-        )
-        .contract_first_second_indices_with_second_indices_of(
-            deformation_gradient,
-            deformation_gradient,
-        ) / deformation_gradient.determinant()
+    ) -> Result<CauchyRateTangentStiffness, ConstitutiveError> {
+        Ok(self
+            .calculate_second_piola_kirchoff_rate_tangent_stiffness(
+                deformation_gradient,
+                deformation_gradient_rate,
+            )?
+            .contract_first_second_indices_with_second_indices_of(
+                deformation_gradient,
+                deformation_gradient,
+            )
+            / deformation_gradient.determinant())
     }
     /// Calculates and returns the first Piola-Kirchoff stress.
     ///
@@ -82,13 +84,14 @@ where
         &self,
         deformation_gradient: &DeformationGradient,
         deformation_gradient_rate: &DeformationGradientRate,
-    ) -> FirstPiolaKirchoffRateTangentStiffness {
-        self.calculate_cauchy_rate_tangent_stiffness(
-            deformation_gradient,
-            deformation_gradient_rate,
-        )
-        .contract_second_index_with_first_index_of(&deformation_gradient.inverse_transpose())
-            * deformation_gradient.determinant()
+    ) -> Result<FirstPiolaKirchoffRateTangentStiffness, ConstitutiveError> {
+        Ok(self
+            .calculate_cauchy_rate_tangent_stiffness(
+                deformation_gradient,
+                deformation_gradient_rate,
+            )?
+            .contract_second_index_with_first_index_of(&deformation_gradient.inverse_transpose())
+            * deformation_gradient.determinant())
     }
     /// Calculates and returns the second Piola-Kirchoff stress.
     ///
@@ -114,15 +117,17 @@ where
         &self,
         deformation_gradient: &DeformationGradient,
         deformation_gradient_rate: &DeformationGradientRate,
-    ) -> SecondPiolaKirchoffRateTangentStiffness {
+    ) -> Result<SecondPiolaKirchoffRateTangentStiffness, ConstitutiveError> {
         let deformation_gradient_inverse = deformation_gradient.inverse();
-        self.calculate_cauchy_rate_tangent_stiffness(
-            deformation_gradient,
-            deformation_gradient_rate,
-        )
-        .contract_first_second_indices_with_second_indices_of(
-            &deformation_gradient_inverse,
-            &deformation_gradient_inverse,
-        ) * deformation_gradient.determinant()
+        Ok(self
+            .calculate_cauchy_rate_tangent_stiffness(
+                deformation_gradient,
+                deformation_gradient_rate,
+            )?
+            .contract_first_second_indices_with_second_indices_of(
+                &deformation_gradient_inverse,
+                &deformation_gradient_inverse,
+            )
+            * deformation_gradient.determinant())
     }
 }

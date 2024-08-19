@@ -75,19 +75,28 @@ impl<'a> Elastic<'a> for SaintVenantKirchoff<'a> {
     fn calculate_second_piola_kirchoff_tangent_stiffness(
         &self,
         deformation_gradient: &DeformationGradient,
-    ) -> SecondPiolaKirchoffTangentStiffness {
-        let scaled_deformation_gradient_transpose =
-            deformation_gradient.transpose() * self.get_shear_modulus();
-        SecondPiolaKirchoffTangentStiffness::dyad_ik_jl(
-            &scaled_deformation_gradient_transpose,
-            &IDENTITY_00,
-        ) + SecondPiolaKirchoffTangentStiffness::dyad_il_jk(
-            &IDENTITY_00,
-            &scaled_deformation_gradient_transpose,
-        ) + SecondPiolaKirchoffTangentStiffness::dyad_ij_kl(
-            &(IDENTITY_00 * (self.get_bulk_modulus() - TWO_THIRDS * self.get_shear_modulus())),
-            deformation_gradient,
-        )
+    ) -> Result<SecondPiolaKirchoffTangentStiffness, ConstitutiveError> {
+        let jacobian = deformation_gradient.determinant();
+        if jacobian > 0.0 {
+            let scaled_deformation_gradient_transpose =
+                deformation_gradient.transpose() * self.get_shear_modulus();
+            Ok(SecondPiolaKirchoffTangentStiffness::dyad_ik_jl(
+                &scaled_deformation_gradient_transpose,
+                &IDENTITY_00,
+            ) + SecondPiolaKirchoffTangentStiffness::dyad_il_jk(
+                &IDENTITY_00,
+                &scaled_deformation_gradient_transpose,
+            ) + SecondPiolaKirchoffTangentStiffness::dyad_ij_kl(
+                &(IDENTITY_00 * (self.get_bulk_modulus() - TWO_THIRDS * self.get_shear_modulus())),
+                deformation_gradient,
+            ))
+        } else {
+            Err(ConstitutiveError::InvalidJacobian(
+                jacobian,
+                deformation_gradient.copy(),
+                format!("{:?}", &self),
+            ))
+        }
     }
 }
 

@@ -106,49 +106,62 @@ impl<'a> Elastic<'a> for ArrudaBoyce<'a> {
     fn calculate_cauchy_tangent_stiffness(
         &self,
         deformation_gradient: &DeformationGradient,
-    ) -> CauchyTangentStiffness {
-        let (inverse_transpose_deformation_gradient, jacobian) =
-            deformation_gradient.inverse_transpose_and_determinant();
-        let left_cauchy_green_deformation =
-            self.calculate_left_cauchy_green_deformation(deformation_gradient);
-        let deviatoric_left_cauchy_green_deformation = left_cauchy_green_deformation.deviatoric();
-        let (
-            deviatoric_isochoric_left_cauchy_green_deformation,
-            isochoric_left_cauchy_green_deformation_trace,
-        ) = (left_cauchy_green_deformation / jacobian.powf(TWO_THIRDS)).deviatoric_and_trace();
-        let gamma =
-            (isochoric_left_cauchy_green_deformation_trace / 3.0 / self.get_number_of_links())
-                .sqrt();
-        if gamma >= 1.0 {
-            panic!("Maximum extensibility reached.")
-        }
-        let gamma_0 = (1.0 / self.get_number_of_links()).sqrt();
-        let eta = inverse_langevin(gamma);
-        let scaled_shear_modulus =
-            gamma_0 / inverse_langevin(gamma_0) * self.get_shear_modulus() * eta
-                / gamma
-                / jacobian.powf(FIVE_THIRDS);
-        let scaled_deviatoric_isochoric_left_cauchy_green_deformation =
-            deviatoric_left_cauchy_green_deformation * scaled_shear_modulus;
-        let term = CauchyTangentStiffness::dyad_ij_kl(
-            &scaled_deviatoric_isochoric_left_cauchy_green_deformation,
-            &(deviatoric_isochoric_left_cauchy_green_deformation
-                * &inverse_transpose_deformation_gradient
-                * ((1.0 / eta / langevin_derivative(eta) - 1.0 / gamma)
-                    / 3.0
-                    / self.get_number_of_links()
-                    / gamma)),
-        );
-        (CauchyTangentStiffness::dyad_ik_jl(&IDENTITY, deformation_gradient)
-            + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &IDENTITY)
-            - CauchyTangentStiffness::dyad_ij_kl(&IDENTITY, deformation_gradient) * (TWO_THIRDS))
-            * scaled_shear_modulus
-            + CauchyTangentStiffness::dyad_ij_kl(
-                &(IDENTITY * (0.5 * self.get_bulk_modulus() * (jacobian + 1.0 / jacobian))
-                    - scaled_deviatoric_isochoric_left_cauchy_green_deformation * (FIVE_THIRDS)),
-                &inverse_transpose_deformation_gradient,
+    ) -> Result<CauchyTangentStiffness, ConstitutiveError> {
+        let jacobian = deformation_gradient.determinant();
+        if jacobian > 0.0 {
+            let inverse_transpose_deformation_gradient = deformation_gradient.inverse_transpose();
+            let left_cauchy_green_deformation =
+                self.calculate_left_cauchy_green_deformation(deformation_gradient);
+            let deviatoric_left_cauchy_green_deformation =
+                left_cauchy_green_deformation.deviatoric();
+            let (
+                deviatoric_isochoric_left_cauchy_green_deformation,
+                isochoric_left_cauchy_green_deformation_trace,
+            ) = (left_cauchy_green_deformation / jacobian.powf(TWO_THIRDS)).deviatoric_and_trace();
+            let gamma =
+                (isochoric_left_cauchy_green_deformation_trace / 3.0 / self.get_number_of_links())
+                    .sqrt();
+            if gamma >= 1.0 {
+                panic!("Maximum extensibility reached.")
+            }
+            let gamma_0 = (1.0 / self.get_number_of_links()).sqrt();
+            let eta = inverse_langevin(gamma);
+            let scaled_shear_modulus =
+                gamma_0 / inverse_langevin(gamma_0) * self.get_shear_modulus() * eta
+                    / gamma
+                    / jacobian.powf(FIVE_THIRDS);
+            let scaled_deviatoric_isochoric_left_cauchy_green_deformation =
+                deviatoric_left_cauchy_green_deformation * scaled_shear_modulus;
+            let term = CauchyTangentStiffness::dyad_ij_kl(
+                &scaled_deviatoric_isochoric_left_cauchy_green_deformation,
+                &(deviatoric_isochoric_left_cauchy_green_deformation
+                    * &inverse_transpose_deformation_gradient
+                    * ((1.0 / eta / langevin_derivative(eta) - 1.0 / gamma)
+                        / 3.0
+                        / self.get_number_of_links()
+                        / gamma)),
+            );
+            Ok(
+                (CauchyTangentStiffness::dyad_ik_jl(&IDENTITY, deformation_gradient)
+                    + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &IDENTITY)
+                    - CauchyTangentStiffness::dyad_ij_kl(&IDENTITY, deformation_gradient)
+                        * (TWO_THIRDS))
+                    * scaled_shear_modulus
+                    + CauchyTangentStiffness::dyad_ij_kl(
+                        &(IDENTITY * (0.5 * self.get_bulk_modulus() * (jacobian + 1.0 / jacobian))
+                            - scaled_deviatoric_isochoric_left_cauchy_green_deformation
+                                * (FIVE_THIRDS)),
+                        &inverse_transpose_deformation_gradient,
+                    )
+                    + term,
             )
-            + term
+        } else {
+            Err(ConstitutiveError::InvalidJacobian(
+                jacobian,
+                deformation_gradient.copy(),
+                format!("{:?}", &self),
+            ))
+        }
     }
 }
 

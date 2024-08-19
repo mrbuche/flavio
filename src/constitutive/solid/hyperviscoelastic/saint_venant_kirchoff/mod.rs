@@ -96,19 +96,29 @@ impl<'a> Viscoelastic<'a> for SaintVenantKirchoff<'a> {
         &self,
         deformation_gradient: &DeformationGradient,
         _: &DeformationGradientRate,
-    ) -> SecondPiolaKirchoffRateTangentStiffness {
-        let scaled_deformation_gradient_transpose =
-            deformation_gradient.transpose() * self.get_shear_viscosity();
-        SecondPiolaKirchoffRateTangentStiffness::dyad_ik_jl(
-            &scaled_deformation_gradient_transpose,
-            &IDENTITY_00,
-        ) + SecondPiolaKirchoffRateTangentStiffness::dyad_il_jk(
-            &IDENTITY_00,
-            &scaled_deformation_gradient_transpose,
-        ) + SecondPiolaKirchoffRateTangentStiffness::dyad_ij_kl(
-            &(IDENTITY_00 * (self.get_bulk_viscosity() - TWO_THIRDS * self.get_shear_viscosity())),
-            deformation_gradient,
-        )
+    ) -> Result<SecondPiolaKirchoffRateTangentStiffness, ConstitutiveError> {
+        let jacobian = deformation_gradient.determinant();
+        if jacobian > 0.0 {
+            let scaled_deformation_gradient_transpose =
+                deformation_gradient.transpose() * self.get_shear_viscosity();
+            Ok(SecondPiolaKirchoffRateTangentStiffness::dyad_ik_jl(
+                &scaled_deformation_gradient_transpose,
+                &IDENTITY_00,
+            ) + SecondPiolaKirchoffRateTangentStiffness::dyad_il_jk(
+                &IDENTITY_00,
+                &scaled_deformation_gradient_transpose,
+            ) + SecondPiolaKirchoffRateTangentStiffness::dyad_ij_kl(
+                &(IDENTITY_00
+                    * (self.get_bulk_viscosity() - TWO_THIRDS * self.get_shear_viscosity())),
+                deformation_gradient,
+            ))
+        } else {
+            Err(ConstitutiveError::InvalidJacobian(
+                jacobian,
+                deformation_gradient.copy(),
+                format!("{:?}", &self),
+            ))
+        }
     }
 }
 
