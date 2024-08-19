@@ -53,18 +53,28 @@ impl<'a> Thermoelastic<'a> for SaintVenantKirchoff<'a> {
         &self,
         deformation_gradient: &DeformationGradient,
         temperature: &Scalar,
-    ) -> SecondPiolaKirchoffStress {
-        let (deviatoric_strain, strain_trace) =
-            ((self.calculate_right_cauchy_green_deformation(deformation_gradient) - IDENTITY_00)
+    ) -> Result<SecondPiolaKirchoffStress, ConstitutiveError> {
+        let jacobian = deformation_gradient.determinant();
+        if jacobian > 0.0 {
+            let (deviatoric_strain, strain_trace) = ((self
+                .calculate_right_cauchy_green_deformation(deformation_gradient)
+                - IDENTITY_00)
                 * 0.5)
                 .deviatoric_and_trace();
-        deviatoric_strain * (2.0 * self.get_shear_modulus())
-            + IDENTITY_00
-                * (self.get_bulk_modulus()
-                    * (strain_trace
-                        - 3.0
-                            * self.get_coefficient_of_thermal_expansion()
-                            * (temperature - self.get_reference_temperature())))
+            Ok(deviatoric_strain * (2.0 * self.get_shear_modulus())
+                + IDENTITY_00
+                    * (self.get_bulk_modulus()
+                        * (strain_trace
+                            - 3.0
+                                * self.get_coefficient_of_thermal_expansion()
+                                * (temperature - self.get_reference_temperature()))))
+        } else {
+            Err(ConstitutiveError::InvalidJacobianElastic(
+                jacobian,
+                deformation_gradient.copy(),
+                format!("{:?}", &self),
+            ))
+        }
     }
     /// Calculates and returns the tangent stiffness associated with the second Piola-Kirchoff stress.
     ///

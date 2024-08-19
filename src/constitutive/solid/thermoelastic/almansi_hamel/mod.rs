@@ -20,6 +20,7 @@ use super::*;
 ///
 /// **Notes**
 /// - The Almansi-Hamel strain measure is given by $`\mathbf{e}=\tfrac{1}{2}(\mathbf{1}-\mathbf{B}^{-1})`$.
+#[derive(Debug)]
 pub struct AlmansiHamel<'a> {
     parameters: Parameters<'a>,
 }
@@ -52,20 +53,30 @@ impl<'a> Thermoelastic<'a> for AlmansiHamel<'a> {
         &self,
         deformation_gradient: &DeformationGradient,
         temperature: &Scalar,
-    ) -> CauchyStress {
-        let (inverse_deformation_gradient, jacobian) =
-            deformation_gradient.inverse_and_determinant();
-        let strain = (IDENTITY
-            - inverse_deformation_gradient.transpose() * &inverse_deformation_gradient)
-            * 0.5;
-        let (deviatoric_strain, strain_trace) = strain.deviatoric_and_trace();
-        deviatoric_strain * (2.0 * self.get_shear_modulus() / jacobian)
-            + IDENTITY
-                * (self.get_bulk_modulus() / jacobian
-                    * (strain_trace
-                        - 3.0
-                            * self.get_coefficient_of_thermal_expansion()
-                            * (temperature - self.get_reference_temperature())))
+    ) -> Result<CauchyStress, ConstitutiveError> {
+        let jacobian = deformation_gradient.determinant();
+        if jacobian > 0.0 {
+            let inverse_deformation_gradient = deformation_gradient.inverse();
+            let strain = (IDENTITY
+                - inverse_deformation_gradient.transpose() * &inverse_deformation_gradient)
+                * 0.5;
+            let (deviatoric_strain, strain_trace) = strain.deviatoric_and_trace();
+            Ok(
+                deviatoric_strain * (2.0 * self.get_shear_modulus() / jacobian)
+                    + IDENTITY
+                        * (self.get_bulk_modulus() / jacobian
+                            * (strain_trace
+                                - 3.0
+                                    * self.get_coefficient_of_thermal_expansion()
+                                    * (temperature - self.get_reference_temperature()))),
+            )
+        } else {
+            Err(ConstitutiveError::InvalidJacobianElastic(
+                jacobian,
+                deformation_gradient.copy(),
+                format!("{:?}", &self),
+            ))
+        }
     }
     /// Calculates and returns the tangent stiffness associated with the Cauchy stress.
     ///
