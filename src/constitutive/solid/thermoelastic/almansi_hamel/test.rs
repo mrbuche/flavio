@@ -23,7 +23,7 @@ mod consistency {
         model
             .calculate_cauchy_stress(
                 &get_deformation_gradient(),
-                &model.get_reference_temperature(),
+                model.get_reference_temperature(),
             )
             .expect("the unexpected")
             .iter()
@@ -46,7 +46,7 @@ mod consistency {
     fn cauchy_tangent_stiffness() {
         let model = AlmansiHamel::new(ALMANSIHAMELPARAMETERS);
         let elastic_model = ElasticAlmansiHamel::new(ELASTICALMANSIHAMELPARAMETERS);
-        model.calculate_cauchy_tangent_stiffness(&get_deformation_gradient(), &model.get_reference_temperature()).expect("the unexpected").iter()
+        model.calculate_cauchy_tangent_stiffness(&get_deformation_gradient(), model.get_reference_temperature()).expect("the unexpected").iter()
         .zip(elastic_model.calculate_cauchy_tangent_stiffness(&get_deformation_gradient()).expect("the unexpected").iter())
         .for_each(|(cauchy_tangent_stiffness_i, elastic_cauchy_tangent_stiffness_i)|
             cauchy_tangent_stiffness_i.iter()

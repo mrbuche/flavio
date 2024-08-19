@@ -375,18 +375,18 @@ macro_rules! test_composite_element_with_constitutive_model
         {
             use super::*;
             #[test]
-            fn shape_functions<'a>()
+            fn shape_functions()
             {
-                $element::<$constitutive_model<'a>>::calculate_shape_functions_at_integration_points().iter()
+                $element::<$constitutive_model>::calculate_shape_functions_at_integration_points().iter()
                 .for_each(|shape_functions|
                     assert_eq!(shape_functions.iter().sum::<Scalar>(), 1.0)
                 )
             }
             #[test]
-            fn standard_gradient_operators<'a>()
+            fn standard_gradient_operators()
             {
                 let mut sum = [0.0_f64; 3];
-                $element::<$constitutive_model<'a>>::calculate_standard_gradient_operators().iter()
+                $element::<$constitutive_model>::calculate_standard_gradient_operators().iter()
                 .for_each(|standard_gradient_operator|{
                     standard_gradient_operator.iter()
                     .for_each(|row|
@@ -404,11 +404,11 @@ macro_rules! test_composite_element_with_constitutive_model
             }
         }
         #[test]
-        fn normalized_projection_matrix<'a>()
+        fn normalized_projection_matrix()
         {
-            $element::<$constitutive_model<'a>>::calculate_shape_function_integrals_products()
+            $element::<$constitutive_model>::calculate_shape_function_integrals_products()
             .iter().map(|dummy| dummy * 1.0).sum::<TensorRank2<Q, 9, 9>>().iter()
-            .zip($element::<$constitutive_model<'a>>::calculate_inverse_normalized_projection_matrix()
+            .zip($element::<$constitutive_model>::calculate_inverse_normalized_projection_matrix()
             .inverse().iter())
             .for_each(|(sum_i, projection_matrix_i)|
                 sum_i.iter()

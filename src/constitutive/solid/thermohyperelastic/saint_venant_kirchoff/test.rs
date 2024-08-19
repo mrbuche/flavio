@@ -30,7 +30,7 @@ mod consistency {
             (model
                 .calculate_helmholtz_free_energy_density(
                     &get_deformation_gradient(),
-                    &model.get_reference_temperature()
+                    model.get_reference_temperature()
                 )
                 .expect("the unexpected")
                 - hyperelastic_model
@@ -48,7 +48,7 @@ mod consistency {
         model
             .calculate_cauchy_stress(
                 &get_deformation_gradient(),
-                &model.get_reference_temperature(),
+                model.get_reference_temperature(),
             )
             .expect("the unexpected")
             .iter()
@@ -72,7 +72,7 @@ mod consistency {
         let model = SaintVenantKirchoff::new(SAINTVENANTKIRCHOFFPARAMETERS);
         let hyperelastic_model =
             HyperelasticSaintVenantKirchoff::new(HYPERELASTICSAINTVENANTKIRCHOFFPARAMETERS);
-        model.calculate_cauchy_tangent_stiffness(&get_deformation_gradient(), &model.get_reference_temperature()).expect("the unexpected").iter()
+        model.calculate_cauchy_tangent_stiffness(&get_deformation_gradient(), model.get_reference_temperature()).expect("the unexpected").iter()
         .zip(hyperelastic_model.calculate_cauchy_tangent_stiffness(&get_deformation_gradient()).expect("the unexpected").iter())
         .for_each(|(cauchy_tangent_stiffness_i, elastic_cauchy_tangent_stiffness_i)|
             cauchy_tangent_stiffness_i.iter()

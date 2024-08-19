@@ -440,9 +440,9 @@ macro_rules! test_linear_element_with_constitutive_model {
         mod standard_gradient_operator {
             use super::*;
             #[test]
-            fn partition_of_unity<'a>() {
+            fn partition_of_unity() {
                 let mut sum = [0.0_f64; 3];
-                $element::<$constitutive_model<'a>>::calculate_standard_gradient_operator()
+                $element::<$constitutive_model>::calculate_standard_gradient_operator()
                     .iter()
                     .for_each(|row| {
                         row.iter()

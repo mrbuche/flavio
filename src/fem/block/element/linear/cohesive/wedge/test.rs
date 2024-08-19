@@ -107,7 +107,7 @@ fn calculate_deformation_gradient_rate() {
 #[should_panic]
 fn calculate_gradient_vectors() {
     Wedge::<SmithFerrante>::calculate_gradient_vectors(
-        &Wedge::<SmithFerrante>::calculate_midplane(&get_reference_coordinates()).into(),
+        &Wedge::<SmithFerrante>::calculate_midplane(&get_reference_coordinates()),
     );
 }
 
@@ -123,7 +123,7 @@ fn get_gradient_vectors() {
 fn calculate_deformation_gradient_linear_surface_element() {
     Wedge::<SmithFerrante>::new(SMITHFERRANTEPARAMETERS, get_reference_coordinates())
         .calculate_deformation_gradient_linear_surface_element(
-            &Wedge::<SmithFerrante>::calculate_midplane(&get_coordinates()).into(),
+            &Wedge::<SmithFerrante>::calculate_midplane(&get_coordinates()),
         );
 }
 
@@ -132,17 +132,19 @@ fn calculate_deformation_gradient_linear_surface_element() {
 fn calculate_deformation_gradient_rate_linear_surface_element() {
     Wedge::<SmithFerrante>::new(SMITHFERRANTEPARAMETERS, get_reference_coordinates())
         .calculate_deformation_gradient_rate_linear_surface_element(
-            &Wedge::<SmithFerrante>::calculate_midplane(&get_coordinates()).into(),
-            &Wedge::<SmithFerrante>::calculate_midplane(&get_velocities()).into(),
+            &Wedge::<SmithFerrante>::calculate_midplane(&get_coordinates()),
+            &Wedge::<SmithFerrante>::calculate_midplane(&get_velocities()),
         );
 }
 
 #[test]
 #[should_panic]
 fn calculate_gradient_vectors_linear_surface_element() {
-    Wedge::<SmithFerrante>::calculate_gradient_vectors_linear_surface_element(
-        &Wedge::<SmithFerrante>::calculate_midplane(&get_reference_coordinates()).into(),
-    );
+    Wedge::<SmithFerrante>::calculate_gradient_vectors_linear_surface_element(&Wedge::<
+        SmithFerrante,
+    >::calculate_midplane(
+        &get_reference_coordinates(),
+    ));
 }
 
 #[test]
