@@ -1,13 +1,13 @@
-use crate::constitutive::solid::thermohyperelastic::
-{
-    SaintVenantKirchoff,
-    test::SAINTVENANTKIRCHOFFPARAMETERS
-};
 use super::*;
+use crate::constitutive::solid::thermohyperelastic::{
+    test::SAINTVENANTKIRCHOFFPARAMETERS, SaintVenantKirchoff,
+};
 
 test_thermohyperelastic_thermal_conduction_constitutive_model!(
-    SaintVenantKirchoff, SAINTVENANTKIRCHOFFPARAMETERS,
-    Fourier, FOURIERPARAMETERS
+    SaintVenantKirchoff,
+    SAINTVENANTKIRCHOFFPARAMETERS,
+    Fourier,
+    FOURIERPARAMETERS
 );
 
 macro_rules! test_thermohyperelastic_thermal_conduction_constitutive_model
@@ -28,11 +28,11 @@ macro_rules! test_thermohyperelastic_thermal_conduction_constitutive_model
                 get_thermoelastic_thermal_conduction_constitutive_model()
                 .calculate_helmholtz_free_energy_density(
                     &get_deformation_gradient(), &get_temperature()
-                ),
+                ).expect("the unexpected"),
                 get_thermoelastic_constitutive_model()
                 .calculate_helmholtz_free_energy_density(
                     &get_deformation_gradient(), &get_temperature()
-                )
+                ).expect("the unexpected")
             )
         }
     }

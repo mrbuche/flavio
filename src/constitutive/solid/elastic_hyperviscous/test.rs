@@ -1,40 +1,41 @@
-use crate::
-{
+use crate::{
     constitutive::solid::elastic::test::ALMANSIHAMELPARAMETERS as ALMANSIHAMELPARAMETERSELASTIC,
-    mechanics::Scalar
+    mechanics::Scalar,
 };
-pub const ALMANSIHAMELPARAMETERS: &[Scalar; 4] = &[ALMANSIHAMELPARAMETERSELASTIC[0], ALMANSIHAMELPARAMETERSELASTIC[1], 11.0, 1.0];
+pub const ALMANSIHAMELPARAMETERS: &[Scalar; 4] = &[
+    ALMANSIHAMELPARAMETERSELASTIC[0],
+    ALMANSIHAMELPARAMETERSELASTIC[1],
+    11.0,
+    1.0,
+];
 
-macro_rules! calculate_viscous_dissipation_from_deformation_gradient_rate_simple
-{
-    ($constitutive_model_constructed: expr, $deformation_gradient_rate: expr) =>
-    {
-        $constitutive_model_constructed.calculate_viscous_dissipation(
-            &DeformationGradient::identity(), $deformation_gradient_rate
-        )
-    }
+macro_rules! calculate_viscous_dissipation_from_deformation_gradient_rate_simple {
+    ($constitutive_model_constructed: expr, $deformation_gradient_rate: expr) => {
+        $constitutive_model_constructed
+            .calculate_viscous_dissipation(
+                &DeformationGradient::identity(),
+                $deformation_gradient_rate,
+            )
+            .expect("the unexpected")
+    };
 }
 pub(crate) use calculate_viscous_dissipation_from_deformation_gradient_rate_simple;
 
-macro_rules! calculate_viscous_dissipation_from_deformation_gradient_and_deformation_gradient_rate
-{
-    ($constitutive_model_constructed: expr, $deformation_gradient: expr, $deformation_gradient_rate: expr) =>
-    {
-        $constitutive_model_constructed.calculate_viscous_dissipation(
-            $deformation_gradient, $deformation_gradient_rate
-        )
-    }
+macro_rules! calculate_viscous_dissipation_from_deformation_gradient_and_deformation_gradient_rate {
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr, $deformation_gradient_rate: expr) => {
+        $constitutive_model_constructed
+            .calculate_viscous_dissipation($deformation_gradient, $deformation_gradient_rate)
+            .expect("the unexpected")
+    };
 }
 pub(crate) use calculate_viscous_dissipation_from_deformation_gradient_and_deformation_gradient_rate;
 
-macro_rules! calculate_dissipation_potential_from_deformation_gradient_and_deformation_gradient_rate
-{
-    ($constitutive_model_constructed: expr, $deformation_gradient: expr, $deformation_gradient_rate: expr) =>
-    {
-        $constitutive_model_constructed.calculate_dissipation_potential(
-            $deformation_gradient, $deformation_gradient_rate
-        )
-    }
+macro_rules! calculate_dissipation_potential_from_deformation_gradient_and_deformation_gradient_rate {
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr, $deformation_gradient_rate: expr) => {
+        $constitutive_model_constructed
+            .calculate_dissipation_potential($deformation_gradient, $deformation_gradient_rate)
+            .expect("the unexpected")
+    };
 }
 pub(crate) use calculate_dissipation_potential_from_deformation_gradient_and_deformation_gradient_rate;
 

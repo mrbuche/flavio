@@ -3,8 +3,7 @@
 // and suddenly you are doing the impossible.
 // --- St. Francis of Assisi
 
-fn main()
-{
+fn main() {
     println!("\n\n\x1b[1mf l a v i o\x1b[0m\n\n");
     println!("\x1b[94mflavio welcomes you\x1b[0m\n\n");
     println!("\x1b[96mSolving your problem...\x1b[0m\n");

@@ -1,69 +1,74 @@
-use crate::
-{
-    constitutive::solid::elastic::test::ALMANSIHAMELPARAMETERS,
-    mechanics::Scalar
-};
+use crate::{constitutive::solid::elastic::test::ALMANSIHAMELPARAMETERS, mechanics::Scalar};
 
-pub const ARRUDABOYCEPARAMETERS: &[Scalar; 3] = &[ALMANSIHAMELPARAMETERS[0], ALMANSIHAMELPARAMETERS[1], 8.0];
-pub const FUNGPARAMETERS: &[Scalar; 4] = &[ALMANSIHAMELPARAMETERS[0], ALMANSIHAMELPARAMETERS[1], 1.2, 1.1];
-pub const GENTPARAMETERS: &[Scalar; 3] = &[ALMANSIHAMELPARAMETERS[0], ALMANSIHAMELPARAMETERS[1], 23.0];
-pub const MOONEYRIVLINPARAMETERS: &[Scalar; 3] = &[ALMANSIHAMELPARAMETERS[0], ALMANSIHAMELPARAMETERS[1], 1.1];
-pub const NEOHOOKEANPARAMETERS: &[Scalar; 2] = &[ALMANSIHAMELPARAMETERS[0], ALMANSIHAMELPARAMETERS[1]];
-pub const SAINTVENANTKIRCHOFFPARAMETERS: &[Scalar; 2] = &[ALMANSIHAMELPARAMETERS[0], ALMANSIHAMELPARAMETERS[1]];
-pub const YEOHPARAMETERS: &[Scalar; 6] = &[ALMANSIHAMELPARAMETERS[0], ALMANSIHAMELPARAMETERS[1], -1.0, 3e-1, -1e-3, 1e-5];
+pub const ARRUDABOYCEPARAMETERS: &[Scalar; 3] =
+    &[ALMANSIHAMELPARAMETERS[0], ALMANSIHAMELPARAMETERS[1], 8.0];
+pub const FUNGPARAMETERS: &[Scalar; 4] = &[
+    ALMANSIHAMELPARAMETERS[0],
+    ALMANSIHAMELPARAMETERS[1],
+    1.2,
+    1.1,
+];
+pub const GENTPARAMETERS: &[Scalar; 3] =
+    &[ALMANSIHAMELPARAMETERS[0], ALMANSIHAMELPARAMETERS[1], 23.0];
+pub const MOONEYRIVLINPARAMETERS: &[Scalar; 3] =
+    &[ALMANSIHAMELPARAMETERS[0], ALMANSIHAMELPARAMETERS[1], 1.1];
+pub const NEOHOOKEANPARAMETERS: &[Scalar; 2] =
+    &[ALMANSIHAMELPARAMETERS[0], ALMANSIHAMELPARAMETERS[1]];
+pub const SAINTVENANTKIRCHOFFPARAMETERS: &[Scalar; 2] =
+    &[ALMANSIHAMELPARAMETERS[0], ALMANSIHAMELPARAMETERS[1]];
+pub const YEOHPARAMETERS: &[Scalar; 6] = &[
+    ALMANSIHAMELPARAMETERS[0],
+    ALMANSIHAMELPARAMETERS[1],
+    -1.0,
+    3e-1,
+    -1e-3,
+    1e-5,
+];
 
-macro_rules! calculate_helmholtz_free_energy_density_from_deformation_gradient_simple
-{
-    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
-    {
-        $constitutive_model_constructed.calculate_helmholtz_free_energy_density(
-            $deformation_gradient
-        )
-    }
+macro_rules! calculate_helmholtz_free_energy_density_from_deformation_gradient_simple {
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
+        $constitutive_model_constructed
+            .calculate_helmholtz_free_energy_density($deformation_gradient)
+            .expect("the unexpected")
+    };
 }
 pub(crate) use calculate_helmholtz_free_energy_density_from_deformation_gradient_simple;
 
-macro_rules! use_elastic_macros
-{
-    () =>
-    {
-        use crate::constitutive::solid::elastic::test::
-        {
+macro_rules! use_elastic_macros {
+    () => {
+        use crate::constitutive::solid::elastic::test::{
             calculate_cauchy_stress_from_deformation_gradient,
-            calculate_cauchy_stress_from_deformation_gradient_simple,
             calculate_cauchy_stress_from_deformation_gradient_rotated,
+            calculate_cauchy_stress_from_deformation_gradient_simple,
             calculate_cauchy_tangent_stiffness_from_deformation_gradient,
             calculate_first_piola_kirchoff_stress_from_deformation_gradient,
-            calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple,
             calculate_first_piola_kirchoff_stress_from_deformation_gradient_rotated,
+            calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple,
             calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient,
             calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient_simple,
             calculate_second_piola_kirchoff_stress_from_deformation_gradient,
-            calculate_second_piola_kirchoff_stress_from_deformation_gradient_simple,
             calculate_second_piola_kirchoff_stress_from_deformation_gradient_rotated,
-            calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient
+            calculate_second_piola_kirchoff_stress_from_deformation_gradient_simple,
+            calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient,
         };
-    }
+    };
 }
 pub(crate) use use_elastic_macros;
 
-macro_rules! use_elastic_macros_no_tangents
-{
-    () =>
-    {
-        use crate::constitutive::solid::elastic::test::
-        {
+macro_rules! use_elastic_macros_no_tangents {
+    () => {
+        use crate::constitutive::solid::elastic::test::{
             calculate_cauchy_stress_from_deformation_gradient,
-            calculate_cauchy_stress_from_deformation_gradient_simple,
             calculate_cauchy_stress_from_deformation_gradient_rotated,
+            calculate_cauchy_stress_from_deformation_gradient_simple,
             calculate_first_piola_kirchoff_stress_from_deformation_gradient,
-            calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple,
             calculate_first_piola_kirchoff_stress_from_deformation_gradient_rotated,
+            calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple,
             calculate_second_piola_kirchoff_stress_from_deformation_gradient,
+            calculate_second_piola_kirchoff_stress_from_deformation_gradient_rotated,
             calculate_second_piola_kirchoff_stress_from_deformation_gradient_simple,
-            calculate_second_piola_kirchoff_stress_from_deformation_gradient_rotated
         };
-    }
+    };
 }
 pub(crate) use use_elastic_macros_no_tangents;
 
@@ -164,6 +169,16 @@ macro_rules! test_solid_hyperelastic_constitutive_model_no_tangents
                             assert!((first_piola_kirchoff_stress_ij/fd_first_piola_kirchoff_stress_ij - 1.0).abs() < EPSILON)
                         )
                     )
+                }
+                #[test]
+                #[should_panic(expected = "Invalid Jacobian")]
+                fn invalid_jacobian()
+                {
+                    let mut deformation_gradient = DeformationGradient::identity();
+                    deformation_gradient[0][0] *= -1.0;
+                    let _ = calculate_helmholtz_free_energy_density_from_deformation_gradient_simple!(
+                        $constitutive_model_constructed, &deformation_gradient
+                    );
                 }
                 #[test]
                 fn minimized()

@@ -1,31 +1,30 @@
-macro_rules! test_linear_localization_element
-{
-    ($element: ident) =>
-    {
+macro_rules! test_linear_localization_element {
+    ($element: ident) => {
         crate::fem::block::element::test::setup_for_localization_elements!($element);
         crate::fem::block::element::linear::test::test_linear_element_inner!($element);
-        crate::fem::block::element::linear::surface::test::test_linear_surface_element_inner!($element);
-        fn get_coordinates_unrotated() -> NodalCoordinates<N>
-        {
+        crate::fem::block::element::linear::surface::test::test_linear_surface_element_inner!(
+            $element
+        );
+        fn get_coordinates_unrotated() -> NodalCoordinates<N> {
             let jump = get_jump();
             let mut coordinates = get_deformation_gradient_surface() * get_reference_coordinates();
-            coordinates.iter_mut().skip(O)
-            .for_each(|coordinate_top_a|
-                *coordinate_top_a += &jump
-            );
+            coordinates
+                .iter_mut()
+                .skip(O)
+                .for_each(|coordinate_top_a| *coordinate_top_a += &jump);
             coordinates
         }
-        fn get_velocities_unrotated() -> NodalVelocities<N>
-        {
+        fn get_velocities_unrotated() -> NodalVelocities<N> {
             let jump_rate = get_jump_rate();
-            let mut velocities = get_deformation_gradient_rate_surface() * get_reference_coordinates();
-            velocities.iter_mut().skip(O)
-            .for_each(|velocity_top_a|
-                *velocity_top_a += &jump_rate
-            );
+            let mut velocities =
+                get_deformation_gradient_rate_surface() * get_reference_coordinates();
+            velocities
+                .iter_mut()
+                .skip(O)
+                .for_each(|velocity_top_a| *velocity_top_a += &jump_rate);
             velocities
         }
-    }
+    };
 }
 pub(crate) use test_linear_localization_element;
 

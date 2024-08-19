@@ -1,13 +1,13 @@
 pub const THICKNESS: crate::mechanics::Scalar = 1.23;
 
-macro_rules! test_linear_surface_element
-{
-    ($element: ident) =>
-    {
+macro_rules! test_linear_surface_element {
+    ($element: ident) => {
         crate::fem::block::element::test::setup_for_surface_elements!($element);
         crate::fem::block::element::linear::test::test_linear_element_inner!($element);
-        crate::fem::block::element::linear::surface::test::test_linear_surface_element_inner!($element);
-    }
+        crate::fem::block::element::linear::surface::test::test_linear_surface_element_inner!(
+            $element
+        );
+    };
 }
 pub(crate) use test_linear_surface_element;
 
@@ -142,388 +142,327 @@ macro_rules! test_linear_surface_element_inner
 }
 pub(crate) use test_linear_surface_element_inner;
 
-macro_rules! setup_for_test_finite_element_with_elastic_constitutive_model
-{
-    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
-    {
-        fn get_element<'a>() -> $element<$constitutive_model<'a>>
-        {
+macro_rules! setup_for_test_finite_element_with_elastic_constitutive_model {
+    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) => {
+        fn get_element<'a>() -> $element<$constitutive_model<'a>> {
             $element::new(
                 $constitutive_model_parameters,
                 get_reference_coordinates(),
-                &crate::fem::block::element::linear::surface::test::THICKNESS
+                &crate::fem::block::element::linear::surface::test::THICKNESS,
             )
         }
-        fn get_element_transformed<'a>() -> $element<$constitutive_model<'a>>
-        {
+        fn get_element_transformed<'a>() -> $element<$constitutive_model<'a>> {
             $element::new(
                 $constitutive_model_parameters,
                 get_reference_coordinates_transformed(),
-                &crate::fem::block::element::linear::surface::test::THICKNESS
+                &crate::fem::block::element::linear::surface::test::THICKNESS,
             )
         }
-    }
+    };
 }
 pub(crate) use setup_for_test_finite_element_with_elastic_constitutive_model;
 
-macro_rules! setup_for_test_finite_element_block_with_elastic_constitutive_model
-{
-    ($block: ident, $element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
-    {
-        fn get_block<'a>() -> $block<D, E, $element<$constitutive_model<'a>>, G, N>
-        {
+macro_rules! setup_for_test_finite_element_block_with_elastic_constitutive_model {
+    ($block: ident, $element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) => {
+        fn get_block<'a>() -> $block<D, E, $element<$constitutive_model<'a>>, G, N> {
             $block::<D, E, $element<$constitutive_model<'a>>, G, N>::new(
                 $constitutive_model_parameters,
                 get_connectivity(),
                 get_reference_coordinates_block(),
-                crate::fem::block::element::linear::surface::test::THICKNESS
+                crate::fem::block::element::linear::surface::test::THICKNESS,
             )
         }
-        fn get_block_transformed<'a>() -> $block<D, E, $element<$constitutive_model<'a>>, G, N>
-        {
+        fn get_block_transformed<'a>() -> $block<D, E, $element<$constitutive_model<'a>>, G, N> {
             $block::<D, E, $element<$constitutive_model<'a>>, G, N>::new(
                 $constitutive_model_parameters,
                 get_connectivity(),
                 get_reference_coordinates_transformed_block(),
-                crate::fem::block::element::linear::surface::test::THICKNESS
+                crate::fem::block::element::linear::surface::test::THICKNESS,
             )
         }
-    }
+    };
 }
 pub(crate) use setup_for_test_finite_element_block_with_elastic_constitutive_model;
 
-macro_rules! setup_for_test_linear_element_with_constitutive_model
-{
-    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
-    {
-        fn get_element<'a>() -> $element<$constitutive_model<'a>>
-        {
+macro_rules! setup_for_test_linear_element_with_constitutive_model {
+    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) => {
+        fn get_element<'a>() -> $element<$constitutive_model<'a>> {
             $element::new(
                 $constitutive_model_parameters,
                 get_reference_coordinates(),
-                &crate::fem::block::element::linear::surface::test::THICKNESS
+                &crate::fem::block::element::linear::surface::test::THICKNESS,
             )
         }
-        fn get_element_transformed<'a>() -> $element<$constitutive_model<'a>>
-        {
+        fn get_element_transformed<'a>() -> $element<$constitutive_model<'a>> {
             $element::new(
                 $constitutive_model_parameters,
                 get_reference_coordinates_transformed(),
-                &crate::fem::block::element::linear::surface::test::THICKNESS
+                &crate::fem::block::element::linear::surface::test::THICKNESS,
             )
         }
-    }
+    };
 }
 pub(crate) use setup_for_test_linear_element_with_constitutive_model;
 
-macro_rules! setup_for_test_linear_surface_element_with_constitutive_model
-{
-    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
-    {
-        fn get_basis(is_deformed: bool, is_transformed: bool) -> Basis<1>
-        {
-            if is_transformed
-            {
-                if is_deformed
-                {
+macro_rules! setup_for_test_linear_surface_element_with_constitutive_model {
+    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) => {
+        fn get_basis(is_deformed: bool, is_transformed: bool) -> Basis<1> {
+            if is_transformed {
+                if is_deformed {
                     $element::<$constitutive_model>::calculate_basis(
-                        &(get_rotation_current_configuration() * get_coordinates())
+                        &(get_rotation_current_configuration() * get_coordinates()),
+                    )
+                } else {
+                    $element::<$constitutive_model>::calculate_basis(
+                        &(get_rotation_reference_configuration() * get_reference_coordinates())
+                            .into(),
                     )
                 }
-                else
-                {
+            } else {
+                if is_deformed {
+                    $element::<$constitutive_model>::calculate_basis(&get_coordinates())
+                } else {
                     $element::<$constitutive_model>::calculate_basis(
-                        &(get_rotation_reference_configuration() * get_reference_coordinates()).into()
-                    )
-                }
-            }
-            else
-            {
-                if is_deformed
-                {
-                    $element::<$constitutive_model>::calculate_basis(
-                        &get_coordinates()
-                    )
-                }
-                else
-                {
-                    $element::<$constitutive_model>::calculate_basis(
-                        &get_reference_coordinates().into()
+                        &get_reference_coordinates().into(),
                     )
                 }
             }
         }
-        fn get_dual_basis(is_deformed: bool, is_transformed: bool) -> Basis<1>
-        {
-            if is_transformed
-            {
-                if is_deformed
-                {
+        fn get_dual_basis(is_deformed: bool, is_transformed: bool) -> Basis<1> {
+            if is_transformed {
+                if is_deformed {
                     $element::<$constitutive_model>::calculate_dual_basis(
-                        &(get_rotation_current_configuration() * get_coordinates())
+                        &(get_rotation_current_configuration() * get_coordinates()),
+                    )
+                } else {
+                    $element::<$constitutive_model>::calculate_dual_basis(
+                        &(get_rotation_reference_configuration() * get_reference_coordinates())
+                            .into(),
                     )
                 }
-                else
-                {
+            } else {
+                if is_deformed {
+                    $element::<$constitutive_model>::calculate_dual_basis(&get_coordinates())
+                } else {
                     $element::<$constitutive_model>::calculate_dual_basis(
-                        &(get_rotation_reference_configuration() * get_reference_coordinates()).into()
-                    )
-                }
-            }
-            else
-            {
-                if is_deformed
-                {
-                    $element::<$constitutive_model>::calculate_dual_basis(
-                        &get_coordinates()
-                    )
-                }
-                else
-                {
-                    $element::<$constitutive_model>::calculate_dual_basis(
-                        &get_reference_coordinates().into()
+                        &get_reference_coordinates().into(),
                     )
                 }
             }
         }
-        fn get_normal(is_deformed: bool, is_transformed: bool) -> Normal
-        {
-            if is_transformed
-            {
-                if is_deformed
-                {
+        fn get_normal(is_deformed: bool, is_transformed: bool) -> Normal {
+            if is_transformed {
+                if is_deformed {
                     $element::<$constitutive_model>::calculate_normal(
-                        &(get_rotation_current_configuration() * get_coordinates())
+                        &(get_rotation_current_configuration() * get_coordinates()),
+                    )
+                } else {
+                    $element::<$constitutive_model>::calculate_normal(
+                        &(get_rotation_reference_configuration() * get_reference_coordinates())
+                            .into(),
                     )
                 }
-                else
-                {
+            } else {
+                if is_deformed {
+                    $element::<$constitutive_model>::calculate_normal(&get_coordinates())
+                } else {
                     $element::<$constitutive_model>::calculate_normal(
-                        &(get_rotation_reference_configuration() * get_reference_coordinates()).into()
-                    )
-                }
-            }
-            else
-            {
-                if is_deformed
-                {
-                    $element::<$constitutive_model>::calculate_normal(
-                        &get_coordinates()
-                    )
-                }
-                else
-                {
-                    $element::<$constitutive_model>::calculate_normal(
-                        &get_reference_coordinates().into()
+                        &get_reference_coordinates().into(),
                     )
                 }
             }
         }
-        fn get_normal_gradients(is_deformed: bool, is_transformed: bool) -> NormalGradients<O>
-        {
-            if is_transformed
-            {
-                if is_deformed
-                {
+        fn get_normal_gradients(is_deformed: bool, is_transformed: bool) -> NormalGradients<O> {
+            if is_transformed {
+                if is_deformed {
                     $element::<$constitutive_model>::calculate_normal_gradients(
-                        &(get_rotation_current_configuration() * get_coordinates())
+                        &(get_rotation_current_configuration() * get_coordinates()),
+                    )
+                } else {
+                    $element::<$constitutive_model>::calculate_normal_gradients(
+                        &(get_rotation_reference_configuration() * get_reference_coordinates())
+                            .into(),
                     )
                 }
-                else
-                {
+            } else {
+                if is_deformed {
+                    $element::<$constitutive_model>::calculate_normal_gradients(&get_coordinates())
+                } else {
                     $element::<$constitutive_model>::calculate_normal_gradients(
-                        &(get_rotation_reference_configuration() * get_reference_coordinates()).into()
-                    )
-                }
-            }
-            else
-            {
-                if is_deformed
-                {
-                    $element::<$constitutive_model>::calculate_normal_gradients(
-                        &get_coordinates()
-                    )
-                }
-                else
-                {
-                    $element::<$constitutive_model>::calculate_normal_gradients(
-                        &get_reference_coordinates().into()
+                        &get_reference_coordinates().into(),
                     )
                 }
             }
         }
-        fn get_normal_gradients_from_finite_difference(is_deformed: bool) -> NormalGradients<O>
-        {
+        fn get_normal_gradients_from_finite_difference(is_deformed: bool) -> NormalGradients<O> {
             let mut finite_difference = 0.0;
-            (0..O).map(|a|
-                (0..3).map(|m|
-                    (0..3).map(|i|{
-                        let mut nodal_coordinates =
-                        if is_deformed
-                        {
-                            get_coordinates()
-                        }
-                        else
-                        {
-                            get_reference_coordinates().into()
-                        };
-                        nodal_coordinates[a][m] += 0.5 * EPSILON;
-                        finite_difference = $element::<$constitutive_model>::calculate_normal(
-                            &nodal_coordinates
-                        )[i];
-                        nodal_coordinates[a][m] -= EPSILON;
-                        finite_difference -= $element::<$constitutive_model>::calculate_normal(
-                            &nodal_coordinates
-                        )[i];
-                        finite_difference/EPSILON
-                    }).collect()
-                ).collect()
-            ).collect()
+            (0..O)
+                .map(|a| {
+                    (0..3)
+                        .map(|m| {
+                            (0..3)
+                                .map(|i| {
+                                    let mut nodal_coordinates = if is_deformed {
+                                        get_coordinates()
+                                    } else {
+                                        get_reference_coordinates().into()
+                                    };
+                                    nodal_coordinates[a][m] += 0.5 * EPSILON;
+                                    finite_difference =
+                                        $element::<$constitutive_model>::calculate_normal(
+                                            &nodal_coordinates,
+                                        )[i];
+                                    nodal_coordinates[a][m] -= EPSILON;
+                                    finite_difference -=
+                                        $element::<$constitutive_model>::calculate_normal(
+                                            &nodal_coordinates,
+                                        )[i];
+                                    finite_difference / EPSILON
+                                })
+                                .collect()
+                        })
+                        .collect()
+                })
+                .collect()
         }
-        fn get_normal_rate(is_deformed: bool, is_transformed: bool) -> NormalRate
-        {
-            if is_transformed
-            {
-                if is_deformed
-                {
+        fn get_normal_rate(is_deformed: bool, is_transformed: bool) -> NormalRate {
+            if is_transformed {
+                if is_deformed {
                     $element::<$constitutive_model>::calculate_normal_rate(
                         &(get_rotation_current_configuration() * get_coordinates()),
-                        &(get_rotation_current_configuration() * get_velocities() + get_rotation_rate_current_configuration() * get_coordinates())
+                        &(get_rotation_current_configuration() * get_velocities()
+                            + get_rotation_rate_current_configuration() * get_coordinates()),
                     )
-                }
-                else
-                {
+                } else {
                     $element::<$constitutive_model>::calculate_normal_rate(
-                        &(get_rotation_reference_configuration() * get_reference_coordinates()).into(),
-                        &NodalVelocities::zero()
+                        &(get_rotation_reference_configuration() * get_reference_coordinates())
+                            .into(),
+                        &NodalVelocities::zero(),
                     )
                 }
-            }
-            else
-            {
-                if is_deformed
-                {
+            } else {
+                if is_deformed {
                     $element::<$constitutive_model>::calculate_normal_rate(
                         &get_coordinates(),
-                        &get_velocities()
+                        &get_velocities(),
                     )
-                }
-                else
-                {
+                } else {
                     $element::<$constitutive_model>::calculate_normal_rate(
                         &get_reference_coordinates().into(),
-                        &NodalVelocities::zero()
+                        &NodalVelocities::zero(),
                     )
                 }
             }
         }
-        fn get_normal_rate_from_finite_difference(is_deformed: bool) -> NormalRate
-        {
+        fn get_normal_rate_from_finite_difference(is_deformed: bool) -> NormalRate {
             let mut finite_difference = 0.0;
-            (0..3).map(|i|
-                get_velocities().iter().enumerate()
-                .map(|(a, velocity_a)|
-                    velocity_a.iter().enumerate()
-                    .map(|(k, velocity_a_k)|{
-                        let mut nodal_coordinates =
-                        if is_deformed
-                        {
-                            get_coordinates()
-                        }
-                        else
-                        {
-                            get_reference_coordinates().into()
-                        };
-                        nodal_coordinates[a][k] += 0.5 * EPSILON;
-                        finite_difference = $element::<$constitutive_model>::calculate_normal(
-                            &nodal_coordinates
-                        )[i];
-                        nodal_coordinates[a][k] -= EPSILON;
-                        finite_difference -= $element::<$constitutive_model>::calculate_normal(
-                            &nodal_coordinates
-                        )[i];
-                        finite_difference/EPSILON * velocity_a_k
-                    }).sum::<Scalar>()
-                ).sum()
-            ).collect()
+            (0..3)
+                .map(|i| {
+                    get_velocities()
+                        .iter()
+                        .enumerate()
+                        .map(|(a, velocity_a)| {
+                            velocity_a
+                                .iter()
+                                .enumerate()
+                                .map(|(k, velocity_a_k)| {
+                                    let mut nodal_coordinates = if is_deformed {
+                                        get_coordinates()
+                                    } else {
+                                        get_reference_coordinates().into()
+                                    };
+                                    nodal_coordinates[a][k] += 0.5 * EPSILON;
+                                    finite_difference =
+                                        $element::<$constitutive_model>::calculate_normal(
+                                            &nodal_coordinates,
+                                        )[i];
+                                    nodal_coordinates[a][k] -= EPSILON;
+                                    finite_difference -=
+                                        $element::<$constitutive_model>::calculate_normal(
+                                            &nodal_coordinates,
+                                        )[i];
+                                    finite_difference / EPSILON * velocity_a_k
+                                })
+                                .sum::<Scalar>()
+                        })
+                        .sum()
+                })
+                .collect()
         }
-        fn get_normal_tangents(is_deformed: bool, is_transformed: bool) -> NormalTangents<O>
-        {
-            if is_transformed
-            {
-                if is_deformed
-                {
+        fn get_normal_tangents(is_deformed: bool, is_transformed: bool) -> NormalTangents<O> {
+            if is_transformed {
+                if is_deformed {
                     $element::<$constitutive_model>::calculate_normal_tangents(
-                        &(get_rotation_current_configuration() * get_coordinates())
+                        &(get_rotation_current_configuration() * get_coordinates()),
+                    )
+                } else {
+                    $element::<$constitutive_model>::calculate_normal_tangents(
+                        &(get_rotation_reference_configuration() * get_reference_coordinates())
+                            .into(),
                     )
                 }
-                else
-                {
+            } else {
+                if is_deformed {
+                    $element::<$constitutive_model>::calculate_normal_tangents(&get_coordinates())
+                } else {
                     $element::<$constitutive_model>::calculate_normal_tangents(
-                        &(get_rotation_reference_configuration() * get_reference_coordinates()).into()
-                    )
-                }
-            }
-            else
-            {
-                if is_deformed
-                {
-                    $element::<$constitutive_model>::calculate_normal_tangents(
-                        &get_coordinates()
-                    )
-                }
-                else
-                {
-                    $element::<$constitutive_model>::calculate_normal_tangents(
-                        &get_reference_coordinates().into()
+                        &get_reference_coordinates().into(),
                     )
                 }
             }
         }
-        fn get_normal_tangents_from_finite_difference(is_deformed: bool) -> NormalTangents<O>
-        {
+        fn get_normal_tangents_from_finite_difference(is_deformed: bool) -> NormalTangents<O> {
             let mut finite_difference = 0.0;
-            (0..O).map(|a|
-                (0..O).map(|b|
-                    (0..3).map(|m|
-                        (0..3).map(|n|
-                            (0..3).map(|i|{
-                                let mut nodal_coordinates =
-                                if is_deformed
-                                {
-                                    get_coordinates()
-                                }
-                                else
-                                {
-                                    get_reference_coordinates().into()
-                                };
-                                nodal_coordinates[b][n] += 0.5 * EPSILON;
-                                finite_difference = $element::<$constitutive_model>::calculate_normal_gradients(
-                                    &nodal_coordinates
-                                )[a][m][i];
-                                nodal_coordinates[b][n] -= EPSILON;
-                                finite_difference -= $element::<$constitutive_model>::calculate_normal_gradients(
-                                    &nodal_coordinates
-                                )[a][m][i];
-                                finite_difference/EPSILON
-                            }).collect()
-                        ).collect()
-                    ).collect()
-                ).collect()
-            ).collect()
+            (0..O)
+                .map(|a| {
+                    (0..O)
+                        .map(|b| {
+                            (0..3)
+                                .map(|m| {
+                                    (0..3)
+                                        .map(|n| {
+                                            (0..3)
+                                                .map(|i| {
+                                                    let mut nodal_coordinates = if is_deformed {
+                                                        get_coordinates()
+                                                    } else {
+                                                        get_reference_coordinates().into()
+                                                    };
+                                                    nodal_coordinates[b][n] += 0.5 * EPSILON;
+                                                    finite_difference = $element::<
+                                                        $constitutive_model,
+                                                    >::calculate_normal_gradients(
+                                                        &nodal_coordinates,
+                                                    )[a][m][i];
+                                                    nodal_coordinates[b][n] -= EPSILON;
+                                                    finite_difference -= $element::<
+                                                        $constitutive_model,
+                                                    >::calculate_normal_gradients(
+                                                        &nodal_coordinates,
+                                                    )[a][m][i];
+                                                    finite_difference / EPSILON
+                                                })
+                                                .collect()
+                                        })
+                                        .collect()
+                                })
+                                .collect()
+                        })
+                        .collect()
+                })
+                .collect()
         }
         #[test]
-        fn size()
-        {
+        fn size() {
             assert_eq!(
                 std::mem::size_of::<$element::<$constitutive_model>>(),
                 std::mem::size_of::<$constitutive_model>()
-                + std::mem::size_of::<GradientVectors<N>>()
-                + std::mem::size_of::<ReferenceNormal>()
-                + std::mem::size_of::<Scalar>()
+                    + std::mem::size_of::<GradientVectors<N>>()
+                    + std::mem::size_of::<ReferenceNormal>()
+                    + std::mem::size_of::<Scalar>()
             )
         }
-    }
+    };
 }
 pub(crate) use setup_for_test_linear_surface_element_with_constitutive_model;
 

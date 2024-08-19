@@ -1,11 +1,11 @@
-macro_rules! test_composite_surface_element
-{
-    ($element: ident) =>
-    {
+macro_rules! test_composite_surface_element {
+    ($element: ident) => {
         crate::fem::block::element::test::setup_for_surface_elements!($element);
         crate::fem::block::element::composite::test::test_composite_element_inner!($element);
-        crate::fem::block::element::composite::surface::test::test_composite_surface_element_inner!($element);
-    }
+        crate::fem::block::element::composite::surface::test::test_composite_surface_element_inner!(
+            $element
+        );
+    };
 }
 pub(crate) use test_composite_surface_element;
 
@@ -106,38 +106,33 @@ macro_rules! test_composite_surface_element_inner
 }
 pub(crate) use test_composite_surface_element_inner;
 
-macro_rules! setup_for_test_composite_element_with_constitutive_model
-{
-    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
-    {
-        fn get_element<'a>() -> $element<$constitutive_model<'a>>
-        {
+macro_rules! setup_for_test_composite_element_with_constitutive_model {
+    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) => {
+        fn get_element<'a>() -> $element<$constitutive_model<'a>> {
             $element::new(
                 $constitutive_model_parameters,
                 get_reference_coordinates(),
-                &crate::fem::block::element::linear::surface::test::THICKNESS
+                &crate::fem::block::element::linear::surface::test::THICKNESS,
             )
         }
-        fn get_element_transformed<'a>() -> $element<$constitutive_model<'a>>
-        {
+        fn get_element_transformed<'a>() -> $element<$constitutive_model<'a>> {
             $element::new(
                 $constitutive_model_parameters,
                 get_reference_coordinates_transformed(),
-                &crate::fem::block::element::linear::surface::test::THICKNESS
+                &crate::fem::block::element::linear::surface::test::THICKNESS,
             )
         }
         #[test]
-        fn size()
-        {
+        fn size() {
             assert_eq!(
                 std::mem::size_of::<$element::<$constitutive_model>>(),
                 std::mem::size_of::<[$constitutive_model; G]>()
-                + std::mem::size_of::<ProjectedGradientVectors<G, N>>()
-                + std::mem::size_of::<Scalars<G>>()
-                + std::mem::size_of::<ScaledReferenceNormals<G, P>>()
+                    + std::mem::size_of::<ProjectedGradientVectors<G, N>>()
+                    + std::mem::size_of::<Scalars<G>>()
+                    + std::mem::size_of::<ScaledReferenceNormals<G, P>>()
             )
         }
-    }
+    };
 }
 pub(crate) use setup_for_test_composite_element_with_constitutive_model;
 

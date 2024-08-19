@@ -1,34 +1,32 @@
-use crate::
-{
-    constitutive::solid::elastic_hyperviscous::test::ALMANSIHAMELPARAMETERS,
-    mechanics::Scalar
+use crate::{
+    constitutive::solid::elastic_hyperviscous::test::ALMANSIHAMELPARAMETERS, mechanics::Scalar,
 };
-pub const SAINTVENANTKIRCHOFFPARAMETERS: &[Scalar; 4] = &[ALMANSIHAMELPARAMETERS[0], ALMANSIHAMELPARAMETERS[1], ALMANSIHAMELPARAMETERS[2], ALMANSIHAMELPARAMETERS[3]];
+pub const SAINTVENANTKIRCHOFFPARAMETERS: &[Scalar; 4] = &[
+    ALMANSIHAMELPARAMETERS[0],
+    ALMANSIHAMELPARAMETERS[1],
+    ALMANSIHAMELPARAMETERS[2],
+    ALMANSIHAMELPARAMETERS[3],
+];
 
-macro_rules! calculate_helmholtz_free_energy_density_from_deformation_gradient_simple
-{
-    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
-    {
-        $constitutive_model_constructed.calculate_helmholtz_free_energy_density(
-            $deformation_gradient
-        )
-    }
+macro_rules! calculate_helmholtz_free_energy_density_from_deformation_gradient_simple {
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
+        $constitutive_model_constructed
+            .calculate_helmholtz_free_energy_density($deformation_gradient)
+            .unwrap()
+    };
 }
 pub(crate) use calculate_helmholtz_free_energy_density_from_deformation_gradient_simple;
 
-macro_rules! use_elastic_hyperviscous_macros
-{
-    () =>
-    {
-        use crate::constitutive::solid::elastic_hyperviscous::test::
-        {
-            calculate_viscous_dissipation_from_deformation_gradient_rate_simple,
-            calculate_viscous_dissipation_from_deformation_gradient_and_deformation_gradient_rate,
+macro_rules! use_elastic_hyperviscous_macros {
+    () => {
+        use crate::constitutive::solid::elastic_hyperviscous::test::{
             calculate_dissipation_potential_from_deformation_gradient_and_deformation_gradient_rate,
-            use_viscoelastic_macros
+            calculate_viscous_dissipation_from_deformation_gradient_and_deformation_gradient_rate,
+            calculate_viscous_dissipation_from_deformation_gradient_rate_simple,
+            use_viscoelastic_macros,
         };
         use_viscoelastic_macros!();
-    }
+    };
 }
 pub(crate) use use_elastic_hyperviscous_macros;
 

@@ -3,35 +3,34 @@
 #[cfg(test)]
 pub mod test;
 
-use crate::math::
-{
-    tensor_rank_1_zero,
-    TensorRank0,
-    TensorRank0List,
-    TensorRank1,
-    TensorRank1List,
-    TensorRank1List2D,
-    TensorRank2,
-    TensorRank2List,
-    TensorRank2List2D,
-    TensorRank4,
-    TensorRank4List
+use crate::math::{
+    tensor_rank_1_zero, TensorRank0, TensorRank0List, TensorRank1, TensorRank1List,
+    TensorRank1List2D, TensorRank2, TensorRank2List, TensorRank2List2D, TensorRank4,
+    TensorRank4List,
 };
 
 pub const IDENTITY: TensorRank2<3, 1, 1> = TensorRank2([
-    TensorRank1([1.0, 0.0, 0.0]), TensorRank1([0.0, 1.0, 0.0]), TensorRank1([0.0, 0.0, 1.0])
+    TensorRank1([1.0, 0.0, 0.0]),
+    TensorRank1([0.0, 1.0, 0.0]),
+    TensorRank1([0.0, 0.0, 1.0]),
 ]);
 
 pub const IDENTITY_00: TensorRank2<3, 0, 0> = TensorRank2([
-    TensorRank1([1.0, 0.0, 0.0]), TensorRank1([0.0, 1.0, 0.0]), TensorRank1([0.0, 0.0, 1.0])
+    TensorRank1([1.0, 0.0, 0.0]),
+    TensorRank1([0.0, 1.0, 0.0]),
+    TensorRank1([0.0, 0.0, 1.0]),
 ]);
 
 pub const IDENTITY_10: TensorRank2<3, 1, 0> = TensorRank2([
-    TensorRank1([1.0, 0.0, 0.0]), TensorRank1([0.0, 1.0, 0.0]), TensorRank1([0.0, 0.0, 1.0])
+    TensorRank1([1.0, 0.0, 0.0]),
+    TensorRank1([0.0, 1.0, 0.0]),
+    TensorRank1([0.0, 0.0, 1.0]),
 ]);
 
 pub const ZERO_10: TensorRank2<3, 1, 0> = TensorRank2([
-    tensor_rank_1_zero(), tensor_rank_1_zero(), tensor_rank_1_zero()
+    tensor_rank_1_zero(),
+    tensor_rank_1_zero(),
+    tensor_rank_1_zero(),
 ]);
 
 pub const ZERO_VECTOR: TensorRank1<3, 1> = tensor_rank_1_zero();
@@ -100,7 +99,8 @@ pub type FirstPiolaKirchoffTangentStiffnesses<const W: usize> = TensorRank4List<
 pub type FirstPiolaKirchoffRateTangentStiffness = TensorRank4<3, 1, 0, 1, 0>;
 
 /// A list of first Piola-Kirchoff rate tangent stiffnesses.
-pub type FirstPiolaKirchoffRateTangentStiffnesses<const W: usize> = TensorRank4List<3, 1, 0, 1, 0, W>;
+pub type FirstPiolaKirchoffRateTangentStiffnesses<const W: usize> =
+    TensorRank4List<3, 1, 0, 1, 0, W>;
 
 /// A force.
 pub type Force = TensorRank1<3, 1>;

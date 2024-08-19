@@ -29,30 +29,24 @@ mod neo_hookean;
 mod saint_venant_kirchoff;
 mod yeoh;
 
-pub use self::
-{
-    arruda_boyce::ArrudaBoyce,
-    fung::Fung,
-    gent::Gent,
-    mooney_rivlin::MooneyRivlin,
-    neo_hookean::NeoHookean,
-    saint_venant_kirchoff::SaintVenantKirchoff,
-    yeoh::Yeoh
+pub use self::{
+    arruda_boyce::ArrudaBoyce, fung::Fung, gent::Gent, mooney_rivlin::MooneyRivlin,
+    neo_hookean::NeoHookean, saint_venant_kirchoff::SaintVenantKirchoff, yeoh::Yeoh,
 };
-use super::
-{
-    *, elastic::Elastic
-};
+use super::{elastic::Elastic, *};
 
 /// Required methods for hyperelastic constitutive models.
 pub trait Hyperelastic<'a>
 where
-    Self: Elastic<'a>
+    Self: Elastic<'a>,
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///
     /// ```math
     /// a = a(\mathbf{F})
     /// ```
-    fn calculate_helmholtz_free_energy_density(&self, deformation_gradient: &DeformationGradient) -> Scalar;
+    fn calculate_helmholtz_free_energy_density(
+        &self,
+        deformation_gradient: &DeformationGradient,
+    ) -> Result<Scalar, ConstitutiveError>;
 }

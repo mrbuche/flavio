@@ -7,27 +7,10 @@ mod smith_ferrante;
 
 pub use smith_ferrante::SmithFerrante;
 
-use crate::
-{
-    math::
-    {
-        TensorRank1Trait,
-        TensorRank2Trait
-    },
-    mechanics::
-    {
-        Displacement,
-        Normal,
-        Scalar,
-        Stiffness,
-        Traction,
-        IDENTITY
-    }
-};
-use super::
-{
-    Constitutive,
-    Parameters
+use super::{Constitutive, Parameters};
+use crate::{
+    math::{TensorRank1Trait, TensorRank2Trait},
+    mechanics::{Displacement, Normal, Scalar, Stiffness, Traction, IDENTITY},
 };
 
 // TODO: loading/unloading rules using an ISV
@@ -35,8 +18,12 @@ use super::
 /// Required methods for cohesive constitutive models.
 pub trait Cohesive<'a>
 where
-    Self: Constitutive<'a>
+    Self: Constitutive<'a>,
 {
     fn calculate_traction(&self, displacement: &Displacement, normal: &Normal) -> Traction;
-    fn calculate_stiffnesses(&self, displacement: &Displacement, normal: &Normal) -> (Stiffness, Stiffness);
+    fn calculate_stiffnesses(
+        &self,
+        displacement: &Displacement,
+        normal: &Normal,
+    ) -> (Stiffness, Stiffness);
 }

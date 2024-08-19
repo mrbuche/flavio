@@ -5,87 +5,114 @@ pub mod triangle;
 
 use super::*;
 
-pub trait LinearSurfaceElement<'a, C, const G: usize, const M: usize, const N: usize, const O: usize>
-where
+pub trait LinearSurfaceElement<
+    'a,
+    C,
+    const G: usize,
+    const M: usize,
+    const N: usize,
+    const O: usize,
+> where
     C: Constitutive<'a>,
-    Self: LinearElement<'a, C, G, M, N, O>
+    Self: LinearElement<'a, C, G, M, N, O>,
 {
-    fn calculate_basis<const I: usize>(nodal_coordinates: &Coordinates<I, O>) -> Basis<I>
-    {
-        Self::calculate_standard_gradient_operator().iter()
-        .zip(nodal_coordinates.iter())
-        .map(|(standard_gradient_operator_a, nodal_coordinates_a)|
-            standard_gradient_operator_a.iter()
-            .map(|standard_gradient_operator_a_m|
-                nodal_coordinates_a * standard_gradient_operator_a_m
-            ).collect()
-        ).sum()
+    fn calculate_basis<const I: usize>(nodal_coordinates: &Coordinates<I, O>) -> Basis<I> {
+        Self::calculate_standard_gradient_operator()
+            .iter()
+            .zip(nodal_coordinates.iter())
+            .map(|(standard_gradient_operator_a, nodal_coordinates_a)| {
+                standard_gradient_operator_a
+                    .iter()
+                    .map(|standard_gradient_operator_a_m| {
+                        nodal_coordinates_a * standard_gradient_operator_a_m
+                    })
+                    .collect()
+            })
+            .sum()
     }
-    fn calculate_deformation_gradient_linear_surface_element(&self, nodal_coordinates: &NodalCoordinates<O>) -> DeformationGradient
-    {
-        nodal_coordinates.iter()
-        .zip(self.get_gradient_vectors().iter())
-        .map(|(nodal_coordinate, gradient_vector)|
-            DeformationGradient::dyad(nodal_coordinate, gradient_vector)
-        ).sum::<DeformationGradient>() + DeformationGradient::dyad(
-            &Self::calculate_normal(nodal_coordinates),
-            self.get_reference_normal()
-        )
+    fn calculate_deformation_gradient_linear_surface_element(
+        &self,
+        nodal_coordinates: &NodalCoordinates<O>,
+    ) -> DeformationGradient {
+        nodal_coordinates
+            .iter()
+            .zip(self.get_gradient_vectors().iter())
+            .map(|(nodal_coordinate, gradient_vector)| {
+                DeformationGradient::dyad(nodal_coordinate, gradient_vector)
+            })
+            .sum::<DeformationGradient>()
+            + DeformationGradient::dyad(
+                &Self::calculate_normal(nodal_coordinates),
+                self.get_reference_normal(),
+            )
     }
-    fn calculate_deformation_gradient_rate_linear_surface_element(&self, nodal_coordinates: &NodalCoordinates<O>, nodal_velocities: &NodalVelocities<O>) -> DeformationGradientRate
-    {
-        nodal_velocities.iter()
-        .zip(self.get_gradient_vectors().iter())
-        .map(|(nodal_velocity, gradient_vector)|
-            DeformationGradientRate::dyad(nodal_velocity, gradient_vector)
-        ).sum::<DeformationGradientRate>() + DeformationGradientRate::dyad(
-            &Self::calculate_normal_rate(nodal_coordinates, nodal_velocities),
-            self.get_reference_normal()
-        )
+    fn calculate_deformation_gradient_rate_linear_surface_element(
+        &self,
+        nodal_coordinates: &NodalCoordinates<O>,
+        nodal_velocities: &NodalVelocities<O>,
+    ) -> DeformationGradientRate {
+        nodal_velocities
+            .iter()
+            .zip(self.get_gradient_vectors().iter())
+            .map(|(nodal_velocity, gradient_vector)| {
+                DeformationGradientRate::dyad(nodal_velocity, gradient_vector)
+            })
+            .sum::<DeformationGradientRate>()
+            + DeformationGradientRate::dyad(
+                &Self::calculate_normal_rate(nodal_coordinates, nodal_velocities),
+                self.get_reference_normal(),
+            )
     }
-    fn calculate_dual_basis<const I: usize>(nodal_coordinates: &Coordinates<I, O>) -> Basis<I>
-    {
+    fn calculate_dual_basis<const I: usize>(nodal_coordinates: &Coordinates<I, O>) -> Basis<I> {
         let basis_vectors = Self::calculate_basis(nodal_coordinates);
-        basis_vectors.iter()
-        .map(|basis_vectors_m|
-            basis_vectors.iter()
-            .map(|basis_vectors_n|
-                basis_vectors_m * basis_vectors_n
-            ).collect()
-        ).collect::<TensorRank2<M, I, I>>()
-        .inverse()
-        .iter()
-        .map(|metric_tensor_m|
-            metric_tensor_m.iter()
-            .zip(basis_vectors.iter())
-            .map(|(metric_tensor_mn, basis_vectors_n)|
-                basis_vectors_n * metric_tensor_mn
-            ).sum()
-        ).collect()
+        basis_vectors
+            .iter()
+            .map(|basis_vectors_m| {
+                basis_vectors
+                    .iter()
+                    .map(|basis_vectors_n| basis_vectors_m * basis_vectors_n)
+                    .collect()
+            })
+            .collect::<TensorRank2<M, I, I>>()
+            .inverse()
+            .iter()
+            .map(|metric_tensor_m| {
+                metric_tensor_m
+                    .iter()
+                    .zip(basis_vectors.iter())
+                    .map(|(metric_tensor_mn, basis_vectors_n)| basis_vectors_n * metric_tensor_mn)
+                    .sum()
+            })
+            .collect()
     }
-    fn calculate_gradient_vectors_linear_surface_element(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> GradientVectors<N>
-    {
+    fn calculate_gradient_vectors_linear_surface_element(
+        reference_nodal_coordinates: &ReferenceNodalCoordinates<O>,
+    ) -> GradientVectors<N> {
         let reference_dual_basis_vectors = Self::calculate_dual_basis(reference_nodal_coordinates);
-        Self::calculate_standard_gradient_operator().iter()
-        .map(|standard_gradient_operator_a|
-            standard_gradient_operator_a.iter()
-            .zip(reference_dual_basis_vectors.iter())
-            .map(|(standard_gradient_operator_a_m, dual_reference_basis_vector_m)|
-                dual_reference_basis_vector_m * standard_gradient_operator_a_m
-            ).sum()
-        ).collect()
+        Self::calculate_standard_gradient_operator()
+            .iter()
+            .map(|standard_gradient_operator_a| {
+                standard_gradient_operator_a
+                    .iter()
+                    .zip(reference_dual_basis_vectors.iter())
+                    .map(
+                        |(standard_gradient_operator_a_m, dual_reference_basis_vector_m)| {
+                            dual_reference_basis_vector_m * standard_gradient_operator_a_m
+                        },
+                    )
+                    .sum()
+            })
+            .collect()
     }
-    fn calculate_normal(nodal_coordinates: &NodalCoordinates<O>) -> Normal
-    {
+    fn calculate_normal(nodal_coordinates: &NodalCoordinates<O>) -> Normal {
         let basis_vectors = Self::calculate_basis(nodal_coordinates);
         basis_vectors[0].cross(&basis_vectors[1]).normalized()
     }
-    fn calculate_normal_gradients(nodal_coordinates: &Coordinates<1, O>) -> NormalGradients<O>
-    {
+    fn calculate_normal_gradients(nodal_coordinates: &Coordinates<1, O>) -> NormalGradients<O> {
         let basis_vectors = Self::calculate_basis(nodal_coordinates);
         let levi_civita_symbol = levi_civita::<1, 1, 1>();
         let normalization = basis_vectors[0].cross(&basis_vectors[1]).norm();
-        let normal_vector = basis_vectors[0].cross(&basis_vectors[1])/normalization;
+        let normal_vector = basis_vectors[0].cross(&basis_vectors[1]) / normalization;
         Self::calculate_standard_gradient_operator().iter()
         .map(|standard_gradient_operator_a|
             levi_civita_symbol.iter()
@@ -111,12 +138,14 @@ where
             ).collect()
         ).collect()
     }
-    fn calculate_normal_rate(nodal_coordinates: &NodalCoordinates<O>, nodal_velocities: &NodalVelocities<O>) -> NormalRate
-    {
+    fn calculate_normal_rate(
+        nodal_coordinates: &NodalCoordinates<O>,
+        nodal_velocities: &NodalVelocities<O>,
+    ) -> NormalRate {
         let basis_vectors = Self::calculate_basis(nodal_coordinates);
         let levi_civita_symbol = levi_civita::<1, 1, 1>();
         let normalization = basis_vectors[0].cross(&basis_vectors[1]).norm();
-        let normal_vector = basis_vectors[0].cross(&basis_vectors[1])/normalization;
+        let normal_vector = basis_vectors[0].cross(&basis_vectors[1]) / normalization;
         let standard_gradient_operator = Self::calculate_standard_gradient_operator();
         IDENTITY.iter()
         .zip(normal_vector.iter())
@@ -145,13 +174,12 @@ where
             ).sum::<Scalar>() / normalization
         ).collect()
     }
-    fn calculate_normal_tangents(nodal_coordinates: &Coordinates<1, O>) -> NormalTangents<O>
-    {
+    fn calculate_normal_tangents(nodal_coordinates: &Coordinates<1, O>) -> NormalTangents<O> {
         let basis_vectors = Self::calculate_basis(nodal_coordinates);
         let levi_civita_symbol = levi_civita::<1, 1, 1>();
         let normalization = basis_vectors[0].cross(&basis_vectors[1]).norm();
         let normal_gradients = Self::calculate_normal_gradients(nodal_coordinates);
-        let normal_vector = basis_vectors[0].cross(&basis_vectors[1])/normalization;
+        let normal_vector = basis_vectors[0].cross(&basis_vectors[1]) / normalization;
         let standard_gradient_operator = Self::calculate_standard_gradient_operator();
         normal_gradients.iter()
         .zip(standard_gradient_operator.iter())
@@ -209,15 +237,21 @@ where
             ).collect()
         ).collect()
     }
-    fn calculate_reference_jacobian_linear_surface_element(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> Scalar
-    {
+    fn calculate_reference_jacobian_linear_surface_element(
+        reference_nodal_coordinates: &ReferenceNodalCoordinates<O>,
+    ) -> Scalar {
         let reference_basis_vectors = Self::calculate_basis(reference_nodal_coordinates);
-        reference_basis_vectors[0].cross(&reference_basis_vectors[1]).norm()
+        reference_basis_vectors[0]
+            .cross(&reference_basis_vectors[1])
+            .norm()
     }
-    fn calculate_reference_normal(reference_nodal_coordinates: &ReferenceNodalCoordinates<O>) -> ReferenceNormal
-    {
+    fn calculate_reference_normal(
+        reference_nodal_coordinates: &ReferenceNodalCoordinates<O>,
+    ) -> ReferenceNormal {
         let dual_basis_vectors = Self::calculate_dual_basis(reference_nodal_coordinates);
-        dual_basis_vectors[0].cross(&dual_basis_vectors[1]).normalized()
+        dual_basis_vectors[0]
+            .cross(&dual_basis_vectors[1])
+            .normalized()
     }
     fn get_reference_normal(&self) -> &ReferenceNormal;
 }

@@ -2,174 +2,146 @@ use crate::mechanics::Scalar;
 
 pub const ALMANSIHAMELPARAMETERS: &[Scalar; 2] = &[13.0, 3.0];
 
-macro_rules! calculate_cauchy_stress_from_deformation_gradient
-{
-    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
-    {
-        $constitutive_model_constructed.calculate_cauchy_stress(
-            $deformation_gradient
-        )
-    }
+macro_rules! calculate_cauchy_stress_from_deformation_gradient {
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
+        $constitutive_model_constructed
+            .calculate_cauchy_stress($deformation_gradient)
+            .expect("the unexpected")
+    };
 }
 pub(crate) use calculate_cauchy_stress_from_deformation_gradient;
 
-macro_rules! calculate_cauchy_stress_from_deformation_gradient_simple
-{
-    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
-    {
-        $constitutive_model_constructed.calculate_cauchy_stress(
-            $deformation_gradient
-        )
-    }
+macro_rules! calculate_cauchy_stress_from_deformation_gradient_simple {
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
+        $constitutive_model_constructed
+            .calculate_cauchy_stress($deformation_gradient)
+            .expect("the unexpected")
+    };
 }
 pub(crate) use calculate_cauchy_stress_from_deformation_gradient_simple;
 
-macro_rules! calculate_cauchy_stress_from_deformation_gradient_rotated
-{
-    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
-    {
-        $constitutive_model_constructed.calculate_cauchy_stress(
-            $deformation_gradient
-        )
-    }
+macro_rules! calculate_cauchy_stress_from_deformation_gradient_rotated {
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
+        $constitutive_model_constructed
+            .calculate_cauchy_stress($deformation_gradient)
+            .expect("the unexpected")
+    };
 }
 pub(crate) use calculate_cauchy_stress_from_deformation_gradient_rotated;
 
-macro_rules! calculate_cauchy_tangent_stiffness_from_deformation_gradient
-{
-    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
-    {
-        $constitutive_model_constructed.calculate_cauchy_tangent_stiffness(
-            $deformation_gradient
-        )
-    }
+macro_rules! calculate_cauchy_tangent_stiffness_from_deformation_gradient {
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
+        $constitutive_model_constructed
+            .calculate_cauchy_tangent_stiffness($deformation_gradient)
+            .expect("the unexpected")
+    };
 }
 pub(crate) use calculate_cauchy_tangent_stiffness_from_deformation_gradient;
 
-macro_rules! calculate_first_piola_kirchoff_stress_from_deformation_gradient
-{
-    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
-    {
-        $constitutive_model_constructed.calculate_first_piola_kirchoff_stress(
-            $deformation_gradient
-        )
-    }
+macro_rules! calculate_first_piola_kirchoff_stress_from_deformation_gradient {
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
+        $constitutive_model_constructed
+            .calculate_first_piola_kirchoff_stress($deformation_gradient)
+            .expect("the unexpected")
+    };
 }
 pub(crate) use calculate_first_piola_kirchoff_stress_from_deformation_gradient;
 
-macro_rules! calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple
-{
-    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
-    {
-        $constitutive_model_constructed.calculate_first_piola_kirchoff_stress(
-            $deformation_gradient
-        )
-    }
+macro_rules! calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple {
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
+        $constitutive_model_constructed
+            .calculate_first_piola_kirchoff_stress($deformation_gradient)
+            .expect("the unexpected")
+    };
 }
 pub(crate) use calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple;
 
-macro_rules! calculate_first_piola_kirchoff_stress_from_deformation_gradient_rotated
-{
-    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
-    {
-        $constitutive_model_constructed.calculate_first_piola_kirchoff_stress(
-            $deformation_gradient
-        )
-    }
+macro_rules! calculate_first_piola_kirchoff_stress_from_deformation_gradient_rotated {
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
+        $constitutive_model_constructed
+            .calculate_first_piola_kirchoff_stress($deformation_gradient)
+            .expect("the unexpected")
+    };
 }
 pub(crate) use calculate_first_piola_kirchoff_stress_from_deformation_gradient_rotated;
 
-macro_rules! calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient
-{
-    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
-    {
-        $constitutive_model_constructed.calculate_first_piola_kirchoff_tangent_stiffness(
-            $deformation_gradient
-        )
-    }
+macro_rules! calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient {
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
+        $constitutive_model_constructed
+            .calculate_first_piola_kirchoff_tangent_stiffness($deformation_gradient)
+            .expect("the unexpected")
+    };
 }
 pub(crate) use calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient;
 
-macro_rules! calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient_simple
-{
-    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
-    {
-        $constitutive_model_constructed.calculate_first_piola_kirchoff_tangent_stiffness(
-            $deformation_gradient
-        )
-    }
+macro_rules! calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient_simple {
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
+        $constitutive_model_constructed
+            .calculate_first_piola_kirchoff_tangent_stiffness($deformation_gradient)
+            .expect("the unexpected")
+    };
 }
 pub(crate) use calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient_simple;
 
-macro_rules! calculate_second_piola_kirchoff_stress_from_deformation_gradient
-{
-    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
-    {
-        $constitutive_model_constructed.calculate_second_piola_kirchoff_stress(
-            $deformation_gradient
-        )
-    }
+macro_rules! calculate_second_piola_kirchoff_stress_from_deformation_gradient {
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
+        $constitutive_model_constructed
+            .calculate_second_piola_kirchoff_stress($deformation_gradient)
+            .expect("the unexpected")
+    };
 }
 pub(crate) use calculate_second_piola_kirchoff_stress_from_deformation_gradient;
 
-macro_rules! calculate_second_piola_kirchoff_stress_from_deformation_gradient_simple
-{
-    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
-    {
-        $constitutive_model_constructed.calculate_second_piola_kirchoff_stress(
-            $deformation_gradient
-        )
-    }
+macro_rules! calculate_second_piola_kirchoff_stress_from_deformation_gradient_simple {
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
+        $constitutive_model_constructed
+            .calculate_second_piola_kirchoff_stress($deformation_gradient)
+            .expect("the unexpected")
+    };
 }
 pub(crate) use calculate_second_piola_kirchoff_stress_from_deformation_gradient_simple;
 
-macro_rules! calculate_second_piola_kirchoff_stress_from_deformation_gradient_rotated
-{
-    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
-    {
-        $constitutive_model_constructed.calculate_second_piola_kirchoff_stress(
-            $deformation_gradient
-        )
-    }
+macro_rules! calculate_second_piola_kirchoff_stress_from_deformation_gradient_rotated {
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
+        $constitutive_model_constructed
+            .calculate_second_piola_kirchoff_stress($deformation_gradient)
+            .expect("the unexpected")
+    };
 }
 pub(crate) use calculate_second_piola_kirchoff_stress_from_deformation_gradient_rotated;
 
-macro_rules! calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient
-{
-    ($constitutive_model_constructed: expr, $deformation_gradient: expr) =>
-    {
-        $constitutive_model_constructed.calculate_second_piola_kirchoff_tangent_stiffness(
-            $deformation_gradient
-        )
-    }
+macro_rules! calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient {
+    ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
+        $constitutive_model_constructed
+            .calculate_second_piola_kirchoff_tangent_stiffness($deformation_gradient)
+            .expect("the unexpected")
+    };
 }
 pub(crate) use calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient;
 
-macro_rules! test_solid_constitutive_model
-{
-    ($constitutive_model: ident, $constitutive_model_parameters: expr, $constitutive_model_constructed: expr) =>
-    {
+macro_rules! test_solid_constitutive_model {
+    ($constitutive_model: ident, $constitutive_model_parameters: expr, $constitutive_model_constructed: expr) => {
         crate::constitutive::solid::elastic::test::test_solid_constitutive_construction!(
-            $constitutive_model, $constitutive_model_parameters, $constitutive_model_constructed
+            $constitutive_model,
+            $constitutive_model_parameters,
+            $constitutive_model_constructed
         );
         crate::constitutive::solid::elastic::test::test_constructed_solid_constitutive_model!(
             $constitutive_model_constructed
         );
-    }
+    };
 }
 pub(crate) use test_solid_constitutive_model;
 
-macro_rules! test_constructed_solid_constitutive_model
-{
-    ($constitutive_model_constructed: expr) =>
-    {
+macro_rules! test_constructed_solid_constitutive_model {
+    ($constitutive_model_constructed: expr) => {
         crate::constitutive::solid::elastic::test::test_solid_constitutive_model_no_tangents!(
             $constitutive_model_constructed
         );
         crate::constitutive::solid::elastic::test::test_solid_constitutive_model_tangents!(
             $constitutive_model_constructed
         );
-    }
+    };
 }
 pub(crate) use test_constructed_solid_constitutive_model;
 
@@ -246,9 +218,19 @@ macro_rules! test_solid_constitutive_model_no_tangents
             {
                 use super::*;
                 #[test]
+                #[should_panic(expected = "Invalid Jacobian")]
+                fn invalid_jacobian()
+                {
+                    let mut deformation_gradient = DeformationGradient::identity();
+                    deformation_gradient[0][0] *= -1.0;
+                    let _ = calculate_cauchy_stress_from_deformation_gradient!(
+                        $constitutive_model_constructed, &deformation_gradient
+                    );
+                }
+                #[test]
                 fn objectivity()
                 {
-                    let _ = EPSILON * 1.0;
+                    let _ = EPSILON;
                     calculate_cauchy_stress_from_deformation_gradient!(
                         &$constitutive_model_constructed, &get_deformation_gradient()
                     ).iter().zip((
@@ -299,6 +281,16 @@ macro_rules! test_solid_constitutive_model_no_tangents
             use super::*;
             mod deformed
             {
+                #[test]
+                #[should_panic(expected = "Invalid Jacobian")]
+                fn invalid_jacobian()
+                {
+                    let mut deformation_gradient = DeformationGradient::identity();
+                    deformation_gradient[0][0] *= -1.0;
+                    let _ = calculate_first_piola_kirchoff_stress_from_deformation_gradient!(
+                        $constitutive_model_constructed, &deformation_gradient
+                    );
+                }
                 use super::*;
                 #[test]
                 fn objectivity()
@@ -342,6 +334,16 @@ macro_rules! test_solid_constitutive_model_no_tangents
             use super::*;
             mod deformed
             {
+                #[test]
+                #[should_panic(expected = "Invalid Jacobian")]
+                fn invalid_jacobian()
+                {
+                    let mut deformation_gradient = DeformationGradient::identity();
+                    deformation_gradient[0][0] *= -1.0;
+                    let _ = calculate_second_piola_kirchoff_stress_from_deformation_gradient!(
+                        $constitutive_model_constructed, &deformation_gradient
+                    );
+                }
                 use super::*;
                 #[test]
                 fn objectivity()
@@ -718,6 +720,16 @@ macro_rules! test_solid_constitutive_model_tangents
                 {
                     use super::*;
                     #[test]
+                    #[should_panic(expected = "Invalid Jacobian")]
+                    fn invalid_jacobian()
+                    {
+                        let mut deformation_gradient = DeformationGradient::identity();
+                        deformation_gradient[0][0] *= -1.0;
+                        let _ = calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
+                            $constitutive_model_constructed, &deformation_gradient
+                        );
+                    }
+                    #[test]
                     fn objectivity()
                     {
                         let model = $constitutive_model_constructed;
@@ -846,6 +858,16 @@ macro_rules! test_solid_constitutive_model_tangents
                 {
                     use super::*;
                     #[test]
+                    #[should_panic(expected = "Invalid Jacobian")]
+                    fn invalid_jacobian()
+                    {
+                        let mut deformation_gradient = DeformationGradient::identity();
+                        deformation_gradient[0][0] *= -1.0;
+                        let _ = calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient!(
+                            $constitutive_model_constructed, &deformation_gradient
+                        );
+                    }
+                    #[test]
                     fn objectivity()
                     {
                         let model = $constitutive_model_constructed;
@@ -921,6 +943,16 @@ macro_rules! test_solid_constitutive_model_tangents
                 mod deformed
                 {
                     use super::*;
+                    #[test]
+                    #[should_panic(expected = "Invalid Jacobian")]
+                    fn invalid_jacobian()
+                    {
+                        let mut deformation_gradient = DeformationGradient::identity();
+                        deformation_gradient[0][0] *= -1.0;
+                        let _ = calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient!(
+                            $constitutive_model_constructed, &deformation_gradient
+                        );
+                    }
                     #[test]
                     fn objectivity()
                     {
