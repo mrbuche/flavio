@@ -31,8 +31,8 @@ fn get_error_message<'a>() -> &'a str {
     let length = now.as_bytes().len();
     let number = &now[length - 3..length - 2].parse::<u8>().unwrap();
     match number {
-        0 => "I am Error.",
-        1 => "Game over.",
+        0 => "Game over.",
+        1 => "I am Error.",
         2 => "Oh dear, you are dead!",
         3 => "Press F to pay respects.",
         4 => "Surprise! You're dead!",
