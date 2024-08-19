@@ -5,7 +5,7 @@ use crate::{
     constitutive::{
         hybrid::{Hybrid, Multiplicative, MultiplicativeTrait},
         solid::{elastic::Elastic, Solid},
-        Constitutive, ConstitutiveError, Parameters,
+        Constitutive, ConstitutiveError, Parameters, CONSTITUTIVE_MODEL_ERROR,
     },
     math::{TensorRank2, TensorRank2Trait},
     mechanics::{
@@ -144,13 +144,13 @@ impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> MultiplicativeTrait for Multiplicativ
                     * self
                         .get_constitutive_model_1()
                         .calculate_first_piola_kirchoff_stress(&deformation_gradient_1)
-                        .expect("\x1b[91mConstitutive model error.\x1b[0\n")
+                        .expect(CONSTITUTIVE_MODEL_ERROR)
                     * deformation_gradient_2_inverse_transpose)
                     .into();
                 residual = self
                     .get_constitutive_model_2()
                     .calculate_first_piola_kirchoff_stress(&deformation_gradient_2)
-                    .expect("\x1b[91mConstitutive model error.\x1b[0\n")
+                    .expect(CONSTITUTIVE_MODEL_ERROR)
                     - right_hand_side;
                 residual_norm = residual.norm();
                 if residual_norm >= ABS_TOL {

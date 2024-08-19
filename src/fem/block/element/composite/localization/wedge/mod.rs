@@ -405,7 +405,7 @@ where
         self.get_constitutive_models().iter()
         .zip(self.calculate_deformation_gradients(nodal_coordinates).iter())
         .map(|(constitutive_model, deformation_gradient)|
-            constitutive_model.calculate_first_piola_kirchoff_stress(deformation_gradient)
+            constitutive_model.calculate_first_piola_kirchoff_stress(deformation_gradient).expect(CONSTITUTIVE_MODEL_ERROR)
         ).collect::<FirstPiolaKirchoffStresses<G>>().iter()
         .zip(self.get_projected_gradient_vectors().iter()
         .zip(self.get_integration_weights().iter()
@@ -449,7 +449,7 @@ where
         self.get_constitutive_models().iter()
         .zip(deformation_gradients.iter())
         .map(|(constitutive_model, deformation_gradient)|
-            constitutive_model.calculate_first_piola_kirchoff_stress(deformation_gradient)
+            constitutive_model.calculate_first_piola_kirchoff_stress(deformation_gradient).expect(CONSTITUTIVE_MODEL_ERROR)
         ).collect::<FirstPiolaKirchoffStresses<G>>().iter()
         .zip(self.get_constitutive_models().iter()
         .zip(deformation_gradients.iter())
@@ -548,7 +548,7 @@ where
         .zip(self.calculate_deformation_gradients(nodal_coordinates).iter()
         .zip(self.calculate_deformation_gradient_rates(nodal_coordinates, nodal_velocities).iter()))
         .map(|(constitutive_model, (deformation_gradient, deformation_gradient_rate))|
-            constitutive_model.calculate_first_piola_kirchoff_stress(deformation_gradient, deformation_gradient_rate)
+            constitutive_model.calculate_first_piola_kirchoff_stress(deformation_gradient, deformation_gradient_rate).expect(CONSTITUTIVE_MODEL_ERROR)
         ).collect::<FirstPiolaKirchoffStresses<G>>().iter()
         .zip(self.get_projected_gradient_vectors().iter()
         .zip(self.get_integration_weights().iter()

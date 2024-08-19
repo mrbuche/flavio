@@ -131,7 +131,9 @@ pub trait ElasticCompositeElement<
                     .iter(),
             )
             .map(|(constitutive_model, deformation_gradient)| {
-                constitutive_model.calculate_first_piola_kirchoff_stress(deformation_gradient)
+                constitutive_model
+                    .calculate_first_piola_kirchoff_stress(deformation_gradient)
+                    .expect(CONSTITUTIVE_MODEL_ERROR)
             })
             .collect::<FirstPiolaKirchoffStresses<G>>()
             .iter()
@@ -232,7 +234,7 @@ pub trait HyperelasticCompositeElement<
                 |(constitutive_model, (deformation_gradient, scaled_composite_jacobian))| {
                     constitutive_model
                         .calculate_helmholtz_free_energy_density(deformation_gradient)
-                        .expect("\x1b[91mConstitutive model error.\x1b[0\n")
+                        .expect(CONSTITUTIVE_MODEL_ERROR)
                         * scaled_composite_jacobian
                 },
             )
@@ -273,10 +275,12 @@ pub trait ViscoelasticCompositeElement<
             )
             .map(
                 |(constitutive_model, (deformation_gradient, deformation_gradient_rate))| {
-                    constitutive_model.calculate_first_piola_kirchoff_stress(
-                        deformation_gradient,
-                        deformation_gradient_rate,
-                    )
+                    constitutive_model
+                        .calculate_first_piola_kirchoff_stress(
+                            deformation_gradient,
+                            deformation_gradient_rate,
+                        )
+                        .expect(CONSTITUTIVE_MODEL_ERROR)
                 },
             )
             .collect::<FirstPiolaKirchoffStresses<G>>()
@@ -404,10 +408,13 @@ pub trait ElasticHyperviscousCompositeElement<
                     constitutive_model,
                     (deformation_gradient, (deformation_gradient_rate, scaled_composite_jacobian)),
                 )| {
-                    constitutive_model.calculate_viscous_dissipation(
-                        deformation_gradient,
-                        deformation_gradient_rate,
-                    ) * scaled_composite_jacobian
+                    constitutive_model
+                        .calculate_viscous_dissipation(
+                            deformation_gradient,
+                            deformation_gradient_rate,
+                        )
+                        .expect(CONSTITUTIVE_MODEL_ERROR)
+                        * scaled_composite_jacobian
                 },
             )
             .sum()
@@ -436,10 +443,13 @@ pub trait ElasticHyperviscousCompositeElement<
                     constitutive_model,
                     (deformation_gradient, (deformation_gradient_rate, scaled_composite_jacobian)),
                 )| {
-                    constitutive_model.calculate_dissipation_potential(
-                        deformation_gradient,
-                        deformation_gradient_rate,
-                    ) * scaled_composite_jacobian
+                    constitutive_model
+                        .calculate_dissipation_potential(
+                            deformation_gradient,
+                            deformation_gradient_rate,
+                        )
+                        .expect(CONSTITUTIVE_MODEL_ERROR)
+                        * scaled_composite_jacobian
                 },
             )
             .sum()
@@ -474,7 +484,7 @@ pub trait HyperviscoelasticCompositeElement<
                 |(constitutive_model, (deformation_gradient, scaled_composite_jacobian))| {
                     constitutive_model
                         .calculate_helmholtz_free_energy_density(deformation_gradient)
-                        .expect("\x1b[91mConstitutive model error.\x1b[0\n")
+                        .expect(CONSTITUTIVE_MODEL_ERROR)
                         * scaled_composite_jacobian
                 },
             )

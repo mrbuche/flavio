@@ -68,7 +68,8 @@ pub trait ElasticLinearElement<
             .get_constitutive_model()
             .calculate_first_piola_kirchoff_stress(
                 &self.calculate_deformation_gradient(nodal_coordinates),
-            );
+            )
+            .expect(CONSTITUTIVE_MODEL_ERROR);
         self.get_gradient_vectors()
             .iter()
             .map(|gradient_vector| {
@@ -124,7 +125,7 @@ pub trait HyperelasticLinearElement<
             .calculate_helmholtz_free_energy_density(
                 &self.calculate_deformation_gradient(nodal_coordinates),
             )
-            .expect("\x1b[91mConstitutive model error.\x1b[0\n")
+            .expect(CONSTITUTIVE_MODEL_ERROR)
             * self.get_integration_weight()
     }
 }
@@ -150,7 +151,8 @@ pub trait ViscoelasticLinearElement<
             .calculate_first_piola_kirchoff_stress(
                 &self.calculate_deformation_gradient(nodal_coordinates),
                 &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities),
-            );
+            )
+            .expect(CONSTITUTIVE_MODEL_ERROR);
         self.get_gradient_vectors()
             .iter()
             .map(|gradient_vector| {
@@ -205,10 +207,13 @@ pub trait ElasticHyperviscousLinearElement<
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
     ) -> Scalar {
-        self.get_constitutive_model().calculate_viscous_dissipation(
-            &self.calculate_deformation_gradient(nodal_coordinates),
-            &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities),
-        ) * self.get_integration_weight()
+        self.get_constitutive_model()
+            .calculate_viscous_dissipation(
+                &self.calculate_deformation_gradient(nodal_coordinates),
+                &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities),
+            )
+            .expect(CONSTITUTIVE_MODEL_ERROR)
+            * self.get_integration_weight()
     }
     fn calculate_dissipation_potential_linear_element(
         &self,
@@ -220,6 +225,7 @@ pub trait ElasticHyperviscousLinearElement<
                 &self.calculate_deformation_gradient(nodal_coordinates),
                 &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities),
             )
+            .expect(CONSTITUTIVE_MODEL_ERROR)
             * self.get_integration_weight()
     }
 }
@@ -243,7 +249,7 @@ pub trait HyperviscoelasticLinearElement<
             .calculate_helmholtz_free_energy_density(
                 &self.calculate_deformation_gradient(nodal_coordinates),
             )
-            .expect("\x1b[91mConstitutive model error.\x1b[0\n")
+            .expect(CONSTITUTIVE_MODEL_ERROR)
             * self.get_integration_weight()
     }
 }

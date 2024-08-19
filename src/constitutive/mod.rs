@@ -25,6 +25,9 @@ pub trait Constitutive<'a> {
     fn new(parameters: Parameters<'a>) -> Self;
 }
 
+/// Error message prefix for constitutive model errors.
+pub const CONSTITUTIVE_MODEL_ERROR: &str = "\x1b[91mConstitutive model error.\x1b[0\n";
+
 /// Possible errors encountered in constitutive models.
 pub enum ConstitutiveError {
     Custom(String, DeformationGradient, String),

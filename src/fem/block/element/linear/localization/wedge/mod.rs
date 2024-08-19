@@ -162,7 +162,8 @@ where
             .get_constitutive_model()
             .calculate_first_piola_kirchoff_stress(
                 &self.calculate_deformation_gradient(nodal_coordinates),
-            );
+            )
+            .expect("\x1b[91mConstitutive model error.\x1b[0\n");
         let normal_gradients =
             Self::calculate_normal_gradients(&Self::calculate_midplane(nodal_coordinates));
         let traction = (&first_piola_kirchoff_stress * self.get_reference_normal()) * 0.5;
@@ -182,7 +183,8 @@ where
         let deformation_gradient = self.calculate_deformation_gradient(nodal_coordinates);
         let first_piola_kirchoff_stress = self
             .get_constitutive_model()
-            .calculate_first_piola_kirchoff_stress(&deformation_gradient);
+            .calculate_first_piola_kirchoff_stress(&deformation_gradient)
+            .expect("\x1b[91mConstitutive model error.\x1b[0\n");
         let first_piola_kirchoff_tangent_stiffness = self
             .get_constitutive_model()
             .calculate_first_piola_kirchoff_tangent_stiffness(&deformation_gradient);
@@ -267,7 +269,8 @@ where
             .calculate_first_piola_kirchoff_stress(
                 &self.calculate_deformation_gradient(nodal_coordinates),
                 &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities),
-            );
+            )
+            .expect("\x1b[91mConstitutive model error.\x1b[0\n");
         let normal_gradients =
             Self::calculate_normal_gradients(&Self::calculate_midplane(nodal_coordinates));
         let traction = (&first_piola_kirchoff_stress * self.get_reference_normal()) * 0.5;
