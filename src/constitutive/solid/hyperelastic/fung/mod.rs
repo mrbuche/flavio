@@ -60,24 +60,35 @@ impl<'a> Elastic<'a> for Fung<'a> {
     /// ```math
     /// \boldsymbol{\sigma}(\mathbf{F}) = \frac{1}{J}\left[\mu + \mu_m\left(e^{a[\mathrm{tr}(\mathbf{B}^* ) - 3]} - 1\right)\right]{\mathbf{B}^* }' + \frac{\kappa}{2}\left(J - \frac{1}{J}\right)\mathbf{1}
     /// ```
-    fn calculate_cauchy_stress(&self, deformation_gradient: &DeformationGradient) -> CauchyStress {
+    fn calculate_cauchy_stress(
+        &self,
+        deformation_gradient: &DeformationGradient,
+    ) -> Result<CauchyStress, ConstitutiveError> {
         let jacobian = deformation_gradient.determinant();
-        let isochoric_left_cauchy_green_deformation = self
-            .calculate_left_cauchy_green_deformation(deformation_gradient)
-            / jacobian.powf(TWO_THIRDS);
-        let (
-            deviatoric_isochoric_left_cauchy_green_deformation,
-            isochoric_left_cauchy_green_deformation_trace,
-        ) = isochoric_left_cauchy_green_deformation.deviatoric_and_trace();
-        deviatoric_isochoric_left_cauchy_green_deformation
-            * ((self.get_shear_modulus()
-                + self.get_extra_modulus()
-                    * ((self.get_exponent()
-                        * (isochoric_left_cauchy_green_deformation_trace - 3.0))
-                        .exp()
-                        - 1.0))
-                / jacobian)
-            + IDENTITY * self.get_bulk_modulus() * 0.5 * (jacobian - 1.0 / jacobian)
+        if jacobian > 0.0 {
+            let isochoric_left_cauchy_green_deformation = self
+                .calculate_left_cauchy_green_deformation(deformation_gradient)
+                / jacobian.powf(TWO_THIRDS);
+            let (
+                deviatoric_isochoric_left_cauchy_green_deformation,
+                isochoric_left_cauchy_green_deformation_trace,
+            ) = isochoric_left_cauchy_green_deformation.deviatoric_and_trace();
+            Ok(deviatoric_isochoric_left_cauchy_green_deformation
+                * ((self.get_shear_modulus()
+                    + self.get_extra_modulus()
+                        * ((self.get_exponent()
+                            * (isochoric_left_cauchy_green_deformation_trace - 3.0))
+                            .exp()
+                            - 1.0))
+                    / jacobian)
+                + IDENTITY * self.get_bulk_modulus() * 0.5 * (jacobian - 1.0 / jacobian))
+        } else {
+            Err(ConstitutiveError::InvalidJacobian(
+                jacobian,
+                deformation_gradient.copy(),
+                format!("{:?}", &self),
+            ))
+        }
     }
     /// Calculates and returns the tangent stiffness associated with the Cauchy stress.
     ///
@@ -148,7 +159,7 @@ impl<'a> Hyperelastic<'a> for Fung<'a> {
                         * ((self.get_exponent() * scalar_term).exp() - 1.0)
                     + self.get_bulk_modulus() * (0.5 * (jacobian.powi(2) - 1.0) - jacobian.ln())))
         } else {
-            Err(ConstitutiveError::InvalidJacobianElastic(
+            Err(ConstitutiveError::InvalidJacobian(
                 jacobian,
                 deformation_gradient.copy(),
                 format!("{:?}", &self),

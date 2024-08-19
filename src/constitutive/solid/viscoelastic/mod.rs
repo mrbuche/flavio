@@ -29,14 +29,14 @@ where
         &self,
         deformation_gradient: &DeformationGradient,
         deformation_gradient_rate: &DeformationGradientRate,
-    ) -> CauchyStress {
-        deformation_gradient
+    ) -> Result<CauchyStress, ConstitutiveError> {
+        Ok(deformation_gradient
             * self.calculate_second_piola_kirchoff_stress(
                 deformation_gradient,
                 deformation_gradient_rate,
-            )
+            )?
             * deformation_gradient.transpose()
-            / deformation_gradient.determinant()
+            / deformation_gradient.determinant())
     }
     /// Calculates and returns the rate tangent stiffness associated with the Cauchy stress.
     ///
@@ -66,10 +66,12 @@ where
         &self,
         deformation_gradient: &DeformationGradient,
         deformation_gradient_rate: &DeformationGradientRate,
-    ) -> FirstPiolaKirchoffStress {
-        self.calculate_cauchy_stress(deformation_gradient, deformation_gradient_rate)
-            * deformation_gradient.inverse_transpose()
-            * deformation_gradient.determinant()
+    ) -> Result<FirstPiolaKirchoffStress, ConstitutiveError> {
+        Ok(
+            self.calculate_cauchy_stress(deformation_gradient, deformation_gradient_rate)?
+                * deformation_gradient.inverse_transpose()
+                * deformation_gradient.determinant(),
+        )
     }
     /// Calculates and returns the rate tangent stiffness associated with the first Piola-Kirchoff stress.
     ///
@@ -97,11 +99,11 @@ where
         &self,
         deformation_gradient: &DeformationGradient,
         deformation_gradient_rate: &DeformationGradientRate,
-    ) -> SecondPiolaKirchoffStress {
-        deformation_gradient.inverse()
-            * self.calculate_cauchy_stress(deformation_gradient, deformation_gradient_rate)
+    ) -> Result<SecondPiolaKirchoffStress, ConstitutiveError> {
+        Ok(deformation_gradient.inverse()
+            * self.calculate_cauchy_stress(deformation_gradient, deformation_gradient_rate)?
             * deformation_gradient.inverse_transpose()
-            * deformation_gradient.determinant()
+            * deformation_gradient.determinant())
     }
     /// Calculates and returns the rate tangent stiffness associated with the second Piola-Kirchoff stress.
     ///

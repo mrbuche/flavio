@@ -5,7 +5,7 @@ use crate::{
     constitutive::{
         hybrid::{Hybrid, Multiplicative, MultiplicativeTrait},
         solid::{elastic::Elastic, Solid},
-        Constitutive, Parameters,
+        Constitutive, ConstitutiveError, Parameters,
     },
     math::{TensorRank2, TensorRank2Trait},
     mechanics::{
@@ -43,12 +43,16 @@ impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> Elastic<'a> for Multiplicative<C1, C2
     /// ```math
     /// \boldsymbol{\sigma}(\mathbf{F}) = \frac{1}{J_2}\,\boldsymbol{\sigma}_1(\mathbf{F}_1)
     /// ```
-    fn calculate_cauchy_stress(&self, deformation_gradient: &DeformationGradient) -> CauchyStress {
+    fn calculate_cauchy_stress(
+        &self,
+        deformation_gradient: &DeformationGradient,
+    ) -> Result<CauchyStress, ConstitutiveError> {
         let (deformation_gradient_1, deformation_gradient_2) =
             self.calculate_deformation_gradients(deformation_gradient);
-        self.get_constitutive_model_1()
-            .calculate_cauchy_stress(&deformation_gradient_1)
-            / deformation_gradient_2.determinant()
+        Ok(self
+            .get_constitutive_model_1()
+            .calculate_cauchy_stress(&deformation_gradient_1)?
+            / deformation_gradient_2.determinant())
     }
     /// Dummy method that will panic.
     fn calculate_cauchy_tangent_stiffness(
@@ -65,14 +69,15 @@ impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> Elastic<'a> for Multiplicative<C1, C2
     fn calculate_first_piola_kirchoff_stress(
         &self,
         deformation_gradient: &DeformationGradient,
-    ) -> FirstPiolaKirchoffStress {
+    ) -> Result<FirstPiolaKirchoffStress, ConstitutiveError> {
         let (deformation_gradient_1, deformation_gradient_2) =
             self.calculate_deformation_gradients(deformation_gradient);
         let deformation_gradient_2_inverse_transpose: TensorRank2<3, 0, 0> =
             deformation_gradient_2.inverse_transpose().into();
-        self.get_constitutive_model_1()
-            .calculate_first_piola_kirchoff_stress(&deformation_gradient_1)
-            * deformation_gradient_2_inverse_transpose
+        Ok(self
+            .get_constitutive_model_1()
+            .calculate_first_piola_kirchoff_stress(&deformation_gradient_1)?
+            * deformation_gradient_2_inverse_transpose)
     }
     /// Dummy method that will panic.
     fn calculate_first_piola_kirchoff_tangent_stiffness(
@@ -89,16 +94,16 @@ impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> Elastic<'a> for Multiplicative<C1, C2
     fn calculate_second_piola_kirchoff_stress(
         &self,
         deformation_gradient: &DeformationGradient,
-    ) -> SecondPiolaKirchoffStress {
+    ) -> Result<SecondPiolaKirchoffStress, ConstitutiveError> {
         let (deformation_gradient_1, deformation_gradient_2) =
             self.calculate_deformation_gradients(deformation_gradient);
         let deformation_gradient_2_inverse: TensorRank2<3, 0, 0> =
             deformation_gradient_2.inverse().into();
-        &deformation_gradient_2_inverse
+        Ok(&deformation_gradient_2_inverse
             * self
                 .get_constitutive_model_1()
-                .calculate_second_piola_kirchoff_stress(&deformation_gradient_1)
-            * deformation_gradient_2_inverse.transpose()
+                .calculate_second_piola_kirchoff_stress(&deformation_gradient_1)?
+            * deformation_gradient_2_inverse.transpose())
     }
     /// Dummy method that will panic.
     fn calculate_second_piola_kirchoff_tangent_stiffness(
@@ -139,11 +144,13 @@ impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> MultiplicativeTrait for Multiplicativ
                     * self
                         .get_constitutive_model_1()
                         .calculate_first_piola_kirchoff_stress(&deformation_gradient_1)
+                        .expect("\x1b[91mConstitutive model error.\x1b[0\n")
                     * deformation_gradient_2_inverse_transpose)
                     .into();
                 residual = self
                     .get_constitutive_model_2()
                     .calculate_first_piola_kirchoff_stress(&deformation_gradient_2)
+                    .expect("\x1b[91mConstitutive model error.\x1b[0\n")
                     - right_hand_side;
                 residual_norm = residual.norm();
                 if residual_norm >= ABS_TOL {

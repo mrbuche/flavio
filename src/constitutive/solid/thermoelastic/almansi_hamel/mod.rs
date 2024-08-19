@@ -71,7 +71,7 @@ impl<'a> Thermoelastic<'a> for AlmansiHamel<'a> {
                                     * (temperature - self.get_reference_temperature()))),
             )
         } else {
-            Err(ConstitutiveError::InvalidJacobianElastic(
+            Err(ConstitutiveError::InvalidJacobian(
                 jacobian,
                 deformation_gradient.copy(),
                 format!("{:?}", &self),

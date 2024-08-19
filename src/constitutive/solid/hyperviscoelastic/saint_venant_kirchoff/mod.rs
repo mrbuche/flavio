@@ -63,19 +63,29 @@ impl<'a> Viscoelastic<'a> for SaintVenantKirchoff<'a> {
         &self,
         deformation_gradient: &DeformationGradient,
         deformation_gradient_rate: &DeformationGradientRate,
-    ) -> SecondPiolaKirchoffStress {
-        let (deviatoric_strain, strain_trace) =
-            ((self.calculate_right_cauchy_green_deformation(deformation_gradient) - IDENTITY_00)
+    ) -> Result<SecondPiolaKirchoffStress, ConstitutiveError> {
+        let jacobian = deformation_gradient.determinant();
+        if jacobian > 0.0 {
+            let (deviatoric_strain, strain_trace) = ((self
+                .calculate_right_cauchy_green_deformation(deformation_gradient)
+                - IDENTITY_00)
                 * 0.5)
                 .deviatoric_and_trace();
-        let first_term = deformation_gradient_rate.transpose() * deformation_gradient;
-        let (deviatoric_strain_rate, strain_rate_trace) =
-            ((&first_term + first_term.transpose()) * 0.5).deviatoric_and_trace();
-        deviatoric_strain * (2.0 * self.get_shear_modulus())
-            + deviatoric_strain_rate * (2.0 * self.get_shear_viscosity())
-            + IDENTITY_00
-                * (self.get_bulk_modulus() * strain_trace
-                    + self.get_bulk_viscosity() * strain_rate_trace)
+            let first_term = deformation_gradient_rate.transpose() * deformation_gradient;
+            let (deviatoric_strain_rate, strain_rate_trace) =
+                ((&first_term + first_term.transpose()) * 0.5).deviatoric_and_trace();
+            Ok(deviatoric_strain * (2.0 * self.get_shear_modulus())
+                + deviatoric_strain_rate * (2.0 * self.get_shear_viscosity())
+                + IDENTITY_00
+                    * (self.get_bulk_modulus() * strain_trace
+                        + self.get_bulk_viscosity() * strain_rate_trace))
+        } else {
+            Err(ConstitutiveError::InvalidJacobian(
+                jacobian,
+                deformation_gradient.copy(),
+                format!("{:?}", &self),
+            ))
+        }
     }
     /// Calculates and returns the rate tangent stiffness associated with the second Piola-Kirchoff stress.
     ///
@@ -113,13 +123,22 @@ impl<'a> ElasticHyperviscous<'a> for SaintVenantKirchoff<'a> {
         &self,
         deformation_gradient: &DeformationGradient,
         deformation_gradient_rate: &DeformationGradientRate,
-    ) -> Scalar {
-        let first_term = deformation_gradient_rate.transpose() * deformation_gradient;
-        let strain_rate = (&first_term + first_term.transpose()) * 0.5;
-        self.get_shear_viscosity() * strain_rate.squared_trace()
-            + 0.5
-                * (self.get_bulk_viscosity() - TWO_THIRDS * self.get_shear_viscosity())
-                * strain_rate.trace().powi(2)
+    ) -> Result<Scalar, ConstitutiveError> {
+        let jacobian = deformation_gradient.determinant();
+        if jacobian > 0.0 {
+            let first_term = deformation_gradient_rate.transpose() * deformation_gradient;
+            let strain_rate = (&first_term + first_term.transpose()) * 0.5;
+            Ok(self.get_shear_viscosity() * strain_rate.squared_trace()
+                + 0.5
+                    * (self.get_bulk_viscosity() - TWO_THIRDS * self.get_shear_viscosity())
+                    * strain_rate.trace().powi(2))
+        } else {
+            Err(ConstitutiveError::InvalidJacobian(
+                jacobian,
+                deformation_gradient.copy(),
+                format!("{:?}", &self),
+            ))
+        }
     }
 }
 
@@ -144,7 +163,7 @@ impl<'a> Hyperviscoelastic<'a> for SaintVenantKirchoff<'a> {
                     * (self.get_bulk_modulus() - TWO_THIRDS * self.get_shear_modulus())
                     * strain.trace().powi(2))
         } else {
-            Err(ConstitutiveError::InvalidJacobianElastic(
+            Err(ConstitutiveError::InvalidJacobian(
                 jacobian,
                 deformation_gradient.copy(),
                 format!("{:?}", &self),

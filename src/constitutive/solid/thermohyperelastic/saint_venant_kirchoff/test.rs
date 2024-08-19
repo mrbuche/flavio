@@ -32,10 +32,10 @@ mod consistency {
                     &get_deformation_gradient(),
                     &model.get_reference_temperature()
                 )
-                .unwrap()
+                .expect("the unexpected")
                 - hyperelastic_model
                     .calculate_helmholtz_free_energy_density(&get_deformation_gradient())
-                    .unwrap())
+                    .expect("the unexpected"))
             .abs()
                 < ABS_TOL
         )
@@ -50,10 +50,12 @@ mod consistency {
                 &get_deformation_gradient(),
                 &model.get_reference_temperature(),
             )
+            .expect("the unexpected")
             .iter()
             .zip(
                 hyperelastic_model
                     .calculate_cauchy_stress(&get_deformation_gradient())
+                    .expect("the unexpected")
                     .iter(),
             )
             .for_each(|(cauchy_stress_i, elastic_cauchy_stress_i)| {

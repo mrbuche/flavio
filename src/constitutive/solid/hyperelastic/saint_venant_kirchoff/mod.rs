@@ -49,13 +49,23 @@ impl<'a> Elastic<'a> for SaintVenantKirchoff<'a> {
     fn calculate_second_piola_kirchoff_stress(
         &self,
         deformation_gradient: &DeformationGradient,
-    ) -> SecondPiolaKirchoffStress {
-        let (deviatoric_strain, strain_trace) =
-            ((self.calculate_right_cauchy_green_deformation(deformation_gradient) - IDENTITY_00)
+    ) -> Result<SecondPiolaKirchoffStress, ConstitutiveError> {
+        let jacobian = deformation_gradient.determinant();
+        if jacobian > 0.0 {
+            let (deviatoric_strain, strain_trace) = ((self
+                .calculate_right_cauchy_green_deformation(deformation_gradient)
+                - IDENTITY_00)
                 * 0.5)
                 .deviatoric_and_trace();
-        deviatoric_strain * (2.0 * self.get_shear_modulus())
-            + IDENTITY_00 * (self.get_bulk_modulus() * strain_trace)
+            Ok(deviatoric_strain * (2.0 * self.get_shear_modulus())
+                + IDENTITY_00 * (self.get_bulk_modulus() * strain_trace))
+        } else {
+            Err(ConstitutiveError::InvalidJacobian(
+                jacobian,
+                deformation_gradient.copy(),
+                format!("{:?}", &self),
+            ))
+        }
     }
     /// Calculates and returns the tangent stiffness associated with the second Piola-Kirchoff stress.
     ///
@@ -102,7 +112,7 @@ impl<'a> Hyperelastic<'a> for SaintVenantKirchoff<'a> {
                     * (self.get_bulk_modulus() - TWO_THIRDS * self.get_shear_modulus())
                     * strain.trace().powi(2))
         } else {
-            Err(ConstitutiveError::InvalidJacobianElastic(
+            Err(ConstitutiveError::InvalidJacobian(
                 jacobian,
                 deformation_gradient.copy(),
                 format!("{:?}", &self),

@@ -69,7 +69,7 @@ impl<'a> Thermoelastic<'a> for SaintVenantKirchoff<'a> {
                                 * self.get_coefficient_of_thermal_expansion()
                                 * (temperature - self.get_reference_temperature()))))
         } else {
-            Err(ConstitutiveError::InvalidJacobianElastic(
+            Err(ConstitutiveError::InvalidJacobian(
                 jacobian,
                 deformation_gradient.copy(),
                 format!("{:?}", &self),
@@ -135,10 +135,9 @@ impl<'a> Thermohyperelastic<'a> for SaintVenantKirchoff<'a> {
                     * (temperature - self.get_reference_temperature())
                     * strain_trace)
         } else {
-            Err(ConstitutiveError::InvalidJacobianThermoelastic(
+            Err(ConstitutiveError::InvalidJacobian(
                 jacobian,
                 deformation_gradient.copy(),
-                *temperature,
                 format!("{:?}", &self),
             ))
         }

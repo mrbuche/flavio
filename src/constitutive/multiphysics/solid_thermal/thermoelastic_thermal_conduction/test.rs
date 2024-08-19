@@ -91,11 +91,11 @@ macro_rules! test_thermoelastic_thermal_conduction_constitutive_model
             get_thermoelastic_thermal_conduction_constitutive_model()
             .calculate_cauchy_stress(
                 &get_deformation_gradient(), &get_temperature()
-            ).iter().zip(
+            ).expect("the unexpected").iter().zip(
                 get_thermoelastic_constitutive_model()
                 .calculate_cauchy_stress(
                     &get_deformation_gradient(), &get_temperature()
-                ).iter()
+                ).expect("the unexpected").iter()
             ).for_each(|(cauchy_stress_i, cauchy_stress_solid_i)|
                 cauchy_stress_i.iter()
                 .zip(cauchy_stress_solid_i.iter())
@@ -137,11 +137,11 @@ macro_rules! test_thermoelastic_thermal_conduction_constitutive_model
             get_thermoelastic_thermal_conduction_constitutive_model()
             .calculate_first_piola_kirchoff_stress(
                 &get_deformation_gradient(), &get_temperature()
-            ).iter().zip(
+            ).expect("the unexpected").iter().zip(
                 get_thermoelastic_constitutive_model()
                 .calculate_first_piola_kirchoff_stress(
                     &get_deformation_gradient(), &get_temperature()
-                ).iter()
+                ).expect("the unexpected").iter()
             ).for_each(|(first_piola_kirchoff_stress_i, first_piola_kirchoff_stress_solid_i)|
                 first_piola_kirchoff_stress_i.iter()
                 .zip(first_piola_kirchoff_stress_solid_i.iter())
@@ -198,11 +198,11 @@ macro_rules! test_thermoelastic_thermal_conduction_constitutive_model
             get_thermoelastic_thermal_conduction_constitutive_model()
             .calculate_second_piola_kirchoff_stress(
                 &get_deformation_gradient(), &get_temperature()
-            ).iter().zip(
+            ).expect("the unexpected").iter().zip(
                 get_thermoelastic_constitutive_model()
                 .calculate_second_piola_kirchoff_stress(
                     &get_deformation_gradient(), &get_temperature()
-                ).iter()
+                ).expect("the unexpected").iter()
             ).for_each(|(second_piola_kirchoff_stress_i, second_piola_kirchoff_stress_solid_i)|
                 second_piola_kirchoff_stress_i.iter()
                 .zip(second_piola_kirchoff_stress_solid_i.iter())

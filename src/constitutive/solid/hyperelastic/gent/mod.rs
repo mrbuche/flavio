@@ -55,26 +55,42 @@ impl<'a> Elastic<'a> for Gent<'a> {
     /// ```math
     /// \boldsymbol{\sigma}(\mathbf{F}) = \frac{J^{-1}\mu J_m {\mathbf{B}^* }'}{J_m - \mathrm{tr}(\mathbf{B}^* ) + 3} + \frac{\kappa}{2}\left(J - \frac{1}{J}\right)\mathbf{1}
     /// ```
-    fn calculate_cauchy_stress(&self, deformation_gradient: &DeformationGradient) -> CauchyStress {
+    fn calculate_cauchy_stress(
+        &self,
+        deformation_gradient: &DeformationGradient,
+    ) -> Result<CauchyStress, ConstitutiveError> {
         let jacobian = deformation_gradient.determinant();
-        let isochoric_left_cauchy_green_deformation = self
-            .calculate_left_cauchy_green_deformation(deformation_gradient)
-            / jacobian.powf(TWO_THIRDS);
-        let (
-            deviatoric_isochoric_left_cauchy_green_deformation,
-            isochoric_left_cauchy_green_deformation_trace,
-        ) = isochoric_left_cauchy_green_deformation.deviatoric_and_trace();
-        let denominator =
-            self.get_extensibility() - isochoric_left_cauchy_green_deformation_trace + 3.0;
-        if denominator < 0.0 {
-            panic!("Maximum extensibility reached.")
+        if jacobian > 0.0 {
+            let isochoric_left_cauchy_green_deformation = self
+                .calculate_left_cauchy_green_deformation(deformation_gradient)
+                / jacobian.powf(TWO_THIRDS);
+            let (
+                deviatoric_isochoric_left_cauchy_green_deformation,
+                isochoric_left_cauchy_green_deformation_trace,
+            ) = isochoric_left_cauchy_green_deformation.deviatoric_and_trace();
+            let denominator =
+                self.get_extensibility() - isochoric_left_cauchy_green_deformation_trace + 3.0;
+            if denominator <= 0.0 {
+                Err(ConstitutiveError::Custom(
+                    "Maximum extensibility reached.".to_string(),
+                    deformation_gradient.copy(),
+                    format!("{:?}", &self),
+                ))
+            } else {
+                Ok((deviatoric_isochoric_left_cauchy_green_deformation
+                    * self.get_shear_modulus()
+                    * self.get_extensibility()
+                    / jacobian)
+                    / denominator
+                    + IDENTITY * self.get_bulk_modulus() * 0.5 * (jacobian - 1.0 / jacobian))
+            }
+        } else {
+            Err(ConstitutiveError::InvalidJacobian(
+                jacobian,
+                deformation_gradient.copy(),
+                format!("{:?}", &self),
+            ))
         }
-        (deviatoric_isochoric_left_cauchy_green_deformation
-            * self.get_shear_modulus()
-            * self.get_extensibility()
-            / jacobian)
-            / denominator
-            + IDENTITY * self.get_bulk_modulus() * 0.5 * (jacobian - 1.0 / jacobian)
     }
     /// Calculates and returns the tangent stiffness associated with the Cauchy stress.
     ///
@@ -96,7 +112,7 @@ impl<'a> Elastic<'a> for Gent<'a> {
         ) = isochoric_left_cauchy_green_deformation.deviatoric_and_trace();
         let denominator =
             self.get_extensibility() - isochoric_left_cauchy_green_deformation_trace + 3.0;
-        if denominator < 0.0 {
+        if denominator <= 0.0 {
             panic!("Maximum extensibility reached.")
         }
         let prefactor =
@@ -153,7 +169,7 @@ impl<'a> Hyperelastic<'a> for Gent<'a> {
                             * (0.5 * (jacobian.powi(2) - 1.0) - jacobian.ln())))
             }
         } else {
-            Err(ConstitutiveError::InvalidJacobianElastic(
+            Err(ConstitutiveError::InvalidJacobian(
                 jacobian,
                 deformation_gradient.copy(),
                 format!("{:?}", &self),

@@ -59,27 +59,44 @@ impl<'a> Elastic<'a> for ArrudaBoyce<'a> {
     /// ```math
     /// \boldsymbol{\sigma}(\mathbf{F}) = \frac{\mu\gamma_0\eta}{J\gamma\eta_0}\,{\mathbf{B}^*}' + \frac{\kappa}{2}\left(J - \frac{1}{J}\right)\mathbf{1}
     /// ```
-    fn calculate_cauchy_stress(&self, deformation_gradient: &DeformationGradient) -> CauchyStress {
+    fn calculate_cauchy_stress(
+        &self,
+        deformation_gradient: &DeformationGradient,
+    ) -> Result<CauchyStress, ConstitutiveError> {
         let jacobian = deformation_gradient.determinant();
-        let (
-            deviatoric_isochoric_left_cauchy_green_deformation,
-            isochoric_left_cauchy_green_deformation_trace,
-        ) = (self.calculate_left_cauchy_green_deformation(deformation_gradient)
-            / jacobian.powf(TWO_THIRDS))
-        .deviatoric_and_trace();
-        let gamma =
-            (isochoric_left_cauchy_green_deformation_trace / 3.0 / self.get_number_of_links())
-                .sqrt();
-        if gamma >= 1.0 {
-            panic!("Maximum extensibility reached.")
+        if jacobian > 0.0 {
+            let (
+                deviatoric_isochoric_left_cauchy_green_deformation,
+                isochoric_left_cauchy_green_deformation_trace,
+            ) = (self.calculate_left_cauchy_green_deformation(deformation_gradient)
+                / jacobian.powf(TWO_THIRDS))
+            .deviatoric_and_trace();
+            let gamma =
+                (isochoric_left_cauchy_green_deformation_trace / 3.0 / self.get_number_of_links())
+                    .sqrt();
+            if gamma >= 1.0 {
+                Err(ConstitutiveError::Custom(
+                    "Maximum extensibility reached.".to_string(),
+                    deformation_gradient.copy(),
+                    format!("{:?}", &self),
+                ))
+            } else {
+                let gamma_0 = (1.0 / self.get_number_of_links()).sqrt();
+                Ok(deviatoric_isochoric_left_cauchy_green_deformation
+                    * (self.get_shear_modulus() * inverse_langevin(gamma)
+                        / inverse_langevin(gamma_0)
+                        * gamma_0
+                        / gamma
+                        / jacobian)
+                    + IDENTITY * self.get_bulk_modulus() * 0.5 * (jacobian - 1.0 / jacobian))
+            }
+        } else {
+            Err(ConstitutiveError::InvalidJacobian(
+                jacobian,
+                deformation_gradient.copy(),
+                format!("{:?}", &self),
+            ))
         }
-        let gamma_0 = (1.0 / self.get_number_of_links()).sqrt();
-        deviatoric_isochoric_left_cauchy_green_deformation
-            * (self.get_shear_modulus() * inverse_langevin(gamma) / inverse_langevin(gamma_0)
-                * gamma_0
-                / gamma
-                / jacobian)
-            + IDENTITY * self.get_bulk_modulus() * 0.5 * (jacobian - 1.0 / jacobian)
     }
     /// Calculates and returns the tangent stiffness associated with the Cauchy stress.
     ///
@@ -176,7 +193,7 @@ impl<'a> Hyperelastic<'a> for ArrudaBoyce<'a> {
                         * (0.5 * (jacobian.powi(2) - 1.0) - jacobian.ln()))
             }
         } else {
-            Err(ConstitutiveError::InvalidJacobianElastic(
+            Err(ConstitutiveError::InvalidJacobian(
                 jacobian,
                 deformation_gradient.copy(),
                 format!("{:?}", &self),

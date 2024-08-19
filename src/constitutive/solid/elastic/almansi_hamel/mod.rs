@@ -17,6 +17,7 @@ use super::*;
 ///
 /// **Notes**
 /// - The Almansi-Hamel strain measure is given by $`\mathbf{e}=\tfrac{1}{2}(\mathbf{1}-\mathbf{B}^{-1})`$.
+#[derive(Debug)]
 pub struct AlmansiHamel<'a> {
     parameters: Parameters<'a>,
 }
@@ -45,15 +46,28 @@ impl<'a> Elastic<'a> for AlmansiHamel<'a> {
     /// ```math
     /// \boldsymbol{\sigma}(\mathbf{F}) = \frac{2\mu}{J}\,\mathbf{e}' + \frac{\kappa}{J}\,\mathrm{tr}(\mathbf{e})\mathbf{1}
     /// ```
-    fn calculate_cauchy_stress(&self, deformation_gradient: &DeformationGradient) -> CauchyStress {
-        let (inverse_deformation_gradient, jacobian) =
-            deformation_gradient.inverse_and_determinant();
-        let strain = (IDENTITY
-            - inverse_deformation_gradient.transpose() * &inverse_deformation_gradient)
-            * 0.5;
-        let (deviatoric_strain, strain_trace) = strain.deviatoric_and_trace();
-        deviatoric_strain * (2.0 * self.get_shear_modulus() / jacobian)
-            + IDENTITY * (self.get_bulk_modulus() * strain_trace / jacobian)
+    fn calculate_cauchy_stress(
+        &self,
+        deformation_gradient: &DeformationGradient,
+    ) -> Result<CauchyStress, ConstitutiveError> {
+        let jacobian = deformation_gradient.determinant();
+        if jacobian > 0.0 {
+            let inverse_deformation_gradient = deformation_gradient.inverse();
+            let strain = (IDENTITY
+                - inverse_deformation_gradient.transpose() * &inverse_deformation_gradient)
+                * 0.5;
+            let (deviatoric_strain, strain_trace) = strain.deviatoric_and_trace();
+            Ok(
+                deviatoric_strain * (2.0 * self.get_shear_modulus() / jacobian)
+                    + IDENTITY * (self.get_bulk_modulus() * strain_trace / jacobian),
+            )
+        } else {
+            Err(ConstitutiveError::InvalidJacobian(
+                jacobian,
+                deformation_gradient.copy(),
+                format!("{:?}", &self),
+            ))
+        }
     }
     /// Calculates and returns the tangent stiffness associated with the Cauchy stress.
     ///

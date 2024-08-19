@@ -59,23 +59,34 @@ impl<'a> Elastic<'a> for Yeoh<'a> {
     /// ```math
     /// \boldsymbol{\sigma}(\mathbf{F}) = \sum_{n=1}^N \frac{n\mu_n}{J}\left[\mathrm{tr}(\mathbf{B}^* ) - 3\right]^{n-1}\,{\mathbf{B}^*}' + \frac{\kappa}{2}\left(J - \frac{1}{J}\right)\mathbf{1}
     /// ```
-    fn calculate_cauchy_stress(&self, deformation_gradient: &DeformationGradient) -> CauchyStress {
+    fn calculate_cauchy_stress(
+        &self,
+        deformation_gradient: &DeformationGradient,
+    ) -> Result<CauchyStress, ConstitutiveError> {
         let jacobian = deformation_gradient.determinant();
-        let (deviatoric_left_cauchy_green_deformation, left_cauchy_green_deformation_trace) = self
-            .calculate_left_cauchy_green_deformation(deformation_gradient)
-            .deviatoric_and_trace();
-        let scalar_term = left_cauchy_green_deformation_trace / jacobian.powf(TWO_THIRDS) - 3.0;
-        deviatoric_left_cauchy_green_deformation
-            * self
-                .get_moduli()
-                .iter()
-                .enumerate()
-                .map(|(n, modulus)| {
-                    ((n as Scalar) + 1.0) * modulus * scalar_term.powi(n.try_into().unwrap())
-                })
-                .sum::<Scalar>()
-            / jacobian.powf(FIVE_THIRDS)
-            + IDENTITY * self.get_bulk_modulus() * 0.5 * (jacobian - 1.0 / jacobian)
+        if jacobian > 0.0 {
+            let (deviatoric_left_cauchy_green_deformation, left_cauchy_green_deformation_trace) =
+                self.calculate_left_cauchy_green_deformation(deformation_gradient)
+                    .deviatoric_and_trace();
+            let scalar_term = left_cauchy_green_deformation_trace / jacobian.powf(TWO_THIRDS) - 3.0;
+            Ok(deviatoric_left_cauchy_green_deformation
+                * self
+                    .get_moduli()
+                    .iter()
+                    .enumerate()
+                    .map(|(n, modulus)| {
+                        ((n as Scalar) + 1.0) * modulus * scalar_term.powi(n.try_into().unwrap())
+                    })
+                    .sum::<Scalar>()
+                / jacobian.powf(FIVE_THIRDS)
+                + IDENTITY * self.get_bulk_modulus() * 0.5 * (jacobian - 1.0 / jacobian))
+        } else {
+            Err(ConstitutiveError::InvalidJacobian(
+                jacobian,
+                deformation_gradient.copy(),
+                format!("{:?}", &self),
+            ))
+        }
     }
     /// Calculates and returns the tangent stiffness associated with the Cauchy stress.
     ///
@@ -162,7 +173,7 @@ impl<'a> Hyperelastic<'a> for Yeoh<'a> {
                     .sum::<Scalar>()
                     + self.get_bulk_modulus() * (0.5 * (jacobian.powi(2) - 1.0) - jacobian.ln())))
         } else {
-            Err(ConstitutiveError::InvalidJacobianElastic(
+            Err(ConstitutiveError::InvalidJacobian(
                 jacobian,
                 deformation_gradient.copy(),
                 format!("{:?}", &self),

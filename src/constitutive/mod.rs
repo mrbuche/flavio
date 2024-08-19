@@ -28,8 +28,7 @@ pub trait Constitutive<'a> {
 /// Possible errors encountered in constitutive models.
 pub enum ConstitutiveError {
     Custom(String, DeformationGradient, String),
-    InvalidJacobianElastic(Scalar, DeformationGradient, String),
-    InvalidJacobianThermoelastic(Scalar, DeformationGradient, Scalar, String),
+    InvalidJacobian(Scalar, DeformationGradient, String),
 }
 
 /// Debug implementation for constitutive model errors.
@@ -42,26 +41,14 @@ impl fmt::Debug for ConstitutiveError {
                  In constitutive model: {}.",
                 message, deformation_gradient, constitutive_model
             ),
-            Self::InvalidJacobianElastic(jacobian, deformation_gradient, constitutive_model) => {
+            Self::InvalidJacobian(jacobian, deformation_gradient, constitutive_model) => {
                 format!(
                     "Invalid Jacobian: {:.6e}.\n\
-                 From deformation gradient: {}.\n\
-                 In constitutive model: {}.",
+                     From deformation gradient: {}.\n\
+                     In constitutive model: {}.",
                     jacobian, deformation_gradient, constitutive_model
                 )
             }
-            Self::InvalidJacobianThermoelastic(
-                jacobian,
-                deformation_gradient,
-                temperature,
-                constitutive_model,
-            ) => format!(
-                "Invalid Jacobian: {:.6e}.\n\
-                 From deformation gradient: {}.\n\
-                 For temperature: {:.6e}.\n\
-                 In constitutive model: {}.",
-                jacobian, deformation_gradient, temperature, constitutive_model
-            ),
         };
         write!(
             f,
@@ -82,26 +69,14 @@ impl fmt::Display for ConstitutiveError {
                  In constitutive model: {}.",
                 message, deformation_gradient, constitutive_model
             ),
-            Self::InvalidJacobianElastic(jacobian, deformation_gradient, constitutive_model) => {
+            Self::InvalidJacobian(jacobian, deformation_gradient, constitutive_model) => {
                 format!(
                     "Invalid Jacobian: {:.6e}.\n\
-                 From deformation gradient: {}.\n\
-                 In constitutive model: {}.",
+                     From deformation gradient: {}.\n\
+                     In constitutive model: {}.",
                     jacobian, deformation_gradient, constitutive_model
                 )
             }
-            Self::InvalidJacobianThermoelastic(
-                jacobian,
-                deformation_gradient,
-                temperature,
-                constitutive_model,
-            ) => format!(
-                "Invalid Jacobian: {:.6e}.\n\
-                 From deformation gradient: {}.\n\
-                 For temperature: {:.6e}.\n\
-                 In constitutive model: {}.",
-                jacobian, deformation_gradient, temperature, constitutive_model
-            ),
         };
         write!(
             f,

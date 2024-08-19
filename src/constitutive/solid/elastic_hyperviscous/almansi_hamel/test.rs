@@ -27,10 +27,12 @@ mod consistency {
                 &get_deformation_gradient(),
                 &DeformationGradientRate::zero(),
             )
+            .expect("the unexpected")
             .iter()
             .zip(
                 hyperelastic_model
                     .calculate_cauchy_stress(&get_deformation_gradient())
+                    .expect("the unexpected")
                     .iter(),
             )
             .for_each(|(cauchy_stress_i, elastic_cauchy_stress_i)| {

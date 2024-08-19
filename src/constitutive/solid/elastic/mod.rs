@@ -29,11 +29,14 @@ where
     /// ```math
     /// \boldsymbol{\sigma} = J^{-1}\mathbf{P}\cdot\mathbf{F}^T
     /// ```
-    fn calculate_cauchy_stress(&self, deformation_gradient: &DeformationGradient) -> CauchyStress {
-        deformation_gradient
-            * self.calculate_second_piola_kirchoff_stress(deformation_gradient)
+    fn calculate_cauchy_stress(
+        &self,
+        deformation_gradient: &DeformationGradient,
+    ) -> Result<CauchyStress, ConstitutiveError> {
+        Ok(deformation_gradient
+            * self.calculate_second_piola_kirchoff_stress(deformation_gradient)?
             * deformation_gradient.transpose()
-            / deformation_gradient.determinant()
+            / deformation_gradient.determinant())
     }
     /// Calculates and returns the tangent stiffness associated with the Cauchy stress.
     ///
@@ -45,7 +48,7 @@ where
         deformation_gradient: &DeformationGradient,
     ) -> CauchyTangentStiffness {
         let deformation_gradient_inverse_transpose = deformation_gradient.inverse_transpose();
-        let cauchy_stress = self.calculate_cauchy_stress(deformation_gradient);
+        let cauchy_stress = self.calculate_cauchy_stress(deformation_gradient).unwrap();
         let some_stress = &cauchy_stress * &deformation_gradient_inverse_transpose;
         self.calculate_second_piola_kirchoff_tangent_stiffness(deformation_gradient)
             .contract_first_second_indices_with_second_indices_of(
@@ -68,10 +71,10 @@ where
     fn calculate_first_piola_kirchoff_stress(
         &self,
         deformation_gradient: &DeformationGradient,
-    ) -> FirstPiolaKirchoffStress {
-        self.calculate_cauchy_stress(deformation_gradient)
+    ) -> Result<FirstPiolaKirchoffStress, ConstitutiveError> {
+        Ok(self.calculate_cauchy_stress(deformation_gradient)?
             * deformation_gradient.inverse_transpose()
-            * deformation_gradient.determinant()
+            * deformation_gradient.determinant())
     }
     /// Calculates and returns the tangent stiffness associated with the first Piola-Kirchoff stress.
     ///
@@ -83,8 +86,9 @@ where
         deformation_gradient: &DeformationGradient,
     ) -> FirstPiolaKirchoffTangentStiffness {
         let deformation_gradient_inverse_transpose = deformation_gradient.inverse_transpose();
-        let first_piola_kirchoff_stress =
-            self.calculate_first_piola_kirchoff_stress(deformation_gradient);
+        let first_piola_kirchoff_stress = self
+            .calculate_first_piola_kirchoff_stress(deformation_gradient)
+            .unwrap();
         self.calculate_cauchy_tangent_stiffness(deformation_gradient)
             .contract_second_index_with_first_index_of(&deformation_gradient_inverse_transpose)
             * deformation_gradient.determinant()
@@ -105,11 +109,11 @@ where
     fn calculate_second_piola_kirchoff_stress(
         &self,
         deformation_gradient: &DeformationGradient,
-    ) -> SecondPiolaKirchoffStress {
-        deformation_gradient.inverse()
-            * self.calculate_cauchy_stress(deformation_gradient)
+    ) -> Result<SecondPiolaKirchoffStress, ConstitutiveError> {
+        Ok(deformation_gradient.inverse()
+            * self.calculate_cauchy_stress(deformation_gradient)?
             * deformation_gradient.inverse_transpose()
-            * deformation_gradient.determinant()
+            * deformation_gradient.determinant())
     }
     /// Calculates and returns the tangent stiffness associated with the second Piola-Kirchoff stress.
     ///
@@ -122,8 +126,9 @@ where
     ) -> SecondPiolaKirchoffTangentStiffness {
         let deformation_gradient_inverse_transpose = deformation_gradient.inverse_transpose();
         let deformation_gradient_inverse = deformation_gradient_inverse_transpose.transpose();
-        let second_piola_kirchoff_stress =
-            self.calculate_second_piola_kirchoff_stress(deformation_gradient);
+        let second_piola_kirchoff_stress = self
+            .calculate_second_piola_kirchoff_stress(deformation_gradient)
+            .unwrap();
         self.calculate_cauchy_tangent_stiffness(deformation_gradient)
             .contract_first_second_indices_with_second_indices_of(
                 &deformation_gradient_inverse,

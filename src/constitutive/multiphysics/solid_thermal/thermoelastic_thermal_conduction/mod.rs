@@ -48,7 +48,7 @@ where
         &self,
         deformation_gradient: &DeformationGradient,
         temperature: &Scalar,
-    ) -> CauchyStress {
+    ) -> Result<CauchyStress, ConstitutiveError> {
         self.get_solid_constitutive_model()
             .calculate_cauchy_stress(deformation_gradient, temperature)
     }
@@ -64,7 +64,7 @@ where
         &self,
         deformation_gradient: &DeformationGradient,
         temperature: &Scalar,
-    ) -> FirstPiolaKirchoffStress {
+    ) -> Result<FirstPiolaKirchoffStress, ConstitutiveError> {
         self.get_solid_constitutive_model()
             .calculate_first_piola_kirchoff_stress(deformation_gradient, temperature)
     }
@@ -80,7 +80,7 @@ where
         &self,
         deformation_gradient: &DeformationGradient,
         temperature: &Scalar,
-    ) -> SecondPiolaKirchoffStress {
+    ) -> Result<SecondPiolaKirchoffStress, ConstitutiveError> {
         self.get_solid_constitutive_model()
             .calculate_second_piola_kirchoff_stress(deformation_gradient, temperature)
     }

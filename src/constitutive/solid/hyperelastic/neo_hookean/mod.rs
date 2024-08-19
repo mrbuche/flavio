@@ -43,13 +43,25 @@ impl<'a> Elastic<'a> for NeoHookean<'a> {
     /// ```math
     /// \boldsymbol{\sigma}(\mathbf{F}) = \frac{\mu}{J}\,{\mathbf{B}^*}' + \frac{\kappa}{2}\left(J - \frac{1}{J}\right)\mathbf{1}
     /// ```
-    fn calculate_cauchy_stress(&self, deformation_gradient: &DeformationGradient) -> CauchyStress {
+    fn calculate_cauchy_stress(
+        &self,
+        deformation_gradient: &DeformationGradient,
+    ) -> Result<CauchyStress, ConstitutiveError> {
         let jacobian = deformation_gradient.determinant();
-        self.calculate_left_cauchy_green_deformation(deformation_gradient)
-            .deviatoric()
-            / jacobian.powf(FIVE_THIRDS)
-            * self.get_shear_modulus()
-            + IDENTITY * self.get_bulk_modulus() * 0.5 * (jacobian - 1.0 / jacobian)
+        if jacobian > 0.0 {
+            Ok(self
+                .calculate_left_cauchy_green_deformation(deformation_gradient)
+                .deviatoric()
+                / jacobian.powf(FIVE_THIRDS)
+                * self.get_shear_modulus()
+                + IDENTITY * self.get_bulk_modulus() * 0.5 * (jacobian - 1.0 / jacobian))
+        } else {
+            Err(ConstitutiveError::InvalidJacobian(
+                jacobian,
+                deformation_gradient.copy(),
+                format!("{:?}", &self),
+            ))
+        }
     }
     /// Calculates and returns the tangent stiffness associated with the Cauchy stress.
     ///
@@ -100,7 +112,7 @@ impl<'a> Hyperelastic<'a> for NeoHookean<'a> {
                         - 3.0)
                     + self.get_bulk_modulus() * (0.5 * (jacobian.powi(2) - 1.0) - jacobian.ln())))
         } else {
-            Err(ConstitutiveError::InvalidJacobianElastic(
+            Err(ConstitutiveError::InvalidJacobian(
                 jacobian,
                 deformation_gradient.copy(),
                 format!("{:?}", &self),
