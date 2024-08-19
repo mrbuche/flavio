@@ -22,7 +22,7 @@ mod maximum_extensibility {
     #[test]
     #[should_panic(expected = "Maximum extensibility reached.")]
     fn calculate_cauchy_stress() {
-        let _ = ArrudaBoyce::new(ARRUDABOYCEPARAMETERS)
+        ArrudaBoyce::new(ARRUDABOYCEPARAMETERS)
             .calculate_cauchy_stress(&DeformationGradient::new([
                 [16.0, 0.00, 0.00],
                 [0.0, 0.25, 0.00],
@@ -33,14 +33,18 @@ mod maximum_extensibility {
     #[test]
     #[should_panic(expected = "Maximum extensibility reached.")]
     fn calculate_cauchy_tangent_stiffness() {
-        let _ = ArrudaBoyce::new(ARRUDABOYCEPARAMETERS).calculate_cauchy_tangent_stiffness(
-            &DeformationGradient::new([[16.0, 0.00, 0.00], [0.0, 0.25, 0.00], [0.0, 0.00, 0.25]]),
-        );
+        ArrudaBoyce::new(ARRUDABOYCEPARAMETERS)
+            .calculate_cauchy_tangent_stiffness(&DeformationGradient::new([
+                [16.0, 0.00, 0.00],
+                [0.0, 0.25, 0.00],
+                [0.0, 0.00, 0.25],
+            ]))
+            .expect("the unexpected");
     }
     #[test]
     #[should_panic(expected = "Maximum extensibility reached.")]
     fn calculate_helmholtz_free_energy_density() {
-        let _ = ArrudaBoyce::new(ARRUDABOYCEPARAMETERS)
+        ArrudaBoyce::new(ARRUDABOYCEPARAMETERS)
             .calculate_helmholtz_free_energy_density(&DeformationGradient::new([
                 [16.0, 0.00, 0.00],
                 [0.0, 0.25, 0.00],

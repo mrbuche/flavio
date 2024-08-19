@@ -102,7 +102,8 @@ where
             .get_constitutive_model()
             .calculate_first_piola_kirchoff_tangent_stiffness(
                 &self.calculate_deformation_gradient(nodal_coordinates),
-            );
+            )
+            .expect(CONSTITUTIVE_MODEL_ERROR);
         let gradient_vectors = self.get_gradient_vectors();
         let normal_gradients = Self::calculate_normal_gradients(nodal_coordinates);
         let reference_normal = self.get_reference_normal();
@@ -161,7 +162,8 @@ where
             .calculate_first_piola_kirchoff_rate_tangent_stiffness(
                 &self.calculate_deformation_gradient(nodal_coordinates),
                 &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities),
-            );
+            )
+            .expect(CONSTITUTIVE_MODEL_ERROR);
         let gradient_vectors = self.get_gradient_vectors();
         let normal_gradients = Self::calculate_normal_gradients(nodal_coordinates);
         let reference_normal = self.get_reference_normal();

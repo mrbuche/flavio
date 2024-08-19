@@ -171,6 +171,7 @@ pub trait ElasticCompositeElement<
             .map(|(constitutive_model, deformation_gradient)| {
                 constitutive_model
                     .calculate_first_piola_kirchoff_tangent_stiffness(deformation_gradient)
+                    .expect(CONSTITUTIVE_MODEL_ERROR)
             })
             .collect::<FirstPiolaKirchoffTangentStiffnesses<G>>()
             .iter()
@@ -326,10 +327,12 @@ pub trait ViscoelasticCompositeElement<
             )
             .map(
                 |(constitutive_model, (deformation_gradient, deformation_gradient_rate))| {
-                    constitutive_model.calculate_first_piola_kirchoff_rate_tangent_stiffness(
-                        deformation_gradient,
-                        deformation_gradient_rate,
-                    )
+                    constitutive_model
+                        .calculate_first_piola_kirchoff_rate_tangent_stiffness(
+                            deformation_gradient,
+                            deformation_gradient_rate,
+                        )
+                        .expect(CONSTITUTIVE_MODEL_ERROR)
                 },
             )
             .collect::<FirstPiolaKirchoffRateTangentStiffnesses<G>>()

@@ -218,6 +218,16 @@ macro_rules! test_solid_constitutive_model_no_tangents
             {
                 use super::*;
                 #[test]
+                #[should_panic(expected = "Invalid Jacobian")]
+                fn invalid_jacobian()
+                {
+                    let mut deformation_gradient = DeformationGradient::identity();
+                    deformation_gradient[0][0] *= -1.0;
+                    let _ = calculate_cauchy_stress_from_deformation_gradient!(
+                        $constitutive_model_constructed, &deformation_gradient
+                    );
+                }
+                #[test]
                 fn objectivity()
                 {
                     let _ = EPSILON;
@@ -271,6 +281,16 @@ macro_rules! test_solid_constitutive_model_no_tangents
             use super::*;
             mod deformed
             {
+                #[test]
+                #[should_panic(expected = "Invalid Jacobian")]
+                fn invalid_jacobian()
+                {
+                    let mut deformation_gradient = DeformationGradient::identity();
+                    deformation_gradient[0][0] *= -1.0;
+                    let _ = calculate_first_piola_kirchoff_stress_from_deformation_gradient!(
+                        $constitutive_model_constructed, &deformation_gradient
+                    );
+                }
                 use super::*;
                 #[test]
                 fn objectivity()
@@ -314,6 +334,16 @@ macro_rules! test_solid_constitutive_model_no_tangents
             use super::*;
             mod deformed
             {
+                #[test]
+                #[should_panic(expected = "Invalid Jacobian")]
+                fn invalid_jacobian()
+                {
+                    let mut deformation_gradient = DeformationGradient::identity();
+                    deformation_gradient[0][0] *= -1.0;
+                    let _ = calculate_second_piola_kirchoff_stress_from_deformation_gradient!(
+                        $constitutive_model_constructed, &deformation_gradient
+                    );
+                }
                 use super::*;
                 #[test]
                 fn objectivity()
@@ -690,6 +720,16 @@ macro_rules! test_solid_constitutive_model_tangents
                 {
                     use super::*;
                     #[test]
+                    #[should_panic(expected = "Invalid Jacobian")]
+                    fn invalid_jacobian()
+                    {
+                        let mut deformation_gradient = DeformationGradient::identity();
+                        deformation_gradient[0][0] *= -1.0;
+                        let _ = calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
+                            $constitutive_model_constructed, &deformation_gradient
+                        );
+                    }
+                    #[test]
                     fn objectivity()
                     {
                         let model = $constitutive_model_constructed;
@@ -818,6 +858,16 @@ macro_rules! test_solid_constitutive_model_tangents
                 {
                     use super::*;
                     #[test]
+                    #[should_panic(expected = "Invalid Jacobian")]
+                    fn invalid_jacobian()
+                    {
+                        let mut deformation_gradient = DeformationGradient::identity();
+                        deformation_gradient[0][0] *= -1.0;
+                        let _ = calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient!(
+                            $constitutive_model_constructed, &deformation_gradient
+                        );
+                    }
+                    #[test]
                     fn objectivity()
                     {
                         let model = $constitutive_model_constructed;
@@ -893,6 +943,16 @@ macro_rules! test_solid_constitutive_model_tangents
                 mod deformed
                 {
                     use super::*;
+                    #[test]
+                    #[should_panic(expected = "Invalid Jacobian")]
+                    fn invalid_jacobian()
+                    {
+                        let mut deformation_gradient = DeformationGradient::identity();
+                        deformation_gradient[0][0] *= -1.0;
+                        let _ = calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient!(
+                            $constitutive_model_constructed, &deformation_gradient
+                        );
+                    }
                     #[test]
                     fn objectivity()
                     {

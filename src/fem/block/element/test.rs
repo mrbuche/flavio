@@ -712,6 +712,22 @@ pub(crate) use setup_for_test_finite_element_with_elastic_constitutive_model;
 
 macro_rules! test_finite_element_with_elastic_constitutive_model {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) => {
+        #[test]
+        #[should_panic(expected = "Invalid Jacobian")]
+        fn nodal_forces_invalid_jacobian() {
+            let mut deformation_gradient = DeformationGradient::identity();
+            deformation_gradient[0][0] = 0.0;
+            let _ = get_element()
+                .calculate_nodal_forces(&(deformation_gradient * get_reference_coordinates()));
+        }
+        #[test]
+        #[should_panic(expected = "Invalid Jacobian")]
+        fn nodal_stiffnesses_invalid_jacobian() {
+            let mut deformation_gradient = DeformationGradient::identity();
+            deformation_gradient[0][0] = 0.0;
+            let _ = get_element()
+                .calculate_nodal_stiffnesses(&(deformation_gradient * get_reference_coordinates()));
+        }
         fn get_nodal_forces(is_deformed: bool, is_rotated: bool, _: bool) -> NodalForces<N> {
             if is_rotated {
                 if is_deformed {
