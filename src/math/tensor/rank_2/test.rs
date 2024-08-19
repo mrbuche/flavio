@@ -975,7 +975,7 @@ fn lu_decomposition() {
                 .for_each(|((j, tensor_l_ij), tensor_u_ij)| match i.cmp(&j) {
                     Ordering::Greater => assert_eq!(tensor_u_ij, &0.0),
                     Ordering::Less => assert_eq!(tensor_l_ij, &0.0),
-                    Ordering::Equal => panic!(),
+                    _ => (),
                 })
         });
 }
