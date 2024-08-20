@@ -163,7 +163,9 @@ where
         let steps_maximum: usize = 12345;
         while residual_abs >= ABS_TOL && residual_rel >= REL_TOL {
             if steps > steps_maximum {
-                break;
+                panic!(
+                    "The maximum number of steps was reached before the tolerance was satisfied."
+                )
             } else {
                 steps += 1;
             }
@@ -176,10 +178,6 @@ where
             deformation_gradient_22 -= residual
                 / self.calculate_cauchy_tangent_stiffness(&deformation_gradient)?[1][1][1][1];
         }
-        if steps > steps_maximum {
-            panic!("The maximum number of steps was reached before the tolerance was satisfied.")
-        } else {
-            Ok(self.calculate_cauchy_stress(&deformation_gradient)?[0][0])
-        }
+        Ok(self.calculate_cauchy_stress(&deformation_gradient)?[0][0])
     }
 }
