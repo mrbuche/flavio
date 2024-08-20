@@ -11,7 +11,7 @@ pub mod solid;
 pub mod thermal;
 
 use crate::{
-    get_failure_message,
+    get_defeat_message,
     mechanics::{DeformationGradient, Scalar},
 };
 use std::fmt;
@@ -57,7 +57,7 @@ impl fmt::Debug for ConstitutiveError {
             f,
             "\x1b[91m{}\n\x1b[0;2;31m{}\x1b[0m\n",
             error,
-            get_failure_message()
+            get_defeat_message()
         )
     }
 }
@@ -85,7 +85,7 @@ impl fmt::Display for ConstitutiveError {
             f,
             "\x1b[91m{}\n\x1b[0;2;31m{}\x1b[0m\n",
             error,
-            get_failure_message()
+            get_defeat_message()
         )
     }
 }
