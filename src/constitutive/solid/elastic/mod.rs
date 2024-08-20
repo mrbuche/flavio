@@ -175,7 +175,6 @@ where
                 residual_abs / self.calculate_cauchy_stress(&deformation_gradient)?[0][0].abs();
             deformation_gradient_22 -= residual
                 / self.calculate_cauchy_tangent_stiffness(&deformation_gradient)?[1][1][1][1];
-            // println!("{:?}", (steps, residual, residual_abs, residual_rel))
         }
         if steps > steps_maximum {
             panic!("The maximum number of steps was reached before the tolerance was satisfied.")
