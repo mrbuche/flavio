@@ -26,7 +26,7 @@ pub trait Constitutive<'a> {
 }
 
 /// Error message prefix for constitutive model errors.
-pub const CONSTITUTIVE_MODEL_ERROR: &str = "\x1b[91mConstitutive model error.\x1b[0\n";
+pub const CONSTITUTIVE_MODEL_ERROR: &str = "\x1b[91mConstitutive model error.\x1b[0";
 
 /// Possible errors encountered in constitutive models.
 pub enum ConstitutiveError {
@@ -39,14 +39,14 @@ impl fmt::Debug for ConstitutiveError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let error = match self {
             Self::Custom(message, deformation_gradient, constitutive_model) => format!(
-                "{}\n\
+                "\x1b[1;91m{}\x1b[0;91m\n\
                  From deformation gradient: {}.\n\
                  In constitutive model: {}.",
                 message, deformation_gradient, constitutive_model
             ),
             Self::InvalidJacobian(jacobian, deformation_gradient, constitutive_model) => {
                 format!(
-                    "Invalid Jacobian: {:.6e}.\n\
+                    "\x1b[1;91mInvalid Jacobian: {:.6e}.\x1b[0;91m\n\
                      From deformation gradient: {}.\n\
                      In constitutive model: {}.",
                     jacobian, deformation_gradient, constitutive_model
@@ -55,7 +55,7 @@ impl fmt::Debug for ConstitutiveError {
         };
         write!(
             f,
-            "\x1b[91m{}\n\x1b[0;2;31m{}\x1b[0m\n",
+            "\n{}\n\x1b[0;2;31m{}\x1b[0m\n",
             error,
             get_defeat_message()
         )
@@ -83,7 +83,7 @@ impl fmt::Display for ConstitutiveError {
         };
         write!(
             f,
-            "\x1b[91m{}\n\x1b[0;2;31m{}\x1b[0m\n",
+            "\x1b[91m{}\n\x1b[0;2;91m{}\x1b[0m\n",
             error,
             get_defeat_message()
         )
