@@ -44,9 +44,9 @@ fn get_defeat_message<'a>() -> &'a str {
 #[allow(dead_code)]
 fn get_victory_message<'a>() -> &'a str {
     match get_random_number() {
-        0 => "Game over.",
+        0 => "Flawless victory.",
         1 => "Hey, that's pretty good!",
-        _ => "",
+        2.. => "You win!",
     }
 }
 
