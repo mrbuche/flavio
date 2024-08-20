@@ -164,7 +164,7 @@ where
         while residual_abs >= ABS_TOL && residual_rel >= REL_TOL {
             if steps > steps_maximum {
                 panic!(
-                    "The maximum number of steps was reached before the tolerance was satisfied."
+                    "The maximum number of steps was reached before the tolerance was satisfied." // turn this and the ones in hybrid into real Errs and test them
                 )
             } else {
                 steps += 1;
