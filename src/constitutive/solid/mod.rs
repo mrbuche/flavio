@@ -21,8 +21,9 @@ use crate::{
         FirstPiolaKirchoffTangentStiffness, LeftCauchyGreenDeformation,
         RightCauchyGreenDeformation, Scalar, SecondPiolaKirchoffRateTangentStiffness,
         SecondPiolaKirchoffStress, SecondPiolaKirchoffTangentStiffness, IDENTITY, IDENTITY_00,
-        ZERO_10,
+        IDENTITY_10, ZERO_10,
     },
+    ABS_TOL, REL_TOL,
 };
 
 /// Required methods for solid constitutive models.

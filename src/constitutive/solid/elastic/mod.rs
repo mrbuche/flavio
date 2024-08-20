@@ -149,4 +149,38 @@ where
                 &second_piola_kirchoff_stress,
             ))
     }
+    fn solve_uniaxial_tension(
+        &self,
+        deformation_gradient_11: &Scalar,
+    ) -> Result<Scalar, ConstitutiveError> {
+        let mut deformation_gradient = IDENTITY_10;
+        deformation_gradient[0][0] = *deformation_gradient_11;
+        let mut deformation_gradient_22 = 1.0;
+        let mut residual;
+        let mut residual_abs = 1.0;
+        let mut residual_rel = 1.0;
+        let mut steps: usize = 0;
+        let steps_maximum: usize = 12345;
+        while residual_abs >= ABS_TOL && residual_rel >= REL_TOL {
+            if steps > steps_maximum {
+                break;
+            } else {
+                steps += 1;
+            }
+            deformation_gradient[1][1] = deformation_gradient_22;
+            deformation_gradient[2][2] = deformation_gradient_22;
+            residual = self.calculate_cauchy_stress(&deformation_gradient)?[1][1];
+            residual_abs = residual.abs();
+            residual_rel =
+                residual_abs / self.calculate_cauchy_stress(&deformation_gradient)?[0][0].abs();
+            deformation_gradient_22 -= residual
+                / self.calculate_cauchy_tangent_stiffness(&deformation_gradient)?[1][1][1][1];
+            // println!("{:?}", (steps, residual, residual_abs, residual_rel))
+        }
+        if steps > steps_maximum {
+            panic!("The maximum number of steps was reached before the tolerance was satisfied.")
+        } else {
+            Ok(self.calculate_cauchy_stress(&deformation_gradient)?[0][0])
+        }
+    }
 }
