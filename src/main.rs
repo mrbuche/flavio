@@ -10,7 +10,7 @@
 
 fn main() {
     println!(
-        "\x1b[1m{} {}\x1b[0m",
+        "\x1b[1;4m{} {}\x1b[0m",
         env!("CARGO_PKG_NAME"),
         env!("CARGO_PKG_VERSION")
     );
