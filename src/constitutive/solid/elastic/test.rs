@@ -2,6 +2,30 @@ use crate::mechanics::Scalar;
 
 pub const ALMANSIHAMELPARAMETERS: &[Scalar; 2] = &[13.0, 3.0];
 
+macro_rules! test_solve_uniaxial_tension {
+    ($constitutive_model_constructed: expr) => {
+        #[test]
+        fn solve_uniaxial_tension_deformed() {
+            assert!(
+                $constitutive_model_constructed
+                    .solve_uniaxial_tension(&3.0)
+                    .expect("the unexpected")
+                    > 0.0
+            )
+        }
+        #[test]
+        fn solve_uniaxial_tension_undeformed() {
+            assert_eq!(
+                $constitutive_model_constructed
+                    .solve_uniaxial_tension(&1.0)
+                    .expect("the unexpected"),
+                0.0
+            )
+        }
+    };
+}
+pub(crate) use test_solve_uniaxial_tension;
+
 macro_rules! calculate_cauchy_stress_from_deformation_gradient {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
         $constitutive_model_constructed

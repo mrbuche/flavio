@@ -9,6 +9,8 @@ test_solid_hyperelastic_constitutive_model!(
     ArrudaBoyce::new(ARRUDABOYCEPARAMETERS)
 );
 
+test_solve_uniaxial_tension!(ArrudaBoyce::new(ARRUDABOYCEPARAMETERS));
+
 #[test]
 fn get_number_of_links() {
     assert_eq!(

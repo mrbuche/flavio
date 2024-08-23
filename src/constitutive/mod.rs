@@ -32,6 +32,7 @@ pub const CONSTITUTIVE_MODEL_ERROR: &str = "\n\x1b[91mConstitutive model error.\
 pub enum ConstitutiveError {
     Custom(String, DeformationGradient, String),
     InvalidJacobian(Scalar, DeformationGradient, String),
+    SolveError,
 }
 
 /// Debug implementation for constitutive model errors.
@@ -51,7 +52,8 @@ impl fmt::Debug for ConstitutiveError {
                      In constitutive model: {}.",
                     jacobian, deformation_gradient, constitutive_model
                 )
-            }
+            },
+            Self::SolveError => "\x1b[1;91mThe maximum number of steps was reached before the tolerance was satisfied.\x1b[0;91m".to_string()
         };
         write!(
             f,
@@ -79,7 +81,8 @@ impl fmt::Display for ConstitutiveError {
                      In constitutive model: {}.",
                     jacobian, deformation_gradient, constitutive_model
                 )
-            }
+            },
+            Self::SolveError => "\x1b[1;91mThe maximum number of steps was reached before the tolerance was satisfied.\x1b[0;91m".to_string()
         };
         write!(
             f,

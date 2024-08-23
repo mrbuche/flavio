@@ -48,7 +48,7 @@ impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> Elastic<'a> for Multiplicative<C1, C2
         deformation_gradient: &DeformationGradient,
     ) -> Result<CauchyStress, ConstitutiveError> {
         let (deformation_gradient_1, deformation_gradient_2) =
-            self.calculate_deformation_gradients(deformation_gradient);
+            self.calculate_deformation_gradients(deformation_gradient)?;
         Ok(self
             .get_constitutive_model_1()
             .calculate_cauchy_stress(&deformation_gradient_1)?
@@ -71,7 +71,7 @@ impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> Elastic<'a> for Multiplicative<C1, C2
         deformation_gradient: &DeformationGradient,
     ) -> Result<FirstPiolaKirchoffStress, ConstitutiveError> {
         let (deformation_gradient_1, deformation_gradient_2) =
-            self.calculate_deformation_gradients(deformation_gradient);
+            self.calculate_deformation_gradients(deformation_gradient)?;
         let deformation_gradient_2_inverse_transpose: TensorRank2<3, 0, 0> =
             deformation_gradient_2.inverse_transpose().into();
         Ok(self
@@ -96,7 +96,7 @@ impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> Elastic<'a> for Multiplicative<C1, C2
         deformation_gradient: &DeformationGradient,
     ) -> Result<SecondPiolaKirchoffStress, ConstitutiveError> {
         let (deformation_gradient_1, deformation_gradient_2) =
-            self.calculate_deformation_gradients(deformation_gradient);
+            self.calculate_deformation_gradients(deformation_gradient)?;
         let deformation_gradient_2_inverse: TensorRank2<3, 0, 0> =
             deformation_gradient_2.inverse().into();
         Ok(&deformation_gradient_2_inverse
@@ -119,9 +119,9 @@ impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> MultiplicativeTrait for Multiplicativ
     fn calculate_deformation_gradients(
         &self,
         deformation_gradient: &DeformationGradient,
-    ) -> (DeformationGradient, DeformationGradient) {
+    ) -> Result<(DeformationGradient, DeformationGradient), ConstitutiveError> {
         if deformation_gradient.is_identity() {
-            (IDENTITY_10, IDENTITY_10)
+            Ok((IDENTITY_10, IDENTITY_10))
         } else {
             let mut deformation_gradient_1 = IDENTITY_10;
             let mut deformation_gradient_2 = deformation_gradient.copy();
@@ -168,11 +168,9 @@ impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> MultiplicativeTrait for Multiplicativ
                 steps += 1;
             }
             if residual_norm >= ABS_TOL && steps == steps_maximum {
-                panic!(
-                    "The maximum number of steps was reached before the tolerance was satisfied."
-                )
+                return Err(ConstitutiveError::SolveError);
             }
-            (deformation_gradient_1, deformation_gradient_2)
+            Ok((deformation_gradient_1, deformation_gradient_2))
         }
     }
 }

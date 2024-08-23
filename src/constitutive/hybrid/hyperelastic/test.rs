@@ -20,6 +20,13 @@ macro_rules! test_hybrid_hyperelastic_constitutive_models {
             },
         };
         use_elastic_macros!();
+        mod hybrid_0 {
+            use super::*;
+            test_solve_uniaxial_tension!($hybrid_type::construct(
+                ArrudaBoyce::new(ARRUDABOYCEPARAMETERS),
+                Fung::new(FUNGPARAMETERS)
+            ));
+        }
         mod hybrid_1 {
             use super::*;
             test_constructed_solid_hyperelastic_constitutive_model!($hybrid_type::construct(

@@ -114,31 +114,37 @@ impl<'a> Elastic<'a> for Gent<'a> {
             let denominator =
                 self.get_extensibility() - isochoric_left_cauchy_green_deformation_trace + 3.0;
             if denominator <= 0.0 {
-                panic!("Maximum extensibility reached.")
+                Err(ConstitutiveError::Custom(
+                    "Maximum extensibility reached.".to_string(),
+                    deformation_gradient.copy(),
+                    format!("{:?}", &self),
+                ))
+            } else {
+                let prefactor =
+                    self.get_shear_modulus() * self.get_extensibility() / jacobian / denominator;
+                Ok(
+                    (CauchyTangentStiffness::dyad_ik_jl(&IDENTITY, deformation_gradient)
+                        + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &IDENTITY)
+                        - CauchyTangentStiffness::dyad_ij_kl(&IDENTITY, deformation_gradient)
+                            * (TWO_THIRDS)
+                        + CauchyTangentStiffness::dyad_ij_kl(
+                            &deviatoric_isochoric_left_cauchy_green_deformation,
+                            deformation_gradient,
+                        ) * (2.0 / denominator))
+                        * (prefactor / jacobian.powf(TWO_THIRDS))
+                        + CauchyTangentStiffness::dyad_ij_kl(
+                            &(IDENTITY
+                                * (0.5 * self.get_bulk_modulus() * (jacobian + 1.0 / jacobian))
+                                - deviatoric_isochoric_left_cauchy_green_deformation
+                                    * prefactor
+                                    * ((5.0
+                                        + 2.0 * isochoric_left_cauchy_green_deformation_trace
+                                            / denominator)
+                                        / 3.0)),
+                            &inverse_transpose_deformation_gradient,
+                        ),
+                )
             }
-            let prefactor =
-                self.get_shear_modulus() * self.get_extensibility() / jacobian / denominator;
-            Ok(
-                (CauchyTangentStiffness::dyad_ik_jl(&IDENTITY, deformation_gradient)
-                    + CauchyTangentStiffness::dyad_il_jk(deformation_gradient, &IDENTITY)
-                    - CauchyTangentStiffness::dyad_ij_kl(&IDENTITY, deformation_gradient)
-                        * (TWO_THIRDS)
-                    + CauchyTangentStiffness::dyad_ij_kl(
-                        &deviatoric_isochoric_left_cauchy_green_deformation,
-                        deformation_gradient,
-                    ) * (2.0 / denominator))
-                    * (prefactor / jacobian.powf(TWO_THIRDS))
-                    + CauchyTangentStiffness::dyad_ij_kl(
-                        &(IDENTITY * (0.5 * self.get_bulk_modulus() * (jacobian + 1.0 / jacobian))
-                            - deviatoric_isochoric_left_cauchy_green_deformation
-                                * prefactor
-                                * ((5.0
-                                    + 2.0 * isochoric_left_cauchy_green_deformation_trace
-                                        / denominator)
-                                    / 3.0)),
-                        &inverse_transpose_deformation_gradient,
-                    ),
-            )
         } else {
             Err(ConstitutiveError::InvalidJacobian(
                 jacobian,

@@ -50,6 +50,7 @@ macro_rules! use_elastic_macros {
             calculate_second_piola_kirchoff_stress_from_deformation_gradient_rotated,
             calculate_second_piola_kirchoff_stress_from_deformation_gradient_simple,
             calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient,
+            test_solve_uniaxial_tension,
         };
     };
 }

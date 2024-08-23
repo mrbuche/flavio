@@ -6,3 +6,5 @@ test_solid_elastic_constitutive_model!(
     ALMANSIHAMELPARAMETERS,
     AlmansiHamel::new(ALMANSIHAMELPARAMETERS)
 );
+
+test_solve_uniaxial_tension!(AlmansiHamel::new(ALMANSIHAMELPARAMETERS));

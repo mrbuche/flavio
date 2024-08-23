@@ -22,7 +22,7 @@ impl<'a, C1: Hyperelastic<'a>, C2: Hyperelastic<'a>> Hyperelastic<'a> for Multip
         deformation_gradient: &DeformationGradient,
     ) -> Result<Scalar, ConstitutiveError> {
         let (deformation_gradient_1, deformation_gradient_2) =
-            self.calculate_deformation_gradients(deformation_gradient);
+            self.calculate_deformation_gradients(deformation_gradient)?;
         Ok(self
             .get_constitutive_model_1()
             .calculate_helmholtz_free_energy_density(&deformation_gradient_1)?

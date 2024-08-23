@@ -163,9 +163,7 @@ where
         let steps_maximum: usize = 12345;
         while residual_abs >= ABS_TOL && residual_rel >= REL_TOL {
             if steps > steps_maximum {
-                panic!(
-                    "The maximum number of steps was reached before the tolerance was satisfied." // turn this and the ones in hybrid into real Errs and test them
-                )
+                return Err(ConstitutiveError::SolveError);
             } else {
                 steps += 1;
             }

@@ -9,6 +9,8 @@ test_solid_hyperelastic_constitutive_model!(
     MooneyRivlin::new(MOONEYRIVLINPARAMETERS)
 );
 
+test_solve_uniaxial_tension!(MooneyRivlin::new(MOONEYRIVLINPARAMETERS));
+
 #[test]
 fn get_extra_modulus() {
     assert_eq!(
