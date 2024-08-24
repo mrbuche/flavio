@@ -160,7 +160,7 @@ where
         let mut residual_abs = 1.0;
         let mut residual_rel = 1.0;
         let mut steps: usize = 0;
-        let steps_maximum: usize = 12345;
+        let steps_maximum: usize = 10_000;
         while residual_abs >= ABS_TOL && residual_rel >= REL_TOL {
             if steps > steps_maximum {
                 return Err(ConstitutiveError::SolveError);
