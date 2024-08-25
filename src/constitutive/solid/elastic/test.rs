@@ -2,29 +2,79 @@ use crate::mechanics::Scalar;
 
 pub const ALMANSIHAMELPARAMETERS: &[Scalar; 2] = &[13.0, 3.0];
 
-macro_rules! test_solve_uniaxial_tension {
+macro_rules! test_solve_uniaxial {
     ($constitutive_model_constructed: expr) => {
         #[test]
-        fn solve_uniaxial_tension_deformed() {
+        fn solve_biaxial_compression() {
+            let (a, b) = $constitutive_model_constructed
+                .solve_biaxial(&0.55, &0.88)
+                .expect("the unexpected");
+            assert!(a < 0.0);
+            assert!(b < 0.0);
+            assert!(a < b);
+        }
+        #[test]
+        fn solve_biaxial_mixed() {
+            let (a, b) = $constitutive_model_constructed
+                .solve_biaxial(&3.3, &0.44)
+                .expect("the unexpected");
+            assert!(a > 0.0);
+            assert!(b < 0.0);
+        }
+        #[test]
+        fn solve_biaxial_tension() {
+            let (a, b) = $constitutive_model_constructed
+                .solve_biaxial(&3.3, &2.2)
+                .expect("the unexpected");
+            assert!(a > 0.0);
+            assert!(b > 0.0);
+            assert!(a > b);
+        }
+        #[test]
+        fn solve_biaxial_undeformed() {
+            let (a, b) = $constitutive_model_constructed
+                .solve_biaxial(&1.0, &1.0)
+                .expect("the unexpected");
+            assert_eq!(a, 0.0);
+            assert_eq!(b, 0.0);
+        }
+        #[test]
+        fn solve_uniaxial_compression() {
             assert!(
                 $constitutive_model_constructed
-                    .solve_uniaxial_tension(&3.0)
+                    .solve_uniaxial(&0.22)
                     .expect("the unexpected")
-                    > 0.0
+                    .1[0][0]
+                    < 0.0
             )
         }
         #[test]
-        fn solve_uniaxial_tension_undeformed() {
-            assert_eq!(
-                $constitutive_model_constructed
-                    .solve_uniaxial_tension(&1.0)
-                    .expect("the unexpected"),
-                0.0
-            )
+        fn solve_uniaxial_tension() {
+            let (deformation_gradient, cauchy_stress) = $constitutive_model_constructed
+                .solve_uniaxial(&4.4)
+                .expect("the unexpected");
+            assert!(cauchy_stress[0][0] > 0.0);
+            crate::test::assert_eq_within_tols(&(cauchy_stress[1][1] / cauchy_stress[0][0]), &0.0);
+            crate::test::assert_eq_within_tols(&(cauchy_stress[2][2] / cauchy_stress[0][0]), &0.0);
+            assert!(cauchy_stress.is_diagonal());
+            assert!(deformation_gradient[0][0] > deformation_gradient[1][1]);
+            crate::test::assert_eq_within_tols(
+                &deformation_gradient[1][1],
+                &deformation_gradient[2][2],
+            );
+            assert!(deformation_gradient.is_diagonal());
+        }
+        #[test]
+        fn solve_uniaxial_undeformed() {
+            let (deformation_gradient, cauchy_stress) = $constitutive_model_constructed
+                .solve_uniaxial(&1.0)
+                .expect("the unexpected");
+            assert!(cauchy_stress.is_zero());
+            assert!(deformation_gradient.is_identity());
         }
     };
 }
-pub(crate) use test_solve_uniaxial_tension;
+pub(crate) use test_solve_uniaxial;
 
 macro_rules! calculate_cauchy_stress_from_deformation_gradient {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {

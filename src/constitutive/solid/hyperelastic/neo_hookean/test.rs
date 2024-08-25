@@ -9,4 +9,4 @@ test_solid_hyperelastic_constitutive_model!(
     NeoHookean::new(NEOHOOKEANPARAMETERS)
 );
 
-test_solve_uniaxial_tension!(NeoHookean::new(NEOHOOKEANPARAMETERS));
+test_solve_uniaxial!(NeoHookean::new(NEOHOOKEANPARAMETERS));

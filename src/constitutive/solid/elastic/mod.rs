@@ -19,6 +19,8 @@ pub use almansi_hamel::AlmansiHamel;
 
 use super::*;
 
+const MAXIMUM_STEPS: usize = 10_000;
+
 /// Required methods for elastic constitutive models.
 pub trait Elastic<'a>
 where
@@ -149,33 +151,46 @@ where
                 &second_piola_kirchoff_stress,
             ))
     }
-    fn solve_uniaxial_tension(
+    fn solve_biaxial(
+        &self,
+        _deformation_gradient_11: &Scalar,
+        _deformation_gradient_22: &Scalar,
+    ) -> Result<(Scalar, Scalar), ConstitutiveError> {
+        todo!()
+    }
+    fn solve_pure_shear(&self, _: &Scalar) -> Result<Scalar, ConstitutiveError> {
+        todo!()
+    }
+    fn solve_simple_shear(&self, _: &Scalar) -> Result<Scalar, ConstitutiveError> {
+        todo!()
+    }
+    fn solve_uniaxial(
         &self,
         deformation_gradient_11: &Scalar,
-    ) -> Result<Scalar, ConstitutiveError> {
+    ) -> Result<(DeformationGradient, CauchyStress), ConstitutiveError> {
+        let mut cauchy_stress = ZERO;
         let mut deformation_gradient = IDENTITY_10;
         deformation_gradient[0][0] = *deformation_gradient_11;
-        let mut deformation_gradient_22 = 1.0;
-        let mut residual;
+        deformation_gradient[1][1] = 1.0 / deformation_gradient_11.sqrt();
+        deformation_gradient[2][2] = deformation_gradient[1][1];
+        let mut residual = 0.0;
         let mut residual_abs = 1.0;
         let mut residual_rel = 1.0;
         let mut steps: usize = 0;
-        let steps_maximum: usize = 10_000;
         while residual_abs >= ABS_TOL && residual_rel >= REL_TOL {
-            if steps > steps_maximum {
+            if steps > MAXIMUM_STEPS {
                 return Err(ConstitutiveError::SolveError);
             } else {
+                deformation_gradient[1][1] -= residual
+                    / self.calculate_cauchy_tangent_stiffness(&deformation_gradient)?[1][1][1][1];
+                deformation_gradient[2][2] = deformation_gradient[1][1];
+                cauchy_stress = self.calculate_cauchy_stress(&deformation_gradient)?;
+                residual = cauchy_stress[1][1];
+                residual_abs = residual.abs();
+                residual_rel = residual_abs / cauchy_stress[0][0].abs();
                 steps += 1;
             }
-            deformation_gradient[1][1] = deformation_gradient_22;
-            deformation_gradient[2][2] = deformation_gradient_22;
-            residual = self.calculate_cauchy_stress(&deformation_gradient)?[1][1];
-            residual_abs = residual.abs();
-            residual_rel =
-                residual_abs / self.calculate_cauchy_stress(&deformation_gradient)?[0][0].abs();
-            deformation_gradient_22 -= residual
-                / self.calculate_cauchy_tangent_stiffness(&deformation_gradient)?[1][1][1][1];
         }
-        Ok(self.calculate_cauchy_stress(&deformation_gradient)?[0][0])
+        Ok((deformation_gradient, cauchy_stress))
     }
 }
