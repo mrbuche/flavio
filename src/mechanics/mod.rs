@@ -27,6 +27,12 @@ pub const IDENTITY_10: TensorRank2<3, 1, 0> = TensorRank2([
     TensorRank1([0.0, 0.0, 1.0]),
 ]);
 
+pub const ZERO: TensorRank2<3, 1, 1> = TensorRank2([
+    tensor_rank_1_zero(),
+    tensor_rank_1_zero(),
+    tensor_rank_1_zero(),
+]);
+
 pub const ZERO_10: TensorRank2<3, 1, 0> = TensorRank2([
     tensor_rank_1_zero(),
     tensor_rank_1_zero(),

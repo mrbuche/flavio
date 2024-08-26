@@ -5,6 +5,8 @@ use_elastic_macros!();
 
 test_solid_hyperelastic_constitutive_model!(Fung, FUNGPARAMETERS, Fung::new(FUNGPARAMETERS));
 
+test_solve_uniaxial!(Fung::new(FUNGPARAMETERS));
+
 #[test]
 fn get_extra_modulus() {
     assert_eq!(

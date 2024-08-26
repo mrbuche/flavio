@@ -25,6 +25,96 @@ pub const YEOHPARAMETERS: &[Scalar; 6] = &[
     1e-5,
 ];
 
+macro_rules! test_solve_uniaxial {
+    ($constitutive_model_constructed: expr) => {
+        #[test]
+        fn solve_biaxial_compression() {
+            let (deformation_gradient, cauchy_stress) = $constitutive_model_constructed
+                .solve_biaxial(&0.55, &0.88)
+                .expect("the unexpected");
+            assert!(cauchy_stress[0][0] < 0.0);
+            assert!(cauchy_stress[1][1] < 0.0);
+            crate::test::assert_eq_within_tols(
+                &(cauchy_stress[2][2]
+                    / (cauchy_stress[0][0].powi(2) + cauchy_stress[1][1].powi(2)).sqrt()),
+                &0.0,
+            );
+            assert!(cauchy_stress.is_diagonal());
+            assert!(deformation_gradient.is_diagonal());
+        }
+        #[test]
+        fn solve_biaxial_mixed() {
+            let (deformation_gradient, cauchy_stress) = $constitutive_model_constructed
+                .solve_biaxial(&3.3, &0.44)
+                .expect("the unexpected");
+            assert!(cauchy_stress[0][0] > cauchy_stress[1][1]);
+            crate::test::assert_eq_within_tols(
+                &(cauchy_stress[2][2]
+                    / (cauchy_stress[0][0].powi(2) + cauchy_stress[1][1].powi(2)).sqrt()),
+                &0.0,
+            );
+            assert!(cauchy_stress.is_diagonal());
+            assert!(deformation_gradient.is_diagonal());
+        }
+        #[test]
+        fn solve_biaxial_tension() {
+            let (deformation_gradient, cauchy_stress) = $constitutive_model_constructed
+                .solve_biaxial(&3.3, &2.2)
+                .expect("the unexpected");
+            assert!(cauchy_stress[0][0] > cauchy_stress[1][1]);
+            assert!(cauchy_stress[1][1] > 0.0);
+            crate::test::assert_eq_within_tols(
+                &(cauchy_stress[2][2]
+                    / (cauchy_stress[0][0].powi(2) + cauchy_stress[1][1].powi(2)).sqrt()),
+                &0.0,
+            );
+            assert!(cauchy_stress.is_diagonal());
+            assert!(deformation_gradient.is_diagonal());
+        }
+        #[test]
+        fn solve_biaxial_undeformed() {
+            let (deformation_gradient, cauchy_stress) = $constitutive_model_constructed
+                .solve_biaxial(&1.0, &1.0)
+                .expect("the unexpected");
+            assert!(cauchy_stress.is_zero());
+            assert!(deformation_gradient.is_identity());
+        }
+        #[test]
+        fn solve_uniaxial_compression() {
+            let (deformation_gradient, cauchy_stress) = $constitutive_model_constructed
+                .solve_uniaxial(&0.44)
+                .expect("the unexpected");
+            assert!(cauchy_stress[0][0] < 0.0);
+            crate::test::assert_eq_within_tols(&(cauchy_stress[1][1] / cauchy_stress[0][0]), &0.0);
+            crate::test::assert_eq_within_tols(&(cauchy_stress[2][2] / cauchy_stress[0][0]), &0.0);
+            assert!(cauchy_stress.is_diagonal());
+            assert_eq!(deformation_gradient[1][1], deformation_gradient[2][2],);
+            assert!(deformation_gradient.is_diagonal());
+        }
+        #[test]
+        fn solve_uniaxial_tension() {
+            let (deformation_gradient, cauchy_stress) = $constitutive_model_constructed
+                .solve_uniaxial(&4.4)
+                .expect("the unexpected");
+            assert!(cauchy_stress[0][0] > 0.0);
+            crate::test::assert_eq_within_tols(&(cauchy_stress[1][1] / cauchy_stress[0][0]), &0.0);
+            crate::test::assert_eq_within_tols(&(cauchy_stress[2][2] / cauchy_stress[0][0]), &0.0);
+            assert!(cauchy_stress.is_diagonal());
+            assert_eq!(deformation_gradient[1][1], deformation_gradient[2][2],);
+            assert!(deformation_gradient.is_diagonal());
+        }
+        #[test]
+        fn solve_uniaxial_undeformed() {
+            let (deformation_gradient, cauchy_stress) = $constitutive_model_constructed
+                .solve_uniaxial(&1.0)
+                .expect("the unexpected");
+            assert!(cauchy_stress.is_zero());
+            assert!(deformation_gradient.is_identity());
+        }
+    };
+}
+pub(crate) use test_solve_uniaxial;
+
 macro_rules! calculate_helmholtz_free_energy_density_from_deformation_gradient_simple {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
         $constitutive_model_constructed

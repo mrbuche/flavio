@@ -8,3 +8,5 @@ test_solid_hyperelastic_constitutive_model!(
     SAINTVENANTKIRCHOFFPARAMETERS,
     SaintVenantKirchoff::new(SAINTVENANTKIRCHOFFPARAMETERS)
 );
+
+test_solve_uniaxial!(SaintVenantKirchoff::new(SAINTVENANTKIRCHOFFPARAMETERS));

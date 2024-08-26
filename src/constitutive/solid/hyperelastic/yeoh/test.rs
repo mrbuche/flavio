@@ -5,6 +5,8 @@ use_elastic_macros!();
 
 test_solid_hyperelastic_constitutive_model!(Yeoh, YEOHPARAMETERS, Yeoh::new(YEOHPARAMETERS));
 
+test_solve_uniaxial!(Yeoh::new(YEOHPARAMETERS));
+
 #[test]
 fn get_moduli() {
     Yeoh::new(YEOHPARAMETERS)

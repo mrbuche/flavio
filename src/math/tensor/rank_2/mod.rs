@@ -105,8 +105,12 @@ where
     fn inverse_transpose(&self) -> Self;
     /// Returns the inverse transpose and determinant of the rank-2 tensor.
     fn inverse_transpose_and_determinant(&self) -> (Self, TensorRank0);
+    /// Checks whether the tensor is a diagonal tensor.
+    fn is_diagonal(&self) -> bool;
     /// Checks whether the tensor is the identity tensor.
     fn is_identity(&self) -> bool;
+    /// Checks whether the tensor is the zero tensor.
+    fn is_zero(&self) -> bool;
     /// Returns the LU decomposition of the rank-2 tensor.
     fn lu_decomposition(&self) -> (TensorRank2<D, I, 88>, TensorRank2<D, 88, J>);
     /// Returns the inverse of the LU decomposition of the rank-2 tensor.
@@ -449,6 +453,19 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2Trait<D, I, J>
             panic!()
         }
     }
+    fn is_diagonal(&self) -> bool {
+        self.iter()
+            .enumerate()
+            .map(|(i, self_i)| {
+                self_i
+                    .iter()
+                    .enumerate()
+                    .map(|(j, self_ij)| (self_ij == &0.0) as u8 * (i != j) as u8)
+                    .sum::<u8>()
+            })
+            .sum::<u8>()
+            == (D * D - D) as u8
+    }
     fn is_identity(&self) -> bool {
         self.iter()
             .enumerate()
@@ -457,6 +474,17 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2Trait<D, I, J>
                     .iter()
                     .enumerate()
                     .map(|(j, self_ij)| (self_ij == &((i == j) as u8 as f64)) as u8)
+                    .sum::<u8>()
+            })
+            .sum::<u8>()
+            == (D * D) as u8
+    }
+    fn is_zero(&self) -> bool {
+        self.iter()
+            .map(|self_i| {
+                self_i
+                    .iter()
+                    .map(|self_ij| (self_ij == &0.0) as u8)
                     .sum::<u8>()
             })
             .sum::<u8>()

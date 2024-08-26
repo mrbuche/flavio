@@ -3,7 +3,10 @@
 mod elastic;
 mod hyperelastic;
 
-use crate::{constitutive::Constitutive, mechanics::DeformationGradient};
+use crate::{
+    constitutive::{Constitutive, ConstitutiveError},
+    mechanics::DeformationGradient,
+};
 
 /// Required methods for hybrid constitutive models.
 pub trait Hybrid<'a, C1: Constitutive<'a>, C2: Constitutive<'a>> {
@@ -32,7 +35,7 @@ pub trait MultiplicativeTrait {
     fn calculate_deformation_gradients(
         &self,
         deformation_gradient: &DeformationGradient,
-    ) -> (DeformationGradient, DeformationGradient);
+    ) -> Result<(DeformationGradient, DeformationGradient), ConstitutiveError>;
 }
 
 /// Hybrid constitutive model implementation of hybrid constitutive models based on the additive decomposition.
