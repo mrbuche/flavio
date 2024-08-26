@@ -78,6 +78,15 @@ fn get_other_tensor_rank_2_dim_4() -> TensorRank2<4, 1, 1> {
     ])
 }
 
+fn get_diagonal_tensor_rank_2_dim_4() -> TensorRank2<4, 1, 1> {
+    TensorRank2::new([
+        [3.0, 0.0, 0.0, 0.0],
+        [0.0, 5.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 6.0],
+    ])
+}
+
 fn get_other_tensor_rank_2_dim_9() -> TensorRank2<9, 1, 1> {
     TensorRank2::new([
         [0.0, 4.0, 2.0, 0.0, 1.0, 4.0, 2.0, 4.0, 1.0],
@@ -932,6 +941,66 @@ fn inverse_transpose_and_determinant_dim_4() {
                     },
                 )
         });
+}
+
+#[test]
+fn is_diagonal() {
+    assert!(get_diagonal_tensor_rank_2_dim_4().is_diagonal())
+}
+
+#[test]
+fn is_not_diagonal() {
+    assert!(!get_other_tensor_rank_2_dim_4().is_diagonal())
+}
+
+#[test]
+fn is_diagonal_identity() {
+    assert!(TensorRank2::<3, 0, 0>::identity().is_diagonal())
+}
+
+#[test]
+fn is_diagonal_zero() {
+    assert!(TensorRank2::<4, 1, 1>::zero().is_diagonal())
+}
+
+#[test]
+fn is_identity_dim_3() {
+    assert!(TensorRank2::<3, 0, 0>::identity().is_identity())
+}
+
+#[test]
+fn is_not_identity_dim_3() {
+    assert!(!TensorRank2::<3, 0, 0>::zero().is_identity())
+}
+
+#[test]
+fn is_identity_dim_4() {
+    assert!(TensorRank2::<4, 1, 1>::identity().is_identity())
+}
+
+#[test]
+fn is_not_identity_dim_4() {
+    assert!(!get_diagonal_tensor_rank_2_dim_4().is_identity())
+}
+
+#[test]
+fn is_zero_dim_3() {
+    assert!(TensorRank2::<3, 0, 0>::zero().is_zero())
+}
+
+#[test]
+fn is_not_zero_dim_3() {
+    assert!(!TensorRank2::<3, 0, 0>::identity().is_zero())
+}
+
+#[test]
+fn is_zero_dim_4() {
+    assert!(TensorRank2::<4, 1, 1>::zero().is_zero())
+}
+
+#[test]
+fn is_not_zero_dim_4() {
+    assert!(!get_other_tensor_rank_2_dim_4().is_zero())
 }
 
 #[test]

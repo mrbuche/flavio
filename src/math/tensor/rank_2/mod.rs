@@ -454,8 +454,17 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2Trait<D, I, J>
         }
     }
     fn is_diagonal(&self) -> bool {
-        todo!()
-        // == (D * D - D) as u8
+        self.iter()
+            .enumerate()
+            .map(|(i, self_i)| {
+                self_i
+                    .iter()
+                    .enumerate()
+                    .map(|(j, self_ij)| (self_ij == &0.0) as u8 * (i != j) as u8)
+                    .sum::<u8>()
+            })
+            .sum::<u8>()
+            == (D * D - D) as u8
     }
     fn is_identity(&self) -> bool {
         self.iter()
