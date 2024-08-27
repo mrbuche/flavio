@@ -130,4 +130,11 @@ where
             )
             * deformation_gradient.determinant())
     }
+    fn solve_uniaxial(
+        &self,
+        _deformation_gradient: &DeformationGradient,
+        _deformation_gradient_rate_11: &Scalar,
+    ) -> Result<(DeformationGradientRate, CauchyStress), ConstitutiveError> {
+        todo!()
+    }
 }
