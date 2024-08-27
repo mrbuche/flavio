@@ -35,8 +35,6 @@ pub use self::{
 };
 use super::{elastic::Elastic, *};
 
-const MAXIMUM_STEPS: usize = 10_000;
-
 /// Required methods for hyperelastic constitutive models.
 pub trait Hyperelastic<'a>
 where

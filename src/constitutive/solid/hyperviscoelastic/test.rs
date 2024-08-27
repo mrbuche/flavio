@@ -22,7 +22,7 @@ macro_rules! use_elastic_hyperviscous_macros {
         use crate::constitutive::solid::elastic_hyperviscous::test::{
             calculate_dissipation_potential_from_deformation_gradient_and_deformation_gradient_rate,
             calculate_viscous_dissipation_from_deformation_gradient_and_deformation_gradient_rate,
-            calculate_viscous_dissipation_from_deformation_gradient_rate_simple,
+            calculate_viscous_dissipation_from_deformation_gradient_rate_simple, test_solve,
             use_viscoelastic_macros,
         };
         use_viscoelastic_macros!();

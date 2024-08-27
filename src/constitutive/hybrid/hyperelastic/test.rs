@@ -22,7 +22,7 @@ macro_rules! test_hybrid_hyperelastic_constitutive_models {
         use_elastic_macros!();
         mod hybrid_0 {
             use super::*;
-            test_solve_uniaxial!($hybrid_type::construct(
+            test_solve!($hybrid_type::construct(
                 ArrudaBoyce::new(ARRUDABOYCEPARAMETERS),
                 Fung::new(FUNGPARAMETERS)
             ));

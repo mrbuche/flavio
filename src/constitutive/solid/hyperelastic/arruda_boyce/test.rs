@@ -9,7 +9,7 @@ test_solid_hyperelastic_constitutive_model!(
     ArrudaBoyce::new(ARRUDABOYCEPARAMETERS)
 );
 
-test_solve_uniaxial!(ArrudaBoyce::new(ARRUDABOYCEPARAMETERS));
+test_solve!(ArrudaBoyce::new(ARRUDABOYCEPARAMETERS));
 
 #[test]
 fn get_number_of_links() {

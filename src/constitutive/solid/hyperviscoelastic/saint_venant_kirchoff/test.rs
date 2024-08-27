@@ -9,6 +9,8 @@ test_solid_hyperviscoelastic_constitutive_model!(
     SaintVenantKirchoff::new(SAINTVENANTKIRCHOFFPARAMETERS)
 );
 
+test_solve!(SaintVenantKirchoff::new(SAINTVENANTKIRCHOFFPARAMETERS));
+
 mod consistency {
     use super::*;
     use crate::{

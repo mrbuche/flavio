@@ -130,11 +130,53 @@ where
             )
             * deformation_gradient.determinant())
     }
+    // COULD GIVE A CONSTANT STRAIN RATE AND A FINAL DEFORMATION GRADIENT AND **IMPLICITLY** INTEGRATE THIS IN TIME FOR THE STRESS HISTORY?
+    //
+    // a start with some F_n, Fdot_n = f_n, and guess F_{n+1} = F_n
+    //   1 solve for a new guess for f_{n+1} = f(F_{n+1}) using sigma_22 = 0 and symmetry
+    //   2 solve for a new guess for F_{n+1} using backward Euler and Newton's method
+    // b repeatedly alternate 1 and 2 until converged
+    // repeat a and b until get to specified F
+    //
+    // how to chose the timestep?
+    // see adaptive RK for an example
+    // need to estimate the error over the step and cut back timestep if it is too large
+    //
+    // should you just use RK4 instead?
+    // would also be good to distill into a math function or macro
     fn solve_uniaxial(
         &self,
-        _deformation_gradient: &DeformationGradient,
-        _deformation_gradient_rate_11: &Scalar,
+        deformation_gradient: &DeformationGradient,
+        deformation_gradient_rate_11: &Scalar,
     ) -> Result<(DeformationGradientRate, CauchyStress), ConstitutiveError> {
-        todo!()
+        let mut cauchy_stress = ZERO;
+        let mut deformation_gradient_rate = IDENTITY_10;
+        deformation_gradient_rate[0][0] = *deformation_gradient_rate_11;
+        deformation_gradient_rate[1][1] =
+            -deformation_gradient_rate_11 / deformation_gradient[0][0].powf(1.5);
+        deformation_gradient_rate[2][2] = deformation_gradient_rate[1][1];
+        let mut residual = 0.0;
+        let mut residual_abs = 1.0;
+        let mut residual_rel = 1.0;
+        let mut steps: usize = 0;
+        while residual_abs >= ABS_TOL && residual_rel >= REL_TOL {
+            if steps > MAXIMUM_STEPS {
+                return Err(ConstitutiveError::SolveError);
+            } else {
+                deformation_gradient_rate[1][1] -= residual
+                    / self.calculate_cauchy_rate_tangent_stiffness(
+                        deformation_gradient,
+                        &deformation_gradient_rate,
+                    )?[1][1][1][1];
+                deformation_gradient_rate[2][2] = deformation_gradient_rate[1][1];
+                cauchy_stress =
+                    self.calculate_cauchy_stress(deformation_gradient, &deformation_gradient_rate)?;
+                residual = cauchy_stress[1][1];
+                residual_abs = residual.abs();
+                residual_rel = residual_abs / cauchy_stress[0][0].abs();
+                steps += 1;
+            }
+        }
+        Ok((deformation_gradient_rate, cauchy_stress))
     }
 }

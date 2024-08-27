@@ -5,7 +5,7 @@ use_elastic_macros!();
 
 test_solid_hyperelastic_constitutive_model!(Gent, GENTPARAMETERS, Gent::new(GENTPARAMETERS));
 
-test_solve_uniaxial!(Gent::new(GENTPARAMETERS));
+test_solve!(Gent::new(GENTPARAMETERS));
 
 #[test]
 fn get_extensibility() {

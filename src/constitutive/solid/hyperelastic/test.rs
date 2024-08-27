@@ -25,7 +25,7 @@ pub const YEOHPARAMETERS: &[Scalar; 6] = &[
     1e-5,
 ];
 
-macro_rules! test_solve_uniaxial {
+macro_rules! test_solve {
     ($constitutive_model_constructed: expr) => {
         #[test]
         fn solve_biaxial_compression() {
@@ -88,7 +88,7 @@ macro_rules! test_solve_uniaxial {
             crate::test::assert_eq_within_tols(&(cauchy_stress[1][1] / cauchy_stress[0][0]), &0.0);
             crate::test::assert_eq_within_tols(&(cauchy_stress[2][2] / cauchy_stress[0][0]), &0.0);
             assert!(cauchy_stress.is_diagonal());
-            assert_eq!(deformation_gradient[1][1], deformation_gradient[2][2],);
+            assert_eq!(deformation_gradient[1][1], deformation_gradient[2][2]);
             assert!(deformation_gradient.is_diagonal());
         }
         #[test]
@@ -100,7 +100,7 @@ macro_rules! test_solve_uniaxial {
             crate::test::assert_eq_within_tols(&(cauchy_stress[1][1] / cauchy_stress[0][0]), &0.0);
             crate::test::assert_eq_within_tols(&(cauchy_stress[2][2] / cauchy_stress[0][0]), &0.0);
             assert!(cauchy_stress.is_diagonal());
-            assert_eq!(deformation_gradient[1][1], deformation_gradient[2][2],);
+            assert_eq!(deformation_gradient[1][1], deformation_gradient[2][2]);
             assert!(deformation_gradient.is_diagonal());
         }
         #[test]
@@ -113,7 +113,7 @@ macro_rules! test_solve_uniaxial {
         }
     };
 }
-pub(crate) use test_solve_uniaxial;
+pub(crate) use test_solve;
 
 macro_rules! calculate_helmholtz_free_energy_density_from_deformation_gradient_simple {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {

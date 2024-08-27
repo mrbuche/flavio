@@ -26,6 +26,8 @@ use crate::{
     ABS_TOL, REL_TOL,
 };
 
+const MAXIMUM_STEPS: usize = 10_000;
+
 /// Required methods for solid constitutive models.
 pub trait Solid<'a>
 where

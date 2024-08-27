@@ -9,6 +9,50 @@ pub const ALMANSIHAMELPARAMETERS: &[Scalar; 4] = &[
     1.0,
 ];
 
+macro_rules! test_solve {
+    ($constitutive_model_constructed: expr) => {
+        #[test]
+        fn solve_uniaxial_compression() {
+            let (deformation_gradient_rate, cauchy_stress) = $constitutive_model_constructed
+                .solve_uniaxial(&DeformationGradient::identity(), &-4.4)
+                .expect("the unexpected");
+            assert!(cauchy_stress[0][0] < 0.0);
+            crate::test::assert_eq_within_tols(&(cauchy_stress[1][1] / cauchy_stress[0][0]), &0.0);
+            crate::test::assert_eq_within_tols(&(cauchy_stress[2][2] / cauchy_stress[0][0]), &0.0);
+            assert!(cauchy_stress.is_diagonal());
+            assert_eq!(
+                deformation_gradient_rate[1][1],
+                deformation_gradient_rate[2][2]
+            );
+            assert!(deformation_gradient_rate.is_diagonal());
+        }
+        #[test]
+        fn solve_uniaxial_tension() {
+            let (deformation_gradient_rate, cauchy_stress) = $constitutive_model_constructed
+                .solve_uniaxial(&DeformationGradient::identity(), &4.4)
+                .expect("the unexpected");
+            assert!(cauchy_stress[0][0] > 0.0);
+            crate::test::assert_eq_within_tols(&(cauchy_stress[1][1] / cauchy_stress[0][0]), &0.0);
+            crate::test::assert_eq_within_tols(&(cauchy_stress[2][2] / cauchy_stress[0][0]), &0.0);
+            assert!(cauchy_stress.is_diagonal());
+            assert_eq!(
+                deformation_gradient_rate[1][1],
+                deformation_gradient_rate[2][2]
+            );
+            assert!(deformation_gradient_rate.is_diagonal());
+        }
+        #[test]
+        fn solve_uniaxial_undeformed() {
+            let (deformation_gradient_rate, cauchy_stress) = $constitutive_model_constructed
+                .solve_uniaxial(&DeformationGradient::identity(), &0.0)
+                .expect("the unexpected");
+            assert!(cauchy_stress.is_zero());
+            assert!(deformation_gradient_rate.is_zero());
+        }
+    };
+}
+pub(crate) use test_solve;
+
 macro_rules! calculate_viscous_dissipation_from_deformation_gradient_rate_simple {
     ($constitutive_model_constructed: expr, $deformation_gradient_rate: expr) => {
         $constitutive_model_constructed
@@ -60,7 +104,7 @@ macro_rules! use_viscoelastic_macros
             calculate_second_piola_kirchoff_stress_from_deformation_gradient_simple,
             calculate_second_piola_kirchoff_stress_from_deformation_gradient_rotated,
             calculate_second_piola_kirchoff_stress_from_deformation_gradient_and_deformation_gradient_rate,
-            calculate_second_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate
+            calculate_second_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate,
         };
     }
 }
