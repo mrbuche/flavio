@@ -12,9 +12,32 @@ pub const ALMANSIHAMELPARAMETERS: &[Scalar; 4] = &[
 macro_rules! test_solve {
     ($constitutive_model_constructed: expr) => {
         #[test]
+        fn temporary() {
+            let rate = 0.1;
+            let function = |_| rate;
+            let (deformation_gradients, cauchy_stresses) = $constitutive_model_constructed
+                .solve_uniaxial(function, [0.0, 0.2, 0.5])
+                .expect("the unexpected");
+            deformation_gradients
+                .iter()
+                .for_each(|deformation_gradient| {
+                    println!();
+                    deformation_gradient
+                        .iter()
+                        .for_each(|row| println!("{:?}", (row[0], row[1], row[2])))
+                });
+            println!();
+            cauchy_stresses.iter().for_each(|cauchy_stress| {
+                println!();
+                cauchy_stress
+                    .iter()
+                    .for_each(|row| println!("{:?}", (row[0], row[1], row[2])))
+            });
+        }
+        #[test]
         fn solve_uniaxial_compression() {
             let (deformation_gradient_rate, cauchy_stress) = $constitutive_model_constructed
-                .solve_uniaxial(&DeformationGradient::identity(), &-4.4)
+                .solve_uniaxial_inner_inner(&DeformationGradient::identity(), &-4.4)
                 .expect("the unexpected");
             assert!(cauchy_stress[0][0] < 0.0);
             crate::test::assert_eq_within_tols(&(cauchy_stress[1][1] / cauchy_stress[0][0]), &0.0);
@@ -29,7 +52,7 @@ macro_rules! test_solve {
         #[test]
         fn solve_uniaxial_tension() {
             let (deformation_gradient_rate, cauchy_stress) = $constitutive_model_constructed
-                .solve_uniaxial(&DeformationGradient::identity(), &4.4)
+                .solve_uniaxial_inner_inner(&DeformationGradient::identity(), &4.4)
                 .expect("the unexpected");
             assert!(cauchy_stress[0][0] > 0.0);
             crate::test::assert_eq_within_tols(&(cauchy_stress[1][1] / cauchy_stress[0][0]), &0.0);
@@ -44,7 +67,7 @@ macro_rules! test_solve {
         #[test]
         fn solve_uniaxial_undeformed() {
             let (deformation_gradient_rate, cauchy_stress) = $constitutive_model_constructed
-                .solve_uniaxial(&DeformationGradient::identity(), &0.0)
+                .solve_uniaxial_inner_inner(&DeformationGradient::identity(), &0.0)
                 .expect("the unexpected");
             assert!(cauchy_stress.is_zero());
             assert!(deformation_gradient_rate.is_zero());

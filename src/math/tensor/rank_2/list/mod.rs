@@ -32,6 +32,8 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2
 pub trait TensorRank2ListTrait<const D: usize, const W: usize> {
     /// Returns the rank-2 tensor list as an array.
     fn as_array(&self) -> [[[TensorRank0; D]; D]; W];
+    /// Returns a list of rank-2 identity tensors.
+    fn identity() -> Self;
     /// Returns a list of rank-2 tensors given an array.
     fn new(array: [[[TensorRank0; D]; D]; W]) -> Self;
     /// Returns a list of rank-2 zero tensors.
@@ -49,6 +51,9 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2
             .zip(self.iter())
             .for_each(|(entry_rank_2, tensor_rank_2)| *entry_rank_2 = tensor_rank_2.as_array());
         array
+    }
+    fn identity() -> Self {
+        Self(std::array::from_fn(|_| TensorRank2::identity()))
     }
     fn new(array: [[[TensorRank0; D]; D]; W]) -> Self {
         array

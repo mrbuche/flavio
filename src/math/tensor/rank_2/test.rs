@@ -1,7 +1,7 @@
 use super::{
-    super::rank_1::list::TensorRank1ListTrait, list_2d::TensorRank2List2DTrait, TensorRank0,
-    TensorRank1, TensorRank1List, TensorRank1Trait, TensorRank2, TensorRank2List2D,
-    TensorRank2Trait,
+    super::rank_1::list::TensorRank1ListTrait, super::rank_4::TensorRank4Trait,
+    list_2d::TensorRank2List2DTrait, TensorRank0, TensorRank1, TensorRank1List, TensorRank1Trait,
+    TensorRank2, TensorRank2List2D, TensorRank2Trait, TensorRank4,
 };
 use crate::test::assert_eq_within_tols;
 use std::cmp::Ordering;
@@ -171,6 +171,42 @@ fn get_tensor_rank_2_mul_tensor_rank_2_list_2d() -> TensorRank2List2D<3, 1, 1, 2
     ])
 }
 
+fn get_tensor_rank_4() -> TensorRank4<3, 1, 1, 2, 3> {
+    TensorRank4::new([
+        [
+            [[7.0, 3.0, 7.0], [3.0, 2.0, 7.0], [9.0, 8.0, 4.0]],
+            [[1.0, 10.0, 7.0], [0.0, 3.0, 3.0], [4.0, 8.0, 8.0]],
+            [[0.0, 1.0, 7.0], [1.0, 2.0, 9.0], [3.0, 5.0, 4.0]],
+        ],
+        [
+            [[2.0, 1.0, 8.0], [6.0, 2.0, 6.0], [4.0, 6.0, 2.0]],
+            [[7.0, 7.0, 8.0], [8.0, 4.0, 4.0], [10.0, 9.0, 9.0]],
+            [[3.0, 3.0, 3.0], [1.0, 4.0, 3.0], [10.0, 9.0, 5.0]],
+        ],
+        [
+            [[9.0, 5.0, 1.0], [7.0, 9.0, 9.0], [5.0, 9.0, 10.0]],
+            [[5.0, 9.0, 0.0], [4.0, 5.0, 7.0], [5.0, 4.0, 7.0]],
+            [[1.0, 2.0, 7.0], [8.0, 2.0, 6.0], [2.0, 7.0, 5.0]],
+        ],
+    ])
+}
+
+fn get_tensor_rank_2_div_tensor_rank_4() -> TensorRank2<3, 2, 3> {
+    TensorRank2::new([
+        [
+            -0.85910232836052750,
+            0.5463144610682097,
+            0.48148464803521684,
+        ],
+        [0.14461826142457423, 2.8819091589827597, 0.35556086699797960],
+        [
+            0.29609312727618836,
+            -0.4778620587076813,
+            -1.38104011699420130,
+        ],
+    ])
+}
+
 #[test]
 fn add_tensor_rank_2_to_self() {
     (get_tensor_rank_2_dim_4() + get_other_tensor_rank_2_dim_4())
@@ -310,6 +346,21 @@ fn as_array_dim_9() {
                 .zip(array_i.iter())
                 .for_each(|(tensor_rank_2_as_array_ij, array_ij)| {
                     assert_eq!(tensor_rank_2_as_array_ij, array_ij)
+                })
+        });
+}
+
+#[test]
+fn div_tensor_rank_4_to_self() {
+    (get_tensor_rank_2_dim_3() / get_tensor_rank_4())
+        .iter()
+        .zip(get_tensor_rank_2_div_tensor_rank_4().iter())
+        .for_each(|(tensor_rank_2_i, res_tensor_rank_2_i)| {
+            tensor_rank_2_i
+                .iter()
+                .zip(res_tensor_rank_2_i.iter())
+                .for_each(|(tensor_rank_2_ij, res_tensor_rank_2_ij)| {
+                    assert_eq!(tensor_rank_2_ij, res_tensor_rank_2_ij)
                 })
         });
 }

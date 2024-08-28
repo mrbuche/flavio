@@ -25,7 +25,7 @@ pub fn levi_civita<const I: usize, const J: usize, const K: usize>() -> TensorRa
 ///
 /// `D` is the dimension, `I`, `J`, `K` are the configurations.
 pub struct TensorRank3<const D: usize, const I: usize, const J: usize, const K: usize>(
-    [TensorRank2<D, J, K>; D],
+    pub [TensorRank2<D, J, K>; D],
 );
 
 /// Inherent implementation of [`TensorRank3`].

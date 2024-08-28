@@ -2,7 +2,7 @@ use super::{
     CurrentCoordinate, CurrentVelocity, DeformationGradient, DeformationGradientRate, FrameSpin,
     ReferenceCoordinate, RotationCurrentConfiguration, RotationRateCurrentConfiguration,
     RotationReferenceConfiguration, Scalar, TemperatureGradient, IDENTITY, IDENTITY_00,
-    IDENTITY_10,
+    IDENTITY_10, IDENTITY_1010,
 };
 use crate::{
     math::{TensorRank1Trait, TensorRank2Trait},
@@ -128,6 +128,22 @@ fn frame_spin_tensor() {
                     assert_eq!(frame_spin_ij, &(-frame_spin_transpose_ij))
                 })
         })
+}
+
+#[test]
+fn identity_1010() {
+    IDENTITY_1010.iter().enumerate().for_each(|(i, entry_i)| {
+        entry_i.iter().enumerate().for_each(|(j, entry_ij)| {
+            entry_ij.iter().enumerate().for_each(|(k, entry_ijk)| {
+                entry_ijk.iter().enumerate().for_each(|(l, entry_ijkl)| {
+                    assert_eq!(
+                        entry_ijkl,
+                        &(((i == k) as u8 * (j == l) as u8) as u8 as Scalar)
+                    )
+                })
+            })
+        })
+    })
 }
 
 #[test]

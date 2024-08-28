@@ -13,15 +13,17 @@ use crate::{
     constitutive::ConstitutiveError,
     math::{
         ContractFirstSecondIndicesWithSecondIndicesOf, ContractSecondIndexWithFirstIndexOf,
-        TensorRank2Trait, TensorRank4Trait, FIVE_THIRDS, SEVEN_THIRDS, TWO_THIRDS,
+        TensorRank2ListTrait, TensorRank2Trait, TensorRank4, TensorRank4Trait, FIVE_THIRDS,
+        SEVEN_THIRDS, TWO_THIRDS,
     },
     mechanics::{
-        CauchyRateTangentStiffness, CauchyStress, CauchyTangentStiffness, DeformationGradient,
-        DeformationGradientRate, FirstPiolaKirchoffRateTangentStiffness, FirstPiolaKirchoffStress,
+        CauchyRateTangentStiffness, CauchyStress, CauchyStresses, CauchyTangentStiffness,
+        DeformationGradient, DeformationGradientRate, DeformationGradients,
+        FirstPiolaKirchoffRateTangentStiffness, FirstPiolaKirchoffStress,
         FirstPiolaKirchoffTangentStiffness, LeftCauchyGreenDeformation,
         RightCauchyGreenDeformation, Scalar, SecondPiolaKirchoffRateTangentStiffness,
         SecondPiolaKirchoffStress, SecondPiolaKirchoffTangentStiffness, IDENTITY, IDENTITY_00,
-        IDENTITY_10, ZERO, ZERO_10,
+        IDENTITY_10, IDENTITY_1010, ZERO, ZERO_10,
     },
     ABS_TOL, REL_TOL,
 };

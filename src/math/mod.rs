@@ -40,8 +40,7 @@ pub use tensor::{
         ContractAllIndicesWithFirstIndicesOf, ContractFirstSecondIndicesWithSecondIndicesOf,
         ContractFirstThirdFourthIndicesWithFirstIndicesOf,
         ContractSecondFourthIndicesWithFirstIndicesOf, ContractSecondIndexWithFirstIndexOf,
-        ContractThirdFourthIndicesWithFirstSecondIndicesOf, TensorRank4, TensorRank4Inverse,
-        TensorRank4Trait,
+        ContractThirdFourthIndicesWithFirstSecondIndicesOf, TensorRank4, TensorRank4Trait,
     },
     Convert,
 };

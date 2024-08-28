@@ -130,27 +130,74 @@ where
             )
             * deformation_gradient.determinant())
     }
-    // COULD GIVE A CONSTANT STRAIN RATE AND A FINAL DEFORMATION GRADIENT AND **IMPLICITLY** INTEGRATE THIS IN TIME FOR THE STRESS HISTORY?
-    //
-    // a start with some F_n, Fdot_n = f_n, and guess F_{n+1} = F_n
-    //   1 solve for a new guess for f_{n+1} = f(F_{n+1}) using sigma_22 = 0 and symmetry
-    //   2 solve for a new guess for F_{n+1} using backward Euler and Newton's method
-    // b repeatedly alternate 1 and 2 until converged
-    // repeat a and b until get to specified F
-    //
-    // how to chose the timestep?
-    // see adaptive RK for an example
-    // need to estimate the error over the step and cut back timestep if it is too large
-    //
-    // should you just use RK4 instead?
-    // would also be good to distill into a math function or macro
-    fn solve_uniaxial(
+    fn solve_uniaxial<const W: usize>(
+        &self,
+        deformation_gradient_rate_11: impl Fn(Scalar) -> Scalar,
+        evaluation_times: [Scalar; W],
+    ) -> Result<(DeformationGradients<W>, CauchyStresses<W>), ConstitutiveError> {
+        let mut cauchy_stresses = CauchyStresses::<W>::zero();
+        let mut deformation_gradients = DeformationGradients::<W>::identity();
+        let timesteps = evaluation_times.windows(2).map(|time| time[1] - time[0]);
+        for ((index, timestep), time) in timesteps.enumerate().zip(evaluation_times.into_iter()) {
+            (deformation_gradients[index + 1], cauchy_stresses[index + 1]) = self
+                .solve_uniaxial_inner(
+                    &deformation_gradients[index],
+                    deformation_gradient_rate_11(time),
+                    timestep,
+                )?;
+        }
+        Ok((deformation_gradients, cauchy_stresses))
+        // use adaptive timestepping
+        //   cut back if error estimate (next order term) is not small enough
+        //   or if an error comes back a function
+        //   and find decent criterion for timestep growth
+        // interpolate for desired evaluation times
+    }
+    #[doc(hidden)]
+    fn solve_uniaxial_inner(
+        &self,
+        deformation_gradient_previous: &DeformationGradient,
+        deformation_gradient_rate_11: Scalar,
+        timestep: Scalar,
+    ) -> Result<(DeformationGradient, CauchyStress), ConstitutiveError> {
+        let mut cauchy_stress = ZERO;
+        let mut deformation_gradient = IDENTITY_10;
+        let mut deformation_gradient_rate;
+        let mut residual = ZERO_10;
+        let mut residual_abs = 1.0;
+        let mut steps: usize = 0;
+        let mut tangent = IDENTITY_1010;
+        while residual_abs >= ABS_TOL {
+            if steps > MAXIMUM_STEPS {
+                return Err(ConstitutiveError::SolveError);
+            } else {
+                deformation_gradient -= residual / tangent;
+                (deformation_gradient_rate, cauchy_stress) = self.solve_uniaxial_inner_inner(
+                    &deformation_gradient,
+                    &deformation_gradient_rate_11,
+                )?;
+                residual = deformation_gradient.copy()
+                    - deformation_gradient_previous
+                    - &deformation_gradient_rate * timestep;
+                residual_abs = residual.norm();
+                tangent = IDENTITY_1010
+                    - TensorRank4::dyad_ik_jl(
+                        &(&deformation_gradient_rate * deformation_gradient.inverse()),
+                        &IDENTITY_00,
+                    ) * timestep;
+                steps += 1;
+            }
+        }
+        Ok((deformation_gradient, cauchy_stress))
+    }
+    #[doc(hidden)]
+    fn solve_uniaxial_inner_inner(
         &self,
         deformation_gradient: &DeformationGradient,
         deformation_gradient_rate_11: &Scalar,
     ) -> Result<(DeformationGradientRate, CauchyStress), ConstitutiveError> {
         let mut cauchy_stress = ZERO;
-        let mut deformation_gradient_rate = IDENTITY_10;
+        let mut deformation_gradient_rate = ZERO_10;
         deformation_gradient_rate[0][0] = *deformation_gradient_rate_11;
         deformation_gradient_rate[1][1] =
             -deformation_gradient_rate_11 / deformation_gradient[0][0].powf(1.5);
