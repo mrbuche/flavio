@@ -3,6 +3,7 @@
 /// Special mathematical functions.
 pub mod special;
 
+mod solve;
 mod tensor;
 
 pub const FOUR_THIRDS: TensorRank0 = 4.0 / 3.0;
@@ -42,5 +43,5 @@ pub use tensor::{
         ContractSecondFourthIndicesWithFirstIndicesOf, ContractSecondIndexWithFirstIndexOf,
         ContractThirdFourthIndicesWithFirstSecondIndicesOf, TensorRank4, TensorRank4Trait,
     },
-    Convert,
+    Convert, Tensor, Tensors,
 };

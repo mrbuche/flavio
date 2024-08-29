@@ -4,7 +4,7 @@ mod test;
 use std::array::from_fn;
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign};
 
-use crate::math::{TensorRank2, TensorRank2Trait};
+use crate::math::{TensorRank2, TensorRank2Trait, Tensors};
 
 use super::{super::Convert, TensorRank0, TensorRank1, TensorRank1Trait};
 
@@ -47,6 +47,17 @@ impl<const D: usize, const W: usize> From<TensorRank1List<D, 0, W>> for TensorRa
             .iter()
             .map(|tensor_rank_1| tensor_rank_1.into())
             .collect()
+    }
+}
+
+/// ???
+impl<const D: usize, const I: usize, const W: usize> Tensors for TensorRank1List<D, I, W> {
+    type Item = TensorRank1<D, I>;
+    fn iter_muty(&mut self) -> impl Iterator<Item = &mut Self::Item> {
+        self.0.iter_mut()
+    }
+    fn zeroy() -> Self {
+        Self(from_fn(|_| super::zero()))
     }
 }
 

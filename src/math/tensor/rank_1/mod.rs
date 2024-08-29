@@ -6,7 +6,7 @@ pub mod list_2d;
 
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign};
 
-use super::{rank_0::TensorRank0, Convert};
+use super::{rank_0::TensorRank0, Convert, Tensor};
 
 /// A *d*-dimensional tensor of rank 1.
 ///
@@ -27,6 +27,16 @@ impl<const D: usize, const I: usize> TensorRank1<D, I> {
     /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
     pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut TensorRank0> {
         self.0.iter_mut()
+    }
+}
+
+/// ???
+impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
+    fn normy(&self) -> TensorRank0 {
+        (self * self).sqrt()
+    }
+    fn zeroy() -> Self {
+        zero()
     }
 }
 
