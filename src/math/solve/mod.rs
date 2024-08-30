@@ -6,12 +6,12 @@ mod ode23;
 use crate::get_defeat_message;
 use std::fmt;
 
-/// ???
+/// Possible errors encountered when solving.
 pub enum SolveError {
     GeneralError,
 }
 
-/// ???
+/// Debug implementation for solve errors.
 impl fmt::Debug for SolveError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let error = match self {
@@ -26,7 +26,7 @@ impl fmt::Debug for SolveError {
     }
 }
 
-/// ???
+/// Display implementation for solve errors.
 impl fmt::Display for SolveError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let error = match self {
@@ -41,7 +41,7 @@ impl fmt::Display for SolveError {
     }
 }
 
-/// ???
+/// Implementation of solve errors from ok_or(&str).
 impl From<&str> for SolveError {
     fn from(string: &str) -> Self {
         todo!("{}", string)
