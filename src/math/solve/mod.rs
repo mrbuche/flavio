@@ -11,13 +11,14 @@ where
 + std::fmt::Debug
 ,
     for <'a> &'a T: Mul<TensorRank0, Output = T>,
-    U: Iterator + Tensors
+    U: Iterator + Tensors<Item = T>
 {
     // CHANGE UNWRAPS INTO ? ONCE GET THIS TO RETURN A RESULT
     let mut error;
     let mut error_norm;
     let mut evaluation_time = evaluation_times.into_iter().peekable();
-    let mut output = U::zeroy().iter_muty();
+    let mut output = U::zeroy();
+    let mut output_iter_mut = output.iter_muty();
     // let mut output = U::zeroy().into_iter();
     let mut s_1;
     let mut s_2;
@@ -47,9 +48,7 @@ where
             timestep *= 1.2;
             y = y_trial;
             if &time > evaluation_time.peek().unwrap() {
-                *output.next().unwrap() = y_trial;
-            // maybe need to say that Item of U is T
-                // let _: u8 = output.next().unwrap();
+                *output_iter_mut.next().unwrap() = y_trial;
             }
         } else {
             timestep *= 0.5;
