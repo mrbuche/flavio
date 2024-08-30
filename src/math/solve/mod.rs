@@ -48,7 +48,7 @@ where
             y = y_trial;
             if &time > evaluation_time.peek().unwrap() {
                 *output.next().unwrap() = y_trial;
-            maybe need to say that Item of U is T
+            // maybe need to say that Item of U is T
                 // let _: u8 = output.next().unwrap();
             }
         } else {

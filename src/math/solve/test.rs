@@ -1,6 +1,10 @@
 use super::*;
 use crate::math::{TensorRank1, TensorRank1List, TensorRank1Trait};
 
+fn todo() {
+    todo!("do a scalar 1st ord ODE, a scalar 2nd ord ODE, a vector ODE, tensor ODE, etc.")
+}
+
 fn ode_23_cos_fun(t: &TensorRank0, y: &TensorRank1<2, 1>) -> TensorRank1<2, 1> {
     TensorRank1::new([y[1], -t.sin()])
 }
