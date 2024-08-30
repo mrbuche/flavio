@@ -5,7 +5,7 @@ use super::{
     IDENTITY_10, IDENTITY_1010,
 };
 use crate::{
-    math::{TensorRank1Trait, TensorRank2Trait},
+    math::{Tensor, TensorRank2Trait},
     test::assert_eq_within_tols,
 };
 

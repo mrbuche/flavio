@@ -4,9 +4,9 @@ mod test;
 use std::array::from_fn;
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign};
 
-use crate::math::{TensorRank2, TensorRank2Trait, Tensors};
+use crate::math::{Tensor, TensorRank2, TensorRank2Trait, Tensors};
 
-use super::{super::Convert, TensorRank0, TensorRank1, TensorRank1Trait};
+use super::{super::Convert, TensorRank0, TensorRank1};
 
 /// A list of *d*-dimensional tensors of rank 1.
 ///
@@ -15,19 +15,38 @@ pub struct TensorRank1List<const D: usize, const I: usize, const W: usize>(
     pub [TensorRank1<D, I>; W],
 );
 
-/// Inherent implementation of [`TensorRank1List`].
-impl<const D: usize, const I: usize, const W: usize> TensorRank1List<D, I, W> {
-    /// Returns an iterator.
-    ///
-    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    pub fn iter(&self) -> impl Iterator<Item = &TensorRank1<D, I>> {
+/// Implementation of [`Tensors`] for [`TensorRank1List`].
+impl<const D: usize, const I: usize, const W: usize> Tensors for TensorRank1List<D, I, W> {
+    type Array = [[TensorRank0; D]; W];
+    type Item = TensorRank1<D, I>;
+    fn as_array(&self) -> Self::Array {
+        let mut array = [[0.0; D]; W];
+        array
+            .iter_mut()
+            .zip(self.iter())
+            .for_each(|(entry, tensor_rank_1)| *entry = tensor_rank_1.as_array());
+        array
+    }
+    fn dot(&self, tensors: &Self) -> TensorRank0 {
+        self.iter()
+            .zip(tensors.iter())
+            .map(|(entry, tensor)| entry * tensor)
+            .sum()
+    }
+    fn iter(&self) -> impl Iterator<Item = &TensorRank1<D, I>> {
         self.0.iter()
     }
-    /// Returns an iterator that allows modifying each value.
-    ///
-    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut TensorRank1<D, I>> {
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
         self.0.iter_mut()
+    }
+    fn new(array: Self::Array) -> Self {
+        array
+            .iter()
+            .map(|array_i| TensorRank1::new(*array_i))
+            .collect()
+    }
+    fn zero() -> Self {
+        Self(from_fn(|_| super::zero()))
     }
 }
 
@@ -47,81 +66,6 @@ impl<const D: usize, const W: usize> From<TensorRank1List<D, 0, W>> for TensorRa
             .iter()
             .map(|tensor_rank_1| tensor_rank_1.into())
             .collect()
-    }
-}
-
-/// ???
-impl<const D: usize, const I: usize, const W: usize> Tensors for TensorRank1List<D, I, W> {
-    type Item = TensorRank1<D, I>;
-    fn iter_muty(&mut self) -> impl Iterator<Item = &mut Self::Item> {
-        self.0.iter_mut()
-    }
-    fn zeroy() -> Self {
-        Self(from_fn(|_| super::zero()))
-    }
-}
-
-/// Required methods for rank-1 tensor lists.
-pub trait TensorRank1ListTrait<const D: usize, const W: usize> {
-    /// Returns the list of rank-1 tensors as an array.
-    fn as_array(&self) -> [[TensorRank0; D]; W];
-    /// Returns the sum of the dot product of each rank-1 tensor in each list.
-    fn dot(&self, tensor_rank_1_list: &Self) -> TensorRank0;
-    /// Returns the sum of the dot product of each rank-1 tensor with itself.
-    fn dot_self(&self) -> TensorRank0;
-    /// Returns a list of rank-1 tensors given an array.
-    fn new(array: [[TensorRank0; D]; W]) -> Self;
-    /// Returns the sum of the rank-1 tensor norms.
-    fn norm(&self) -> TensorRank0;
-    /// Returns a list of rank-1 zero tensors.
-    fn zero() -> Self;
-}
-
-/// Implementation of [`TensorRank1ListTrait`] for [`TensorRank1List`].
-impl<const D: usize, const I: usize, const W: usize> TensorRank1ListTrait<D, W>
-    for TensorRank1List<D, I, W>
-{
-    fn as_array(&self) -> [[TensorRank0; D]; W] {
-        let mut array = [[0.0; D]; W];
-        array
-            .iter_mut()
-            .zip(self.iter())
-            .for_each(|(entry, tensor_rank_1)| *entry = tensor_rank_1.as_array());
-        array
-    }
-    fn new(array: [[TensorRank0; D]; W]) -> Self {
-        array
-            .iter()
-            .map(|array_i| TensorRank1::new(*array_i))
-            .collect()
-    }
-    fn dot(&self, tensor_rank_1_list: &Self) -> TensorRank0 {
-        self.iter()
-            .zip(tensor_rank_1_list.iter())
-            .map(|(entry, tensor_rank_1)| {
-                entry
-                    .iter()
-                    .zip(tensor_rank_1.iter())
-                    .map(|(entry_i, tensor_rank_1_i)| entry_i * tensor_rank_1_i)
-                    .sum::<TensorRank0>()
-            })
-            .sum::<TensorRank0>()
-    }
-    fn dot_self(&self) -> TensorRank0 {
-        self.iter()
-            .map(|tensor_rank_1| {
-                tensor_rank_1
-                    .iter()
-                    .map(|tensor_rank_1_i| tensor_rank_1_i * tensor_rank_1_i)
-                    .sum::<TensorRank0>()
-            })
-            .sum::<TensorRank0>()
-    }
-    fn norm(&self) -> TensorRank0 {
-        self.dot_self().sqrt()
-    }
-    fn zero() -> Self {
-        Self(from_fn(|_| super::zero()))
     }
 }
 

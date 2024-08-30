@@ -1,5 +1,5 @@
 use super::{
-    super::rank_1::TensorRank1Trait, ContractAllIndicesWithFirstIndicesOf,
+    super::Tensor, ContractAllIndicesWithFirstIndicesOf,
     ContractFirstSecondIndicesWithSecondIndicesOf,
     ContractFirstThirdFourthIndicesWithFirstIndicesOf,
     ContractSecondFourthIndicesWithFirstIndicesOf, ContractSecondIndexWithFirstIndexOf,

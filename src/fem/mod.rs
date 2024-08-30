@@ -41,11 +41,11 @@ use crate::{
         Constitutive, Parameters, CONSTITUTIVE_MODEL_ERROR,
     },
     math::{
-        levi_civita, tensor_rank_1_zero, ContractSecondFourthIndicesWithFirstIndicesOf,
-        TensorRank1, TensorRank1List, TensorRank1List2D, TensorRank1List2DTrait,
-        TensorRank1ListTrait, TensorRank1Trait, TensorRank2, TensorRank2List, TensorRank2List2D,
-        TensorRank2List2DTrait, TensorRank2Trait, TensorRank3, TensorRank3List, TensorRank3List2D,
-        TensorRank3List3D, ONE_SIXTH, ONE_TWENTY_FOURTH,
+        levi_civita, tensor_rank_1_zero, ContractSecondFourthIndicesWithFirstIndicesOf, Tensor,
+        TensorRank1, TensorRank1List, TensorRank1List2D, TensorRank1Trait, TensorRank2,
+        TensorRank2List, TensorRank2List2D, TensorRank2List2DTrait, TensorRank2Trait, TensorRank3,
+        TensorRank3List, TensorRank3List2D, TensorRank3List3D, Tensors, ONE_SIXTH,
+        ONE_TWENTY_FOURTH,
     },
     mechanics::{
         Coordinates, CurrentCoordinates, DeformationGradient, DeformationGradientRate,

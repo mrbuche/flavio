@@ -1,7 +1,7 @@
 use super::{
-    super::rank_1::list::TensorRank1ListTrait, super::rank_4::TensorRank4Trait,
-    list_2d::TensorRank2List2DTrait, TensorRank0, TensorRank1, TensorRank1List, TensorRank1Trait,
-    TensorRank2, TensorRank2List2D, TensorRank2Trait, TensorRank4,
+    super::rank_4::TensorRank4Trait, list_2d::TensorRank2List2DTrait, Tensor, TensorRank0,
+    TensorRank1, TensorRank1List, TensorRank2, TensorRank2List2D, TensorRank2Trait, TensorRank4,
+    Tensors,
 };
 use crate::test::assert_eq_within_tols;
 use std::cmp::Ordering;

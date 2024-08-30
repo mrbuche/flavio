@@ -30,26 +30,30 @@ impl<const D: usize, const I: usize> TensorRank1<D, I> {
     }
 }
 
-/// ???
+/// Implementation of [`Tensor`] for [`TensorRank1`].
 impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
-    fn normy(&self) -> TensorRank0 {
+    type Array = [TensorRank0; D];
+    fn as_array(&self) -> Self::Array {
+        self.0
+    }
+    fn copy(&self) -> Self {
+        self.iter().map(|self_i| self_i.copy()).collect()
+    }
+    fn new(array: Self::Array) -> Self {
+        array.into_iter().collect()
+    }
+    fn norm(&self) -> TensorRank0 {
         (self * self).sqrt()
     }
-    fn zeroy() -> Self {
+    fn zero() -> Self {
         zero()
     }
 }
 
 /// Required methods for rank-1 tensors.
 pub trait TensorRank1Trait<const D: usize, const I: usize> {
-    /// Returns the rank-1 tensor as an array.
-    fn as_array(&self) -> [TensorRank0; D];
     /// Returns the cross product with another rank-1 tensor.
     fn cross(&self, tensor_rank_1: &Self) -> Self;
-    /// Returns a rank-1 tensor given an array.
-    fn new(array: [TensorRank0; D]) -> Self;
-    /// Returns the rank-1 tensor norm.
-    fn norm(&self) -> TensorRank0;
     /// Returns the rank-1 tensor normalized.
     fn normalized(&self) -> Self;
     /// Returns the rank-1 tensor in the current configuration.
@@ -58,15 +62,10 @@ pub trait TensorRank1Trait<const D: usize, const I: usize> {
     fn to_intermediate_configuration(self) -> TensorRank1<D, 2>;
     /// Returns the rank-1 tensor in the reference configuration.
     fn to_reference_configuration(self) -> TensorRank1<D, 0>;
-    /// Returns the rank-1 zero tensor.
-    fn zero() -> Self;
 }
 
 /// Implementation of [`TensorRank1Trait`] for [`TensorRank1`].
 impl<const D: usize, const I: usize> TensorRank1Trait<D, I> for TensorRank1<D, I> {
-    fn as_array(&self) -> [TensorRank0; D] {
-        self.0
-    }
     fn cross(&self, tensor_rank_1: &Self) -> Self {
         if D == 3 {
             let mut output = zero();
@@ -77,12 +76,6 @@ impl<const D: usize, const I: usize> TensorRank1Trait<D, I> for TensorRank1<D, I
         } else {
             panic!()
         }
-    }
-    fn new(array: [TensorRank0; D]) -> Self {
-        array.into_iter().collect()
-    }
-    fn norm(&self) -> TensorRank0 {
-        (self * self).sqrt()
     }
     fn normalized(&self) -> Self {
         self / self.norm()
@@ -95,9 +88,6 @@ impl<const D: usize, const I: usize> TensorRank1Trait<D, I> for TensorRank1<D, I
     }
     fn to_reference_configuration(self) -> TensorRank1<D, 0> {
         TensorRank1(self.0)
-    }
-    fn zero() -> Self {
-        zero()
     }
 }
 

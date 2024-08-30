@@ -5,7 +5,7 @@ use std::ops::{Add, AddAssign, Index, IndexMut, Mul};
 
 use super::{
     list::{TensorRank2List, TensorRank2ListTrait},
-    TensorRank0, TensorRank1Trait, TensorRank2,
+    Tensor, TensorRank0, TensorRank2,
 };
 
 /// A 2D list of *d*-dimensional tensors of rank 2.

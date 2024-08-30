@@ -15,14 +15,10 @@ pub const SEVEN_THIRDS: TensorRank0 = 7.0 / 3.0;
 pub const TWO_THIRDS: TensorRank0 = 2.0 / 3.0;
 
 pub use tensor::{
-    rank_0::{
-        list::{TensorRank0List, TensorRank0ListTrait},
-        TensorRank0,
-    },
+    rank_0::{list::TensorRank0List, TensorRank0},
     rank_1::{
-        list::{TensorRank1List, TensorRank1ListTrait},
-        list_2d::{TensorRank1List2D, TensorRank1List2DTrait},
-        zero as tensor_rank_1_zero, TensorRank1, TensorRank1Trait,
+        list::TensorRank1List, list_2d::TensorRank1List2D, zero as tensor_rank_1_zero, TensorRank1,
+        TensorRank1Trait,
     },
     rank_2::{
         list::{TensorRank2List, TensorRank2ListTrait},

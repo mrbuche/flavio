@@ -9,9 +9,9 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, 
 
 use super::{
     rank_0::TensorRank0,
-    rank_1::{list::TensorRank1List, TensorRank1, TensorRank1Trait},
+    rank_1::{list::TensorRank1List, TensorRank1},
     rank_4::TensorRank4,
-    Convert,
+    Convert, Tensor, Tensors,
 };
 use list_2d::TensorRank2List2D;
 use std::fmt;
