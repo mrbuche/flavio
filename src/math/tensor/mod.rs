@@ -33,8 +33,8 @@ where
     ///
     /// This method was implemented instead of the Copy trait to avoid unintended copy creations.
     fn copy(&self) -> Self;
-    /// Returns the identity tensor.
-    fn identity() -> Self;
+    /// Checks whether the tensor is the zero tensor.
+    fn is_zero(&self) -> bool;
     /// Returns an iterator.
     ///
     /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
@@ -46,7 +46,11 @@ where
     /// Returns a tensor given an array.
     fn new(array: Self::Array) -> Self;
     /// Returns the tensor norm.
-    fn norm(&self) -> TensorRank0;
+    fn norm(&self) -> TensorRank0 {
+        self.norm_squared().sqrt()
+    }
+    /// Returns the tensor norm squared.
+    fn norm_squared(&self) -> TensorRank0;
     /// Returns the tensor normalized.
     fn normalized(&self) -> Self;
     /// Returns the zero tensor.

@@ -18,8 +18,8 @@ impl Tensor for TensorRank0 {
     fn copy(&self) -> TensorRank0 {
         *self
     }
-    fn identity() -> Self {
-        1.0
+    fn is_zero(&self) -> bool {
+        self == &0.0
     }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         [0.0].iter()
@@ -30,8 +30,8 @@ impl Tensor for TensorRank0 {
     fn new(array: Self::Array) -> Self {
         array[0]
     }
-    fn norm(&self) -> TensorRank0 {
-        self.abs()
+    fn norm_squared(&self) -> TensorRank0 {
+        self.powi(2)
     }
     fn normalized(&self) -> Self {
         1.0

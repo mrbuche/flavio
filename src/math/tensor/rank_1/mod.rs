@@ -24,8 +24,8 @@ impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
     fn copy(&self) -> Self {
         self.iter().map(|self_i| self_i.copy()).collect()
     }
-    fn identity() -> Self {
-        panic!()
+    fn is_zero(&self) -> bool {
+        self.iter().map(|entry| (entry == &0.0) as u8).sum::<u8>() == (D as u8)
     }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()
@@ -36,8 +36,8 @@ impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
     fn new(array: Self::Array) -> Self {
         array.into_iter().collect()
     }
-    fn norm(&self) -> TensorRank0 {
-        (self * self).sqrt()
+    fn norm_squared(&self) -> TensorRank0 {
+        self * self
     }
     fn normalized(&self) -> Self {
         self / self.norm()
