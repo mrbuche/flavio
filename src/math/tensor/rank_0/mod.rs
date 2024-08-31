@@ -25,7 +25,7 @@ impl Tensor for TensorRank0 {
         [0.0].iter()
     }
     fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
-        [0.0].iter_mut()
+        [self].iter_mut()
     }
     fn new(array: Self::Array) -> Self {
         array[0]
