@@ -46,7 +46,7 @@ fn get_victory_message<'a>() -> &'a str {
     match get_random_number() {
         0 => "Flawless victory.",
         1 => "Hey, that's pretty good!",
-        2.. => "That's NumberWang!",
+        2.. => "That's Numberwang!",
     }
 }
 
