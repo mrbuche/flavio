@@ -11,11 +11,21 @@ pub type TensorRank0 = f64;
 /// Implementation of [`Tensor`] for [`TensorRank0`].
 impl Tensor for TensorRank0 {
     type Array = [Self; 1];
+    type Item = TensorRank0;
     fn as_array(&self) -> Self::Array {
         [self.copy()]
     }
     fn copy(&self) -> TensorRank0 {
         *self
+    }
+    fn identity() -> Self {
+        1.0
+    }
+    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
+        [0.0].iter()
+    }
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
+        [0.0].iter_mut()
     }
     fn new(array: Self::Array) -> Self {
         array[0]

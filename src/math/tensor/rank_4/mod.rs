@@ -8,6 +8,7 @@ use super::{
     rank_1::TensorRank1,
     rank_2::{TensorRank2, TensorRank2Trait},
     rank_3::{TensorRank3, TensorRank3Trait},
+    Tensor
 };
 
 pub mod list;

@@ -1,4 +1,4 @@
-use super::{levi_civita, TensorRank0, TensorRank2, TensorRank3, TensorRank3Trait};
+use super::{levi_civita, TensorRank0, TensorRank2, TensorRank3, TensorRank3Trait, super::Tensor};
 
 fn get_array() -> [[[TensorRank0; 4]; 4]; 4] {
     [

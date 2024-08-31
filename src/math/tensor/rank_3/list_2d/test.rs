@@ -1,4 +1,4 @@
-use super::{super::TensorRank3, TensorRank0, TensorRank3List2D, TensorRank3List2DTrait};
+use super::{super::{super::Tensor, TensorRank3}, TensorRank0, TensorRank3List2D, TensorRank3List2DTrait};
 
 fn get_array() -> [[[[[TensorRank0; 3]; 3]; 3]; 2]; 2] {
     [

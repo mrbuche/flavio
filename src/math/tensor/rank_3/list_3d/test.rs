@@ -1,4 +1,4 @@
-use super::{super::TensorRank3, MakeClippyHappy, TensorRank3List3D, TensorRank3List3DTrait};
+use super::{super::{super::Tensor, TensorRank3}, MakeClippyHappy, TensorRank3List3D, TensorRank3List3DTrait};
 
 fn get_array() -> [[[MakeClippyHappy<3>; 2]; 2]; 2] {
     [

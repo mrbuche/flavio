@@ -4,6 +4,7 @@ pub mod test;
 use super::{
     list_2d::{TensorRank3List2D, TensorRank3List2DTrait},
     TensorRank0,
+    super::Tensor
 };
 
 type MakeClippyHappy<const D: usize> = [[[TensorRank0; D]; D]; D];

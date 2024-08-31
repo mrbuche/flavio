@@ -14,30 +14,24 @@ use super::{rank_0::TensorRank0, Convert, Tensor};
 #[derive(Debug)]
 pub struct TensorRank1<const D: usize, const I: usize>(pub [TensorRank0; D]);
 
-/// Inherent implementation of [`TensorRank1`].
-impl<const D: usize, const I: usize> TensorRank1<D, I> {
-    /// Returns an iterator.
-    ///
-    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    pub fn iter(&self) -> impl Iterator<Item = &TensorRank0> {
-        self.0.iter()
-    }
-    /// Returns an iterator that allows modifying each value.
-    ///
-    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut TensorRank0> {
-        self.0.iter_mut()
-    }
-}
-
 /// Implementation of [`Tensor`] for [`TensorRank1`].
 impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
     type Array = [TensorRank0; D];
+    type Item = TensorRank0;
     fn as_array(&self) -> Self::Array {
         self.0
     }
     fn copy(&self) -> Self {
         self.iter().map(|self_i| self_i.copy()).collect()
+    }
+    fn identity() -> Self {
+        panic!()
+    }
+    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
+        self.0.iter()
+    }
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
+        self.0.iter_mut()
     }
     fn new(array: Self::Array) -> Self {
         array.into_iter().collect()
@@ -48,6 +42,10 @@ impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
     fn zero() -> Self {
         zero()
     }
+}
+
+pub const fn zero<const D: usize, const I: usize>() -> TensorRank1<D, I> {
+    TensorRank1([0.0; D])
 }
 
 /// Required methods for rank-1 tensors.
@@ -89,10 +87,6 @@ impl<const D: usize, const I: usize> TensorRank1Trait<D, I> for TensorRank1<D, I
     fn to_reference_configuration(self) -> TensorRank1<D, 0> {
         TensorRank1(self.0)
     }
-}
-
-pub const fn zero<const D: usize, const I: usize>() -> TensorRank1<D, I> {
-    TensorRank1([0.0; D])
 }
 
 impl<const D: usize, const I: usize, const J: usize> Convert<TensorRank1<D, J>>
