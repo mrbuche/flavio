@@ -25,13 +25,16 @@ impl Tensor for TensorRank0 {
         [0.0].iter()
     }
     fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
-        [self].iter_mut()
+        [self].into_iter()
     }
     fn new(array: Self::Array) -> Self {
         array[0]
     }
     fn norm(&self) -> TensorRank0 {
         self.abs()
+    }
+    fn normalized(&self) -> Self {
+        1.0
     }
     fn zero() -> Self {
         0.0

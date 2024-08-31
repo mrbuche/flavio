@@ -39,6 +39,9 @@ impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
     fn norm(&self) -> TensorRank0 {
         (self * self).sqrt()
     }
+    fn normalized(&self) -> Self {
+        self / self.norm()
+    }
     fn zero() -> Self {
         zero()
     }
@@ -48,23 +51,10 @@ pub const fn zero<const D: usize, const I: usize>() -> TensorRank1<D, I> {
     TensorRank1([0.0; D])
 }
 
-/// Required methods for rank-1 tensors.
-pub trait TensorRank1Trait<const D: usize, const I: usize> {
+/// Inherent implementation of [`TensorRank1`].
+impl<const D: usize, const I: usize> TensorRank1<D, I> {
     /// Returns the cross product with another rank-1 tensor.
-    fn cross(&self, tensor_rank_1: &Self) -> Self;
-    /// Returns the rank-1 tensor normalized.
-    fn normalized(&self) -> Self;
-    /// Returns the rank-1 tensor in the current configuration.
-    fn to_current_configuration(self) -> TensorRank1<D, 1>;
-    /// Returns the rank-1 tensor in the intermediate configuration.
-    fn to_intermediate_configuration(self) -> TensorRank1<D, 2>;
-    /// Returns the rank-1 tensor in the reference configuration.
-    fn to_reference_configuration(self) -> TensorRank1<D, 0>;
-}
-
-/// Implementation of [`TensorRank1Trait`] for [`TensorRank1`].
-impl<const D: usize, const I: usize> TensorRank1Trait<D, I> for TensorRank1<D, I> {
-    fn cross(&self, tensor_rank_1: &Self) -> Self {
+    pub fn cross(&self, tensor_rank_1: &Self) -> Self {
         if D == 3 {
             let mut output = zero();
             output[0] = self[1] * tensor_rank_1[2] - self[2] * tensor_rank_1[1];
@@ -74,18 +64,6 @@ impl<const D: usize, const I: usize> TensorRank1Trait<D, I> for TensorRank1<D, I
         } else {
             panic!()
         }
-    }
-    fn normalized(&self) -> Self {
-        self / self.norm()
-    }
-    fn to_current_configuration(self) -> TensorRank1<D, 1> {
-        TensorRank1(self.0)
-    }
-    fn to_intermediate_configuration(self) -> TensorRank1<D, 2> {
-        TensorRank1(self.0)
-    }
-    fn to_reference_configuration(self) -> TensorRank1<D, 0> {
-        TensorRank1(self.0)
     }
 }
 

@@ -47,6 +47,8 @@ where
     fn new(array: Self::Array) -> Self;
     /// Returns the tensor norm.
     fn norm(&self) -> TensorRank0;
+    /// Returns the tensor normalized.
+    fn normalized(&self) -> Self;
     /// Returns the zero tensor.
     fn zero() -> Self;
 }
