@@ -26,9 +26,9 @@ pub use tensor::{
     },
     rank_3::{
         levi_civita,
-        list::{TensorRank3List, TensorRank3ListTrait},
-        list_2d::{TensorRank3List2D, TensorRank3List2DTrait},
-        list_3d::{TensorRank3List3D, TensorRank3List3DTrait},
+        list::TensorRank3List,
+        list_2d::TensorRank3List2D,
+        list_3d::TensorRank3List3D,
         TensorRank3,
     },
     rank_4::{

@@ -3,8 +3,8 @@ pub mod test;
 
 use std::array::from_fn;
 use super::{
-    list_2d::{TensorRank3List2D, TensorRank3List2DTrait},
-    TensorRank0
+    list_2d::TensorRank3List2D,
+    TensorRank0, super::Tensors
 };
 
 type MakeClippyHappy<const D: usize> = [[[TensorRank0; D]; D]; D];
@@ -22,51 +22,25 @@ pub struct TensorRank3List3D<
     const Y: usize,
 >([TensorRank3List2D<D, I, J, K, W, X>; Y]);
 
-/// Inherent implementation of [`TensorRank3List3D`].
-impl<
-        const D: usize,
-        const I: usize,
-        const J: usize,
-        const K: usize,
-        const W: usize,
-        const X: usize,
-        const Y: usize,
-    > TensorRank3List3D<D, I, J, K, W, X, Y>
-{
-    /// Returns an iterator.
-    ///
-    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    pub fn iter(&self) -> impl Iterator<Item = &TensorRank3List2D<D, I, J, K, W, X>> {
+/// Implementation of [`Tensors`] for [`TensorRank3List3D`].
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize, const X: usize, const Y: usize> Tensors for TensorRank3List3D<D, I, J, K, W, X, Y> {
+    type Array = [[[MakeClippyHappy<D>; W]; X]; Y];
+    type Item = TensorRank3List2D<D, I, J, K, W, X>;
+    fn as_array(&self) -> Self::Array {
+        let mut array = [[[[[[0.0; D]; D]; D]; W]; X]; Y];
+        array
+            .iter_mut()
+            .zip(self.iter())
+            .for_each(|(entry_rank_4_list_2d, tensor_rank_4_list_2d)| *entry_rank_4_list_2d = tensor_rank_4_list_2d.as_array());
+        array
+    }
+    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()
     }
-    /// Returns an iterator that allows modifying each value.
-    ///
-    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut TensorRank3List2D<D, I, J, K, W, X>> {
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
         self.0.iter_mut()
     }
-}
-
-/// Required methods for 3D rank-3 tensor lists.
-pub trait TensorRank3List3DTrait<const D: usize, const W: usize, const X: usize, const Y: usize> {
-    /// Returns a list of rank-3 tensors given an array.
-    fn new(array: [[[MakeClippyHappy<D>; W]; X]; Y]) -> Self;
-    /// Returns a list of rank-3 zero tensors.
-    fn zero() -> Self;
-}
-
-/// Implementation of [`TensorRank3List3DTrait`] for [`TensorRank3List3D`].
-impl<
-        const D: usize,
-        const I: usize,
-        const J: usize,
-        const K: usize,
-        const W: usize,
-        const X: usize,
-        const Y: usize,
-    > TensorRank3List3DTrait<D, W, X, Y> for TensorRank3List3D<D, I, J, K, W, X, Y>
-{
-    fn new(array: [[[MakeClippyHappy<D>; W]; X]; Y]) -> Self {
+    fn new(array: Self::Array) -> Self {
         array
             .iter()
             .map(|array_i| TensorRank3List2D::new(*array_i))

@@ -45,6 +45,7 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
         Self(from_fn(|_| TensorRank4::zero()))
     }
 }
+
 impl<
         const D: usize,
         const I: usize,

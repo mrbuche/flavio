@@ -3,7 +3,7 @@ pub mod test;
 
 use std::{array::from_fn, ops::AddAssign};
 
-use super::{TensorRank0, TensorRank3, Tensor};
+use super::{TensorRank0, TensorRank3, Tensor, super::Tensors};
 
 /// A list of *d*-dimensional tensors of rank 3.
 ///
@@ -16,37 +16,25 @@ pub struct TensorRank3List<
     const W: usize,
 >([TensorRank3<D, I, J, K>; W]);
 
-/// Inherent implementation of [`TensorRank3List`].
-impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize>
-    TensorRank3List<D, I, J, K, W>
-{
-    /// Returns an iterator.
-    ///
-    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    pub fn iter(&self) -> impl Iterator<Item = &TensorRank3<D, I, J, K>> {
+/// Implementation of [`Tensors`] for [`TensorRank3List`].
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize> Tensors for TensorRank3List<D, I, J, K, W> {
+    type Array = [[[[TensorRank0; D]; D]; D]; W];
+    type Item = TensorRank3<D, I, J, K>;
+    fn as_array(&self) -> Self::Array {
+        let mut array = [[[[0.0; D]; D]; D]; W];
+        array
+            .iter_mut()
+            .zip(self.iter())
+            .for_each(|(entry_rank_4, tensor_rank_4)| *entry_rank_4 = tensor_rank_4.as_array());
+        array
+    }
+    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()
     }
-    /// Returns an iterator that allows modifying each value.
-    ///
-    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut TensorRank3<D, I, J, K>> {
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
         self.0.iter_mut()
     }
-}
-
-/// Required methods for rank-3 tensor lists.
-pub trait TensorRank3ListTrait<const D: usize, const W: usize> {
-    /// Returns a list of rank-3 tensors given an array.
-    fn new(array: [[[[TensorRank0; D]; D]; D]; W]) -> Self;
-    /// Returns a list of rank-3 zero tensors.
-    fn zero() -> Self;
-}
-
-/// Implementation of [`TensorRank3ListTrait`] for [`TensorRank3List`].
-impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize>
-    TensorRank3ListTrait<D, W> for TensorRank3List<D, I, J, K, W>
-{
-    fn new(array: [[[[TensorRank0; D]; D]; D]; W]) -> Self {
+    fn new(array: Self::Array) -> Self {
         array
             .iter()
             .map(|array_i| TensorRank3::new(*array_i))
