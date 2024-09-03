@@ -13,7 +13,7 @@ use crate::{
     constitutive::ConstitutiveError,
     math::{
         ContractFirstSecondIndicesWithSecondIndicesOf, ContractSecondIndexWithFirstIndexOf,
-        TensorRank2Trait, TensorRank4, Tensors, FIVE_THIRDS,
+        TensorRank4, Tensor, Tensors, FIVE_THIRDS,
         SEVEN_THIRDS, TWO_THIRDS,
     },
     mechanics::{

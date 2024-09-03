@@ -6,7 +6,7 @@ use std::{array::from_fn, ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut,
 use super::{
     rank_0::TensorRank0,
     rank_1::TensorRank1,
-    rank_2::{TensorRank2, TensorRank2Trait},
+    rank_2::TensorRank2,
     rank_3::TensorRank3,
     Tensor
 };

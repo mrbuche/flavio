@@ -4,7 +4,7 @@ use super::{
     ContractFirstThirdFourthIndicesWithFirstIndicesOf,
     ContractSecondFourthIndicesWithFirstIndicesOf, ContractSecondIndexWithFirstIndexOf,
     ContractThirdFourthIndicesWithFirstSecondIndicesOf, TensorRank0, TensorRank1, TensorRank2,
-    TensorRank2Trait, TensorRank3, TensorRank4,
+    TensorRank3, TensorRank4,
 };
 
 fn get_array() -> [[[[TensorRank0; 3]; 3]; 3]; 3] {

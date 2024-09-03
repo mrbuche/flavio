@@ -4,7 +4,7 @@ mod test;
 use std::array::from_fn;
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign};
 
-use crate::math::{Tensor, TensorRank2, TensorRank2Trait, Tensors};
+use crate::math::{Tensor, TensorRank2, Tensors};
 
 use super::{super::Convert, TensorRank0, TensorRank1};
 
@@ -18,7 +18,7 @@ pub struct TensorRank1List<const D: usize, const I: usize, const W: usize>(
 /// Inherent implementation of [`TensorRank1List`].
 impl<const D: usize, const I: usize, const W: usize> TensorRank1List<D, I, W> {
     /// Returns the sum of the full dot product of each tensor in each list.
-    fn dot(&self, tensors: &Self) -> TensorRank0 {
+    pub fn dot(&self, tensors: &Self) -> TensorRank0 {
         self.iter()
             .zip(tensors.iter())
             .map(|(entry, tensor)| entry * tensor)

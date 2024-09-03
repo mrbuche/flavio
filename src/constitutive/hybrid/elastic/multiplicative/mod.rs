@@ -7,7 +7,7 @@ use crate::{
         solid::{elastic::Elastic, Solid},
         Constitutive, ConstitutiveError, Parameters, CONSTITUTIVE_MODEL_ERROR,
     },
-    math::{TensorRank2, TensorRank2Trait},
+    math::{TensorRank2, Tensor},
     mechanics::{
         CauchyStress, CauchyTangentStiffness, DeformationGradient, FirstPiolaKirchoffStress,
         FirstPiolaKirchoffTangentStiffness, Scalar, SecondPiolaKirchoffStress,

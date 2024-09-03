@@ -1,9 +1,11 @@
 //! Mathematics library.
 
-/// Special mathematical functions.
+/// Special functions.
 pub mod special;
 
-mod solve;
+/// Integration and ODEs.
+pub mod integrate;
+
 mod tensor;
 
 pub const FOUR_THIRDS: TensorRank0 = 4.0 / 3.0;
@@ -22,7 +24,7 @@ pub use tensor::{
     rank_2::{
         list::TensorRank2List,
         list_2d::TensorRank2List2D,
-        TensorRank2, TensorRank2Trait,
+        TensorRank2,
     },
     rank_3::{
         levi_civita,

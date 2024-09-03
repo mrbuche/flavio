@@ -2,17 +2,21 @@
 mod test;
 
 mod ode23;
+mod ode45;
+
+pub use ode23::ode23;
+pub use ode45::ode45;
 
 use crate::get_defeat_message;
 use std::fmt;
 
-/// Possible errors encountered when solving.
-pub enum SolveError {
+/// Possible errors encountered when integrating.
+pub enum IntegrationError {
     GeneralError,
 }
 
 /// Debug implementation for solve errors.
-impl fmt::Debug for SolveError {
+impl fmt::Debug for IntegrationError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let error = match self {
             Self::GeneralError => "\x1b[1;91m???.\x1b[0;91m".to_string(),
@@ -27,7 +31,7 @@ impl fmt::Debug for SolveError {
 }
 
 /// Display implementation for solve errors.
-impl fmt::Display for SolveError {
+impl fmt::Display for IntegrationError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let error = match self {
             Self::GeneralError => "\x1b[1;91m???.\x1b[0;91m".to_string(),
@@ -42,7 +46,7 @@ impl fmt::Display for SolveError {
 }
 
 /// Implementation of solve errors from ok_or(&str).
-impl From<&str> for SolveError {
+impl From<&str> for IntegrationError {
     fn from(string: &str) -> Self {
         todo!("{}", string)
     }

@@ -42,109 +42,8 @@ impl<const D: usize, const I: usize, const J: usize> fmt::Display for TensorRank
 
 /// Inherent implementation of [`TensorRank2`].
 impl<const D: usize, const I: usize, const J: usize> TensorRank2<D, I, J> {
-    /// Returns a copy.
-    ///
-    /// This method was implemented instead of the Copy trait to avoid unintended copy creations.
-    pub fn copy(&self) -> Self {
-        self.iter()
-            .map(|self_i| self_i.iter().copied().collect())
-            .collect()
-    }
-    /// Returns an iterator.
-    ///
-    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    pub fn iter(&self) -> impl Iterator<Item = &TensorRank1<D, J>> {
-        self.0.iter()
-    }
-    /// Returns an iterator that allows modifying each value.
-    ///
-    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut TensorRank1<D, J>> {
-        self.0.iter_mut()
-    }
-    /// Returns the rank-2 zero tensor.
-    pub fn zero() -> Self {
-        Self(from_fn(|_| TensorRank1::zero()))
-    }
-}
-
-impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize>
-    Convert<TensorRank2<D, K, L>> for TensorRank2<D, I, J>
-{
-    fn convert(&self) -> TensorRank2<D, K, L> {
-        self.iter()
-            .map(|self_i| self_i.iter().copied().collect())
-            .collect()
-    }
-}
-
-/// Required methods for rank-2 tensors.
-pub trait TensorRank2Trait<const D: usize, const I: usize, const J: usize>
-where
-    Self: Sized,
-{
-    /// Returns the rank-2 tensor as an array.
-    fn as_array(&self) -> [[TensorRank0; D]; D];
     /// Returns the determinant of the rank-2 tensor.
-    fn determinant(&self) -> TensorRank0;
-    /// Returns the deviatoric component of the rank-2 tensor.
-    fn deviatoric(&self) -> Self;
-    /// Returns the deviatoric component and trace of the rank-2 tensor.
-    fn deviatoric_and_trace(&self) -> (Self, TensorRank0);
-    /// Returns a rank-2 tensor constructed from a dyad of the given vectors.
-    fn dyad(vector_a: &TensorRank1<D, I>, vector_b: &TensorRank1<D, J>) -> Self;
-    /// Returns the full contraction with another rank-2 tensor.
-    fn full_contraction(&self, tensor_rank_2: &Self) -> TensorRank0;
-    /// Returns the rank-2 identity tensor.
-    fn identity() -> Self;
-    /// Returns the inverse of the rank-2 tensor.
-    fn inverse(&self) -> TensorRank2<D, J, I>;
-    /// Returns the inverse and determinant of the rank-2 tensor.
-    fn inverse_and_determinant(&self) -> (TensorRank2<D, J, I>, TensorRank0);
-    /// Returns the inverse transpose of the rank-2 tensor.
-    fn inverse_transpose(&self) -> Self;
-    /// Returns the inverse transpose and determinant of the rank-2 tensor.
-    fn inverse_transpose_and_determinant(&self) -> (Self, TensorRank0);
-    /// Checks whether the tensor is a diagonal tensor.
-    fn is_diagonal(&self) -> bool;
-    /// Checks whether the tensor is the identity tensor.
-    fn is_identity(&self) -> bool;
-    /// Checks whether the tensor is the zero tensor.
-    fn is_zero(&self) -> bool;
-    /// Returns the LU decomposition of the rank-2 tensor.
-    fn lu_decomposition(&self) -> (TensorRank2<D, I, 88>, TensorRank2<D, 88, J>);
-    /// Returns the inverse of the LU decomposition of the rank-2 tensor.
-    fn lu_decomposition_inverse(&self) -> (TensorRank2<D, 88, I>, TensorRank2<D, J, 88>);
-    /// Returns a rank-2 tensor given an array.
-    fn new(array: [[TensorRank0; D]; D]) -> Self;
-    /// Returns the rank-2 tensor norm.
-    fn norm(&self) -> TensorRank0;
-    /// Returns the rank-2 tensor norm squared.
-    fn norm_squared(&self) -> TensorRank0;
-    /// Returns the second invariant of the rank-2 tensor.
-    fn second_invariant(&self) -> TensorRank0;
-    /// Returns the trace of the rank-2 tensor squared.
-    fn squared_trace(&self) -> TensorRank0;
-    /// Returns the trace of the rank-2 tensor.
-    fn trace(&self) -> TensorRank0;
-    /// Returns the transpose of the rank-2 tensor.
-    fn transpose(&self) -> TensorRank2<D, J, I>;
-    /// Returns the rank-2 zero tensor.
-    fn zero() -> Self;
-}
-
-impl<const D: usize, const I: usize, const J: usize> TensorRank2Trait<D, I, J>
-    for TensorRank2<D, I, J>
-{
-    fn as_array(&self) -> [[TensorRank0; D]; D] {
-        let mut array = [[0.0; D]; D];
-        array
-            .iter_mut()
-            .zip(self.iter())
-            .for_each(|(entry, tensor_rank_1)| *entry = tensor_rank_1.as_array());
-        array
-    }
-    fn determinant(&self) -> TensorRank0 {
+    pub fn determinant(&self) -> TensorRank0 {
         if D == 2 {
             self[0][0] * self[1][1] - self[0][1] * self[1][0]
         } else if D == 3 {
@@ -176,17 +75,20 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2Trait<D, I, J>
                 .product()
         }
     }
-    fn deviatoric(&self) -> Self {
+    /// Returns the deviatoric component of the rank-2 tensor.
+    pub fn deviatoric(&self) -> Self {
         Self::identity() * (self.trace() / -(D as TensorRank0)) + self
     }
-    fn deviatoric_and_trace(&self) -> (Self, TensorRank0) {
+    /// Returns the deviatoric component and trace of the rank-2 tensor.
+    pub fn deviatoric_and_trace(&self) -> (Self, TensorRank0) {
         let trace = self.trace();
         (
             Self::identity() * (trace / -(D as TensorRank0)) + self,
             trace,
         )
     }
-    fn dyad(vector_a: &TensorRank1<D, I>, vector_b: &TensorRank1<D, J>) -> Self {
+    /// Returns a rank-2 tensor constructed from a dyad of the given vectors.
+    pub fn dyad(vector_a: &TensorRank1<D, I>, vector_b: &TensorRank1<D, J>) -> Self {
         vector_a
             .iter()
             .map(|vector_a_i| {
@@ -197,7 +99,8 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2Trait<D, I, J>
             })
             .collect()
     }
-    fn full_contraction(&self, tensor_rank_2: &Self) -> TensorRank0 {
+    /// Returns the full contraction with another rank-2 tensor.
+    pub fn full_contraction(&self, tensor_rank_2: &Self) -> TensorRank0 {
         self.iter()
             .zip(tensor_rank_2.iter())
             .map(|(self_i, tensor_rank_2_i)| {
@@ -209,12 +112,14 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2Trait<D, I, J>
             })
             .sum()
     }
-    fn identity() -> Self {
+    /// Returns the rank-2 identity tensor.
+    pub fn identity() -> Self {
         (0..D)
             .map(|i| (0..D).map(|j| ((i == j) as u8) as TensorRank0).collect())
             .collect()
     }
-    fn inverse(&self) -> TensorRank2<D, J, I> {
+    /// Returns the inverse of the rank-2 tensor.
+    pub fn inverse(&self) -> TensorRank2<D, J, I> {
         if D == 2 {
             let mut adjugate = TensorRank2::<D, J, I>::zero();
             adjugate[0][0] = self[1][1];
@@ -273,7 +178,8 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2Trait<D, I, J>
             tensor_u_inverse * tensor_l_inverse
         }
     }
-    fn inverse_and_determinant(&self) -> (TensorRank2<D, J, I>, TensorRank0) {
+    /// Returns the inverse and determinant of the rank-2 tensor.
+    pub fn inverse_and_determinant(&self) -> (TensorRank2<D, J, I>, TensorRank0) {
         if D == 2 {
             let mut adjugate = TensorRank2::<D, J, I>::zero();
             adjugate[0][0] = self[1][1];
@@ -334,7 +240,8 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2Trait<D, I, J>
             panic!()
         }
     }
-    fn inverse_transpose(&self) -> Self {
+    /// Returns the inverse transpose of the rank-2 tensor.
+    pub fn inverse_transpose(&self) -> Self {
         if D == 2 {
             let mut adjugate_transpose = TensorRank2::<D, I, J>::zero();
             adjugate_transpose[0][0] = self[1][1];
@@ -392,7 +299,8 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2Trait<D, I, J>
             self.inverse().transpose()
         }
     }
-    fn inverse_transpose_and_determinant(&self) -> (Self, TensorRank0) {
+    /// Returns the inverse transpose and determinant of the rank-2 tensor.
+    pub fn inverse_transpose_and_determinant(&self) -> (Self, TensorRank0) {
         if D == 2 {
             let mut adjugate_transpose = TensorRank2::<D, I, J>::zero();
             adjugate_transpose[0][0] = self[1][1];
@@ -453,7 +361,8 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2Trait<D, I, J>
             panic!()
         }
     }
-    fn is_diagonal(&self) -> bool {
+    /// Checks whether the tensor is a diagonal tensor.
+    pub fn is_diagonal(&self) -> bool {
         self.iter()
             .enumerate()
             .map(|(i, self_i)| {
@@ -466,7 +375,8 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2Trait<D, I, J>
             .sum::<u8>()
             == (D * D - D) as u8
     }
-    fn is_identity(&self) -> bool {
+    /// Checks whether the tensor is the identity tensor.
+    pub fn is_identity(&self) -> bool {
         self.iter()
             .enumerate()
             .map(|(i, self_i)| {
@@ -479,18 +389,8 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2Trait<D, I, J>
             .sum::<u8>()
             == (D * D) as u8
     }
-    fn is_zero(&self) -> bool {
-        self.iter()
-            .map(|self_i| {
-                self_i
-                    .iter()
-                    .map(|self_ij| (self_ij == &0.0) as u8)
-                    .sum::<u8>()
-            })
-            .sum::<u8>()
-            == (D * D) as u8
-    }
-    fn lu_decomposition(&self) -> (TensorRank2<D, I, 88>, TensorRank2<D, 88, J>) {
+    /// Returns the LU decomposition of the rank-2 tensor.
+    pub fn lu_decomposition(&self) -> (TensorRank2<D, I, 88>, TensorRank2<D, 88, J>) {
         let mut tensor_l = TensorRank2::zero();
         let mut tensor_u = TensorRank2::zero();
         for i in 0..D {
@@ -519,7 +419,8 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2Trait<D, I, J>
         }
         (tensor_l, tensor_u)
     }
-    fn lu_decomposition_inverse(&self) -> (TensorRank2<D, 88, I>, TensorRank2<D, J, 88>) {
+    /// Returns the inverse of the LU decomposition of the rank-2 tensor.
+    pub fn lu_decomposition_inverse(&self) -> (TensorRank2<D, 88, I>, TensorRank2<D, J, 88>) {
         let mut tensor_l = TensorRank2::zero();
         let mut tensor_u = TensorRank2::zero();
         for i in 0..D {
@@ -569,29 +470,12 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2Trait<D, I, J>
         }
         (tensor_l, tensor_u)
     }
-    fn new(array: [[TensorRank0; D]; D]) -> Self {
-        array
-            .iter()
-            .map(|array_i| TensorRank1::new(*array_i))
-            .collect()
-    }
-    fn norm(&self) -> TensorRank0 {
-        self.norm_squared().sqrt()
-    }
-    fn norm_squared(&self) -> TensorRank0 {
-        self.iter()
-            .map(|self_i| {
-                self_i
-                    .iter()
-                    .map(|self_ij| self_ij.powi(2))
-                    .sum::<TensorRank0>()
-            })
-            .sum()
-    }
-    fn second_invariant(&self) -> TensorRank0 {
+    /// Returns the second invariant of the rank-2 tensor.
+    pub fn second_invariant(&self) -> TensorRank0 {
         0.5 * (self.trace().powi(2) - self.squared_trace())
     }
-    fn squared_trace(&self) -> TensorRank0 {
+    /// Returns the trace of the rank-2 tensor squared.
+    pub fn squared_trace(&self) -> TensorRank0 {
         self.iter()
             .enumerate()
             .map(|(i, self_i)| {
@@ -603,16 +487,81 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2Trait<D, I, J>
             })
             .sum()
     }
-    fn trace(&self) -> TensorRank0 {
+    /// Returns the trace of the rank-2 tensor.
+    pub fn trace(&self) -> TensorRank0 {
         (0..D).map(|i| self[i][i]).sum()
     }
-    fn transpose(&self) -> TensorRank2<D, J, I> {
+    /// Returns the transpose of the rank-2 tensor.
+    pub fn transpose(&self) -> TensorRank2<D, J, I> {
         (0..D)
             .map(|i| (0..D).map(|j| self[j][i]).collect())
             .collect()
     }
+}
+
+/// Implementation of [`Tensor`] for [`TensorRank2`].
+impl<const D: usize, const I: usize, const J: usize> Tensor for TensorRank2<D, I, J> {
+    type Array = [[TensorRank0; D]; D];
+    type Item = TensorRank1<D, J>;
+    fn as_array(&self) -> Self::Array {
+        let mut array = [[0.0; D]; D];
+        array
+            .iter_mut()
+            .zip(self.iter())
+            .for_each(|(entry, tensor_rank_1)| *entry = tensor_rank_1.as_array());
+        array
+    }
+    fn copy(&self) -> Self {
+        self.iter().map(|entry| entry.copy()).collect()
+    }
+    fn is_zero(&self) -> bool {
+        self.iter()
+            .map(|self_i| {
+                self_i
+                    .iter()
+                    .map(|self_ij| (self_ij == &0.0) as u8)
+                    .sum::<u8>()
+            })
+            .sum::<u8>()
+            == (D * D) as u8
+    }
+    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
+        self.0.iter()
+    }
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
+        self.0.iter_mut()
+    }
+    fn new(array: Self::Array) -> Self {
+        array
+            .iter()
+            .map(|array_i| TensorRank1::new(*array_i))
+            .collect()
+    }
+    fn norm_squared(&self) -> TensorRank0 {
+        self.iter()
+            .map(|self_i| {
+                self_i
+                    .iter()
+                    .map(|self_ij| self_ij.powi(2))
+                    .sum::<TensorRank0>()
+            })
+            .sum()
+    }
+    fn normalized(&self) -> Self {
+        self / self.norm()
+    }
     fn zero() -> Self {
-        Self(from_fn(|_| super::rank_1::zero()))
+        Self(from_fn(|_| TensorRank1::zero()))
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize>
+    Convert<TensorRank2<D, K, L>> for TensorRank2<D, I, J>
+{
+    fn convert(&self) -> TensorRank2<D, K, L> {
+        self.iter()
+            .map(|self_i| self_i.iter().copied().collect())
+            .collect()
     }
 }
 

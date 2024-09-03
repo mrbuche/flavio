@@ -9,7 +9,7 @@ pub use smith_ferrante::SmithFerrante;
 
 use super::{Constitutive, Parameters};
 use crate::{
-    math::{Tensor, TensorRank2Trait},
+    math::Tensor,
     mechanics::{Displacement, Normal, Scalar, Stiffness, Traction, IDENTITY},
 };
 

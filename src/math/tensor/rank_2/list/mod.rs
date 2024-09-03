@@ -3,7 +3,7 @@ mod test;
 
 use std::{array::from_fn, ops::{Add, AddAssign, Index, IndexMut}};
 
-use super::{TensorRank0, TensorRank2, TensorRank2Trait, super::Tensors};
+use super::{TensorRank0, TensorRank2, Tensor, super::Tensors};
 
 /// A list of *d*-dimensional tensors of rank 2.
 ///
