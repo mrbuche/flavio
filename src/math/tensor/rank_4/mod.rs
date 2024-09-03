@@ -24,65 +24,35 @@ pub struct TensorRank4<
     const L: usize,
 >(pub [TensorRank3<D, J, K, L>; D]);
 
+// /// Required methods for rank-4 tensors.
+// pub trait TensorRank4Trait<const D: usize, TIJ, TIK, TIL, TJL, TJK, TKJ, TKL> {
+//     /// ???
+//     fn dyad_ij_kl(tensor_rank_2_a: TIJ, tensor_rank_2_b: TKL) -> Self;
+//     /// ???
+//     fn dyad_ik_jl(tensor_rank_2_a: TIK, tensor_rank_2_b: TJL) -> Self;
+//     /// ???
+//     fn dyad_il_jk(tensor_rank_2_a: TIL, tensor_rank_2_b: TJK) -> Self;
+//     /// ???
+//     fn dyad_il_kj(tensor_rank_2_a: TIL, tensor_rank_2_b: TKJ) -> Self;
+// }
+
+// impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize>
+//     TensorRank4Trait<
+//         D,
+//         &TensorRank2<D, I, J>,
+//         &TensorRank2<D, I, K>,
+//         &TensorRank2<D, I, L>,
+//         &TensorRank2<D, J, L>,
+//         &TensorRank2<D, J, K>,
+//         &TensorRank2<D, K, J>,
+//         &TensorRank2<D, K, L>,
+//     > for TensorRank4<D, I, J, K, L>
+
 /// Inherent implementation of [`TensorRank4`].
 impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize>
     TensorRank4<D, I, J, K, L>
 {
-    /// Returns an iterator.
-    ///
-    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    pub fn iter(&self) -> impl Iterator<Item = &TensorRank3<D, J, K, L>> {
-        self.0.iter()
-    }
-    /// Returns an iterator that allows modifying each value.
-    ///
-    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut TensorRank3<D, J, K, L>> {
-        self.0.iter_mut()
-    }
-    /// Returns the rank-4 zero tensor.
-    pub fn zero() -> Self {
-        Self(std::array::from_fn(|_| TensorRank3::zero()))
-    }
-}
-
-/// Required methods for rank-4 tensors.
-pub trait TensorRank4Trait<const D: usize, TIJ, TIK, TIL, TJL, TJK, TKJ, TKL> {
-    /// Returns the rank-4 tensor as an array.
-    fn as_array(&self) -> [[[[TensorRank0; D]; D]; D]; D];
-    /// ???
-    fn dyad_ij_kl(tensor_rank_2_a: TIJ, tensor_rank_2_b: TKL) -> Self;
-    /// ???
-    fn dyad_ik_jl(tensor_rank_2_a: TIK, tensor_rank_2_b: TJL) -> Self;
-    /// ???
-    fn dyad_il_jk(tensor_rank_2_a: TIL, tensor_rank_2_b: TJK) -> Self;
-    /// ???
-    fn dyad_il_kj(tensor_rank_2_a: TIL, tensor_rank_2_b: TKJ) -> Self;
-    /// Returns a rank-4 tensor given an array.
-    fn new(array: [[[[TensorRank0; D]; D]; D]; D]) -> Self;
-}
-
-impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize>
-    TensorRank4Trait<
-        D,
-        &TensorRank2<D, I, J>,
-        &TensorRank2<D, I, K>,
-        &TensorRank2<D, I, L>,
-        &TensorRank2<D, J, L>,
-        &TensorRank2<D, J, K>,
-        &TensorRank2<D, K, J>,
-        &TensorRank2<D, K, L>,
-    > for TensorRank4<D, I, J, K, L>
-{
-    fn as_array(&self) -> [[[[TensorRank0; D]; D]; D]; D] {
-        let mut array = [[[[0.0; D]; D]; D]; D];
-        array
-            .iter_mut()
-            .zip(self.iter())
-            .for_each(|(entry_rank_3, tensor_rank_3)| *entry_rank_3 = tensor_rank_3.as_array());
-        array
-    }
-    fn dyad_ij_kl(
+    pub fn dyad_ij_kl(
         tensor_rank_2_a: &TensorRank2<D, I, J>,
         tensor_rank_2_b: &TensorRank2<D, K, L>,
     ) -> Self {
@@ -96,7 +66,7 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
             })
             .collect()
     }
-    fn dyad_ik_jl(
+    pub fn dyad_ik_jl(
         tensor_rank_2_a: &TensorRank2<D, I, K>,
         tensor_rank_2_b: &TensorRank2<D, J, L>,
     ) -> Self {
@@ -115,7 +85,7 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
             })
             .collect()
     }
-    fn dyad_il_jk(
+    pub fn dyad_il_jk(
         tensor_rank_2_a: &TensorRank2<D, I, L>,
         tensor_rank_2_b: &TensorRank2<D, J, K>,
     ) -> Self {
@@ -134,17 +104,103 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
             })
             .collect()
     }
-    fn dyad_il_kj(
+    pub fn dyad_il_kj(
         tensor_rank_2_a: &TensorRank2<D, I, L>,
         tensor_rank_2_b: &TensorRank2<D, K, J>,
     ) -> Self {
         Self::dyad_il_jk(tensor_rank_2_a, &(tensor_rank_2_b.transpose()))
     }
-    fn new(array: [[[[TensorRank0; D]; D]; D]; D]) -> Self {
+}
+
+/// Implementation of [`Tensor`] for [`TensorRank4`].
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> Tensor for TensorRank4<D, I, J, K, L> {
+    type Array = [[[[TensorRank0; D]; D]; D]; D];
+    type Item = TensorRank3<D, J, K, L>;
+    fn as_array(&self) -> Self::Array {
+        let mut array = [[[[0.0; D]; D]; D]; D];
+        array
+            .iter_mut()
+            .zip(self.iter())
+            .for_each(|(entry_rank_3, tensor_rank_3)| *entry_rank_3 = tensor_rank_3.as_array());
+        array
+    }
+    fn copy(&self) -> Self {
+        self.iter().map(|entry_rank_3| entry_rank_3.copy()).collect()
+    }
+    fn is_zero(&self) -> bool {
+        self.iter().map(|entry_rank_3|
+            entry_rank_3.iter().map(|entry_rank_2|
+                entry_rank_2.iter().map(|entry_rank_1|
+                    entry_rank_1.iter().map(|entry_rank_0|
+                        (entry_rank_0 == &0.0) as u8
+                    ).sum::<u8>()
+                ).sum::<u8>()
+            ).sum::<u8>()
+        ).sum::<u8>() == ((D * D * D * D) as u8)
+    }
+    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
+        self.0.iter()
+    }
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
+        self.0.iter_mut()
+    }
+    fn new(array: Self::Array) -> Self {
         array
             .iter()
             .map(|array_i| TensorRank3::new(*array_i))
             .collect()
+    }
+    fn norm_squared(&self) -> TensorRank0 {
+        panic!()
+    }
+    fn normalized(&self) -> Self {
+        panic!()
+    }
+    fn zero() -> Self {
+        Self(std::array::from_fn(|_| TensorRank3::zero()))
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize>
+    FromIterator<TensorRank3<D, J, K, L>> for TensorRank4<D, I, J, K, L>
+{
+    fn from_iter<Ii: IntoIterator<Item = TensorRank3<D, J, K, L>>>(into_iterator: Ii) -> Self {
+        let mut tensor_rank_4 = Self::zero();
+        tensor_rank_4
+            .iter_mut()
+            .zip(into_iterator)
+            .for_each(|(tensor_rank_4_i, value_i)| *tensor_rank_4_i = value_i);
+        tensor_rank_4
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> Index<usize>
+    for TensorRank4<D, I, J, K, L>
+{
+    type Output = TensorRank3<D, J, K, L>;
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.0[index]
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> IndexMut<usize>
+    for TensorRank4<D, I, J, K, L>
+{
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.0[index]
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> std::iter::Sum
+    for TensorRank4<D, I, J, K, L>
+{
+    fn sum<Ii>(iter: Ii) -> Self
+    where
+        Ii: Iterator<Item = Self>,
+    {
+        let mut output = TensorRank4::zero();
+        iter.for_each(|item| output += item);
+        output
     }
 }
 
@@ -409,49 +465,6 @@ impl<
                     },
                 )
             });
-        output
-    }
-}
-
-impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize>
-    FromIterator<TensorRank3<D, J, K, L>> for TensorRank4<D, I, J, K, L>
-{
-    fn from_iter<Ii: IntoIterator<Item = TensorRank3<D, J, K, L>>>(into_iterator: Ii) -> Self {
-        let mut tensor_rank_4 = Self::zero();
-        tensor_rank_4
-            .iter_mut()
-            .zip(into_iterator)
-            .for_each(|(tensor_rank_4_i, value_i)| *tensor_rank_4_i = value_i);
-        tensor_rank_4
-    }
-}
-
-impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> Index<usize>
-    for TensorRank4<D, I, J, K, L>
-{
-    type Output = TensorRank3<D, J, K, L>;
-    fn index(&self, index: usize) -> &Self::Output {
-        &self.0[index]
-    }
-}
-
-impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> IndexMut<usize>
-    for TensorRank4<D, I, J, K, L>
-{
-    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        &mut self.0[index]
-    }
-}
-
-impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> std::iter::Sum
-    for TensorRank4<D, I, J, K, L>
-{
-    fn sum<Ii>(iter: Ii) -> Self
-    where
-        Ii: Iterator<Item = Self>,
-    {
-        let mut output = TensorRank4::zero();
-        iter.for_each(|item| output += item);
         output
     }
 }

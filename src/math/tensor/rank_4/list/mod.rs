@@ -4,7 +4,7 @@ mod test;
 use std::array::from_fn;
 use std::ops::{Index, IndexMut};
 
-use super::{TensorRank0, TensorRank4, TensorRank4Trait};
+use super::{TensorRank0, TensorRank4, Tensor};
 
 /// A list of *d*-dimensional tensor of rank 4.
 ///

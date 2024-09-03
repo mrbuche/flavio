@@ -36,7 +36,8 @@ pub use tensor::{
         ContractAllIndicesWithFirstIndicesOf, ContractFirstSecondIndicesWithSecondIndicesOf,
         ContractFirstThirdFourthIndicesWithFirstIndicesOf,
         ContractSecondFourthIndicesWithFirstIndicesOf, ContractSecondIndexWithFirstIndexOf,
-        ContractThirdFourthIndicesWithFirstSecondIndicesOf, TensorRank4, TensorRank4Trait,
+        ContractThirdFourthIndicesWithFirstSecondIndicesOf, TensorRank4,
     },
+    // SHOULD MOVE CONTRACTION TRAITS INTO INHERENT IMPLEMENTATION IF SENSIBLE
     Convert, Tensor, Tensors,
 };

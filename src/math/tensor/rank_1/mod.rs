@@ -14,6 +14,22 @@ use super::{rank_0::TensorRank0, Convert, Tensor};
 #[derive(Debug)]
 pub struct TensorRank1<const D: usize, const I: usize>(pub [TensorRank0; D]);
 
+/// Inherent implementation of [`TensorRank1`].
+impl<const D: usize, const I: usize> TensorRank1<D, I> {
+    /// Returns the cross product with another rank-1 tensor.
+    pub fn cross(&self, tensor_rank_1: &Self) -> Self {
+        if D == 3 {
+            let mut output = zero();
+            output[0] = self[1] * tensor_rank_1[2] - self[2] * tensor_rank_1[1];
+            output[1] = self[2] * tensor_rank_1[0] - self[0] * tensor_rank_1[2];
+            output[2] = self[0] * tensor_rank_1[1] - self[1] * tensor_rank_1[0];
+            output
+        } else {
+            panic!()
+        }
+    }
+}
+
 /// Implementation of [`Tensor`] for [`TensorRank1`].
 impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
     type Array = [TensorRank0; D];
@@ -22,7 +38,7 @@ impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
         self.0
     }
     fn copy(&self) -> Self {
-        self.iter().map(|self_i| self_i.copy()).collect()
+        self.iter().map(|entry| entry.copy()).collect()
     }
     fn is_zero(&self) -> bool {
         self.iter().map(|entry| (entry == &0.0) as u8).sum::<u8>() == (D as u8)
@@ -49,22 +65,6 @@ impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
 
 pub const fn zero<const D: usize, const I: usize>() -> TensorRank1<D, I> {
     TensorRank1([0.0; D])
-}
-
-/// Inherent implementation of [`TensorRank1`].
-impl<const D: usize, const I: usize> TensorRank1<D, I> {
-    /// Returns the cross product with another rank-1 tensor.
-    pub fn cross(&self, tensor_rank_1: &Self) -> Self {
-        if D == 3 {
-            let mut output = zero();
-            output[0] = self[1] * tensor_rank_1[2] - self[2] * tensor_rank_1[1];
-            output[1] = self[2] * tensor_rank_1[0] - self[0] * tensor_rank_1[2];
-            output[2] = self[0] * tensor_rank_1[1] - self[1] * tensor_rank_1[0];
-            output
-        } else {
-            panic!()
-        }
-    }
 }
 
 impl<const D: usize, const I: usize, const J: usize> Convert<TensorRank1<D, J>>

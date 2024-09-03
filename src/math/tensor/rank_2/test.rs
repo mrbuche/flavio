@@ -1,5 +1,5 @@
 use super::{
-    super::rank_4::TensorRank4Trait, list_2d::TensorRank2List2DTrait, Tensor, TensorRank0,
+    list_2d::TensorRank2List2DTrait, Tensor, TensorRank0,
     TensorRank1, TensorRank1List, TensorRank2, TensorRank2List2D, TensorRank2Trait, TensorRank4,
     Tensors,
 };
