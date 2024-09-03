@@ -3,7 +3,7 @@ pub mod test;
 
 use std::{array::from_fn, ops::AddAssign};
 
-use super::{TensorRank0, TensorRank3, TensorRank3Trait};
+use super::{TensorRank0, TensorRank3, Tensor};
 
 /// A list of *d*-dimensional tensors of rank 3.
 ///

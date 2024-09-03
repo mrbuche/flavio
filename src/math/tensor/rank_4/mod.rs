@@ -7,7 +7,7 @@ use super::{
     rank_0::TensorRank0,
     rank_1::TensorRank1,
     rank_2::{TensorRank2, TensorRank2Trait},
-    rank_3::{TensorRank3, TensorRank3Trait},
+    rank_3::TensorRank3,
     Tensor
 };
 
@@ -123,7 +123,7 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
     fn new(array: Self::Array) -> Self {
         array
             .iter()
-            .map(|array_i| TensorRank3::new(*array_i))
+            .map(|entry| TensorRank3::new(*entry))
             .collect()
     }
     fn norm_squared(&self) -> TensorRank0 {

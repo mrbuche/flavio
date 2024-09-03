@@ -29,7 +29,7 @@ pub use tensor::{
         list::{TensorRank3List, TensorRank3ListTrait},
         list_2d::{TensorRank3List2D, TensorRank3List2DTrait},
         list_3d::{TensorRank3List3D, TensorRank3List3DTrait},
-        TensorRank3, TensorRank3Trait,
+        TensorRank3,
     },
     rank_4::{
         list::TensorRank4List,
