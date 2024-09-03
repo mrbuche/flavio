@@ -1,9 +1,11 @@
 #[cfg(test)]
 mod test;
 
+mod ode1be;
 mod ode23;
 mod ode45;
 
+pub use ode1be::ode1be;
 pub use ode23::ode23;
 pub use ode45::ode45;
 

@@ -7,10 +7,11 @@ use super::{
 };
 // use crate::{ABS_TOL, REL_TOL};
 
-/// Explicit fifth-order Runge-Kutta method.
+/// Implicit first-order Runge-Kutta method.
 ///
-/// [`ode45`] is an explicit, six-stage, fifth-order, variable-step Runge-Kutta method ([Dormand and Prince, 1980](https://doi.org/10.1016/0771-050X(80)90013-3)).
-pub fn ode45<const W: usize, T, U>(
+/// [`ode1be`] is an implicit, single-stage, first-order, fixed-step Runge-Kutta method (the backward Euler method).
+///
+pub fn ode1be<const W: usize, T, U>(
     _function: impl Fn(&TensorRank0, &T) -> T,
     _evaluation_times: &TensorRank0List<W>,
     _y_0: T,

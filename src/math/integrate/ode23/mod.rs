@@ -9,7 +9,7 @@ use crate::{ABS_TOL, REL_TOL};
 
 /// Explicit third-order Runge-Kutta method.
 ///
-/// [`ode23`] is an adaptive, explicit, three-stage, third-order Runge-Kutta method ([Bogacki and Shampine, 1989](https://doi.org/10.1016/0893-9659(89)90079-7)).
+/// [`ode23`] is an explicit, three-stage, third-order, variable-step Runge-Kutta method ([Bogacki and Shampine, 1989](https://doi.org/10.1016/0893-9659(89)90079-7)).
 ///
 /// ```math
 /// \frac{dy}{dt} = f(t, y)

@@ -63,6 +63,7 @@ impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
     }
 }
 
+/// Returns the rank-1 zero tensor as a constant.
 pub const fn zero<const D: usize, const I: usize>() -> TensorRank1<D, I> {
     TensorRank1([0.0; D])
 }
