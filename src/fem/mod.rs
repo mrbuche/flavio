@@ -41,10 +41,9 @@ use crate::{
         Constitutive, Parameters, CONSTITUTIVE_MODEL_ERROR,
     },
     math::{
-        tensor_rank_1_zero, ContractSecondFourthIndicesWithFirstIndicesOf, Tensor,
-        TensorRank1, TensorRank1List, TensorRank1List2D, TensorRank2,
-        TensorRank2List, TensorRank2List2D, TensorRank3,
-        TensorRank3List, TensorRank3List2D, TensorRank3List3D, Tensors, ONE_SIXTH,
+        tensor_rank_1_zero, ContractSecondFourthIndicesWithFirstIndicesOf, Tensor, TensorRank1,
+        TensorRank1List, TensorRank1List2D, TensorRank2, TensorRank2List, TensorRank2List2D,
+        TensorRank3, TensorRank3List, TensorRank3List2D, TensorRank3List3D, Tensors, ONE_SIXTH,
         ONE_TWENTY_FOURTH,
     },
     mechanics::{

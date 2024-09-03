@@ -1,6 +1,6 @@
 use super::{
-    Tensor, Tensors, TensorRank0,
-    TensorRank1, TensorRank1List, TensorRank2, TensorRank2List2D, TensorRank4,
+    Tensor, TensorRank0, TensorRank1, TensorRank1List, TensorRank2, TensorRank2List2D, TensorRank4,
+    Tensors,
 };
 use crate::test::assert_eq_within_tols;
 use std::cmp::Ordering;

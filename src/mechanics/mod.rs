@@ -83,18 +83,20 @@ pub const IDENTITY_1010: TensorRank4<3, 1, 0, 1, 0> = TensorRank4([
 
 pub const LEVI_CIVITA: TensorRank3<3, 1, 1, 1> = TensorRank3([
     TensorRank2([
-        TensorRank1([ 0.0,  0.0,  0.0]),
-        TensorRank1([ 0.0,  0.0,  1.0]),
-        TensorRank1([ 0.0, -1.0,  0.0])
-    ]), TensorRank2([
-        TensorRank1([ 0.0,  0.0, -1.0]),
-        TensorRank1([ 0.0,  0.0,  0.0]),
-        TensorRank1([ 1.0,  0.0,  0.0]),
-    ]), TensorRank2([
-        TensorRank1([ 0.0,  1.0,  0.0]),
-        TensorRank1([-1.0,  0.0,  0.0]),
-        TensorRank1( [0.0,  0.0,  0.0]),
-    ])
+        TensorRank1([0.0, 0.0, 0.0]),
+        TensorRank1([0.0, 0.0, 1.0]),
+        TensorRank1([0.0, -1.0, 0.0]),
+    ]),
+    TensorRank2([
+        TensorRank1([0.0, 0.0, -1.0]),
+        TensorRank1([0.0, 0.0, 0.0]),
+        TensorRank1([1.0, 0.0, 0.0]),
+    ]),
+    TensorRank2([
+        TensorRank1([0.0, 1.0, 0.0]),
+        TensorRank1([-1.0, 0.0, 0.0]),
+        TensorRank1([0.0, 0.0, 0.0]),
+    ]),
 ]);
 
 pub const ZERO: TensorRank2<3, 1, 1> = TensorRank2([

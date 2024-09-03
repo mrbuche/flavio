@@ -4,10 +4,7 @@ use super::{
     RotationReferenceConfiguration, Scalar, TemperatureGradient, IDENTITY, IDENTITY_00,
     IDENTITY_10, IDENTITY_1010,
 };
-use crate::{
-    math::Tensor,
-    test::assert_eq_within_tols,
-};
+use crate::{math::Tensor, test::assert_eq_within_tols};
 
 pub fn get_deformation_gradient() -> DeformationGradient {
     DeformationGradient::new([

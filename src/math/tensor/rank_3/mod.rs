@@ -5,20 +5,19 @@ pub mod list;
 pub mod list_2d;
 pub mod list_3d;
 
-use std::{array::from_fn, ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign}};
-
-use super::{
-    rank_0::TensorRank0,
-    rank_2::TensorRank2,
-    Tensor
+use std::{
+    array::from_fn,
+    ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
 };
+
+use super::{rank_0::TensorRank0, rank_2::TensorRank2, Tensor};
 
 /// Returns the rank-3 Levi-Civita symbol.
 pub fn levi_civita<const I: usize, const J: usize, const K: usize>() -> TensorRank3<3, I, J, K> {
     TensorRank3::new([
-        [[0.0, 0.0,  0.0], [ 0.0, 0.0, 1.0], [0.0, -1.0, 0.0]],
-        [[0.0, 0.0, -1.0], [ 0.0, 0.0, 0.0], [1.0,  0.0, 0.0]],
-        [[0.0, 1.0,  0.0], [-1.0, 0.0, 0.0], [0.0,  0.0, 0.0]],
+        [[0.0, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, -1.0, 0.0]],
+        [[0.0, 0.0, -1.0], [0.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
+        [[0.0, 1.0, 0.0], [-1.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
     ])
 }
 
@@ -30,7 +29,9 @@ pub struct TensorRank3<const D: usize, const I: usize, const J: usize, const K: 
 );
 
 /// Implementation of [`Tensor`] for [`TensorRank3`].
-impl<const D: usize, const I: usize, const J: usize, const K: usize> Tensor for TensorRank3<D, I, J, K> {
+impl<const D: usize, const I: usize, const J: usize, const K: usize> Tensor
+    for TensorRank3<D, I, J, K>
+{
     type Array = [[[TensorRank0; D]; D]; D];
     type Item = TensorRank2<D, J, K>;
     fn as_array(&self) -> Self::Array {
@@ -42,16 +43,25 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize> Tensor for 
         array
     }
     fn copy(&self) -> Self {
-        self.iter().map(|entry_rank_2| entry_rank_2.copy()).collect()
+        self.iter()
+            .map(|entry_rank_2| entry_rank_2.copy())
+            .collect()
     }
     fn is_zero(&self) -> bool {
-        self.iter().map(|entry_rank_2|
-            entry_rank_2.iter().map(|entry_rank_1|
-                entry_rank_1.iter().map(|entry_rank_0|
-                    (entry_rank_0 == &0.0) as u8
-                ).sum::<u8>()
-            ).sum::<u8>()
-        ).sum::<u8>() == ((D * D * D) as u8)
+        self.iter()
+            .map(|entry_rank_2| {
+                entry_rank_2
+                    .iter()
+                    .map(|entry_rank_1| {
+                        entry_rank_1
+                            .iter()
+                            .map(|entry_rank_0| (entry_rank_0 == &0.0) as u8)
+                            .sum::<u8>()
+                    })
+                    .sum::<u8>()
+            })
+            .sum::<u8>()
+            == ((D * D * D) as u8)
     }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()
@@ -60,10 +70,7 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize> Tensor for 
         self.0.iter_mut()
     }
     fn new(array: Self::Array) -> Self {
-        array
-            .iter()
-            .map(|entry| TensorRank2::new(*entry))
-            .collect()
+        array.iter().map(|entry| TensorRank2::new(*entry)).collect()
     }
     fn norm_squared(&self) -> TensorRank0 {
         panic!()

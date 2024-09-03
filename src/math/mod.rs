@@ -21,25 +21,20 @@ pub use tensor::{
     rank_1::{
         list::TensorRank1List, list_2d::TensorRank1List2D, zero as tensor_rank_1_zero, TensorRank1,
     },
-    rank_2::{
-        list::TensorRank2List,
-        list_2d::TensorRank2List2D,
-        TensorRank2,
-    },
+    rank_2::{list::TensorRank2List, list_2d::TensorRank2List2D, TensorRank2},
     rank_3::{
-        levi_civita,
-        list::TensorRank3List,
-        list_2d::TensorRank3List2D,
-        list_3d::TensorRank3List3D,
+        levi_civita, list::TensorRank3List, list_2d::TensorRank3List2D, list_3d::TensorRank3List3D,
         TensorRank3,
     },
     rank_4::{
-        list::TensorRank4List,
-        ContractAllIndicesWithFirstIndicesOf, ContractFirstSecondIndicesWithSecondIndicesOf,
+        list::TensorRank4List, ContractAllIndicesWithFirstIndicesOf,
+        ContractFirstSecondIndicesWithSecondIndicesOf,
         ContractFirstThirdFourthIndicesWithFirstIndicesOf,
         ContractSecondFourthIndicesWithFirstIndicesOf, ContractSecondIndexWithFirstIndexOf,
         ContractThirdFourthIndicesWithFirstSecondIndicesOf, TensorRank4,
     },
     // SHOULD MOVE CONTRACTION TRAITS INTO INHERENT IMPLEMENTATION IF SENSIBLE
-    Convert, Tensor, Tensors,
+    Convert,
+    Tensor,
+    Tensors,
 };

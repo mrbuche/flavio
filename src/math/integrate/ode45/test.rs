@@ -1,5 +1,5 @@
 use super::{super::test::zero_to_tau, ode45};
-use crate::math::{TensorRank0, TensorRank0List, TensorRank1, TensorRank1List, Tensor, Tensors};
+use crate::math::{Tensor, TensorRank0, TensorRank0List, TensorRank1, TensorRank1List, Tensors};
 
 const LENGTH: usize = 33;
 const TOLERANCE: TensorRank0 = 1e-5;

@@ -12,9 +12,8 @@ use super::{Constitutive, Parameters};
 use crate::{
     constitutive::ConstitutiveError,
     math::{
-        ContractFirstSecondIndicesWithSecondIndicesOf, ContractSecondIndexWithFirstIndexOf,
-        TensorRank4, Tensor, Tensors, FIVE_THIRDS,
-        SEVEN_THIRDS, TWO_THIRDS,
+        ContractFirstSecondIndicesWithSecondIndicesOf, ContractSecondIndexWithFirstIndexOf, Tensor,
+        TensorRank4, Tensors, FIVE_THIRDS, SEVEN_THIRDS, TWO_THIRDS,
     },
     mechanics::{
         CauchyRateTangentStiffness, CauchyStress, CauchyStresses, CauchyTangentStiffness,

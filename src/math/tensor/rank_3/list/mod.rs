@@ -3,7 +3,7 @@ pub mod test;
 
 use std::{array::from_fn, ops::AddAssign};
 
-use super::{TensorRank0, TensorRank3, Tensor, super::Tensors};
+use super::{super::Tensors, Tensor, TensorRank0, TensorRank3};
 
 /// A list of *d*-dimensional tensors of rank 3.
 ///
@@ -17,7 +17,9 @@ pub struct TensorRank3List<
 >([TensorRank3<D, I, J, K>; W]);
 
 /// Implementation of [`Tensors`] for [`TensorRank3List`].
-impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize> Tensors for TensorRank3List<D, I, J, K, W> {
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize> Tensors
+    for TensorRank3List<D, I, J, K, W>
+{
     type Array = [[[[TensorRank0; D]; D]; D]; W];
     type Item = TensorRank3<D, I, J, K>;
     fn as_array(&self) -> Self::Array {

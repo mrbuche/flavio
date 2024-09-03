@@ -4,7 +4,11 @@ mod test;
 pub mod list;
 pub mod list_2d;
 
-use std::{array::from_fn, cmp::Ordering, ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign}};
+use std::{
+    array::from_fn,
+    cmp::Ordering,
+    ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
+};
 
 use super::{
     rank_0::TensorRank0,

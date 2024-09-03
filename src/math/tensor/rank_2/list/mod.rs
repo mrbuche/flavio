@@ -1,9 +1,12 @@
 #[cfg(test)]
 mod test;
 
-use std::{array::from_fn, ops::{Add, AddAssign, Index, IndexMut}};
+use std::{
+    array::from_fn,
+    ops::{Add, AddAssign, Index, IndexMut},
+};
 
-use super::{TensorRank0, TensorRank2, Tensor, super::Tensors};
+use super::{super::Tensors, Tensor, TensorRank0, TensorRank2};
 
 /// A list of *d*-dimensional tensors of rank 2.
 ///
@@ -21,7 +24,9 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2
 }
 
 /// Implementation of [`Tensors`] for [`TensorRank2List`].
-impl<const D: usize, const I: usize, const J: usize, const W: usize> Tensors for TensorRank2List<D, I, J, W> {
+impl<const D: usize, const I: usize, const J: usize, const W: usize> Tensors
+    for TensorRank2List<D, I, J, W>
+{
     type Array = [[[TensorRank0; D]; D]; W];
     type Item = TensorRank2<D, I, J>;
     fn as_array(&self) -> Self::Array {

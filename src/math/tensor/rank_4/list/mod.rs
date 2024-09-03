@@ -1,9 +1,12 @@
 #[cfg(test)]
 mod test;
 
-use std::{array::from_fn, ops::{Index, IndexMut}};
+use std::{
+    array::from_fn,
+    ops::{Index, IndexMut},
+};
 
-use super::{TensorRank0, TensorRank4, Tensor, super::Tensors};
+use super::{super::Tensors, Tensor, TensorRank0, TensorRank4};
 
 /// A list of *d*-dimensional tensor of rank 4.
 ///
@@ -18,7 +21,15 @@ pub struct TensorRank4List<
 >([TensorRank4<D, I, J, K, L>; W]);
 
 /// Implementation of [`Tensors`] for [`TensorRank4List`].
-impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize, const W: usize> Tensors for TensorRank4List<D, I, J, K, L, W> {
+impl<
+        const D: usize,
+        const I: usize,
+        const J: usize,
+        const K: usize,
+        const L: usize,
+        const W: usize,
+    > Tensors for TensorRank4List<D, I, J, K, L, W>
+{
     type Array = [[[[[TensorRank0; D]; D]; D]; D]; W];
     type Item = TensorRank4<D, I, J, K, L>;
     fn as_array(&self) -> Self::Array {

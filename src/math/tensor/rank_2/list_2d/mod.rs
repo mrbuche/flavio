@@ -1,12 +1,12 @@
 #[cfg(test)]
 mod test;
 
-use std::{array::from_fn, ops::{Add, AddAssign, Index, IndexMut, Mul}};
-
-use super::{
-    list::TensorRank2List,
-    super::Tensors, TensorRank0, TensorRank2,
+use std::{
+    array::from_fn,
+    ops::{Add, AddAssign, Index, IndexMut, Mul},
 };
+
+use super::{super::Tensors, list::TensorRank2List, TensorRank0, TensorRank2};
 
 /// A 2D list of *d*-dimensional tensors of rank 2.
 ///
@@ -20,7 +20,9 @@ pub struct TensorRank2List2D<
 >([TensorRank2List<D, I, J, W>; X]);
 
 /// Implementation of [`Tensors`] for [`TensorRank2List2D`].
-impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize> Tensors for TensorRank2List2D<D, I, J, W, X> {
+impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize> Tensors
+    for TensorRank2List2D<D, I, J, W, X>
+{
     type Array = [[[[TensorRank0; D]; D]; W]; X];
     type Item = TensorRank2List<D, I, J, W>;
     fn as_array(&self) -> Self::Array {
@@ -28,7 +30,9 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: us
         array
             .iter_mut()
             .zip(self.iter())
-            .for_each(|(entry_rank_2_list, tensor_rank_2_list)| *entry_rank_2_list = tensor_rank_2_list.as_array());
+            .for_each(|(entry_rank_2_list, tensor_rank_2_list)| {
+                *entry_rank_2_list = tensor_rank_2_list.as_array()
+            });
         array
     }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {

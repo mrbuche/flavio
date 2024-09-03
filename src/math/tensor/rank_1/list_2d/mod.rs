@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod test;
 
-use std::array::from_fn;
 use super::{super::Tensors, list::TensorRank1List, TensorRank0};
+use std::array::from_fn;
 
 /// A 2D list of *d*-dimensional tensors of rank 1.
 ///
