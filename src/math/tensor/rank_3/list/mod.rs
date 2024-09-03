@@ -25,7 +25,7 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: us
         array
             .iter_mut()
             .zip(self.iter())
-            .for_each(|(entry_rank_4, tensor_rank_4)| *entry_rank_4 = tensor_rank_4.as_array());
+            .for_each(|(entry_rank_3, tensor_rank_3)| *entry_rank_3 = tensor_rank_3.as_array());
         array
     }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {

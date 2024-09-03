@@ -3,7 +3,7 @@ mod test;
 
 use std::{array::from_fn, ops::{Add, AddAssign, Index, IndexMut}};
 
-use super::{TensorRank0, TensorRank2, TensorRank2Trait};
+use super::{TensorRank0, TensorRank2, TensorRank2Trait, super::Tensors};
 
 /// A list of *d*-dimensional tensors of rank 2.
 ///
@@ -14,37 +14,17 @@ pub struct TensorRank2List<const D: usize, const I: usize, const J: usize, const
 
 /// Inherent implementation of [`TensorRank2List`].
 impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2List<D, I, J, W> {
-    /// Returns an iterator.
-    ///
-    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    pub fn iter(&self) -> impl Iterator<Item = &TensorRank2<D, I, J>> {
-        self.0.iter()
-    }
-    /// Returns an iterator that allows modifying each value.
-    ///
-    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut TensorRank2<D, I, J>> {
-        self.0.iter_mut()
-    }
-}
-
-/// Required methods for rank-2 tensor lists.
-pub trait TensorRank2ListTrait<const D: usize, const W: usize> {
-    /// Returns the rank-2 tensor list as an array.
-    fn as_array(&self) -> [[[TensorRank0; D]; D]; W];
     /// Returns a list of rank-2 identity tensors.
-    fn identity() -> Self;
-    /// Returns a list of rank-2 tensors given an array.
-    fn new(array: [[[TensorRank0; D]; D]; W]) -> Self;
-    /// Returns a list of rank-2 zero tensors.
-    fn zero() -> Self;
+    pub fn identity() -> Self {
+        Self(from_fn(|_| TensorRank2::identity()))
+    }
 }
 
-/// Implementation of [`TensorRank2ListTrait`] for [`TensorRank2List`].
-impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2ListTrait<D, W>
-    for TensorRank2List<D, I, J, W>
-{
-    fn as_array(&self) -> [[[TensorRank0; D]; D]; W] {
+/// Implementation of [`Tensors`] for [`TensorRank2List`].
+impl<const D: usize, const I: usize, const J: usize, const W: usize> Tensors for TensorRank2List<D, I, J, W> {
+    type Array = [[[TensorRank0; D]; D]; W];
+    type Item = TensorRank2<D, I, J>;
+    fn as_array(&self) -> Self::Array {
         let mut array = [[[0.0; D]; D]; W];
         array
             .iter_mut()
@@ -52,10 +32,13 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2
             .for_each(|(entry_rank_2, tensor_rank_2)| *entry_rank_2 = tensor_rank_2.as_array());
         array
     }
-    fn identity() -> Self {
-        Self(from_fn(|_| TensorRank2::identity()))
+    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
+        self.0.iter()
     }
-    fn new(array: [[[TensorRank0; D]; D]; W]) -> Self {
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
+        self.0.iter_mut()
+    }
+    fn new(array: Self::Array) -> Self {
         array
             .iter()
             .map(|array_i| TensorRank2::new(*array_i))

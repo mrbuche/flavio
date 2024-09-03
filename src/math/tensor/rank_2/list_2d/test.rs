@@ -1,6 +1,6 @@
 use super::{
-    super::TensorRank2Trait, TensorRank0, TensorRank2, TensorRank2List2D, TensorRank2List2DTrait,
-    super::Tensor
+    super::TensorRank2Trait, TensorRank0, TensorRank2, TensorRank2List2D,
+    super::{Tensor, Tensors}
 };
 
 fn get_array() -> [[[[TensorRank0; 3]; 3]; 2]; 2] {

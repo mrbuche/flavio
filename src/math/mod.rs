@@ -20,8 +20,8 @@ pub use tensor::{
         list::TensorRank1List, list_2d::TensorRank1List2D, zero as tensor_rank_1_zero, TensorRank1,
     },
     rank_2::{
-        list::{TensorRank2List, TensorRank2ListTrait},
-        list_2d::{TensorRank2List2D, TensorRank2List2DTrait},
+        list::TensorRank2List,
+        list_2d::TensorRank2List2D,
         TensorRank2, TensorRank2Trait,
     },
     rank_3::{
