@@ -125,7 +125,7 @@ pub trait CompositeSurfaceElement<
             .collect()
     }
     fn calculate_normal_gradients(nodal_coordinates: &Coordinates<1, O>) -> NormalGradientss<P, O> {
-        let levi_civita_symbol = levi_civita::<1, 1, 1>();
+        let levi_civita_symbol = LEVI_CIVITA;
         let mut normalization: Scalar = 0.0;
         let mut normal_vector = Normal::new([0.0, 0.0, 0.0]);
         Self::calculate_standard_gradient_operators().iter()
@@ -163,7 +163,7 @@ pub trait CompositeSurfaceElement<
         nodal_coordinates: &NodalCoordinates<O>,
         nodal_velocities: &NodalVelocities<O>,
     ) -> NormalRates<P> {
-        let levi_civita_symbol = levi_civita::<1, 1, 1>();
+        let levi_civita_symbol = LEVI_CIVITA;
         let mut normalization: Scalar = 0.0;
         let mut normal_vector = Normal::new([0.0, 0.0, 0.0]);
         Self::calculate_standard_gradient_operators().iter()
@@ -200,7 +200,7 @@ pub trait CompositeSurfaceElement<
         }).collect()
     }
     fn calculate_normal_tangents(nodal_coordinates: &Coordinates<1, O>) -> NormalTangentss<P, O> {
-        let levi_civita_symbol = levi_civita::<1, 1, 1>();
+        let levi_civita_symbol = LEVI_CIVITA;
         let mut normalization: Scalar = 0.0;
         let mut normal_vector = Normal::new([0.0, 0.0, 0.0]);
         Self::calculate_standard_gradient_operators().iter()

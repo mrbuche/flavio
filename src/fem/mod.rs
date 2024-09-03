@@ -41,7 +41,7 @@ use crate::{
         Constitutive, Parameters, CONSTITUTIVE_MODEL_ERROR,
     },
     math::{
-        levi_civita, tensor_rank_1_zero, ContractSecondFourthIndicesWithFirstIndicesOf, Tensor,
+        tensor_rank_1_zero, ContractSecondFourthIndicesWithFirstIndicesOf, Tensor,
         TensorRank1, TensorRank1List, TensorRank1List2D, TensorRank2,
         TensorRank2List, TensorRank2List2D, TensorRank2List2DTrait, TensorRank2Trait, TensorRank3,
         TensorRank3List, TensorRank3List2D, TensorRank3List3D, Tensors, ONE_SIXTH,
@@ -52,7 +52,7 @@ use crate::{
         DeformationGradientRates, DeformationGradients, Displacement,
         FirstPiolaKirchoffRateTangentStiffnesses, FirstPiolaKirchoffStresses,
         FirstPiolaKirchoffTangentStiffnesses, Forces, ReferenceCoordinates, Scalar, Scalars,
-        Stiffnesses, Vector, Vectors, Vectors2D, IDENTITY, ZERO_VECTOR,
+        Stiffnesses, Vector, Vectors, Vectors2D, IDENTITY, LEVI_CIVITA, ZERO_VECTOR,
     },
 };
 
