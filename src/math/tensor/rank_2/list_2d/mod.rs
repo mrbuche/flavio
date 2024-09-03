@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod test;
 
-use std::ops::{Add, AddAssign, Index, IndexMut, Mul};
+use std::{array::from_fn, ops::{Add, AddAssign, Index, IndexMut, Mul}};
 
 use super::{
     list::{TensorRank2List, TensorRank2ListTrait},
@@ -76,7 +76,7 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: us
             .collect()
     }
     fn zero() -> Self {
-        Self(std::array::from_fn(|_| TensorRank2List::zero()))
+        Self(from_fn(|_| TensorRank2List::zero()))
     }
 }
 

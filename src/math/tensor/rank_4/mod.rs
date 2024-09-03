@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod test;
 
-use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign};
+use std::{array::from_fn, ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign}};
 
 use super::{
     rank_0::TensorRank0,
@@ -23,30 +23,6 @@ pub struct TensorRank4<
     const K: usize,
     const L: usize,
 >(pub [TensorRank3<D, J, K, L>; D]);
-
-// /// Required methods for rank-4 tensors.
-// pub trait TensorRank4Trait<const D: usize, TIJ, TIK, TIL, TJL, TJK, TKJ, TKL> {
-//     /// ???
-//     fn dyad_ij_kl(tensor_rank_2_a: TIJ, tensor_rank_2_b: TKL) -> Self;
-//     /// ???
-//     fn dyad_ik_jl(tensor_rank_2_a: TIK, tensor_rank_2_b: TJL) -> Self;
-//     /// ???
-//     fn dyad_il_jk(tensor_rank_2_a: TIL, tensor_rank_2_b: TJK) -> Self;
-//     /// ???
-//     fn dyad_il_kj(tensor_rank_2_a: TIL, tensor_rank_2_b: TKJ) -> Self;
-// }
-
-// impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize>
-//     TensorRank4Trait<
-//         D,
-//         &TensorRank2<D, I, J>,
-//         &TensorRank2<D, I, K>,
-//         &TensorRank2<D, I, L>,
-//         &TensorRank2<D, J, L>,
-//         &TensorRank2<D, J, K>,
-//         &TensorRank2<D, K, J>,
-//         &TensorRank2<D, K, L>,
-//     > for TensorRank4<D, I, J, K, L>
 
 /// Inherent implementation of [`TensorRank4`].
 impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize>
@@ -157,7 +133,7 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
         panic!()
     }
     fn zero() -> Self {
-        Self(std::array::from_fn(|_| TensorRank3::zero()))
+        Self(from_fn(|_| TensorRank3::zero()))
     }
 }
 

@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod test;
 
-use std::ops::{Add, AddAssign, Index, IndexMut};
+use std::{array::from_fn, ops::{Add, AddAssign, Index, IndexMut}};
 
 use super::{TensorRank0, TensorRank2, TensorRank2Trait};
 
@@ -53,7 +53,7 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2
         array
     }
     fn identity() -> Self {
-        Self(std::array::from_fn(|_| TensorRank2::identity()))
+        Self(from_fn(|_| TensorRank2::identity()))
     }
     fn new(array: [[[TensorRank0; D]; D]; W]) -> Self {
         array
@@ -62,7 +62,7 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2
             .collect()
     }
     fn zero() -> Self {
-        Self(std::array::from_fn(|_| TensorRank2::zero()))
+        Self(from_fn(|_| TensorRank2::zero()))
     }
 }
 

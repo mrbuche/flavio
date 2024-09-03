@@ -4,8 +4,7 @@ mod test;
 pub mod list;
 pub mod list_2d;
 
-use std::cmp::Ordering;
-use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign};
+use std::{array::from_fn, cmp::Ordering, ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign}};
 
 use super::{
     rank_0::TensorRank0,
@@ -65,7 +64,7 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2<D, I, J> {
     }
     /// Returns the rank-2 zero tensor.
     pub fn zero() -> Self {
-        Self(std::array::from_fn(|_| TensorRank1::zero()))
+        Self(from_fn(|_| TensorRank1::zero()))
     }
 }
 
@@ -613,7 +612,7 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2Trait<D, I, J>
             .collect()
     }
     fn zero() -> Self {
-        Self(std::array::from_fn(|_| super::rank_1::zero()))
+        Self(from_fn(|_| super::rank_1::zero()))
     }
 }
 

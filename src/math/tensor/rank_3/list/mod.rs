@@ -1,7 +1,7 @@
 #[cfg(test)]
 pub mod test;
 
-use std::ops::AddAssign;
+use std::{array::from_fn, ops::AddAssign};
 
 use super::{TensorRank0, TensorRank3, TensorRank3Trait};
 
@@ -53,7 +53,7 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: us
             .collect()
     }
     fn zero() -> Self {
-        Self(std::array::from_fn(|_| TensorRank3::zero()))
+        Self(from_fn(|_| TensorRank3::zero()))
     }
 }
 

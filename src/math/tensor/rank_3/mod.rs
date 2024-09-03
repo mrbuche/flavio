@@ -5,7 +5,7 @@ pub mod list;
 pub mod list_2d;
 pub mod list_3d;
 
-use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign};
+use std::{array::from_fn, ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign}};
 
 use super::{
     rank_0::TensorRank0,
@@ -44,7 +44,7 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize> TensorRank3
     }
     /// Returns the rank-3 zero tensor.
     pub fn zero() -> Self {
-        Self(std::array::from_fn(|_| TensorRank2::zero()))
+        Self(from_fn(|_| TensorRank2::zero()))
     }
 }
 

@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod test;
 
+use std::array::from_fn;
 use super::{super::Tensors, list::TensorRank1List, TensorRank0};
 
 /// A 2D list of *d*-dimensional tensors of rank 1.
@@ -24,18 +25,6 @@ impl<const D: usize, const I: usize, const W: usize, const X: usize> Tensors
             .for_each(|(entry, tensor_rank_1_list)| *entry = tensor_rank_1_list.as_array());
         array
     }
-    fn dot(&self, tensors: &Self) -> TensorRank0 {
-        self.iter()
-            .zip(tensors.iter())
-            .map(|(self_1d, tensors_1d)| {
-                self_1d
-                    .iter()
-                    .zip(tensors_1d.iter())
-                    .map(|(entry, tensor)| entry * tensor)
-                    .sum::<TensorRank0>()
-            })
-            .sum()
-    }
     fn iter(&self) -> impl Iterator<Item = &TensorRank1List<D, I, W>> {
         self.0.iter()
     }
@@ -49,7 +38,7 @@ impl<const D: usize, const I: usize, const W: usize, const X: usize> Tensors
             .collect()
     }
     fn zero() -> Self {
-        Self(std::array::from_fn(|_| TensorRank1List::zero()))
+        Self(from_fn(|_| TensorRank1List::zero()))
     }
 }
 

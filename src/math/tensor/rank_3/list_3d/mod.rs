@@ -1,6 +1,7 @@
 #[cfg(test)]
 pub mod test;
 
+use std::array::from_fn;
 use super::{
     list_2d::{TensorRank3List2D, TensorRank3List2DTrait},
     TensorRank0
@@ -72,7 +73,7 @@ impl<
             .collect()
     }
     fn zero() -> Self {
-        Self(std::array::from_fn(|_| TensorRank3List2D::zero()))
+        Self(from_fn(|_| TensorRank3List2D::zero()))
     }
 }
 

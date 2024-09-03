@@ -17,12 +17,6 @@ impl<const W: usize> Tensors for TensorRank0List<W> {
     fn as_array(&self) -> Self::Array {
         self.0
     }
-    fn dot(&self, tensors: &Self) -> TensorRank0 {
-        self.iter()
-            .zip(tensors.iter())
-            .map(|(entry, tensor)| entry * tensor)
-            .sum()
-    }
     fn iter(&self) -> impl Iterator<Item = &TensorRank0> {
         self.0.iter()
     }

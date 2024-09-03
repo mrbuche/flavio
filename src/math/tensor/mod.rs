@@ -63,8 +63,6 @@ pub trait Tensors {
     type Item;
     /// Returns the list of tensors as an array.
     fn as_array(&self) -> Self::Array;
-    /// Returns the sum of the full dot product of each tensor in each list.
-    fn dot(&self, tensors: &Self) -> TensorRank0;
     /// Returns an iterator.
     ///
     /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)

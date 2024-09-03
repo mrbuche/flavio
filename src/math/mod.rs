@@ -32,7 +32,7 @@ pub use tensor::{
         TensorRank3, TensorRank3Trait,
     },
     rank_4::{
-        list::{TensorRank4List, TensorRank4ListTrait},
+        list::TensorRank4List,
         ContractAllIndicesWithFirstIndicesOf, ContractFirstSecondIndicesWithSecondIndicesOf,
         ContractFirstThirdFourthIndicesWithFirstIndicesOf,
         ContractSecondFourthIndicesWithFirstIndicesOf, ContractSecondIndexWithFirstIndexOf,
