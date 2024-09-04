@@ -6,18 +6,38 @@ mod ode23;
 mod ode45;
 
 pub use ode1be::ode1be;
-pub use ode23::ode23;
 pub use ode45::ode45;
 
+pub use ode23::Ode23;
+
+use super::{Tensor, TensorRank0, TensorRank0List, Tensors};
 use crate::get_defeat_message;
 use std::fmt;
+
+/// Base trait for ordinary different equation solvers.
+pub trait OdeSolver {
+    /// Solves an initial value problem by numerically integrating a system of ordinary different equations.
+    ///
+    /// ```math
+    /// \frac{dy}{dt} = f(t, y),\quad y(t_0) = y_0
+    /// ```
+    fn integrate<const W: usize, T, U>(
+        &self,
+        function: impl Fn(&TensorRank0, &T) -> T,
+        evaluation_times: &TensorRank0List<W>,
+        y_0: T,
+    ) -> Result<U, IntegrationError>
+    where
+        T: Tensor,
+        for<'a> &'a T: std::ops::Mul<TensorRank0, Output = T>,
+        U: Tensors<Item = T>;
+}
 
 /// Possible errors encountered when integrating.
 pub enum IntegrationError {
     GeneralError,
 }
 
-/// Debug implementation for solve errors.
 impl fmt::Debug for IntegrationError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let error = match self {
@@ -32,7 +52,6 @@ impl fmt::Debug for IntegrationError {
     }
 }
 
-/// Display implementation for solve errors.
 impl fmt::Display for IntegrationError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let error = match self {
@@ -47,7 +66,6 @@ impl fmt::Display for IntegrationError {
     }
 }
 
-/// Implementation of solve errors from ok_or(&str).
 impl From<&str> for IntegrationError {
     fn from(string: &str) -> Self {
         todo!("{}", string)

@@ -3,13 +3,11 @@ mod test;
 
 use super::{
     super::{Tensor, TensorRank0, TensorRank0List, Tensors},
-    IntegrationError,
+    IntegrationError, OdeSolver,
 };
 use crate::{ABS_TOL, REL_TOL};
 
-/// Explicit third-order Runge-Kutta method.
-///
-/// [`ode23`] is an explicit, three-stage, third-order, variable-step Runge-Kutta method ([Bogacki and Shampine, 1989](https://doi.org/10.1016/0893-9659(89)90079-7)).
+/// Explicit, three-stage, third-order, variable-step, Runge-Kutta method ([Bogacki and Shampine, 1989](https://doi.org/10.1016/0893-9659(89)90079-7)).
 ///
 /// ```math
 /// \frac{dy}{dt} = f(t, y)
@@ -35,53 +33,83 @@ use crate::{ABS_TOL, REL_TOL};
 /// ```math
 /// e_{n+1} = \frac{h}{72}\left(-5k_1 + 6k_2 + 8k_3 - 9k_4\right)
 /// ```
-pub fn ode23<const W: usize, T, U>(
-    function: impl Fn(&TensorRank0, &T) -> T,
-    evaluation_times: &TensorRank0List<W>,
-    y_0: T,
-) -> Result<U, IntegrationError>
-where
-    T: Tensor,
-    for<'a> &'a T: std::ops::Mul<TensorRank0, Output = T>,
-    U: Tensors<Item = T>,
-{
-    let mut error;
-    let mut error_norm;
-    let mut evaluation_time = evaluation_times.0.into_iter().peekable();
-    let mut k_1;
-    let mut k_2;
-    let mut k_3;
-    let mut k_4;
-    let mut time = evaluation_time.next().ok_or("not ok")?;
-    let mut timestep = evaluation_time.peek().ok_or("not ok")? - time;
-    let mut solution = U::zero();
-    {
-        let mut solution_iter_mut = solution.iter_mut();
-        *solution_iter_mut.next().ok_or("not ok")? = y_0.copy();
-        let mut y = y_0;
-        let mut y_trial;
-        k_4 = function(&time, &y);
-        while let Some(next_evaluation_time) = evaluation_time.peek() {
-            k_1 = k_4;
-            k_2 = function(&(time + 0.5 * timestep), &(&k_1 * (0.5 * timestep) + &y));
-            k_3 = function(&(time + 0.75 * timestep), &(&k_2 * (0.75 * timestep) + &y));
-            y_trial = (&k_1 * 2.0 + &k_2 * 3.0 + &k_3 * 4.0) * (timestep / 9.0) + &y;
-            k_4 = function(&(time + timestep), &y_trial);
-            error = (k_1 * -5.0 + k_2 * 6.0 + k_3 * 8.0 + &k_4 * -9.0) * (timestep / 72.0);
-            error_norm = error.norm();
-            if error_norm < ABS_TOL || error_norm / y_trial.norm() < REL_TOL {
-                if &time > next_evaluation_time {
-                    *solution_iter_mut.next().ok_or("not ok")? = (y_trial.copy() - &y) / timestep
-                        * (evaluation_time.next().ok_or("not ok")? - time)
-                        + &y;
-                }
-                time += timestep;
-                timestep *= 1.1;
-                y = y_trial;
-            } else {
-                timestep *= 0.5;
-            }
+pub struct Ode23 {
+    /// Absolute error tolerance.
+    pub abs_tol: TensorRank0,
+    /// Relative error tolerance.
+    pub rel_tol: TensorRank0,
+}
+
+impl Default for Ode23 {
+    fn default() -> Self {
+        Self {
+            abs_tol: ABS_TOL,
+            rel_tol: REL_TOL,
         }
     }
-    Ok(solution)
+}
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+/// TODO: Need to do something to prevent large timesteps from going past more than one evaluation time.
+impl OdeSolver for Ode23 {
+    fn integrate<const W: usize, T, U>(
+        &self,
+        function: impl Fn(&TensorRank0, &T) -> T,
+        evaluation_times: &TensorRank0List<W>,
+        y_0: T,
+    ) -> Result<U, IntegrationError>
+    where
+        T: Tensor,
+        for<'a> &'a T: std::ops::Mul<TensorRank0, Output = T>,
+        U: Tensors<Item = T>,
+    {
+        let mut error;
+        let mut error_norm;
+        let mut evaluation_time = evaluation_times.0.into_iter().peekable();
+        let mut k_1;
+        let mut k_2;
+        let mut k_3;
+        let mut k_4;
+        let mut time = evaluation_time.next().ok_or("not ok")?;
+        let mut timestep = evaluation_time.peek().ok_or("not ok")? - time;
+        let mut solution = U::zero();
+        {
+            let mut solution_iter_mut = solution.iter_mut();
+            *solution_iter_mut.next().ok_or("not ok")? = y_0.copy();
+            let mut y = y_0;
+            let mut y_trial;
+            k_4 = function(&time, &y);
+            while let Some(next_evaluation_time) = evaluation_time.peek() {
+                k_1 = k_4;
+                k_2 = function(&(time + 0.5 * timestep), &(&k_1 * (0.5 * timestep) + &y));
+                k_3 = function(&(time + 0.75 * timestep), &(&k_2 * (0.75 * timestep) + &y));
+                y_trial = (&k_1 * 2.0 + &k_2 * 3.0 + &k_3 * 4.0) * (timestep / 9.0) + &y;
+                k_4 = function(&(time + timestep), &y_trial);
+                error = (k_1 * -5.0 + k_2 * 6.0 + k_3 * 8.0 + &k_4 * -9.0) * (timestep / 72.0);
+                error_norm = error.norm();
+                if error_norm < self.abs_tol || error_norm / y_trial.norm() < self.rel_tol {
+                    if &time > next_evaluation_time {
+                        *solution_iter_mut.next().ok_or("not ok")? = (y_trial.copy() - &y)
+                            / timestep
+                            * (evaluation_time.next().ok_or("not ok")? - time)
+                            + &y;
+                    }
+                    time += timestep;
+                    timestep *= 1.1;
+                    y = y_trial;
+                } else {
+                    timestep *= 0.5;
+                }
+            }
+        }
+        Ok(solution)
+    }
 }

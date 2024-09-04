@@ -35,7 +35,6 @@ pub enum ConstitutiveError {
     SolveError,
 }
 
-/// Debug implementation for constitutive model errors.
 impl fmt::Debug for ConstitutiveError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let error = match self {
@@ -64,7 +63,6 @@ impl fmt::Debug for ConstitutiveError {
     }
 }
 
-/// Display implementation for constitutive model errors.
 impl fmt::Display for ConstitutiveError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let error = match self {
