@@ -65,7 +65,9 @@ impl Default for Ode23 {
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 /// TODO: Should start time using t_0, leaving option for evaluation times not to include the initial time, but assert eval_times >= t_0.
-///       Maybe you should pass in tspan, treat as [start, end] if W=2, treat as [start, other eval times, end] if W > 2.
+///       Dont need t_end since what is important is last evaluation time.
+///       But do need to enforce evaluation times are all greater than t_0.
+///       And also that they are monotonic.
 /// TODO: Need to do something to prevent large timesteps from going past more than one evaluation time.
 impl Explicit for Ode23 {
     fn integrate<Y, U, const W: usize>(
