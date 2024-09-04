@@ -3,7 +3,7 @@ mod test;
 
 use super::{
     super::{Tensor, TensorRank0, TensorRank0List, Tensors},
-    IntegrationError, OdeSolver,
+    IntegrationError, Ivp, OdeSolver,
 };
 use crate::{ABS_TOL, REL_TOL};
 
@@ -36,6 +36,10 @@ use crate::{ABS_TOL, REL_TOL};
 pub struct Ode23 {
     /// Absolute error tolerance.
     pub abs_tol: TensorRank0,
+    /// Multiplying factor when decreasing timesteps.
+    pub dec_fac: TensorRank0,
+    /// Multiplying factor when increasing timesteps.
+    pub inc_fac: TensorRank0,
     /// Relative error tolerance.
     pub rel_tol: TensorRank0,
 }
@@ -44,6 +48,8 @@ impl Default for Ode23 {
     fn default() -> Self {
         Self {
             abs_tol: ABS_TOL,
+            dec_fac: 0.5,
+            inc_fac: 1.1,
             rel_tol: REL_TOL,
         }
     }
@@ -60,17 +66,20 @@ impl Default for Ode23 {
 
 /// TODO: Need to do something to prevent large timesteps from going past more than one evaluation time.
 impl OdeSolver for Ode23 {
-    fn integrate<const W: usize, T, U>(
+    fn integrate<F: Fn(&TensorRank0, &T) -> T, T, U, const W: usize>(
         &self,
-        function: impl Fn(&TensorRank0, &T) -> T,
+        ivp: Ivp<F, T>,
         evaluation_times: &TensorRank0List<W>,
-        y_0: T,
     ) -> Result<U, IntegrationError>
     where
         T: Tensor,
         for<'a> &'a T: std::ops::Mul<TensorRank0, Output = T>,
         U: Tensors<Item = T>,
     {
+        let (function, initial_condition) = match ivp {
+            Ivp::A(fun, y0) => (fun, y0),
+            _ => panic!("Return an Err(InputError) or something instead."),
+        };
         let mut error;
         let mut error_norm;
         let mut evaluation_time = evaluation_times.0.into_iter().peekable();
@@ -83,8 +92,8 @@ impl OdeSolver for Ode23 {
         let mut solution = U::zero();
         {
             let mut solution_iter_mut = solution.iter_mut();
-            *solution_iter_mut.next().ok_or("not ok")? = y_0.copy();
-            let mut y = y_0;
+            *solution_iter_mut.next().ok_or("not ok")? = initial_condition.copy();
+            let mut y = initial_condition;
             let mut y_trial;
             k_4 = function(&time, &y);
             while let Some(next_evaluation_time) = evaluation_time.peek() {
@@ -103,10 +112,10 @@ impl OdeSolver for Ode23 {
                             + &y;
                     }
                     time += timestep;
-                    timestep *= 1.1;
+                    timestep *= self.inc_fac;
                     y = y_trial;
                 } else {
-                    timestep *= 0.5;
+                    timestep *= self.dec_fac;
                 }
             }
         }

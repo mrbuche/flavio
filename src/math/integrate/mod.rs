@@ -5,14 +5,20 @@ mod ode1be;
 mod ode23;
 mod ode45;
 
-pub use ode1be::ode1be;
 pub use ode45::ode45;
 
+pub use ode1be::Ode1be;
 pub use ode23::Ode23;
 
 use super::{Tensor, TensorRank0, TensorRank0List, Tensors};
 use crate::get_defeat_message;
 use std::fmt;
+
+/// ???
+pub enum Ivp<F: Fn(&TensorRank0, &T) -> T, T> {
+    A(F, T), // give fun, y0 (SHOULD GIVE t0 too, THAT IS PART OF THE IVP STATEMENT)
+    B(F, T), // give that plus Jacobian: if no Jacobian given in Implicit methods, use finite difference?
+}
 
 /// Base trait for ordinary different equation solvers.
 pub trait OdeSolver {
@@ -21,11 +27,11 @@ pub trait OdeSolver {
     /// ```math
     /// \frac{dy}{dt} = f(t, y),\quad y(t_0) = y_0
     /// ```
-    fn integrate<const W: usize, T, U>(
+    fn integrate<F: Fn(&TensorRank0, &T) -> T, T, U, const W: usize>(
         &self,
-        function: impl Fn(&TensorRank0, &T) -> T,
+        ivp: Ivp<F, T>,
+        // function: impl Fn(&TensorRank0, &T) -> T,
         evaluation_times: &TensorRank0List<W>,
-        y_0: T,
     ) -> Result<U, IntegrationError>
     where
         T: Tensor,
