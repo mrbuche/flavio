@@ -73,8 +73,8 @@ impl Explicit for Ode23 {
     fn integrate<Y, U, const W: usize>(
         &self,
         function: impl Fn(&TensorRank0, &Y) -> Y,
-        _t_0: TensorRank0,
-        y_0: Y,
+        _initial_time: TensorRank0,
+        initial_condition: Y,
         evaluation_times: &TensorRank0List<W>,
     ) -> Result<U, IntegrationError>
     where
@@ -94,8 +94,8 @@ impl Explicit for Ode23 {
         let mut solution = U::zero();
         {
             let mut solution_iter_mut = solution.iter_mut();
-            *solution_iter_mut.next().ok_or("not ok")? = y_0.copy();
-            let mut y = y_0;
+            *solution_iter_mut.next().ok_or("not ok")? = initial_condition.copy();
+            let mut y = initial_condition;
             let mut y_trial;
             k_4 = function(&time, &y);
             while let Some(next_evaluation_time) = evaluation_time.peek() {

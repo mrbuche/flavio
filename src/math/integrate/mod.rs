@@ -24,8 +24,8 @@ pub trait Explicit {
     fn integrate<Y, U, const W: usize>(
         &self,
         function: impl Fn(&TensorRank0, &Y) -> Y,
-        t_0: TensorRank0,
-        y_0: Y,
+        initial_time: TensorRank0,
+        initial_condition: Y,
         evaluation_times: &TensorRank0List<W>,
     ) -> Result<U, IntegrationError>
     where
@@ -44,9 +44,9 @@ pub trait Implicit {
     fn integrate<Y, J, U, const W: usize>(
         &self,
         function: impl Fn(&TensorRank0, &Y) -> Y,
-        t_0: TensorRank0,
-        y_0: Y,
-        jac: J,
+        jacobian: impl Fn(&TensorRank0, &Y) -> J,
+        initial_time: TensorRank0,
+        initial_condition: Y,
         evaluation_times: &TensorRank0List<W>,
     ) -> Result<U, IntegrationError>
     where
