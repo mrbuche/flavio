@@ -14,29 +14,45 @@ use super::{Tensor, TensorRank0, TensorRank0List, Tensors};
 use crate::get_defeat_message;
 use std::fmt;
 
-/// ???
-pub enum Ivp<F: Fn(&TensorRank0, &Y) -> Y, Y> {
-    A(F, TensorRank0, Y), // give fun, y0 (SHOULD GIVE t0 too, THAT IS PART OF THE IVP STATEMENT)
-    B(F, TensorRank0, Y), // give that plus Jacobian: if no Jacobian given in Implicit methods, use finite difference?
-}
-
-/// Base trait for ordinary different equation solvers.
-pub trait OdeSolver {
-    /// Solves an initial value problem by numerically integrating a system of ordinary different equations.
+/// Base trait for explicit ordinary different equation solvers.
+pub trait Explicit {
+    /// Solves an initial value problem by explicitly integrating a system of ordinary different equations.
     ///
     /// ```math
     /// \frac{dy}{dt} = f(t, y),\quad y(t_0) = y_0
     /// ```
-    fn integrate<F: Fn(&TensorRank0, &T) -> T, T, U, const W: usize>(
+    fn integrate<Y, U, const W: usize>(
         &self,
-        ivp: Ivp<F, T>,
-        // function: impl Fn(&TensorRank0, &T) -> T,
+        function: impl Fn(&TensorRank0, &Y) -> Y,
+        t_0: TensorRank0,
+        y_0: Y,
         evaluation_times: &TensorRank0List<W>,
     ) -> Result<U, IntegrationError>
     where
-        T: Tensor,
-        for<'a> &'a T: std::ops::Mul<TensorRank0, Output = T>,
-        U: Tensors<Item = T>;
+        Y: Tensor,
+        for<'a> &'a Y: std::ops::Mul<TensorRank0, Output = Y>,
+        U: Tensors<Item = Y>;
+}
+
+/// Base trait for implicit ordinary different equation solvers.
+pub trait Implicit {
+    /// Solves an initial value problem by implicitly integrating a system of ordinary different equations.
+    ///
+    /// ```math
+    /// \frac{dy}{dt} = f(t, y),\quad y(t_0) = y_0,\quad \frac{\partial f}{\partial y} = J(t, y)
+    /// ```
+    fn integrate<Y, J, U, const W: usize>(
+        &self,
+        function: impl Fn(&TensorRank0, &Y) -> Y,
+        t_0: TensorRank0,
+        y_0: Y,
+        jac: J,
+        evaluation_times: &TensorRank0List<W>,
+    ) -> Result<U, IntegrationError>
+    where
+        Y: Tensor,
+        for<'a> &'a Y: std::ops::Mul<TensorRank0, Output = Y>,
+        U: Tensors<Item = Y>;
 }
 
 /// Possible errors encountered when integrating.

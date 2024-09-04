@@ -3,7 +3,7 @@ mod test;
 
 use super::{
     super::{Tensor, TensorRank0, TensorRank0List, Tensors},
-    IntegrationError, Ivp, OdeSolver,
+    Explicit, IntegrationError,
 };
 use crate::{ABS_TOL, REL_TOL};
 
@@ -64,22 +64,21 @@ impl Default for Ode23 {
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
+/// TODO: Should start time using t_0, leaving option for evaluation times not to include the initial time, but assert eval_times >= t_0.
 /// TODO: Need to do something to prevent large timesteps from going past more than one evaluation time.
-impl OdeSolver for Ode23 {
-    fn integrate<F: Fn(&TensorRank0, &T) -> T, T, U, const W: usize>(
+impl Explicit for Ode23 {
+    fn integrate<Y, U, const W: usize>(
         &self,
-        ivp: Ivp<F, T>,
+        function: impl Fn(&TensorRank0, &Y) -> Y,
+        _t_0: TensorRank0,
+        y_0: Y,
         evaluation_times: &TensorRank0List<W>,
     ) -> Result<U, IntegrationError>
     where
-        T: Tensor,
-        for<'a> &'a T: std::ops::Mul<TensorRank0, Output = T>,
-        U: Tensors<Item = T>,
+        Y: Tensor,
+        for<'a> &'a Y: std::ops::Mul<TensorRank0, Output = Y>,
+        U: Tensors<Item = Y>,
     {
-        let (function, _initial_time, initial_condition) = match ivp {
-            Ivp::A(fun, t0, y0) => (fun, t0, y0),
-            _ => panic!("Return an Err(InputError) or something instead."),
-        };
         let mut error;
         let mut error_norm;
         let mut evaluation_time = evaluation_times.0.into_iter().peekable();
@@ -87,16 +86,13 @@ impl OdeSolver for Ode23 {
         let mut k_2;
         let mut k_3;
         let mut k_4;
-        //
-        // should start time using initial_time, leaving option for evaluation times not to include the initial time
-        //
         let mut time = evaluation_time.next().ok_or("not ok")?;
         let mut timestep = evaluation_time.peek().ok_or("not ok")? - time;
         let mut solution = U::zero();
         {
             let mut solution_iter_mut = solution.iter_mut();
-            *solution_iter_mut.next().ok_or("not ok")? = initial_condition.copy();
-            let mut y = initial_condition;
+            *solution_iter_mut.next().ok_or("not ok")? = y_0.copy();
+            let mut y = y_0;
             let mut y_trial;
             k_4 = function(&time, &y);
             while let Some(next_evaluation_time) = evaluation_time.peek() {
