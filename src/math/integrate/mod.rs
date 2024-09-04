@@ -14,6 +14,10 @@ use super::{Tensor, TensorRank0, TensorRank0List, Tensors};
 use crate::get_defeat_message;
 use std::fmt;
 
+// fn test(solver: impl Explicit) {
+//     panic!()
+// }
+
 /// Base trait for explicit ordinary different equation solvers.
 pub trait Explicit {
     /// Solves an initial value problem by explicitly integrating a system of ordinary different equations.
