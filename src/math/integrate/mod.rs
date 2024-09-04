@@ -16,8 +16,8 @@ use std::fmt;
 
 /// ???
 pub enum Ivp<F: Fn(&TensorRank0, &Y) -> Y, Y> {
-    A(F, Y), // give fun, y0 (SHOULD GIVE t0 too, THAT IS PART OF THE IVP STATEMENT)
-    B(F, Y), // give that plus Jacobian: if no Jacobian given in Implicit methods, use finite difference?
+    A(F, TensorRank0, Y), // give fun, y0 (SHOULD GIVE t0 too, THAT IS PART OF THE IVP STATEMENT)
+    B(F, TensorRank0, Y), // give that plus Jacobian: if no Jacobian given in Implicit methods, use finite difference?
 }
 
 /// Base trait for ordinary different equation solvers.

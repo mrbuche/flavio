@@ -76,8 +76,8 @@ impl OdeSolver for Ode23 {
         for<'a> &'a T: std::ops::Mul<TensorRank0, Output = T>,
         U: Tensors<Item = T>,
     {
-        let (function, initial_condition) = match ivp {
-            Ivp::A(fun, y0) => (fun, y0),
+        let (function, _initial_time, initial_condition) = match ivp {
+            Ivp::A(fun, t0, y0) => (fun, t0, y0),
             _ => panic!("Return an Err(InputError) or something instead."),
         };
         let mut error;
@@ -87,6 +87,9 @@ impl OdeSolver for Ode23 {
         let mut k_2;
         let mut k_3;
         let mut k_4;
+        //
+        // should start time using initial_time, leaving option for evaluation times not to include the initial time
+        //
         let mut time = evaluation_time.next().ok_or("not ok")?;
         let mut timestep = evaluation_time.peek().ok_or("not ok")? - time;
         let mut solution = U::zero();
