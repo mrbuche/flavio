@@ -56,24 +56,11 @@ impl Default for Ode23 {
     }
 }
 
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-/// TODO: Should start time using t_0, leaving option for evaluation times not to include the initial time, but assert eval_times >= t_0.
-///       Dont need t_end since what is important is last evaluation time.
-///       But do need to enforce evaluation times are all greater than t_0.
-/// TODO: Need to do something to prevent large time steps from going past more than one evaluation time.
 impl Explicit for Ode23 {
     fn integrate<Y, U, const W: usize>(
         &self,
         function: impl Fn(&TensorRank0, &Y) -> Y,
-        _initial_time: TensorRank0,
+        initial_time: TensorRank0,
         initial_condition: Y,
         evaluation_times: &TensorRank0List<W>,
     ) -> Result<U, IntegrationError<W>>
@@ -82,45 +69,60 @@ impl Explicit for Ode23 {
         for<'a> &'a Y: std::ops::Mul<TensorRank0, Output = Y>,
         U: Tensors<Item = Y>,
     {
-        for check_times in evaluation_times.0.windows(2) {
-            if check_times[1] - check_times[0] <= 0.0 {
-                return Err(IntegrationError::EvaluationTimesNotStrictlyIncreasing(
-                    evaluation_times.copy(),
-                    format!("{:?}", &self),
-                ));
-            }
-        }
-        let mut error;
-        let mut error_norm;
-        let mut evaluation_time = evaluation_times.0.into_iter().peekable();
+        let mut dt;
+        let mut e;
+        let mut eval_times = evaluation_times.0.into_iter().peekable();
         let mut k_1;
         let mut k_2;
         let mut k_3;
         let mut k_4;
-        let mut time = evaluation_time.next().ok_or("not ok")?;
-        let mut dt = evaluation_time.peek().ok_or("not ok")? - time;
-        let mut solution = U::zero();
+        let mut t = initial_time;
+        let mut y = initial_condition.copy();
+        let mut y_solution = U::zero();
+        let mut y_trial;
         {
-            let mut solution_iter_mut = solution.iter_mut();
-            *solution_iter_mut.next().ok_or("not ok")? = initial_condition.copy();
-            let mut y = initial_condition;
-            let mut y_trial;
-            k_4 = function(&time, &y);
-            while let Some(next_evaluation_time) = evaluation_time.peek() {
+            for check_times in evaluation_times.0.windows(2) {
+                if check_times[1] - check_times[0] <= 0.0 {
+                    return Err(IntegrationError::EvaluationTimesNotStrictlyIncreasing(
+                        evaluation_times.copy(),
+                        format!("{:?}", &self),
+                    ));
+                }
+            }
+            let mut y_sol = y_solution.iter_mut();
+            if eval_times.next_if_eq(&initial_time).is_some() {
+                if W == 1 {
+                    return Err(IntegrationError::EvaluationTimesNoFinalTime(
+                        evaluation_times.copy(),
+                        format!("{:?}", &self),
+                    ));
+                } else {
+                    dt = eval_times.peek().ok_or("not ok")? - initial_time;
+                    *y_sol.next().ok_or("not ok")? = initial_condition;
+                }
+            } else if eval_times.peek().ok_or("not ok")? > &initial_time {
+                dt = eval_times.peek().ok_or("not ok")? - initial_time;
+            } else {
+                return Err(IntegrationError::EvaluationTimesPreceedInitialTime(
+                    evaluation_times.copy(),
+                    initial_time,
+                    format!("{:?}", &self),
+                ));
+            };
+            k_4 = function(&t, &y);
+            while eval_times.peek().is_some() {
                 k_1 = k_4;
-                k_2 = function(&(time + 0.5 * dt), &(&k_1 * (0.5 * dt) + &y));
-                k_3 = function(&(time + 0.75 * dt), &(&k_2 * (0.75 * dt) + &y));
+                k_2 = function(&(t + 0.5 * dt), &(&k_1 * (0.5 * dt) + &y));
+                k_3 = function(&(t + 0.75 * dt), &(&k_2 * (0.75 * dt) + &y));
                 y_trial = (&k_1 * 2.0 + &k_2 * 3.0 + &k_3 * 4.0) * (dt / 9.0) + &y;
-                k_4 = function(&(time + dt), &y_trial);
-                error = (k_1 * -5.0 + k_2 * 6.0 + k_3 * 8.0 + &k_4 * -9.0) * (dt / 72.0);
-                error_norm = error.norm();
-                if error_norm < self.abs_tol || error_norm / y_trial.norm() < self.rel_tol {
-                    if &time > next_evaluation_time {
-                        *solution_iter_mut.next().ok_or("not ok")? = (y_trial.copy() - &y) / dt
-                            * (evaluation_time.next().ok_or("not ok")? - time)
-                            + &y;
+                k_4 = function(&(t + dt), &y_trial);
+                e = ((k_1 * -5.0 + k_2 * 6.0 + k_3 * 8.0 + &k_4 * -9.0) * (dt / 72.0)).norm();
+                if e < self.abs_tol || e / y_trial.norm() < self.rel_tol {
+                    while let Some(eval_time) = eval_times.next_if(|&eval_time| t > eval_time) {
+                        *y_sol.next().ok_or("not ok")? =
+                            (y_trial.copy() - &y) / dt * (eval_time - t) + &y;
                     }
-                    time += dt;
+                    t += dt;
                     dt *= self.inc_fac;
                     y = y_trial;
                 } else {
@@ -128,6 +130,6 @@ impl Explicit for Ode23 {
                 }
             }
         }
-        Ok(solution)
+        Ok(y_solution)
     }
 }

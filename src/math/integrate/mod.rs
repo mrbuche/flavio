@@ -5,10 +5,9 @@ mod ode1be;
 mod ode23;
 mod ode45;
 
-pub use ode45::ode45;
-
 pub use ode1be::Ode1be;
 pub use ode23::Ode23;
+pub use ode45::Ode45;
 
 use super::{Tensor, TensorRank0, TensorRank0List, Tensors};
 use crate::get_defeat_message;
@@ -57,7 +56,9 @@ pub trait Implicit {
 
 /// Possible errors encountered when integrating.
 pub enum IntegrationError<const W: usize> {
+    EvaluationTimesNoFinalTime(TensorRank0List<W>, String),
     EvaluationTimesNotStrictlyIncreasing(TensorRank0List<W>, String),
+    EvaluationTimesPreceedInitialTime(TensorRank0List<W>, TensorRank0, String),
 }
 
 impl<const W: usize> From<&str> for IntegrationError<W> {
@@ -69,12 +70,29 @@ impl<const W: usize> From<&str> for IntegrationError<W> {
 impl<const W: usize> fmt::Debug for IntegrationError<W> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let error = match self {
+            Self::EvaluationTimesNoFinalTime(evaluation_times, integrator) => {
+                format!(
+                    "\x1b[1;91mEvaluation times must include a final time.\x1b[0;91m\n\
+                     From evaluation times: {}.\n\
+                     In integrator: {}.",
+                    evaluation_times, integrator
+                )
+            }
             Self::EvaluationTimesNotStrictlyIncreasing(evaluation_times, integrator) => {
                 format!(
                     "\x1b[1;91mEvaluation times must be strictly increasing.\x1b[0;91m\n\
                      From evaluation times: {}.\n\
                      In integrator: {}.",
                     evaluation_times, integrator
+                )
+            }
+            Self::EvaluationTimesPreceedInitialTime(evaluation_times, initial_time, integrator) => {
+                format!(
+                    "\x1b[1;91mEvaluation times preceed the initial time.\x1b[0;91m\n\
+                     From evaluation times: {}.\n\
+                     With initial time: {}.\n\
+                     In integrator: {}.",
+                    evaluation_times, initial_time, integrator
                 )
             }
         };
@@ -90,12 +108,29 @@ impl<const W: usize> fmt::Debug for IntegrationError<W> {
 impl<const W: usize> fmt::Display for IntegrationError<W> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let error = match self {
+            Self::EvaluationTimesNoFinalTime(evaluation_times, integrator) => {
+                format!(
+                    "\x1b[1;91mEvaluation times must include a final time.\x1b[0;91m\n\
+                     From evaluation times: {}.\n\
+                     In integrator: {}.",
+                    evaluation_times, integrator
+                )
+            }
             Self::EvaluationTimesNotStrictlyIncreasing(evaluation_times, integrator) => {
                 format!(
                     "\x1b[1;91mEvaluation times must be strictly increasing.\x1b[0;91m\n\
                      From evaluation times: {}.\n\
                      In integrator: {}.",
                     evaluation_times, integrator
+                )
+            }
+            Self::EvaluationTimesPreceedInitialTime(evaluation_times, initial_time, integrator) => {
+                format!(
+                    "\x1b[1;91mEvaluation times preceed the initial time.\x1b[0;91m\n\
+                     From evaluation times: {}.\n\
+                     With initial time: {}.\n\
+                     In integrator: {}.",
+                    evaluation_times, initial_time, integrator
                 )
             }
         };
