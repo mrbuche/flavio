@@ -41,6 +41,9 @@ impl<
         );
         array
     }
+    fn copy(&self) -> Self {
+        self.iter().map(|entry| entry.copy()).collect()
+    }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()
     }

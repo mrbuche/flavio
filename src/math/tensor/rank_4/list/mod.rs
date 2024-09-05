@@ -40,6 +40,9 @@ impl<
             .for_each(|(entry_rank_4, tensor_rank_4)| *entry_rank_4 = tensor_rank_4.as_array());
         array
     }
+    fn copy(&self) -> Self {
+        self.iter().map(|entry| entry.copy()).collect()
+    }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()
     }

@@ -25,6 +25,9 @@ impl<const D: usize, const I: usize, const W: usize, const X: usize> Tensors
             .for_each(|(entry, tensor_rank_1_list)| *entry = tensor_rank_1_list.as_array());
         array
     }
+    fn copy(&self) -> Self {
+        self.iter().map(|entry| entry.copy()).collect()
+    }
     fn iter(&self) -> impl Iterator<Item = &TensorRank1List<D, I, W>> {
         self.0.iter()
     }

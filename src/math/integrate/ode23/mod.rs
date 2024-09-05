@@ -36,9 +36,9 @@ use crate::{ABS_TOL, REL_TOL};
 pub struct Ode23 {
     /// Absolute error tolerance.
     pub abs_tol: TensorRank0,
-    /// Multiplying factor when decreasing timesteps.
+    /// Multiplying factor when decreasing time steps.
     pub dec_fac: TensorRank0,
-    /// Multiplying factor when increasing timesteps.
+    /// Multiplying factor when increasing time steps.
     pub inc_fac: TensorRank0,
     /// Relative error tolerance.
     pub rel_tol: TensorRank0,
@@ -68,7 +68,7 @@ impl Default for Ode23 {
 ///       Dont need t_end since what is important is last evaluation time.
 ///       But do need to enforce evaluation times are all greater than t_0.
 ///       And also that they are monotonic.
-/// TODO: Need to do something to prevent large timesteps from going past more than one evaluation time.
+/// TODO: Need to do something to prevent large time steps from going past more than one evaluation time.
 impl Explicit for Ode23 {
     fn integrate<Y, U, const W: usize>(
         &self,
@@ -76,12 +76,19 @@ impl Explicit for Ode23 {
         _initial_time: TensorRank0,
         initial_condition: Y,
         evaluation_times: &TensorRank0List<W>,
-    ) -> Result<U, IntegrationError>
+    ) -> Result<U, IntegrationError<W>>
     where
         Y: Tensor,
         for<'a> &'a Y: std::ops::Mul<TensorRank0, Output = Y>,
         U: Tensors<Item = Y>,
     {
+        for check_times in evaluation_times.0.windows(2) {
+            if check_times[1] - check_times[0] <= 0.0 {
+                return Err(IntegrationError::EvaluationTimesNotStrictlyIncreasing(
+                    evaluation_times.copy(),
+                ));
+            }
+        }
         let mut error;
         let mut error_norm;
         let mut evaluation_time = evaluation_times.0.into_iter().peekable();
@@ -90,7 +97,7 @@ impl Explicit for Ode23 {
         let mut k_3;
         let mut k_4;
         let mut time = evaluation_time.next().ok_or("not ok")?;
-        let mut timestep = evaluation_time.peek().ok_or("not ok")? - time;
+        let mut dt = evaluation_time.peek().ok_or("not ok")? - time;
         let mut solution = U::zero();
         {
             let mut solution_iter_mut = solution.iter_mut();
@@ -100,24 +107,23 @@ impl Explicit for Ode23 {
             k_4 = function(&time, &y);
             while let Some(next_evaluation_time) = evaluation_time.peek() {
                 k_1 = k_4;
-                k_2 = function(&(time + 0.5 * timestep), &(&k_1 * (0.5 * timestep) + &y));
-                k_3 = function(&(time + 0.75 * timestep), &(&k_2 * (0.75 * timestep) + &y));
-                y_trial = (&k_1 * 2.0 + &k_2 * 3.0 + &k_3 * 4.0) * (timestep / 9.0) + &y;
-                k_4 = function(&(time + timestep), &y_trial);
-                error = (k_1 * -5.0 + k_2 * 6.0 + k_3 * 8.0 + &k_4 * -9.0) * (timestep / 72.0);
+                k_2 = function(&(time + 0.5 * dt), &(&k_1 * (0.5 * dt) + &y));
+                k_3 = function(&(time + 0.75 * dt), &(&k_2 * (0.75 * dt) + &y));
+                y_trial = (&k_1 * 2.0 + &k_2 * 3.0 + &k_3 * 4.0) * (dt / 9.0) + &y;
+                k_4 = function(&(time + dt), &y_trial);
+                error = (k_1 * -5.0 + k_2 * 6.0 + k_3 * 8.0 + &k_4 * -9.0) * (dt / 72.0);
                 error_norm = error.norm();
                 if error_norm < self.abs_tol || error_norm / y_trial.norm() < self.rel_tol {
                     if &time > next_evaluation_time {
-                        *solution_iter_mut.next().ok_or("not ok")? = (y_trial.copy() - &y)
-                            / timestep
+                        *solution_iter_mut.next().ok_or("not ok")? = (y_trial.copy() - &y) / dt
                             * (evaluation_time.next().ok_or("not ok")? - time)
                             + &y;
                     }
-                    time += timestep;
-                    timestep *= self.inc_fac;
+                    time += dt;
+                    dt *= self.inc_fac;
                     y = y_trial;
                 } else {
-                    timestep *= self.dec_fac;
+                    dt *= self.dec_fac;
                 }
             }
         }

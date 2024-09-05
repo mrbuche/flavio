@@ -63,6 +63,10 @@ pub trait Tensors {
     type Item;
     /// Returns the list of tensors as an array.
     fn as_array(&self) -> Self::Array;
+    /// Returns a copy.
+    ///
+    /// This method was implemented instead of the Copy trait to avoid unintended copy creations.
+    fn copy(&self) -> Self;
     /// Returns an iterator.
     ///
     /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)

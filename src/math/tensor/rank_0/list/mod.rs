@@ -1,14 +1,46 @@
 #[cfg(test)]
 mod test;
 
-use std::ops::{Index, IndexMut, Mul, MulAssign};
-
-use super::{super::Tensors, TensorRank0};
+use super::{super::Tensors, Tensor, TensorRank0};
+use std::{
+    fmt,
+    ops::{Index, IndexMut, Mul, MulAssign},
+};
 
 /// A list of tensors of rank 0 (a list of scalars).
 ///
 /// `W` is the list length.
+#[derive(Debug)]
 pub struct TensorRank0List<const W: usize>(pub [TensorRank0; W]);
+
+/// Display implementation for rank-0 lists.
+impl<const W: usize> fmt::Display for TensorRank0List<W> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "\x1B[s")?;
+        write!(f, "[")?;
+        self.0.chunks(5).enumerate().for_each(|(i, chunk)| {
+            chunk
+                .iter()
+                .for_each(|entry| write!(f, "{:>11.6e}, ", entry).unwrap());
+            if (i + 1) * 5 < W {
+                writeln!(f, "\x1B[2D,").unwrap();
+                write!(f, "\x1B[u").unwrap();
+                write!(f, "\x1B[{}B ", i + 1).unwrap();
+            }
+        });
+        // self.iter().enumerate().for_each(|(i, row)| {
+        //     row.iter()
+        //         .for_each(|entry| write!(f, "{:>11.6e}, ", entry).unwrap());
+        //     if i + 1 < D {
+        //         writeln!(f, "\x1B[2D],").unwrap();
+        //         write!(f, "\x1B[u").unwrap();
+        //         write!(f, "\x1B[{}B[ ", i + 1).unwrap();
+        //     }
+        // });
+        write!(f, "\x1B[2D]")?;
+        Ok(())
+    }
+}
 
 /// Implementation of [`Tensors`] for [`TensorRank0List`].
 impl<const W: usize> Tensors for TensorRank0List<W> {
@@ -16,6 +48,9 @@ impl<const W: usize> Tensors for TensorRank0List<W> {
     type Item = TensorRank0;
     fn as_array(&self) -> Self::Array {
         self.0
+    }
+    fn copy(&self) -> Self {
+        self.iter().map(|entry| entry.copy()).collect()
     }
     fn iter(&self) -> impl Iterator<Item = &TensorRank0> {
         self.0.iter()

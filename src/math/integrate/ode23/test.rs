@@ -11,6 +11,23 @@ const LENGTH: usize = 33;
 const TOLERANCE: TensorRank0 = 1e-5;
 
 #[test]
+#[should_panic(expected = "Evaluation times must be strictly increasing.")]
+fn evaluation_times_not_strictly_increasing() {
+    let mut evaluation_times = zero_to_tau::<LENGTH>();
+    evaluation_times[3] = evaluation_times[2];
+    let _: TensorRank0List<LENGTH> = Ode23 {
+        ..Default::default()
+    }
+    .integrate(
+        |t: &TensorRank0, _: &TensorRank0| t.cos(),
+        0.0,
+        0.0,
+        &evaluation_times,
+    )
+    .expect("the unexpected");
+}
+
+#[test]
 fn first_order_tensor_rank_0() {
     let evaluation_times = zero_to_tau::<LENGTH>();
     let solution: TensorRank0List<LENGTH> = Ode23 {

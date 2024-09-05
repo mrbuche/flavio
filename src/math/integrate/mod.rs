@@ -27,7 +27,7 @@ pub trait Explicit {
         initial_time: TensorRank0,
         initial_condition: Y,
         evaluation_times: &TensorRank0List<W>,
-    ) -> Result<U, IntegrationError>
+    ) -> Result<U, IntegrationError<W>>
     where
         Y: Tensor,
         for<'a> &'a Y: std::ops::Mul<TensorRank0, Output = Y>,
@@ -48,7 +48,7 @@ pub trait Implicit {
         initial_time: TensorRank0,
         initial_condition: Y,
         evaluation_times: &TensorRank0List<W>,
-    ) -> Result<U, IntegrationError>
+    ) -> Result<U, IntegrationError<W>>
     where
         Y: Tensor,
         for<'a> &'a Y: std::ops::Mul<TensorRank0, Output = Y>,
@@ -56,40 +56,52 @@ pub trait Implicit {
 }
 
 /// Possible errors encountered when integrating.
-pub enum IntegrationError {
-    GeneralError,
+pub enum IntegrationError<const W: usize> {
+    EvaluationTimesNotStrictlyIncreasing(TensorRank0List<W>),
 }
 
-impl fmt::Debug for IntegrationError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let error = match self {
-            Self::GeneralError => "\x1b[1;91m???.\x1b[0;91m".to_string(),
-        };
-        write!(
-            f,
-            "\n{}\n\x1b[0;2;31m{}\x1b[0m\n",
-            error,
-            get_defeat_message()
-        )
-    }
-}
-
-impl fmt::Display for IntegrationError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let error = match self {
-            Self::GeneralError => "\x1b[1;91m???.\x1b[0;91m".to_string(),
-        };
-        write!(
-            f,
-            "\n{}\n\x1b[0;2;31m{}\x1b[0m\n",
-            error,
-            get_defeat_message()
-        )
-    }
-}
-
-impl From<&str> for IntegrationError {
+impl<const W: usize> From<&str> for IntegrationError<W> {
     fn from(string: &str) -> Self {
         todo!("{}", string)
+    }
+}
+
+impl<const W: usize> fmt::Debug for IntegrationError<W> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let error = match self {
+            Self::EvaluationTimesNotStrictlyIncreasing(evaluation_times) => {
+                format!(
+                    "\x1b[1;91mEvaluation times must be strictly increasing.\x1b[0;91m\n\
+                     From evaluation times: {}.",
+                    evaluation_times
+                )
+            } // print them on next line without bold
+        };
+        write!(
+            f,
+            "\n{}\n\x1b[0;2;31m{}\x1b[0m\n",
+            error,
+            get_defeat_message()
+        )
+    }
+}
+
+impl<const W: usize> fmt::Display for IntegrationError<W> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let error = match self {
+            Self::EvaluationTimesNotStrictlyIncreasing(evaluation_times) => {
+                format!(
+                    "\x1b[1;91mEvaluation times must be strictly increasing.\x1b[0;91m\n\
+                     From evaluation times: {}.",
+                    evaluation_times
+                )
+            }
+        };
+        write!(
+            f,
+            "\n{}\n\x1b[0;2;31m{}\x1b[0m\n",
+            error,
+            get_defeat_message()
+        )
     }
 }

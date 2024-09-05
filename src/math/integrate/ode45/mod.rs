@@ -14,7 +14,7 @@ pub fn ode45<const W: usize, T, U>(
     _function: impl Fn(&TensorRank0, &T) -> T,
     _evaluation_times: &TensorRank0List<W>,
     _y_0: T,
-) -> Result<U, IntegrationError>
+) -> Result<U, IntegrationError<W>>
 where
     T: Tensor,
     for<'a> &'a T: std::ops::Mul<TensorRank0, Output = T>,

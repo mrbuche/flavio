@@ -30,6 +30,9 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: us
             .for_each(|(entry_rank_3, tensor_rank_3)| *entry_rank_3 = tensor_rank_3.as_array());
         array
     }
+    fn copy(&self) -> Self {
+        self.iter().map(|entry| entry.copy()).collect()
+    }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()
     }
