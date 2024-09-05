@@ -33,6 +33,7 @@ use crate::{ABS_TOL, REL_TOL};
 /// ```math
 /// e_{n+1} = \frac{h}{72}\left(-5k_1 + 6k_2 + 8k_3 - 9k_4\right)
 /// ```
+#[derive(Debug)]
 pub struct Ode23 {
     /// Absolute error tolerance.
     pub abs_tol: TensorRank0,
@@ -67,7 +68,6 @@ impl Default for Ode23 {
 /// TODO: Should start time using t_0, leaving option for evaluation times not to include the initial time, but assert eval_times >= t_0.
 ///       Dont need t_end since what is important is last evaluation time.
 ///       But do need to enforce evaluation times are all greater than t_0.
-///       And also that they are monotonic.
 /// TODO: Need to do something to prevent large time steps from going past more than one evaluation time.
 impl Explicit for Ode23 {
     fn integrate<Y, U, const W: usize>(
@@ -86,6 +86,7 @@ impl Explicit for Ode23 {
             if check_times[1] - check_times[0] <= 0.0 {
                 return Err(IntegrationError::EvaluationTimesNotStrictlyIncreasing(
                     evaluation_times.copy(),
+                    format!("{:?}", &self),
                 ));
             }
         }

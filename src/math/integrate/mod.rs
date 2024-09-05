@@ -57,7 +57,7 @@ pub trait Implicit {
 
 /// Possible errors encountered when integrating.
 pub enum IntegrationError<const W: usize> {
-    EvaluationTimesNotStrictlyIncreasing(TensorRank0List<W>),
+    EvaluationTimesNotStrictlyIncreasing(TensorRank0List<W>, String),
 }
 
 impl<const W: usize> From<&str> for IntegrationError<W> {
@@ -69,13 +69,14 @@ impl<const W: usize> From<&str> for IntegrationError<W> {
 impl<const W: usize> fmt::Debug for IntegrationError<W> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let error = match self {
-            Self::EvaluationTimesNotStrictlyIncreasing(evaluation_times) => {
+            Self::EvaluationTimesNotStrictlyIncreasing(evaluation_times, integrator) => {
                 format!(
                     "\x1b[1;91mEvaluation times must be strictly increasing.\x1b[0;91m\n\
-                     From evaluation times: {}.",
-                    evaluation_times
+                     From evaluation times: {}.\n\
+                     In integrator: {}.",
+                    evaluation_times, integrator
                 )
-            } // print them on next line without bold
+            }
         };
         write!(
             f,
@@ -89,11 +90,12 @@ impl<const W: usize> fmt::Debug for IntegrationError<W> {
 impl<const W: usize> fmt::Display for IntegrationError<W> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let error = match self {
-            Self::EvaluationTimesNotStrictlyIncreasing(evaluation_times) => {
+            Self::EvaluationTimesNotStrictlyIncreasing(evaluation_times, integrator) => {
                 format!(
                     "\x1b[1;91mEvaluation times must be strictly increasing.\x1b[0;91m\n\
-                     From evaluation times: {}.",
-                    evaluation_times
+                     From evaluation times: {}.\n\
+                     In integrator: {}.",
+                    evaluation_times, integrator
                 )
             }
         };

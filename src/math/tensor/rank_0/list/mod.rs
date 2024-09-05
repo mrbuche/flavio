@@ -1,7 +1,10 @@
 #[cfg(test)]
 mod test;
 
-use super::{super::Tensors, Tensor, TensorRank0};
+use super::{
+    super::{super::write_tensor_rank_0, Tensors},
+    Tensor, TensorRank0,
+};
 use std::{
     fmt,
     ops::{Index, IndexMut, Mul, MulAssign},
@@ -21,7 +24,7 @@ impl<const W: usize> fmt::Display for TensorRank0List<W> {
         self.0.chunks(5).enumerate().for_each(|(i, chunk)| {
             chunk
                 .iter()
-                .for_each(|entry| write!(f, "{:>11.6e}, ", entry).unwrap());
+                .for_each(|entry| write_tensor_rank_0(f, entry).unwrap());
             if (i + 1) * 5 < W {
                 writeln!(f, "\x1B[2D,").unwrap();
                 write!(f, "\x1B[u").unwrap();

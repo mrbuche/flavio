@@ -35,3 +35,56 @@ pub use tensor::{
     },
     Convert, Tensor, Tensors,
 };
+
+use std::fmt;
+
+pub fn write_tensor_rank_0(f: &mut fmt::Formatter, tensor_rank_0: &TensorRank0) -> fmt::Result {
+    let num_abs = tensor_rank_0.abs();
+    if tensor_rank_0 == &0.0 {
+        let temp_1 = format!("{:>11.6e}, ", tensor_rank_0).to_string();
+        let mut temp_2 = temp_1.split("e");
+        let a = temp_2.next().unwrap();
+        let b = temp_2.next().unwrap();
+        write!(f, "{}e+00{}", a, b)
+    } else if num_abs <= 1e-100 {
+        write!(f, "{:>14.6e}, ", tensor_rank_0)
+    } else if num_abs >= 1e100 {
+        let temp_1 = format!("{:>13.6e}, ", tensor_rank_0).to_string();
+        let mut temp_2 = temp_1.split("e");
+        let a = temp_2.next().unwrap();
+        let b = temp_2.next().unwrap();
+        write!(f, "{}e+{}", a, b)
+    } else if num_abs <= 1e-10 {
+        let temp_1 = format!("{:>13.6e}, ", tensor_rank_0).to_string();
+        let mut temp_2 = temp_1.split("e");
+        let a = temp_2.next().unwrap();
+        let b = temp_2.next().unwrap();
+        let mut c = b.split("-");
+        c.next();
+        let e = c.next().unwrap();
+        write!(f, "{}e-0{}", a, e)
+    } else if num_abs >= 1e10 {
+        let temp_1 = format!("{:>12.6e}, ", tensor_rank_0).to_string();
+        let mut temp_2 = temp_1.split("e");
+        let a = temp_2.next().unwrap();
+        let b = temp_2.next().unwrap();
+        write!(f, "{}e+0{}", a, b)
+    } else if num_abs <= 1e0 {
+        let temp_1 = format!("{:>12.6e}, ", tensor_rank_0).to_string();
+        let mut temp_2 = temp_1.split("e");
+        let a = temp_2.next().unwrap();
+        let b = temp_2.next().unwrap();
+        let mut c = b.split("-");
+        c.next();
+        let e = c.next().unwrap();
+        write!(f, "{}e-00{}", a, e)
+    } else if num_abs <= 1e10 {
+        let temp_1 = format!("{:>11.6e}, ", tensor_rank_0).to_string();
+        let mut temp_2 = temp_1.split("e");
+        let a = temp_2.next().unwrap();
+        let b = temp_2.next().unwrap();
+        write!(f, "{}e+00{}", a, b)
+    } else {
+        panic!()
+    }
+}

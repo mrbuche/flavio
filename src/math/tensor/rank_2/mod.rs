@@ -11,10 +11,13 @@ use std::{
 };
 
 use super::{
+    // super::write_tensor_rank_0,
     rank_0::TensorRank0,
     rank_1::{list::TensorRank1List, TensorRank1},
     rank_4::TensorRank4,
-    Convert, Tensor, Tensors,
+    Convert,
+    Tensor,
+    Tensors,
 };
 use list_2d::TensorRank2List2D;
 use std::fmt;
