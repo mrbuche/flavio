@@ -25,6 +25,7 @@ macro_rules! test_thermoelastic_thermal_conduction_constitutive_model
                     test::FOURIERPARAMETERS
                 }
             },
+            math::Tensor,
             mechanics::test::
             {
                 get_deformation_gradient,

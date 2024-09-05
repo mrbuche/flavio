@@ -10,7 +10,7 @@ macro_rules! test_hybrid_elastic_constitutive_models {
                 },
                 Constitutive,
             },
-            math::TensorRank2Trait,
+            math::Tensor,
             mechanics::{
                 CauchyTangentStiffness, DeformationGradient, FirstPiolaKirchoffTangentStiffness,
                 SecondPiolaKirchoffTangentStiffness,
@@ -66,7 +66,7 @@ macro_rules! test_hybrid_elastic_constitutive_models_no_tangents {
                 },
                 Constitutive,
             },
-            math::TensorRank2Trait,
+            math::Tensor,
             mechanics::DeformationGradient,
         };
         mod hybrid_1 {

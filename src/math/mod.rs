@@ -40,7 +40,7 @@ use std::fmt;
 
 pub fn write_tensor_rank_0(f: &mut fmt::Formatter, tensor_rank_0: &TensorRank0) -> fmt::Result {
     let num_abs = tensor_rank_0.abs();
-    if tensor_rank_0 == &0.0 {
+    if tensor_rank_0 == &0.0 || num_abs == 1.0 {
         let temp_1 = format!("{:>11.6e}, ", tensor_rank_0).to_string();
         let mut temp_2 = temp_1.split("e");
         let a = temp_2.next().unwrap();

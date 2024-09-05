@@ -11,13 +11,11 @@ use std::{
 };
 
 use super::{
-    // super::write_tensor_rank_0,
+    super::write_tensor_rank_0,
     rank_0::TensorRank0,
     rank_1::{list::TensorRank1List, TensorRank1},
     rank_4::TensorRank4,
-    Convert,
-    Tensor,
-    Tensors,
+    Convert, Tensor, Tensors,
 };
 use list_2d::TensorRank2List2D;
 use std::fmt;
@@ -35,7 +33,7 @@ impl<const D: usize, const I: usize, const J: usize> fmt::Display for TensorRank
         write!(f, "[[")?;
         self.iter().enumerate().for_each(|(i, row)| {
             row.iter()
-                .for_each(|entry| write!(f, "{:>11.6e}, ", entry).unwrap());
+                .for_each(|entry| write_tensor_rank_0(f, entry).unwrap());
             if i + 1 < D {
                 writeln!(f, "\x1B[2D],").unwrap();
                 write!(f, "\x1B[u").unwrap();

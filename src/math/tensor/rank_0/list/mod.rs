@@ -31,15 +31,6 @@ impl<const W: usize> fmt::Display for TensorRank0List<W> {
                 write!(f, "\x1B[{}B ", i + 1).unwrap();
             }
         });
-        // self.iter().enumerate().for_each(|(i, row)| {
-        //     row.iter()
-        //         .for_each(|entry| write!(f, "{:>11.6e}, ", entry).unwrap());
-        //     if i + 1 < D {
-        //         writeln!(f, "\x1B[2D],").unwrap();
-        //         write!(f, "\x1B[u").unwrap();
-        //         write!(f, "\x1B[{}B[ ", i + 1).unwrap();
-        //     }
-        // });
         write!(f, "\x1B[2D]")?;
         Ok(())
     }
