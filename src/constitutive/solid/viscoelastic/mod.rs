@@ -130,6 +130,7 @@ where
             )
             * deformation_gradient.determinant())
     }
+    /// ???
     fn solve_uniaxial<const W: usize>(
         &self,
         deformation_gradient_rate_11: impl Fn(Scalar) -> Scalar,
@@ -137,28 +138,23 @@ where
     ) -> Result<(DeformationGradients<W>, CauchyStresses<W>), ConstitutiveError> {
         let mut cauchy_stresses = CauchyStresses::<W>::zero();
         let mut deformation_gradients = DeformationGradients::<W>::identity();
-        let timesteps = evaluation_times.windows(2).map(|time| time[1] - time[0]);
-        for ((index, timestep), time) in timesteps.enumerate().zip(evaluation_times.into_iter()) {
+        let time_steps = evaluation_times.windows(2).map(|time| time[1] - time[0]);
+        for ((index, time_step), time) in time_steps.enumerate().zip(evaluation_times.into_iter()) {
             (deformation_gradients[index + 1], cauchy_stresses[index + 1]) = self
                 .solve_uniaxial_inner(
                     &deformation_gradients[index],
                     deformation_gradient_rate_11(time),
-                    timestep,
+                    time_step,
                 )?;
         }
         Ok((deformation_gradients, cauchy_stresses))
-        // use adaptive timestepping
-        //   cut back if error estimate (next order term) is not small enough
-        //   or if an error comes back a function
-        //   and find decent criterion for timestep growth
-        // interpolate for desired evaluation times
     }
     #[doc(hidden)]
     fn solve_uniaxial_inner(
         &self,
         deformation_gradient_previous: &DeformationGradient,
         deformation_gradient_rate_11: Scalar,
-        timestep: Scalar,
+        time_step: Scalar,
     ) -> Result<(DeformationGradient, CauchyStress), ConstitutiveError> {
         let mut cauchy_stress = ZERO;
         let mut deformation_gradient = IDENTITY_10;
@@ -178,13 +174,13 @@ where
                 )?;
                 residual = deformation_gradient.copy()
                     - deformation_gradient_previous
-                    - &deformation_gradient_rate * timestep;
+                    - &deformation_gradient_rate * time_step;
                 residual_abs = residual.norm();
                 tangent = IDENTITY_1010
                     - TensorRank4::dyad_ik_jl(
                         &(&deformation_gradient_rate * deformation_gradient.inverse()),
                         &IDENTITY_00,
-                    ) * timestep;
+                    ) * time_step;
                 steps += 1;
             }
         }
