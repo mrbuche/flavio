@@ -161,7 +161,7 @@ where
         let mut deformation_gradient_rate;
         let mut residual = ZERO_10;
         let mut residual_abs = 1.0;
-        let mut steps: usize = 0;
+        let mut steps = 0;
         let mut tangent = IDENTITY_1010;
         while residual_abs >= ABS_TOL {
             if steps > MAXIMUM_STEPS {
@@ -201,7 +201,7 @@ where
         let mut residual = 0.0;
         let mut residual_abs = 1.0;
         let mut residual_rel = 1.0;
-        let mut steps: usize = 0;
+        let mut steps = 0;
         while residual_abs >= ABS_TOL && residual_rel >= REL_TOL {
             if steps > MAXIMUM_STEPS {
                 return Err(ConstitutiveError::SolveError);
