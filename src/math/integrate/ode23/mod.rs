@@ -103,7 +103,7 @@ impl Explicit for Ode23 {
             } else if eval_times.peek().ok_or("not ok")? > &initial_time {
                 dt = eval_times.peek().ok_or("not ok")? - initial_time;
             } else {
-                return Err(IntegrationError::EvaluationTimesPreceedInitialTime(
+                return Err(IntegrationError::EvaluationTimesPrecedeInitialTime(
                     evaluation_times.copy(),
                     initial_time,
                     format!("{:?}", &self),

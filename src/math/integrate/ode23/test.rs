@@ -27,8 +27,8 @@ fn evaluation_times_not_strictly_increasing() {
 }
 
 #[test]
-#[should_panic(expected = "Evaluation times preceed the initial time.")]
-fn evaluation_times_preceed_initial_time() {
+#[should_panic(expected = "Evaluation times precede the initial time.")]
+fn evaluation_times_precede_initial_time() {
     let mut evaluation_times = zero_to_tau::<LENGTH>();
     evaluation_times[0] = -1.0;
     let _: TensorRank0List<LENGTH> = Ode23 {

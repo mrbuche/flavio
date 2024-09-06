@@ -58,7 +58,7 @@ pub trait Implicit {
 pub enum IntegrationError<const W: usize> {
     EvaluationTimesNoFinalTime(TensorRank0List<W>, String),
     EvaluationTimesNotStrictlyIncreasing(TensorRank0List<W>, String),
-    EvaluationTimesPreceedInitialTime(TensorRank0List<W>, TensorRank0, String),
+    EvaluationTimesPrecedeInitialTime(TensorRank0List<W>, TensorRank0, String),
 }
 
 impl<const W: usize> From<&str> for IntegrationError<W> {
@@ -86,9 +86,9 @@ impl<const W: usize> fmt::Debug for IntegrationError<W> {
                     evaluation_times, integrator
                 )
             }
-            Self::EvaluationTimesPreceedInitialTime(evaluation_times, initial_time, integrator) => {
+            Self::EvaluationTimesPrecedeInitialTime(evaluation_times, initial_time, integrator) => {
                 format!(
-                    "\x1b[1;91mEvaluation times preceed the initial time.\x1b[0;91m\n\
+                    "\x1b[1;91mEvaluation times precede the initial time.\x1b[0;91m\n\
                      From evaluation times: {}.\n\
                      With initial time: {}.\n\
                      In integrator: {}.",
@@ -124,9 +124,9 @@ impl<const W: usize> fmt::Display for IntegrationError<W> {
                     evaluation_times, integrator
                 )
             }
-            Self::EvaluationTimesPreceedInitialTime(evaluation_times, initial_time, integrator) => {
+            Self::EvaluationTimesPrecedeInitialTime(evaluation_times, initial_time, integrator) => {
                 format!(
-                    "\x1b[1;91mEvaluation times preceed the initial time.\x1b[0;91m\n\
+                    "\x1b[1;91mEvaluation times precede the initial time.\x1b[0;91m\n\
                      From evaluation times: {}.\n\
                      With initial time: {}.\n\
                      In integrator: {}.",
