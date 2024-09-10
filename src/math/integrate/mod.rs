@@ -26,6 +26,21 @@ where
     Y: Tensor,
     U: Tensors<Item = Y>,
 {
+    /// ???
+    fn decide(&self, error: Y, eval_times: &EvalTimes<W>, y_trial: Y) {
+        if error_norm < self.abs_tol || error_norm / y_trial.norm() < self.rel_tol {
+            while let Some(eval_time) = eval_times.next_if(|&eval_time| t > eval_time) {
+                *y_sol.next().ok_or("not ok")? = (&y_trial - &y) / dt * (eval_time - t) + &y;
+            }
+            k_1 = k_2;
+            t += dt;
+            dt *= self.inc_fac;
+            y = y_trial;
+        } else {
+            dt *= self.dec_fac;
+        }
+    }
+    /// ???
     fn setup<'a>(
         &'a self,
         initial_time: TensorRank0,
