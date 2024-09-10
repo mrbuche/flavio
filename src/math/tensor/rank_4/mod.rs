@@ -106,6 +106,9 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
             .map(|entry_rank_3| entry_rank_3.copy())
             .collect()
     }
+    fn identity() -> Self {
+        Self::dyad_ij_kl(&TensorRank2::identity(), &TensorRank2::identity())
+    }
     fn is_zero(&self) -> bool {
         self.iter()
             .map(|entry_rank_3| {

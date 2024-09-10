@@ -339,6 +339,16 @@ fn sub_tensor_rank_1_to_self_ref() {
 }
 
 #[test]
+fn sub_tensor_rank_1_ref_to_self_ref() {
+    (&get_tensor_rank_1() - &get_tensor_rank_1_a())
+        .iter()
+        .zip(get_tensor_rank_1_sub_tensor_rank_1_a().iter())
+        .for_each(|(tensor_rank_1_i, sub_tensor_rank_1_i)| {
+            assert_eq!(tensor_rank_1_i, sub_tensor_rank_1_i)
+        });
+}
+
+#[test]
 fn sub_assign_tensor_rank_1() {
     let mut tensor_rank_1 = get_tensor_rank_1();
     tensor_rank_1 -= get_tensor_rank_1_a();

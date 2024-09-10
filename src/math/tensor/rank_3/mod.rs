@@ -47,6 +47,9 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize> Tensor
             .map(|entry_rank_2| entry_rank_2.copy())
             .collect()
     }
+    fn identity() -> Self {
+        panic!()
+    }
     fn is_zero(&self) -> bool {
         self.iter()
             .map(|entry_rank_2| {

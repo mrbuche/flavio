@@ -40,6 +40,9 @@ impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
     }
+    fn identity() -> Self {
+        panic!()
+    }
     fn is_zero(&self) -> bool {
         self.iter().map(|entry| (entry == &0.0) as u8).sum::<u8>() == (D as u8)
     }
@@ -267,6 +270,17 @@ impl<const D: usize, const I: usize> Sub<TensorRank1<D, I>> for &TensorRank1<D, 
             .zip(self.iter())
             .for_each(|(tensor_rank_1_i, self_i)| *tensor_rank_1_i = self_i - *tensor_rank_1_i);
         tensor_rank_1
+    }
+}
+
+impl<const D: usize, const I: usize> Sub<Self> for &TensorRank1<D, I> {
+    type Output = TensorRank1<D, I>;
+    fn sub(self, tensor_rank_1: Self) -> Self::Output {
+        tensor_rank_1
+            .iter()
+            .zip(self.iter())
+            .map(|(tensor_rank_1_i, self_i)| self_i - *tensor_rank_1_i)
+            .collect()
     }
 }
 

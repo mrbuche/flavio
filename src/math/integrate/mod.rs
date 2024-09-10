@@ -11,7 +11,11 @@ pub use ode45::Ode45;
 
 use super::{Tensor, TensorRank0, TensorRank0List, Tensors};
 use crate::get_defeat_message;
-use std::{fmt, iter::Peekable};
+use std::{
+    fmt,
+    iter::Peekable,
+    ops::{Div, Mul, Sub},
+};
 
 type EvalTimes<const W: usize> = Peekable<std::array::IntoIter<TensorRank0, W>>;
 
@@ -77,11 +81,19 @@ where
     }
 }
 
+impl<A, Y, U, const W: usize> OdeSolver<Y, U, W> for A
+where
+    A: std::fmt::Debug,
+    Y: Tensor,
+    U: Tensors<Item = Y>,
+{
+}
+
 /// Base trait for explicit ordinary different equation solvers.
 pub trait Explicit<Y, U, const W: usize>: OdeSolver<Y, U, W>
 where
     Y: Tensor,
-    for<'a> &'a Y: std::ops::Mul<TensorRank0, Output = Y>,
+    for<'a> &'a Y: Mul<TensorRank0, Output = Y> + Sub<&'a Y, Output = Y>,
     U: Tensors<Item = Y>,
 {
     /// Solves an initial value problem by explicitly integrating a system of ordinary different equations.
@@ -101,8 +113,9 @@ where
 /// Base trait for implicit ordinary different equation solvers.
 pub trait Implicit<Y, J, U, const W: usize>: OdeSolver<Y, U, W>
 where
-    Y: Tensor,
-    for<'a> &'a Y: std::ops::Mul<TensorRank0, Output = Y>,
+    Y: Tensor + Div<J, Output = Y>,
+    for<'a> &'a Y: Mul<TensorRank0, Output = Y> + Sub<&'a Y, Output = Y>,
+    J: Tensor,
     U: Tensors<Item = Y>,
 {
     /// Solves an initial value problem by implicitly integrating a system of ordinary different equations.

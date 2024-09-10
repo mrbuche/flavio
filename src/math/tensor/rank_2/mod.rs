@@ -117,12 +117,6 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2<D, I, J> {
             })
             .sum()
     }
-    /// Returns the rank-2 identity tensor.
-    pub fn identity() -> Self {
-        (0..D)
-            .map(|i| (0..D).map(|j| ((i == j) as u8) as TensorRank0).collect())
-            .collect()
-    }
     /// Returns the inverse of the rank-2 tensor.
     pub fn inverse(&self) -> TensorRank2<D, J, I> {
         if D == 2 {
@@ -518,6 +512,11 @@ impl<const D: usize, const I: usize, const J: usize> Tensor for TensorRank2<D, I
     }
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
+    }
+    fn identity() -> Self {
+        (0..D)
+            .map(|i| (0..D).map(|j| ((i == j) as u8) as TensorRank0).collect())
+            .collect()
     }
     fn is_zero(&self) -> bool {
         self.iter()

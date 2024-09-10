@@ -5,7 +5,7 @@ pub mod rank_3;
 pub mod rank_4;
 
 use rank_0::TensorRank0;
-use std::ops::{Add, Div, Mul, Sub};
+use std::ops::{Add, AddAssign, Div, Mul, Sub};
 
 /// A value-to-value conversion that does not consume the input value.
 ///
@@ -20,8 +20,10 @@ pub trait Tensor
 where
     for<'a> Self: Add<Self, Output = Self>
         + Add<&'a Self, Output = Self>
+        + AddAssign
         + Div<TensorRank0, Output = Self>
         + Mul<TensorRank0, Output = Self>
+        + Sub<Self, Output = Self>
         + Sub<&'a Self, Output = Self>
         + Sized,
 {
@@ -33,6 +35,8 @@ where
     ///
     /// This method was implemented instead of the Copy trait to avoid unintended copy creations.
     fn copy(&self) -> Self;
+    /// Returns the identity tensor.
+    fn identity() -> Self;
     /// Checks whether the tensor is the zero tensor.
     fn is_zero(&self) -> bool;
     /// Returns an iterator.
