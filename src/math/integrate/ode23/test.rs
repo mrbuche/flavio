@@ -59,8 +59,8 @@ fn evaluation_times_no_final_time() {
 }
 
 #[test]
-fn first_order_tensor_rank_0_one_evaluation_time_after_initial_time() {
-    let evaluation_times = TensorRank0List::new([1.0]);
+fn first_order_tensor_rank_0() {
+    let evaluation_times = zero_to_tau::<LENGTH>();
     let solution: TensorRank0List<LENGTH> = Ode23 {
         ..Default::default()
     }
@@ -80,8 +80,8 @@ fn first_order_tensor_rank_0_one_evaluation_time_after_initial_time() {
 }
 
 #[test]
-fn first_order_tensor_rank_0() {
-    let evaluation_times = zero_to_tau::<LENGTH>();
+fn first_order_tensor_rank_0_one_evaluation_time_after_initial_time() {
+    let evaluation_times = TensorRank0List::new([1.0]);
     let solution: TensorRank0List<LENGTH> = Ode23 {
         ..Default::default()
     }

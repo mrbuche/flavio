@@ -70,10 +70,6 @@ where
                 // or just making a dedicated Newton solver implementation?
                 // with max steps, tolerances, etc. as an attribute?
                 //
-                // using copy() and then some ops:: ends up looping through the object twice
-                // implementing the reference in the ops:: loops through it once?
-                // so just use that
-                //
                 k_2 = Y::zero();
                 residual_norm = 1.0;
                 _steps = 0;

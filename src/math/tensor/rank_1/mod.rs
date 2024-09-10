@@ -6,7 +6,7 @@ pub mod list_2d;
 
 use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign};
 
-use super::{rank_0::TensorRank0, Convert, Tensor};
+use super::{rank_0::TensorRank0, rank_2::TensorRank2, Convert, Tensor};
 
 /// A *d*-dimensional tensor of rank 1.
 ///
@@ -337,5 +337,15 @@ impl<const D: usize, const I: usize> Mul for &TensorRank1<D, I> {
             .zip(tensor_rank_1.iter())
             .map(|(self_i, tensor_rank_1_i)| self_i * tensor_rank_1_i)
             .sum()
+    }
+}
+
+#[allow(clippy::suspicious_arithmetic_impl)]
+impl<const D: usize, const I: usize, const J: usize> Div<TensorRank2<D, I, J>>
+    for TensorRank1<D, I>
+{
+    type Output = TensorRank1<D, J>;
+    fn div(self, tensor_rank_2: TensorRank2<D, I, J>) -> Self::Output {
+        tensor_rank_2.inverse() * self
     }
 }
