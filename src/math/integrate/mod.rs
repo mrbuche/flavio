@@ -11,47 +11,113 @@ pub use ode45::Ode45;
 
 use super::{Tensor, TensorRank0, TensorRank0List, Tensors};
 use crate::get_defeat_message;
-use std::fmt;
+use std::{fmt, iter::Peekable};
+
+type EvalTimes<const W: usize> = Peekable<std::array::IntoIter<TensorRank0, W>>;
+
+/// Base trait for ordinary different equation solvers.
+pub trait OdeSolver<Y, U, const W: usize>
+where
+    Self: fmt::Debug,
+    Y: Tensor,
+    U: Tensors<Item = Y>,
+{
+    fn setup<'a>(
+        &'a self,
+        initial_time: TensorRank0,
+        initial_condition: Y,
+        evaluation_times: &TensorRank0List<W>,
+        solution: &'a mut U,
+    ) -> Result<
+        (
+            EvalTimes<W>,
+            TensorRank0,
+            TensorRank0,
+            Y,
+            impl Iterator<Item = &'a mut <U as Tensors>::Item>,
+        ),
+        IntegrationError<W>,
+    >
+    where
+        Y: 'a,
+    {
+        let dt;
+        let y = initial_condition.copy();
+        let t = initial_time.copy();
+        let mut eval_times = evaluation_times.0.into_iter().peekable();
+        let mut y_sol = solution.iter_mut();
+        for check_times in evaluation_times.0.windows(2) {
+            if check_times[1] - check_times[0] <= 0.0 {
+                return Err(IntegrationError::EvaluationTimesNotStrictlyIncreasing(
+                    evaluation_times.copy(),
+                    format!("{:?}", &self),
+                ));
+            }
+        }
+        if eval_times.next_if_eq(&initial_time).is_some() {
+            if W == 1 {
+                return Err(IntegrationError::EvaluationTimesNoFinalTime(
+                    evaluation_times.copy(),
+                    format!("{:?}", &self),
+                ));
+            } else {
+                dt = eval_times.peek().ok_or("not ok")? - initial_time;
+                *y_sol.next().ok_or("not ok")? = initial_condition;
+            }
+        } else if eval_times.peek().ok_or("not ok")? > &initial_time {
+            dt = eval_times.peek().ok_or("not ok")? - initial_time;
+        } else {
+            return Err(IntegrationError::EvaluationTimesPrecedeInitialTime(
+                evaluation_times.copy(),
+                initial_time,
+                format!("{:?}", &self),
+            ));
+        };
+        Ok((eval_times, dt, t, y, y_sol))
+    }
+}
 
 /// Base trait for explicit ordinary different equation solvers.
-pub trait Explicit {
+pub trait Explicit<Y, U, const W: usize>: OdeSolver<Y, U, W>
+where
+    Y: Tensor,
+    for<'a> &'a Y: std::ops::Mul<TensorRank0, Output = Y>,
+    U: Tensors<Item = Y>,
+{
     /// Solves an initial value problem by explicitly integrating a system of ordinary different equations.
     ///
     /// ```math
     /// \frac{dy}{dt} = f(t, y),\quad y(t_0) = y_0
     /// ```
-    fn integrate<Y, U, const W: usize>(
+    fn integrate(
         &self,
         function: impl Fn(&TensorRank0, &Y) -> Y,
         initial_time: TensorRank0,
         initial_condition: Y,
         evaluation_times: &TensorRank0List<W>,
-    ) -> Result<U, IntegrationError<W>>
-    where
-        Y: Tensor,
-        for<'a> &'a Y: std::ops::Mul<TensorRank0, Output = Y>,
-        U: Tensors<Item = Y>;
+    ) -> Result<U, IntegrationError<W>>;
 }
 
 /// Base trait for implicit ordinary different equation solvers.
-pub trait Implicit {
+pub trait Implicit<Y, J, U, const W: usize>: OdeSolver<Y, U, W>
+where
+    Y: Tensor,
+    for<'a> &'a Y: std::ops::Mul<TensorRank0, Output = Y>,
+    U: Tensors<Item = Y>,
+{
     /// Solves an initial value problem by implicitly integrating a system of ordinary different equations.
     ///
     /// ```math
     /// \frac{dy}{dt} = f(t, y),\quad y(t_0) = y_0,\quad \frac{\partial f}{\partial y} = J(t, y)
     /// ```
-    fn integrate<Y, J, U, const W: usize>(
+    fn integrate(
         &self,
         function: impl Fn(&TensorRank0, &Y) -> Y,
         jacobian: impl Fn(&TensorRank0, &Y) -> J,
         initial_time: TensorRank0,
         initial_condition: Y,
         evaluation_times: &TensorRank0List<W>,
-    ) -> Result<U, IntegrationError<W>>
-    where
-        Y: Tensor,
-        for<'a> &'a Y: std::ops::Mul<TensorRank0, Output = Y>,
-        U: Tensors<Item = Y>;
+    ) -> Result<U, IntegrationError<W>>;
 }
 
 /// Possible errors encountered when integrating.

@@ -3,7 +3,7 @@ mod test;
 
 use super::{
     super::{Tensor, TensorRank0, TensorRank0List, Tensors},
-    Explicit, IntegrationError,
+    Explicit, IntegrationError, OdeSolver,
 };
 use crate::{ABS_TOL, REL_TOL};
 
@@ -56,60 +56,40 @@ impl Default for Ode23 {
     }
 }
 
-impl Explicit for Ode23 {
-    fn integrate<Y, U, const W: usize>(
+impl<Y, U, const W: usize> OdeSolver<Y, U, W> for Ode23
+where
+    Y: Tensor,
+    U: Tensors<Item = Y>,
+{
+}
+
+impl<Y, U, const W: usize> Explicit<Y, U, W> for Ode23
+where
+    Y: Tensor,
+    for<'a> &'a Y: std::ops::Mul<TensorRank0, Output = Y>,
+    U: Tensors<Item = Y>,
+{
+    fn integrate(
         &self,
         function: impl Fn(&TensorRank0, &Y) -> Y,
         initial_time: TensorRank0,
         initial_condition: Y,
         evaluation_times: &TensorRank0List<W>,
-    ) -> Result<U, IntegrationError<W>>
-    where
-        Y: Tensor,
-        for<'a> &'a Y: std::ops::Mul<TensorRank0, Output = Y>,
-        U: Tensors<Item = Y>,
-    {
-        let mut dt;
+    ) -> Result<U, IntegrationError<W>> {
         let mut e;
-        let mut eval_times = evaluation_times.0.into_iter().peekable();
         let mut k_1;
         let mut k_2;
         let mut k_3;
-        let mut k_4;
-        let mut t = initial_time;
-        let mut y = initial_condition.copy();
-        let mut y_solution = U::zero();
+        let mut k_4 = function(&initial_time, &initial_condition);
+        let mut solution = U::zero();
         let mut y_trial;
         {
-            for check_times in evaluation_times.0.windows(2) {
-                if check_times[1] - check_times[0] <= 0.0 {
-                    return Err(IntegrationError::EvaluationTimesNotStrictlyIncreasing(
-                        evaluation_times.copy(),
-                        format!("{:?}", &self),
-                    ));
-                }
-            }
-            let mut y_sol = y_solution.iter_mut();
-            if eval_times.next_if_eq(&initial_time).is_some() {
-                if W == 1 {
-                    return Err(IntegrationError::EvaluationTimesNoFinalTime(
-                        evaluation_times.copy(),
-                        format!("{:?}", &self),
-                    ));
-                } else {
-                    dt = eval_times.peek().ok_or("not ok")? - initial_time;
-                    *y_sol.next().ok_or("not ok")? = initial_condition;
-                }
-            } else if eval_times.peek().ok_or("not ok")? > &initial_time {
-                dt = eval_times.peek().ok_or("not ok")? - initial_time;
-            } else {
-                return Err(IntegrationError::EvaluationTimesPrecedeInitialTime(
-                    evaluation_times.copy(),
-                    initial_time,
-                    format!("{:?}", &self),
-                ));
-            };
-            k_4 = function(&t, &y);
+            let (mut eval_times, mut dt, mut t, mut y, mut y_sol) = self.setup(
+                initial_time,
+                initial_condition,
+                evaluation_times,
+                &mut solution,
+            )?;
             while eval_times.peek().is_some() {
                 k_1 = k_4;
                 k_2 = function(&(t + 0.5 * dt), &(&k_1 * (0.5 * dt) + &y));
@@ -130,6 +110,6 @@ impl Explicit for Ode23 {
                 }
             }
         }
-        Ok(y_solution)
+        Ok(solution)
     }
 }
