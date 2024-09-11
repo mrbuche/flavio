@@ -65,6 +65,25 @@ fn evaluation_times_no_final_time() {
 }
 
 #[test]
+#[should_panic(expected = "asdfghjk")]
+fn maximum_steps_reached() {
+    let frequency = 1e5;
+    let evaluation_times = zero_to_tau::<LENGTH>();
+    let _: TensorRank0List<LENGTH> = Ode1be {
+        max_steps: 3,
+        ..Default::default()
+    }
+    .integrate(
+        |t: &TensorRank0, _: &TensorRank0| (t * frequency).cos() * frequency,
+        |_: &TensorRank0, _: &TensorRank0| 0.0,
+        0.0,
+        1.0,
+        &evaluation_times,
+    )
+    .expect("the unexpected");
+}
+
+#[test]
 fn first_order_tensor_rank_0() {
     let evaluation_times = zero_to_tau::<LENGTH>();
     let solution: TensorRank0List<LENGTH> = Ode1be {

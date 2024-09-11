@@ -140,6 +140,7 @@ pub enum IntegrationError<const W: usize> {
     EvaluationTimesNoFinalTime(TensorRank0List<W>, String),
     EvaluationTimesNotStrictlyIncreasing(TensorRank0List<W>, String),
     EvaluationTimesPrecedeInitialTime(TensorRank0List<W>, TensorRank0, String),
+    MaximumStepsReached(usize, String),
 }
 
 impl<const W: usize> From<&str> for IntegrationError<W> {
@@ -174,6 +175,14 @@ impl<const W: usize> fmt::Debug for IntegrationError<W> {
                      With initial time: {}.\n\
                      In integrator: {}.",
                     evaluation_times, initial_time, integrator
+                )
+            }
+            Self::MaximumStepsReached(steps, integrator) => {
+                format!(
+                    "\x1b[1;91mYou've fucked yourself.\x1b[0;91m\n\
+                     From number of steps: {}.\n\
+                     In integrator: {}.",
+                    steps, integrator
                 )
             }
         };
@@ -212,6 +221,14 @@ impl<const W: usize> fmt::Display for IntegrationError<W> {
                      With initial time: {}.\n\
                      In integrator: {}.",
                     evaluation_times, initial_time, integrator
+                )
+            }
+            Self::MaximumStepsReached(steps, integrator) => {
+                format!(
+                    "\x1b[1;91mYou've fucked yourself.\x1b[0;91m\n\
+                     From number of steps: {}.\n\
+                     In integrator: {}.",
+                    steps, integrator
                 )
             }
         };
