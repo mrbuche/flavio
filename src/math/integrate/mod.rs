@@ -3,11 +3,12 @@ mod test;
 
 mod ode1be;
 mod ode23;
-mod ode45;
+
+// Explicit, six-stage, fifth-order, variable-step, Runge-Kutta method ([Dormand and Prince, 1980](https://doi.org/10.1016/0771-050X(80)90013-3)).
+// mod ode45;
 
 pub use ode1be::Ode1be;
 pub use ode23::Ode23;
-pub use ode45::Ode45;
 
 use super::{Tensor, TensorRank0, TensorRank0List, Tensors};
 use crate::get_defeat_message;
@@ -26,20 +27,6 @@ where
     Y: Tensor,
     U: Tensors<Item = Y>,
 {
-    /// ???
-    fn decide(&self, error: Y, eval_times: &EvalTimes<W>, y_trial: Y) {
-        if error_norm < self.abs_tol || error_norm / y_trial.norm() < self.rel_tol {
-            while let Some(eval_time) = eval_times.next_if(|&eval_time| t > eval_time) {
-                *y_sol.next().ok_or("not ok")? = (&y_trial - &y) / dt * (eval_time - t) + &y;
-            }
-            k_1 = k_2;
-            t += dt;
-            dt *= self.inc_fac;
-            y = y_trial;
-        } else {
-            dt *= self.dec_fac;
-        }
-    }
     /// ???
     fn setup<'a>(
         &'a self,

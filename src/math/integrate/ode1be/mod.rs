@@ -83,9 +83,6 @@ where
                     _steps += 1;
                 }
                 e = ((&k_2 - &k_1) * (dt / 2.0)).norm();
-                //
-                // seems like below is direct copy-pasta and should be implemented once somewhere for all OdeSolvers
-                //
                 if e < self.abs_tol || e / y_trial.norm() < self.rel_tol {
                     while let Some(eval_time) = eval_times.next_if(|&eval_time| t > eval_time) {
                         *y_sol.next().ok_or("not ok")? =
