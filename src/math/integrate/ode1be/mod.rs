@@ -78,7 +78,7 @@ where
                 t_trial = t + dt;
                 y_trial = y.copy();
                 while residual_norm >= ABS_TOL {
-                    if steps > self.max_steps {
+                    if steps >= self.max_steps {
                         return Err(IntegrationError::MaximumStepsReached(
                             steps,
                             format!("{:?}", &self),

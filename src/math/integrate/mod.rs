@@ -179,8 +179,7 @@ impl<const W: usize> fmt::Debug for IntegrationError<W> {
             }
             Self::MaximumStepsReached(steps, integrator) => {
                 format!(
-                    "\x1b[1;91mYou've fucked yourself.\x1b[0;91m\n\
-                     From number of steps: {}.\n\
+                    "\x1b[1;91mMaximum number of steps ({}) reached.\x1b[0;91m\n\
                      In integrator: {}.",
                     steps, integrator
                 )
@@ -225,8 +224,7 @@ impl<const W: usize> fmt::Display for IntegrationError<W> {
             }
             Self::MaximumStepsReached(steps, integrator) => {
                 format!(
-                    "\x1b[1;91mYou've fucked yourself.\x1b[0;91m\n\
-                     From number of steps: {}.\n\
+                    "\x1b[1;91mMaximum number of steps ({}) reached.\x1b[0;91m\n\
                      In integrator: {}.",
                     steps, integrator
                 )
