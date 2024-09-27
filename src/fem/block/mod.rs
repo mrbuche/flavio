@@ -186,7 +186,7 @@ where
         let nodal_coordinates = self.get_nodal_coordinates();
         element_connectivity
             .iter()
-            .map(|node| nodal_coordinates[*node].iter().copied().collect())
+            .map(|node| nodal_coordinates[*node].copy())
             .collect()
     }
     fn get_nodal_coordinates(&self) -> &NodalCoordinates<D> {
@@ -219,7 +219,7 @@ where
                 constitutive_model_parameters,
                 connectivity[element]
                     .iter()
-                    .map(|node| reference_nodal_coordinates[*node].iter().copied().collect())
+                    .map(|node| reference_nodal_coordinates[*node].copy())
                     .collect(),
             )
         });
@@ -248,7 +248,7 @@ where
                 constitutive_model_parameters,
                 connectivity[element]
                     .iter()
-                    .map(|node| reference_nodal_coordinates[*node].iter().copied().collect())
+                    .map(|node| reference_nodal_coordinates[*node].copy())
                     .collect(),
                 &thickness,
             )
@@ -341,7 +341,7 @@ where
         let nodal_coordinates = self.get_nodal_coordinates();
         element_connectivity
             .iter()
-            .map(|node| nodal_coordinates[*node].iter().copied().collect())
+            .map(|node| nodal_coordinates[*node].copy())
             .collect()
     }
     fn get_nodal_coordinates(&self) -> &NodalCoordinates<D> {
@@ -374,7 +374,7 @@ where
                 constitutive_model_parameters,
                 connectivity[element]
                     .iter()
-                    .map(|node| reference_nodal_coordinates[*node].iter().copied().collect())
+                    .map(|node| reference_nodal_coordinates[*node].copy())
                     .collect(),
             )
         });
@@ -404,7 +404,7 @@ where
                 constitutive_model_parameters,
                 connectivity[element]
                     .iter()
-                    .map(|node| reference_nodal_coordinates[*node].iter().copied().collect())
+                    .map(|node| reference_nodal_coordinates[*node].copy())
                     .collect(),
                 &thickness,
             )
@@ -472,7 +472,7 @@ where
         let nodal_velocities = self.get_nodal_velocities();
         element_connectivity
             .iter()
-            .map(|node| nodal_velocities[*node].iter().copied().collect())
+            .map(|node| nodal_velocities[*node].copy())
             .collect()
     }
     fn get_nodal_velocities(&self) -> &NodalVelocities<D> {
