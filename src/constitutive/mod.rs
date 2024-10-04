@@ -63,30 +63,18 @@ impl fmt::Debug for ConstitutiveError {
     }
 }
 
-impl fmt::Display for ConstitutiveError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let error = match self {
-            Self::Custom(message, deformation_gradient, constitutive_model) => format!(
-                "\x1b[1;91m{}\x1b[0;91m\n\
-                 From deformation gradient: {}.\n\
-                 In constitutive model: {}.",
-                message, deformation_gradient, constitutive_model
-            ),
-            Self::InvalidJacobian(jacobian, deformation_gradient, constitutive_model) => {
-                format!(
-                    "\x1b[1;91mInvalid Jacobian: {:.6e}.\x1b[0;91m\n\
-                     From deformation gradient: {}.\n\
-                     In constitutive model: {}.",
-                    jacobian, deformation_gradient, constitutive_model
-                )
+impl PartialEq for ConstitutiveError {
+    fn eq(&self, other: &Self) -> bool {
+        match self {
+            Self::Custom(a, b, c) => match other {
+                Self::Custom(d, e, f) => a == d && c == f,
+                _ => false,
             },
-            Self::SolveError => "\x1b[1;91mThe maximum number of steps was reached before the tolerance was satisfied.\x1b[0;91m".to_string()
-        };
-        write!(
-            f,
-            "\n{}\n\x1b[0;2;31m{}\x1b[0m\n",
-            error,
-            get_defeat_message()
-        )
+            Self::InvalidJacobian(a, b, c) => match other {
+                Self::InvalidJacobian(d, e, f) => a == d && c == f,
+                _ => false,
+            },
+            Self::SolveError => todo!(),
+        }
     }
 }
