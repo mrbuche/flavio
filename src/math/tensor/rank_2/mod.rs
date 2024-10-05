@@ -45,6 +45,18 @@ impl<const D: usize, const I: usize, const J: usize> fmt::Display for TensorRank
     }
 }
 
+impl<const D: usize, const I: usize, const J: usize> PartialEq for TensorRank2<D, I, J> {
+    fn eq(&self, other: &Self) -> bool {
+        let mut result = true;
+        self.iter().zip(other.iter()).for_each(|(self_i, other_i)| {
+            if self_i != other_i {
+                result = false
+            }
+        });
+        result
+    }
+}
+
 /// Inherent implementation of [`TensorRank2`].
 impl<const D: usize, const I: usize, const J: usize> TensorRank2<D, I, J> {
     /// Returns the determinant of the rank-2 tensor.

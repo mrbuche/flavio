@@ -1,5 +1,10 @@
 use super::{Tensor, TensorRank0, TensorRank1};
 
+#[test]
+fn test_partial_eq_impl_cases() {
+    todo!()
+}
+
 fn get_array() -> [TensorRank0; 4] {
     [1.0, 2.0, 3.0, 4.0]
 }

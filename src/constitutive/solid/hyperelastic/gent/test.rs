@@ -19,33 +19,31 @@ mod maximum_extensibility {
     use super::*;
     #[test]
     fn calculate_cauchy_stress() {
-        // let deformation_gradient =
-        //     DeformationGradient::new([[16.0, 0.0, 0.0], [0.0, 0.25, 0.0], [0.0, 0.0, 0.25]]);
-        // let model = Gent::new(GENTPARAMETERS);
-        // assert_eq!(
-        //     model.calculate_cauchy_stress(&deformation_gradient),
-        //     Err(ConstitutiveError::Custom(
-        //         "Maximum extensibility reached.".to_string(),
-        //         deformation_gradient.copy(),
-        //         format!("{:?}", &model),
-        //     ))
-        // )
-        todo!("need to implement PartialEq; can use extensively in tests as well")
+        let deformation_gradient =
+            DeformationGradient::new([[16.0, 0.0, 0.0], [0.0, 0.25, 0.0], [0.0, 0.0, 0.25]]);
+        let model = Gent::new(GENTPARAMETERS);
+        assert_eq!(
+            model.calculate_cauchy_stress(&deformation_gradient),
+            Err(ConstitutiveError::Custom(
+                "Maximum extensibility reached.".to_string(),
+                deformation_gradient.copy(),
+                format!("{:?}", &model),
+            ))
+        )
     }
     #[test]
     fn calculate_cauchy_tangent_stiffness() {
-        // let deformation_gradient =
-        //     DeformationGradient::new([[16.0, 0.0, 0.0], [0.0, 0.25, 0.0], [0.0, 0.0, 0.25]]);
-        // let model = Gent::new(GENTPARAMETERS);
-        // assert_eq!(
-        //     model.calculate_cauchy_tangent_stiffness(&deformation_gradient),
-        //     Err(ConstitutiveError::Custom(
-        //         "Maximum extensibility reached.".to_string(),
-        //         deformation_gradient.copy(),
-        //         format!("{:?}", &model),
-        //     ))
-        // )
-        todo!("need to implement PartialEq and Debug")
+        let deformation_gradient =
+            DeformationGradient::new([[16.0, 0.0, 0.0], [0.0, 0.25, 0.0], [0.0, 0.0, 0.25]]);
+        let model = Gent::new(GENTPARAMETERS);
+        assert_eq!(
+            model.calculate_cauchy_tangent_stiffness(&deformation_gradient),
+            Err(ConstitutiveError::Custom(
+                "Maximum extensibility reached.".to_string(),
+                deformation_gradient.copy(),
+                format!("{:?}", &model),
+            ))
+        )
     }
     #[test]
     fn calculate_helmholtz_free_energy_density() {

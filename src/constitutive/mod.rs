@@ -67,11 +67,11 @@ impl PartialEq for ConstitutiveError {
     fn eq(&self, other: &Self) -> bool {
         match self {
             Self::Custom(a, b, c) => match other {
-                Self::Custom(d, e, f) => a == d && c == f,
+                Self::Custom(d, e, f) => a == d && b == e && c == f,
                 _ => false,
             },
             Self::InvalidJacobian(a, b, c) => match other {
-                Self::InvalidJacobian(d, e, f) => a == d && c == f,
+                Self::InvalidJacobian(d, e, f) => a == d && b == e && c == f,
                 _ => false,
             },
             Self::SolveError => todo!(),

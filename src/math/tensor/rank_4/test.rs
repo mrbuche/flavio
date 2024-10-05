@@ -7,6 +7,11 @@ use super::{
     TensorRank3, TensorRank4,
 };
 
+#[test]
+fn test_partial_eq_impl_cases() {
+    todo!()
+}
+
 fn get_array() -> [[[[TensorRank0; 3]; 3]; 3]; 3] {
     [
         [

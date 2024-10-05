@@ -5,6 +5,16 @@ use super::{
 use crate::test::assert_eq_within_tols;
 use std::cmp::Ordering;
 
+#[test]
+fn use_partial_eq_impl_across_tests_everywhere() {
+    todo!()
+}
+
+#[test]
+fn test_partial_eq_impl_cases() {
+    todo!("dont have to do shape changes, will not even compile since they both have to be of type Self")
+}
+
 fn get_array_dim_2() -> [[TensorRank0; 2]; 2] {
     [[1.0, 2.0], [3.0, 4.0]]
 }

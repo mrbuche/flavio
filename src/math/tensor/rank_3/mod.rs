@@ -28,6 +28,20 @@ pub struct TensorRank3<const D: usize, const I: usize, const J: usize, const K: 
     pub [TensorRank2<D, J, K>; D],
 );
 
+impl<const D: usize, const I: usize, const J: usize, const K: usize> PartialEq
+    for TensorRank3<D, I, J, K>
+{
+    fn eq(&self, other: &Self) -> bool {
+        let mut result = true;
+        self.iter().zip(other.iter()).for_each(|(self_i, other_i)| {
+            if self_i != other_i {
+                result = false
+            }
+        });
+        result
+    }
+}
+
 /// Implementation of [`Tensor`] for [`TensorRank3`].
 impl<const D: usize, const I: usize, const J: usize, const K: usize> Tensor
     for TensorRank3<D, I, J, K>

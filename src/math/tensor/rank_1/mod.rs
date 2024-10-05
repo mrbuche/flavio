@@ -14,6 +14,12 @@ use super::{rank_0::TensorRank0, rank_2::TensorRank2, Convert, Tensor};
 #[derive(Debug)]
 pub struct TensorRank1<const D: usize, const I: usize>(pub [TensorRank0; D]);
 
+impl<const D: usize, const I: usize> PartialEq for TensorRank1<D, I> {
+    fn eq(&self, other: &Self) -> bool {
+        self.0 == other.0
+    }
+}
+
 /// Inherent implementation of [`TensorRank1`].
 impl<const D: usize, const I: usize> TensorRank1<D, I> {
     /// Returns the cross product with another rank-1 tensor.

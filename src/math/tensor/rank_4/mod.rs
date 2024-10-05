@@ -23,6 +23,20 @@ pub struct TensorRank4<
     const L: usize,
 >(pub [TensorRank3<D, J, K, L>; D]);
 
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> PartialEq
+    for TensorRank4<D, I, J, K, L>
+{
+    fn eq(&self, other: &Self) -> bool {
+        let mut result = true;
+        self.iter().zip(other.iter()).for_each(|(self_i, other_i)| {
+            if self_i != other_i {
+                result = false
+            }
+        });
+        result
+    }
+}
+
 /// Inherent implementation of [`TensorRank4`].
 impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize>
     TensorRank4<D, I, J, K, L>
