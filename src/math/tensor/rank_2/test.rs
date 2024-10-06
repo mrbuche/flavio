@@ -11,6 +11,11 @@ fn use_partial_eq_impl_across_tests_everywhere() {
 }
 
 #[test]
+fn not_equals_works_too_test_that_perhaps() {
+    assert!(get_tensor_rank_1_a() != get_tensor_rank_1_b())
+}
+
+#[test]
 fn test_partial_eq_impl_cases() {
     todo!("dont have to do shape changes, will not even compile since they both have to be of type Self")
 }

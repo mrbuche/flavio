@@ -24,6 +24,7 @@ pub fn levi_civita<const I: usize, const J: usize, const K: usize>() -> TensorRa
 /// A *d*-dimensional tensor of rank 3.
 ///
 /// `D` is the dimension, `I`, `J`, `K` are the configurations.
+#[derive(Debug)]
 pub struct TensorRank3<const D: usize, const I: usize, const J: usize, const K: usize>(
     pub [TensorRank2<D, J, K>; D],
 );

@@ -15,6 +15,7 @@ pub mod list;
 /// A *d*-dimensional tensor of rank 4.
 ///
 /// `D` is the dimension, `I`, `J`, `K`, `L` are the configurations.
+#[derive(Debug)]
 pub struct TensorRank4<
     const D: usize,
     const I: usize,

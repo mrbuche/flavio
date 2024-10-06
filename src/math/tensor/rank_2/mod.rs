@@ -7,6 +7,7 @@ pub mod list_2d;
 use std::{
     array::from_fn,
     cmp::Ordering,
+    fmt,
     ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
 };
 
@@ -18,7 +19,6 @@ use super::{
     Convert, Tensor, Tensors,
 };
 use list_2d::TensorRank2List2D;
-use std::fmt;
 
 /// A *d*-dimensional tensor of rank 2.
 ///
@@ -26,7 +26,6 @@ use std::fmt;
 #[derive(Debug)]
 pub struct TensorRank2<const D: usize, const I: usize, const J: usize>(pub [TensorRank1<D, J>; D]);
 
-/// Display implementation for rank-2 tensors.
 impl<const D: usize, const I: usize, const J: usize> fmt::Display for TensorRank2<D, I, J> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "\x1B[s")?;
