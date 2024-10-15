@@ -1,3 +1,6 @@
+#[cfg(test)]
+pub mod test;
+
 pub mod rank_0;
 pub mod rank_1;
 pub mod rank_2;
@@ -5,7 +8,10 @@ pub mod rank_3;
 pub mod rank_4;
 
 use rank_0::TensorRank0;
-use std::ops::{Add, AddAssign, Div, Mul, Sub};
+use std::{
+    fmt,
+    ops::{Add, AddAssign, Div, Mul, Sub},
+};
 
 /// A value-to-value conversion that does not consume the input value.
 ///
@@ -25,7 +31,8 @@ where
         + Mul<TensorRank0, Output = Self>
         + Sub<Self, Output = Self>
         + Sub<&'a Self, Output = Self>
-        + Sized,
+        + Sized
+        + fmt::Debug,
 {
     type Array;
     type Item;

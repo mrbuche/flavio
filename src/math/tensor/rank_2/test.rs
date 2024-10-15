@@ -1,8 +1,9 @@
 use super::{
+    super::test::{assert_eq_within_tols_new, NotEqualWithinTols},
     Tensor, TensorRank0, TensorRank1, TensorRank1List, TensorRank2, TensorRank2List2D, TensorRank4,
     Tensors,
 };
-use crate::test::{assert_eq_within_tols, assert_eq_within_tols_new, Foo};
+use crate::test::assert_eq_within_tols;
 use std::cmp::Ordering;
 
 #[test]
@@ -476,14 +477,21 @@ fn div_assign_tensor_rank_0_ref() {
 }
 
 #[test]
-fn determinant_dim_2() -> Result<(), Foo> {
-    assert_eq_within_tols_new(get_tensor_rank_2_dim_2().determinant(), -2.2)
-    // assert_eq_within_tols(&get_tensor_rank_2_dim_2().determinant(), &(-2.0));
+fn determinant_dim_2() -> Result<(), NotEqualWithinTols> {
+    assert_eq_within_tols_new(
+        &get_tensor_rank_2_dim_2(),
+        &(get_tensor_rank_2_dim_2() / 2.0),
+    )?;
+
+    Ok(assert_eq_within_tols_new(
+        &get_tensor_rank_2_dim_2().determinant(),
+        &-2.2,
+    )?)
 }
 
 #[test]
 fn determinant_dim_3() {
-    assert_eq!(&get_tensor_rank_2_dim_3().determinant(), &290.2)
+    assert_eq!(&get_tensor_rank_2_dim_3().determinant(), &290.0)
 }
 
 #[test]
