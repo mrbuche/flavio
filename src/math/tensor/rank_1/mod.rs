@@ -4,7 +4,10 @@ mod test;
 pub mod list;
 pub mod list_2d;
 
-use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign};
+use std::{
+    fmt::{Display, Formatter, Result},
+    ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
+};
 
 use super::{rank_0::TensorRank0, rank_2::TensorRank2, Convert, Tensor};
 
@@ -13,6 +16,12 @@ use super::{rank_0::TensorRank0, rank_2::TensorRank2, Convert, Tensor};
 /// `D` is the dimension, `I` is the configuration.
 #[derive(Debug)]
 pub struct TensorRank1<const D: usize, const I: usize>(pub [TensorRank0; D]);
+
+impl<const D: usize, const I: usize> Display for TensorRank1<D, I> {
+    fn fmt(&self, f: &mut Formatter) -> Result {
+        todo!()
+    }
+}
 
 impl<const D: usize, const I: usize> PartialEq for TensorRank1<D, I> {
     fn eq(&self, other: &Self) -> bool {

@@ -32,7 +32,7 @@ where
         + Sub<Self, Output = Self>
         + Sub<&'a Self, Output = Self>
         + Sized
-        + fmt::Debug,
+        + fmt::Display,
 {
     type Array;
     type Item;

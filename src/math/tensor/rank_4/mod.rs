@@ -3,6 +3,7 @@ mod test;
 
 use std::{
     array::from_fn,
+    fmt::{Display, Formatter, Result},
     ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
 };
 
@@ -23,6 +24,14 @@ pub struct TensorRank4<
     const K: usize,
     const L: usize,
 >(pub [TensorRank3<D, J, K, L>; D]);
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> Display
+    for TensorRank4<D, I, J, K, L>
+{
+    fn fmt(&self, f: &mut Formatter) -> Result {
+        todo!()
+    }
+}
 
 impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> PartialEq
     for TensorRank4<D, I, J, K, L>

@@ -7,7 +7,7 @@ pub mod list_2d;
 use std::{
     array::from_fn,
     cmp::Ordering,
-    fmt,
+    fmt::{Display, Formatter, Result},
     ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
 };
 
@@ -26,8 +26,8 @@ use list_2d::TensorRank2List2D;
 #[derive(Debug)]
 pub struct TensorRank2<const D: usize, const I: usize, const J: usize>(pub [TensorRank1<D, J>; D]);
 
-impl<const D: usize, const I: usize, const J: usize> fmt::Display for TensorRank2<D, I, J> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+impl<const D: usize, const I: usize, const J: usize> Display for TensorRank2<D, I, J> {
+    fn fmt(&self, f: &mut Formatter) -> Result {
         write!(f, "\x1B[s")?;
         write!(f, "[[")?;
         self.iter().enumerate().for_each(|(i, row)| {
@@ -36,7 +36,7 @@ impl<const D: usize, const I: usize, const J: usize> fmt::Display for TensorRank
             if i + 1 < D {
                 writeln!(f, "\x1B[2D],").unwrap();
                 write!(f, "\x1B[u").unwrap();
-                write!(f, "\x1B[{}B[ ", i + 1).unwrap();
+                write!(f, "\x1B[{}B [", i + 1).unwrap();
             }
         });
         write!(f, "\x1B[2D]]")?;

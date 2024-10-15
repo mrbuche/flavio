@@ -7,6 +7,7 @@ pub mod list_3d;
 
 use std::{
     array::from_fn,
+    fmt::{Display, Formatter, Result},
     ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
 };
 
@@ -28,6 +29,14 @@ pub fn levi_civita<const I: usize, const J: usize, const K: usize>() -> TensorRa
 pub struct TensorRank3<const D: usize, const I: usize, const J: usize, const K: usize>(
     pub [TensorRank2<D, J, K>; D],
 );
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize> Display
+    for TensorRank3<D, I, J, K>
+{
+    fn fmt(&self, f: &mut Formatter) -> Result {
+        todo!()
+    }
+}
 
 impl<const D: usize, const I: usize, const J: usize, const K: usize> PartialEq
     for TensorRank3<D, I, J, K>
