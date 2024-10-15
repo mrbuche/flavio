@@ -12,7 +12,7 @@ fn use_partial_eq_impl_across_tests_everywhere() {
 
 #[test]
 fn not_equals_works_too_test_that_perhaps() {
-    assert!(get_tensor_rank_1_a() != get_tensor_rank_1_b())
+    assert_ne!(get_tensor_rank_1_a(), get_tensor_rank_1_b())
 }
 
 #[test]
