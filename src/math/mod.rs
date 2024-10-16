@@ -1,5 +1,8 @@
 //! Mathematics library.
 
+#[cfg(test)]
+pub mod test;
+
 /// Special functions.
 pub mod special;
 

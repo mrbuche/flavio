@@ -2,6 +2,12 @@ use crate::mechanics::Scalar;
 
 pub const ALMANSIHAMELPARAMETERS: &[Scalar; 2] = &[13.0, 3.0];
 
+#[test]
+fn implement_from_constitutive_error_for_test_error_in_constitutive_test_rs_and_drag_these_through()
+{
+    todo!()
+}
+
 macro_rules! calculate_cauchy_stress_from_deformation_gradient {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
         $constitutive_model_constructed
@@ -154,14 +160,14 @@ macro_rules! test_solid_constitutive_construction
             $constitutive_model::new($constitutive_model_parameters)
         }
         #[test]
-        fn get_bulk_modulus()
+        fn get_bulk_modulus() -> Result<(), TestError>
         {
-            assert_eq!(get_constitutive_model().get_bulk_modulus(), &$constitutive_model_parameters[0])
+            assert_eq(get_constitutive_model().get_bulk_modulus(), &$constitutive_model_parameters[0])
         }
         #[test]
-        fn get_shear_modulus()
+        fn get_shear_modulus() -> Result<(), TestError>
         {
-            assert_eq!(get_constitutive_model().get_shear_modulus(), &$constitutive_model_parameters[1])
+            assert_eq(get_constitutive_model().get_shear_modulus(), &$constitutive_model_parameters[1])
         }
         #[test]
         fn bulk_modulus()
@@ -199,8 +205,12 @@ macro_rules! test_solid_constitutive_model_no_tangents
         use crate::
         {
             EPSILON,
+            math::test::{assert_eq, assert_eq_within_tols as assert_eq_within_tols_new, TestError},
             mechanics::
             {
+                CauchyStress,
+                FirstPiolaKirchoffStress,
+                SecondPiolaKirchoffStress,
                 test::
                 {
                     get_deformation_gradient,
@@ -228,50 +238,35 @@ macro_rules! test_solid_constitutive_model_no_tangents
                     );
                 }
                 #[test]
-                fn objectivity()
+                fn objectivity() -> Result<(), TestError>
                 {
                     let _ = EPSILON;
-                    calculate_cauchy_stress_from_deformation_gradient!(
-                        &$constitutive_model_constructed, &get_deformation_gradient()
-                    ).iter().zip((
-                        get_rotation_current_configuration().transpose() *
+                    assert_eq_within_tols_new(
+                        &calculate_cauchy_stress_from_deformation_gradient!(
+                            &$constitutive_model_constructed, &get_deformation_gradient()
+                        ), &(get_rotation_current_configuration().transpose() *
                         calculate_cauchy_stress_from_deformation_gradient_rotated!(
                             &$constitutive_model_constructed, &get_deformation_gradient_rotated()
-                        ) * get_rotation_current_configuration()
-                    ).iter())
-                    .for_each(|(cauchy_stress_i, rotated_cauchy_stress_i)|
-                        cauchy_stress_i.iter().zip(rotated_cauchy_stress_i.iter())
-                        .for_each(|(cauchy_stress_ij, rotated_cauchy_stress_ij)|
-                            assert_eq_within_tols(cauchy_stress_ij, rotated_cauchy_stress_ij)
-                        )
+                        ) * get_rotation_current_configuration())
                     )
                 }
                 #[test]
-                fn symmetry()
+                fn symmetry() -> Result<(), TestError>
                 {
-                    let model = $constitutive_model_constructed;
-                    let cauchy_stress = calculate_cauchy_stress_from_deformation_gradient!(&model, &get_deformation_gradient());
-                    cauchy_stress.iter().zip(cauchy_stress.transpose().iter())
-                    .for_each(|(cauchy_stress_i, cauchy_stress_tranpose_i)|
-                        cauchy_stress_i.iter().zip(cauchy_stress_tranpose_i.iter())
-                        .for_each(|(cauchy_stress_ij, cauchy_stress_tranpose_ij)|
-                            assert_eq_within_tols(cauchy_stress_ij, cauchy_stress_tranpose_ij)
-                        )
-                    )
+                    let cauchy_stress = calculate_cauchy_stress_from_deformation_gradient!(&$constitutive_model_constructed, &get_deformation_gradient());
+                    assert_eq_within_tols_new(&cauchy_stress, &cauchy_stress.transpose())
                 }
             }
             mod undeformed
             {
                 use super::*;
                 #[test]
-                fn zero()
+                fn zero() -> Result<(), TestError>
                 {
-                    calculate_cauchy_stress_from_deformation_gradient_simple!(
-                        &$constitutive_model_constructed, &DeformationGradient::identity()
-                    ).iter().for_each(|cauchy_stress_i|
-                        cauchy_stress_i.iter().for_each(|cauchy_stress_ij|
-                            assert_eq!(cauchy_stress_ij, &0.0)
-                        )
+                    assert_eq_within_tols_new(
+                        &calculate_cauchy_stress_from_deformation_gradient_simple!(
+                            &$constitutive_model_constructed, &DeformationGradient::identity()
+                        ), &CauchyStress::zero()
                     )
                 }
             }
@@ -293,22 +288,16 @@ macro_rules! test_solid_constitutive_model_no_tangents
                 }
                 use super::*;
                 #[test]
-                fn objectivity()
+                fn objectivity() -> Result<(), TestError>
                 {
-                    calculate_first_piola_kirchoff_stress_from_deformation_gradient!(
-                        &$constitutive_model_constructed, &get_deformation_gradient()
-                    ).iter().zip((
-                        get_rotation_current_configuration().transpose() *
+                    assert_eq_within_tols_new(
+                        &calculate_first_piola_kirchoff_stress_from_deformation_gradient!(
+                            &$constitutive_model_constructed, &get_deformation_gradient()
+                        ),
+                        &(get_rotation_current_configuration().transpose() *
                         calculate_first_piola_kirchoff_stress_from_deformation_gradient_rotated!(
                             &$constitutive_model_constructed, &get_deformation_gradient_rotated()
-                        ) * get_rotation_reference_configuration()
-                    ).iter())
-                    .for_each(|(first_piola_kirchoff_stress_i, rotated_first_piola_kirchoff_stress_i)|
-                        first_piola_kirchoff_stress_i.iter()
-                        .zip(rotated_first_piola_kirchoff_stress_i.iter())
-                        .for_each(|(first_piola_kirchoff_stress_ij, rotated_first_piola_kirchoff_stress_ij)|
-                            assert_eq_within_tols(first_piola_kirchoff_stress_ij, rotated_first_piola_kirchoff_stress_ij)
-                        )
+                        ) * get_rotation_reference_configuration())
                     )
                 }
             }
@@ -316,15 +305,12 @@ macro_rules! test_solid_constitutive_model_no_tangents
             {
                 use super::*;
                 #[test]
-                fn zero()
+                fn zero() -> Result<(), TestError>
                 {
-                    calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple!(
-                        &$constitutive_model_constructed, &DeformationGradient::identity()
-                    ).iter().for_each(|first_piola_kirchoff_stress_i|
-                        first_piola_kirchoff_stress_i.iter()
-                        .for_each(|first_piola_kirchoff_stress_ij|
-                            assert_eq!(first_piola_kirchoff_stress_ij, &0.0)
-                        )
+                    assert_eq(
+                        &calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple!(
+                            &$constitutive_model_constructed, &DeformationGradient::identity()
+                        ), &FirstPiolaKirchoffStress::zero()
                     )
                 }
             }
@@ -346,23 +332,16 @@ macro_rules! test_solid_constitutive_model_no_tangents
                 }
                 use super::*;
                 #[test]
-                fn objectivity()
+                fn objectivity() -> Result<(), TestError>
                 {
-                    let model = $constitutive_model_constructed;
-                    calculate_second_piola_kirchoff_stress_from_deformation_gradient!(
-                        &model, &get_deformation_gradient()
-                    ).iter().zip((
-                        get_rotation_reference_configuration().transpose() *
+                    assert_eq_within_tols_new(
+                        &calculate_second_piola_kirchoff_stress_from_deformation_gradient!(
+                            &$constitutive_model_constructed, &get_deformation_gradient()
+                        ),
+                        &(get_rotation_reference_configuration().transpose() *
                         calculate_second_piola_kirchoff_stress_from_deformation_gradient_rotated!(
-                            &model, &get_deformation_gradient_rotated()
-                        ) * get_rotation_reference_configuration()
-                    ).iter())
-                    .for_each(|(second_piola_kirchoff_stress_i, rotated_second_piola_kirchoff_stress_i)|
-                        second_piola_kirchoff_stress_i.iter()
-                        .zip(rotated_second_piola_kirchoff_stress_i.iter())
-                        .for_each(|(second_piola_kirchoff_stress_ij, rotated_second_piola_kirchoff_stress_ij)|
-                            assert_eq_within_tols(second_piola_kirchoff_stress_ij, rotated_second_piola_kirchoff_stress_ij)
-                        )
+                            &$constitutive_model_constructed, &get_deformation_gradient_rotated()
+                        ) * get_rotation_reference_configuration())
                     )
                 }
             }
@@ -370,15 +349,12 @@ macro_rules! test_solid_constitutive_model_no_tangents
             {
                 use super::*;
                 #[test]
-                fn zero()
+                fn zero() -> Result<(), TestError>
                 {
-                    calculate_second_piola_kirchoff_stress_from_deformation_gradient_simple!(
-                        &$constitutive_model_constructed, &DeformationGradient::identity()
-                    ).iter().for_each(|second_piola_kirchoff_stress_i|
-                        second_piola_kirchoff_stress_i.iter()
-                        .for_each(|second_piola_kirchoff_stress_ij|
-                            assert_eq!(second_piola_kirchoff_stress_ij, &0.0)
-                        )
+                    assert_eq(
+                        &calculate_second_piola_kirchoff_stress_from_deformation_gradient_simple!(
+                            &$constitutive_model_constructed, &DeformationGradient::identity()
+                        ), &SecondPiolaKirchoffStress::zero()
                     )
                 }
             }
@@ -730,61 +706,39 @@ macro_rules! test_solid_constitutive_model_tangents
                         );
                     }
                     #[test]
-                    fn objectivity()
+                    fn objectivity() -> Result<(), TestError>
                     {
-                        let model = $constitutive_model_constructed;
-                        calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
-                            &model, &get_deformation_gradient()
-                        ).iter().zip((
-                            calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
-                                &model, &get_deformation_gradient_rotated()
+                        assert_eq_within_tols_new(
+                            &calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
+                                &$constitutive_model_constructed, &get_deformation_gradient()
+                            ),
+                            &calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
+                                &$constitutive_model_constructed, &get_deformation_gradient_rotated()
                             ).contract_all_indices_with_first_indices_of(
                                 &get_rotation_current_configuration(),
                                 &get_rotation_current_configuration(),
                                 &get_rotation_current_configuration(),
                                 &get_rotation_reference_configuration()
                             )
-                        ).iter())
-                        .for_each(|(cauchy_tangent_stiffness_i, rotated_cauchy_tangent_stiffness_i)|
-                            cauchy_tangent_stiffness_i.iter()
-                            .zip(rotated_cauchy_tangent_stiffness_i.iter())
-                            .for_each(|(cauchy_tangent_stiffness_ij, rotated_cauchy_tangent_stiffness_ij)|
-                                cauchy_tangent_stiffness_ij.iter()
-                                .zip(rotated_cauchy_tangent_stiffness_ij.iter())
-                                .for_each(|(cauchy_tangent_stiffness_ijk, rotated_cauchy_tangent_stiffness_ijk)|
-                                    cauchy_tangent_stiffness_ijk.iter()
-                                    .zip(rotated_cauchy_tangent_stiffness_ijk.iter())
-                                    .for_each(|(cauchy_tangent_stiffness_ijkl, rotated_cauchy_tangent_stiffness_ijkl)|
-                                        assert_eq_within_tols(cauchy_tangent_stiffness_ijkl, rotated_cauchy_tangent_stiffness_ijkl)
-                                    )
-                                )
-                            )
                         )
                     }
                     #[test]
-                    fn symmetry()
+                    fn symmetry() -> Result<(), TestError>
                     {
                         let cauchy_tangent_stiffness =
                         calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
                             &$constitutive_model_constructed, &get_deformation_gradient()
                         );
-                        cauchy_tangent_stiffness.iter().enumerate()
-                        .for_each(|(i, cauchy_tangent_stiffness_i)|
-                            cauchy_tangent_stiffness_i.iter()
-                            .zip(cauchy_tangent_stiffness.iter())
-                            .for_each(|(cauchy_tangent_stiffness_ij, cauchy_tangent_stiffness_j)|
-                                cauchy_tangent_stiffness_ij.iter()
-                                .zip(cauchy_tangent_stiffness_j[i].iter())
-                                .for_each(|(cauchy_tangent_stiffness_ijk, cauchy_tangent_stiffness_jik)|
-                                    cauchy_tangent_stiffness_ijk.iter()
-                                    .zip(cauchy_tangent_stiffness_jik.iter())
-                                    .for_each(|(cauchy_tangent_stiffness_ijkl, cauchy_tangent_stiffness_jikl)|
-                                        assert_eq_within_tols(
-                                            &cauchy_tangent_stiffness_ijkl, &cauchy_tangent_stiffness_jikl
-                                        )
-                                    )
-                                )
-                            )
+                        //
+                        // need to implement Display to avoid todo!() and see what is going on here
+                        //
+                        assert_eq_within_tols_new(
+                            &cauchy_tangent_stiffness,
+                            &(0..3).map(|i|
+                                (0..3).map(|j|
+                                    cauchy_tangent_stiffness[j][i].copy()
+                                ).collect()
+                            ).collect()
                         )
                     }
                 }
