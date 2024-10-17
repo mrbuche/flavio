@@ -9,6 +9,8 @@ fn size() {
 
 impl From<ConstitutiveError> for TestError {
     fn from(error: ConstitutiveError) -> TestError {
-        todo!()
+        TestError {
+            message: format!("{:?}", error),
+        }
     }
 }

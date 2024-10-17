@@ -29,7 +29,7 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
     for TensorRank4<D, I, J, K, L>
 {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        todo!()
+        Ok(())
     }
 }
 

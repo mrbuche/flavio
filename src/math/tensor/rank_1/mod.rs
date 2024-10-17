@@ -19,7 +19,7 @@ pub struct TensorRank1<const D: usize, const I: usize>(pub [TensorRank0; D]);
 
 impl<const D: usize, const I: usize> Display for TensorRank1<D, I> {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        todo!()
+        Ok(())
     }
 }
 

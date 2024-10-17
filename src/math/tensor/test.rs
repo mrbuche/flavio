@@ -37,7 +37,7 @@ pub fn assert_eq_within_tols<'a, T: Tensor>(
 }
 
 pub struct TestError {
-    message: String,
+    pub message: String,
 }
 
 impl fmt::Debug for TestError {
