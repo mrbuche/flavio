@@ -3,12 +3,8 @@ use super::{
     Tensor, TensorRank0, TensorRank1, TensorRank1List, TensorRank2, TensorRank2List2D, TensorRank4,
     Tensors,
 };
+use crate::{ABS_TOL, REL_TOL};
 use std::cmp::Ordering;
-
-#[test]
-fn also_use_own_impl_of_assert_eq_everywhere() {
-    todo!()
-}
 
 fn get_array_dim_2() -> [[TensorRank0; 2]; 2] {
     [[1.0, 2.0], [3.0, 4.0]]
@@ -481,6 +477,14 @@ fn dyad() {
             )
         },
     );
+}
+
+#[test]
+fn error() {
+    let a = get_tensor_rank_1_a();
+    let b = get_tensor_rank_1_b();
+    assert_eq!(a.error(&a, &ABS_TOL, &REL_TOL), None);
+    assert_eq!(a.error(&b, &ABS_TOL, &REL_TOL), Some(4));
 }
 
 #[test]

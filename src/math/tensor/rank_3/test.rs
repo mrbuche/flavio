@@ -1,4 +1,5 @@
 use super::{super::Tensor, levi_civita, TensorRank0, TensorRank2, TensorRank3};
+use crate::{ABS_TOL, REL_TOL};
 
 #[test]
 fn test_partial_eq_impl_cases() {
@@ -329,6 +330,14 @@ fn div_assign_tensor_rank_0_ref() {
                     )
                 })
         });
+}
+
+#[test]
+fn error() {
+    let a = get_tensor_rank_3();
+    let b = get_other_tensor_rank_3();
+    assert_eq!(a.error(&a, &ABS_TOL, &REL_TOL), None);
+    assert_eq!(a.error(&b, &ABS_TOL, &REL_TOL), Some(44));
 }
 
 #[test]

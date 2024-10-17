@@ -22,25 +22,15 @@ pub fn assert_eq_within_tols<'a, T: Tensor>(
     value_1: &'a T,
     value_2: &'a T,
 ) -> Result<(), TestError> {
-    //
-    // Rank-4 panicking because norm_squared() called by norm() panics.
-    //
-    // I feel like this is more fair to compare entry-by-entry.
-    //
-    // So maybe you can require something like iter_flat() for Tensor,
-    // and then use it here to do entry-by-entry rank-independent checks.
-    //
-    let abs_err = (value_1.copy() - value_2).norm();
-    let rel_err = abs_err / value_2.norm();
-    if abs_err < ABS_TOL || rel_err < REL_TOL {
-        Ok(())
-    } else {
+    if let Some(error_count) = value_1.error(value_2, &ABS_TOL, &REL_TOL) {
         Err(TestError {
             message: format!(
-            "\n\x1b[1;91mAssertion `left ≈= right` failed.\n\x1b[0;91m  left: {}\n right: {}\x1b[0",
-            value_1, value_2
+            "\n\x1b[1;91mAssertion `left ≈= right` failed in {} places.\n\x1b[0;91m  left: {}\n right: {}\x1b[0",
+            error_count, value_1, value_2
         ),
         })
+    } else {
+        Ok(())
     }
 }
 

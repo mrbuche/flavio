@@ -8,7 +8,6 @@ use super::Tensor;
 /// A tensor of rank 0 (a scalar).
 pub type TensorRank0 = f64;
 
-/// Implementation of [`Tensor`] for [`TensorRank0`].
 impl Tensor for TensorRank0 {
     type Array = [Self; 1];
     type Item = TensorRank0;
@@ -17,6 +16,19 @@ impl Tensor for TensorRank0 {
     }
     fn copy(&self) -> TensorRank0 {
         *self
+    }
+    #[cfg(test)]
+    fn error(
+        &self,
+        comparator: &Self,
+        tol_abs: &TensorRank0,
+        tol_rel: &TensorRank0,
+    ) -> Option<usize> {
+        if &(self - comparator).abs() >= tol_abs && &(self / comparator - 1.0).abs() >= tol_rel {
+            Some(1)
+        } else {
+            None
+        }
     }
     fn identity() -> Self {
         1.0

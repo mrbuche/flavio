@@ -6,6 +6,7 @@ use super::{
     ContractThirdFourthIndicesWithFirstSecondIndicesOf, TensorRank0, TensorRank1, TensorRank2,
     TensorRank3, TensorRank4,
 };
+use crate::{ABS_TOL, REL_TOL};
 
 #[test]
 fn test_partial_eq_impl_cases() {
@@ -856,6 +857,14 @@ fn dyad_il_kj() {
                     )
                 })
         });
+}
+
+#[test]
+fn error() {
+    let a = get_tensor_rank_4();
+    let b = get_other_tensor_rank_4();
+    assert_eq!(a.error(&a, &ABS_TOL, &REL_TOL), None);
+    assert_eq!(a.error(&b, &ABS_TOL, &REL_TOL), Some(67));
 }
 
 #[test]

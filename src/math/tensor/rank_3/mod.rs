@@ -52,7 +52,6 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize> PartialEq
     }
 }
 
-/// Implementation of [`Tensor`] for [`TensorRank3`].
 impl<const D: usize, const I: usize, const J: usize, const K: usize> Tensor
     for TensorRank3<D, I, J, K>
 {
@@ -70,6 +69,39 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize> Tensor
         self.iter()
             .map(|entry_rank_2| entry_rank_2.copy())
             .collect()
+    }
+    #[cfg(test)]
+    fn error(
+        &self,
+        comparator: &Self,
+        tol_abs: &TensorRank0,
+        tol_rel: &TensorRank0,
+    ) -> Option<usize> {
+        let error_count = self
+            .iter()
+            .zip(comparator.iter())
+            .map(|(self_i, comparator_i)| {
+                self_i
+                    .iter()
+                    .zip(comparator_i.iter())
+                    .map(|(self_ij, comparator_ij)| {
+                        self_ij
+                            .iter()
+                            .zip(comparator_ij.iter())
+                            .filter(|(&self_ijk, &comparator_ijk)| {
+                                &(self_ijk - comparator_ijk).abs() >= tol_abs
+                                    && &(self_ijk / comparator_ijk - 1.0).abs() >= tol_rel
+                            })
+                            .count()
+                    })
+                    .sum::<usize>()
+            })
+            .sum();
+        if error_count > 0 {
+            Some(error_count)
+        } else {
+            None
+        }
     }
     fn identity() -> Self {
         panic!()

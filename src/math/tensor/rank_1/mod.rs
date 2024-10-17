@@ -29,7 +29,6 @@ impl<const D: usize, const I: usize> PartialEq for TensorRank1<D, I> {
     }
 }
 
-/// Inherent implementation of [`TensorRank1`].
 impl<const D: usize, const I: usize> TensorRank1<D, I> {
     /// Returns the cross product with another rank-1 tensor.
     pub fn cross(&self, tensor_rank_1: &Self) -> Self {
@@ -45,7 +44,6 @@ impl<const D: usize, const I: usize> TensorRank1<D, I> {
     }
 }
 
-/// Implementation of [`Tensor`] for [`TensorRank1`].
 impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
     type Array = [TensorRank0; D];
     type Item = TensorRank0;
@@ -54,6 +52,27 @@ impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
     }
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
+    }
+    #[cfg(test)]
+    fn error(
+        &self,
+        comparator: &Self,
+        tol_abs: &TensorRank0,
+        tol_rel: &TensorRank0,
+    ) -> Option<usize> {
+        let error_count = self
+            .iter()
+            .zip(comparator.iter())
+            .filter(|(&self_i, &comparator_i)| {
+                &(self_i - comparator_i).abs() >= tol_abs
+                    && &(self_i / comparator_i - 1.0).abs() >= tol_rel
+            })
+            .count();
+        if error_count > 0 {
+            Some(error_count)
+        } else {
+            None
+        }
     }
     fn identity() -> Self {
         panic!()

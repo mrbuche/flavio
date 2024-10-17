@@ -729,11 +729,6 @@ macro_rules! test_solid_constitutive_model_tangents
                         calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
                             &$constitutive_model_constructed, &get_deformation_gradient()
                         );
-                        //
-                        // need to implement Display to avoid todo!() and see what is going on here
-                        //
-                        // and then do other symmetry (and non-symmetry) test below
-                        //
                         assert_eq_within_tols_new(
                             &cauchy_tangent_stiffness,
                             &(0..3).map(|i|
@@ -765,29 +760,19 @@ macro_rules! test_solid_constitutive_model_tangents
                         )
                     }
                     #[test]
-                    fn symmetry()
+                    fn symmetry() -> Result<(), TestError>
                     {
                         let cauchy_tangent_stiffness =
                         calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
                             &$constitutive_model_constructed, &DeformationGradient::identity()
                         );
-                        cauchy_tangent_stiffness.iter().enumerate()
-                        .for_each(|(i, cauchy_tangent_stiffness_i)|
-                            cauchy_tangent_stiffness_i.iter()
-                            .zip(cauchy_tangent_stiffness.iter())
-                            .for_each(|(cauchy_tangent_stiffness_ij, cauchy_tangent_stiffness_j)|
-                                cauchy_tangent_stiffness_ij.iter()
-                                .zip(cauchy_tangent_stiffness_j[i].iter())
-                                .for_each(|(cauchy_tangent_stiffness_ijk, cauchy_tangent_stiffness_jik)|
-                                    cauchy_tangent_stiffness_ijk.iter()
-                                    .zip(cauchy_tangent_stiffness_jik.iter())
-                                    .for_each(|(cauchy_tangent_stiffness_ijkl, cauchy_tangent_stiffness_jikl)|
-                                        assert_eq_within_tols(
-                                            &cauchy_tangent_stiffness_ijkl, &cauchy_tangent_stiffness_jikl
-                                        )
-                                    )
-                                )
-                            )
+                        assert_eq_within_tols_new(
+                            &cauchy_tangent_stiffness,
+                            &(0..3).map(|i|
+                                (0..3).map(|j|
+                                    cauchy_tangent_stiffness[j][i].copy()
+                                ).collect()
+                            ).collect()
                         )
                     }
                 }
@@ -920,7 +905,6 @@ macro_rules! test_solid_elastic_constitutive_model
         );
         mod elastic
         {
-            use crate::test::check_eq_within_tols;
             use super::*;
             mod first_piola_kirchoff_tangent_stiffness
             {
@@ -935,27 +919,20 @@ macro_rules! test_solid_elastic_constitutive_model
                         calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient!(
                             &$constitutive_model_constructed, &get_deformation_gradient()
                         );
-                        let mut sum: u8 = 0;
-                        for i in 0..3
-                        {
-                            for j in 0..3
-                            {
-                                for k in 0..3
-                                {
-                                    for l in 0..3
-                                    {
-                                        if check_eq_within_tols(
-                                            &first_piola_kirchoff_tangent_stiffness[i][j][k][l],
-                                            &first_piola_kirchoff_tangent_stiffness[k][l][i][j]
-                                        ) == false
-                                        {
-                                            sum += 1;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        assert!(sum > 0)
+                        assert!(
+                            assert_eq_within_tols_new(
+                                &first_piola_kirchoff_tangent_stiffness,
+                                &(0..3).map(|i|
+                                    (0..3).map(|j|
+                                        (0..3).map(|k|
+                                            (0..3).map(|l|
+                                                first_piola_kirchoff_tangent_stiffness[k][l][i][j].copy()
+                                            ).collect()
+                                        ).collect()
+                                    ).collect()
+                                ).collect()
+                            ).is_err()
+                        )
                     }
                 }
             }

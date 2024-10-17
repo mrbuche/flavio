@@ -56,7 +56,6 @@ impl<const D: usize, const I: usize, const J: usize> PartialEq for TensorRank2<D
     }
 }
 
-/// Inherent implementation of [`TensorRank2`].
 impl<const D: usize, const I: usize, const J: usize> TensorRank2<D, I, J> {
     /// Returns the determinant of the rank-2 tensor.
     pub fn determinant(&self) -> TensorRank0 {
@@ -509,7 +508,6 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2<D, I, J> {
     }
 }
 
-/// Implementation of [`Tensor`] for [`TensorRank2`].
 impl<const D: usize, const I: usize, const J: usize> Tensor for TensorRank2<D, I, J> {
     type Array = [[TensorRank0; D]; D];
     type Item = TensorRank1<D, J>;
@@ -523,6 +521,33 @@ impl<const D: usize, const I: usize, const J: usize> Tensor for TensorRank2<D, I
     }
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
+    }
+    #[cfg(test)]
+    fn error(
+        &self,
+        comparator: &Self,
+        tol_abs: &TensorRank0,
+        tol_rel: &TensorRank0,
+    ) -> Option<usize> {
+        let error_count = self
+            .iter()
+            .zip(comparator.iter())
+            .map(|(self_i, comparator_i)| {
+                self_i
+                    .iter()
+                    .zip(comparator_i.iter())
+                    .filter(|(&self_ij, &comparator_ij)| {
+                        &(self_ij - comparator_ij).abs() >= tol_abs
+                            && &(self_ij / comparator_ij - 1.0).abs() >= tol_rel
+                    })
+                    .count()
+            })
+            .sum();
+        if error_count > 0 {
+            Some(error_count)
+        } else {
+            None
+        }
     }
     fn identity() -> Self {
         (0..D)

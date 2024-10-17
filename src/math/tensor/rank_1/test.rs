@@ -1,4 +1,5 @@
 use super::{Tensor, TensorRank0, TensorRank1};
+use crate::{ABS_TOL, REL_TOL};
 
 #[test]
 fn test_partial_eq_impl_cases() {
@@ -173,6 +174,14 @@ fn div_assign_tensor_rank_0_ref() {
         .iter()
         .zip(get_array().iter())
         .for_each(|(tensor_rank_1_i, array_i)| assert_eq!(tensor_rank_1_i, &(array_i / 3.3)));
+}
+
+#[test]
+fn error() {
+    let b = get_tensor_rank_1_b();
+    let c = get_tensor_rank_1_c();
+    assert_eq!(b.error(&b, &ABS_TOL, &REL_TOL), None);
+    assert_eq!(b.error(&c, &ABS_TOL, &REL_TOL), Some(3));
 }
 
 #[test]
