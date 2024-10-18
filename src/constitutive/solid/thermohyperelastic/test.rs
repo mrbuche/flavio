@@ -8,12 +8,10 @@ pub const SAINTVENANTKIRCHOFFPARAMETERS: &[Scalar; 4] = &[
 
 macro_rules! calculate_helmholtz_free_energy_density_from_deformation_gradient_simple {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
-        $constitutive_model_constructed
-            .calculate_helmholtz_free_energy_density(
-                $deformation_gradient,
-                $constitutive_model_constructed.get_reference_temperature(),
-            )
-            .expect("the unexpected")
+        $constitutive_model_constructed.calculate_helmholtz_free_energy_density(
+            $deformation_gradient,
+            $constitutive_model_constructed.get_reference_temperature(),
+        )
     };
 }
 pub(crate) use calculate_helmholtz_free_energy_density_from_deformation_gradient_simple;

@@ -28,88 +28,100 @@ pub const YEOHPARAMETERS: &[Scalar; 6] = &[
 macro_rules! test_solve {
     ($constitutive_model_constructed: expr) => {
         #[test]
-        fn solve_biaxial_compression() {
-            let (deformation_gradient, cauchy_stress) = $constitutive_model_constructed
-                .solve_biaxial(&0.55, &0.88)
-                .expect("the unexpected");
+        fn solve_biaxial_compression() -> Result<(), crate::math::test::TestError> {
+            let (deformation_gradient, cauchy_stress) =
+                $constitutive_model_constructed.solve_biaxial(&0.55, &0.88)?;
             assert!(cauchy_stress[0][0] < 0.0);
             assert!(cauchy_stress[1][1] < 0.0);
-            crate::test::assert_eq_within_tols(
+            crate::math::test::assert_eq_within_tols(
                 &(cauchy_stress[2][2]
                     / (cauchy_stress[0][0].powi(2) + cauchy_stress[1][1].powi(2)).sqrt()),
                 &0.0,
-            );
+            )?;
             assert!(cauchy_stress.is_diagonal());
             assert!(deformation_gradient.is_diagonal());
+            Ok(())
         }
         #[test]
-        fn solve_biaxial_mixed() {
-            let (deformation_gradient, cauchy_stress) = $constitutive_model_constructed
-                .solve_biaxial(&3.3, &0.44)
-                .expect("the unexpected");
+        fn solve_biaxial_mixed() -> Result<(), crate::math::test::TestError> {
+            let (deformation_gradient, cauchy_stress) =
+                $constitutive_model_constructed.solve_biaxial(&3.3, &0.44)?;
             assert!(cauchy_stress[0][0] > cauchy_stress[1][1]);
-            crate::test::assert_eq_within_tols(
+            crate::math::test::assert_eq_within_tols(
                 &(cauchy_stress[2][2]
                     / (cauchy_stress[0][0].powi(2) + cauchy_stress[1][1].powi(2)).sqrt()),
                 &0.0,
-            );
+            )?;
             assert!(cauchy_stress.is_diagonal());
             assert!(deformation_gradient.is_diagonal());
+            Ok(())
         }
         #[test]
-        fn solve_biaxial_tension() {
-            let (deformation_gradient, cauchy_stress) = $constitutive_model_constructed
-                .solve_biaxial(&3.3, &2.2)
-                .expect("the unexpected");
+        fn solve_biaxial_tension() -> Result<(), crate::math::test::TestError> {
+            let (deformation_gradient, cauchy_stress) =
+                $constitutive_model_constructed.solve_biaxial(&3.3, &2.2)?;
             assert!(cauchy_stress[0][0] > cauchy_stress[1][1]);
             assert!(cauchy_stress[1][1] > 0.0);
-            crate::test::assert_eq_within_tols(
+            crate::math::test::assert_eq_within_tols(
                 &(cauchy_stress[2][2]
                     / (cauchy_stress[0][0].powi(2) + cauchy_stress[1][1].powi(2)).sqrt()),
                 &0.0,
-            );
+            )?;
             assert!(cauchy_stress.is_diagonal());
             assert!(deformation_gradient.is_diagonal());
+            Ok(())
         }
         #[test]
-        fn solve_biaxial_undeformed() {
-            let (deformation_gradient, cauchy_stress) = $constitutive_model_constructed
-                .solve_biaxial(&1.0, &1.0)
-                .expect("the unexpected");
+        fn solve_biaxial_undeformed() -> Result<(), crate::math::test::TestError> {
+            let (deformation_gradient, cauchy_stress) =
+                $constitutive_model_constructed.solve_biaxial(&1.0, &1.0)?;
             assert!(cauchy_stress.is_zero());
             assert!(deformation_gradient.is_identity());
+            Ok(())
         }
         #[test]
-        fn solve_uniaxial_compression() {
-            let (deformation_gradient, cauchy_stress) = $constitutive_model_constructed
-                .solve_uniaxial(&0.44)
-                .expect("the unexpected");
+        fn solve_uniaxial_compression() -> Result<(), crate::math::test::TestError> {
+            let (deformation_gradient, cauchy_stress) =
+                $constitutive_model_constructed.solve_uniaxial(&0.44)?;
             assert!(cauchy_stress[0][0] < 0.0);
-            crate::test::assert_eq_within_tols(&(cauchy_stress[1][1] / cauchy_stress[0][0]), &0.0);
-            crate::test::assert_eq_within_tols(&(cauchy_stress[2][2] / cauchy_stress[0][0]), &0.0);
+            crate::math::test::assert_eq_within_tols(
+                &(cauchy_stress[1][1] / cauchy_stress[0][0]),
+                &0.0,
+            )?;
+            crate::math::test::assert_eq_within_tols(
+                &(cauchy_stress[2][2] / cauchy_stress[0][0]),
+                &0.0,
+            )?;
             assert!(cauchy_stress.is_diagonal());
-            assert_eq!(deformation_gradient[1][1], deformation_gradient[2][2]);
+            crate::math::test::assert_eq(&deformation_gradient[1][1], &deformation_gradient[2][2])?;
             assert!(deformation_gradient.is_diagonal());
+            Ok(())
         }
         #[test]
-        fn solve_uniaxial_tension() {
-            let (deformation_gradient, cauchy_stress) = $constitutive_model_constructed
-                .solve_uniaxial(&4.4)
-                .expect("the unexpected");
+        fn solve_uniaxial_tension() -> Result<(), crate::math::test::TestError> {
+            let (deformation_gradient, cauchy_stress) =
+                $constitutive_model_constructed.solve_uniaxial(&4.4)?;
             assert!(cauchy_stress[0][0] > 0.0);
-            crate::test::assert_eq_within_tols(&(cauchy_stress[1][1] / cauchy_stress[0][0]), &0.0);
-            crate::test::assert_eq_within_tols(&(cauchy_stress[2][2] / cauchy_stress[0][0]), &0.0);
+            crate::math::test::assert_eq_within_tols(
+                &(cauchy_stress[1][1] / cauchy_stress[0][0]),
+                &0.0,
+            )?;
+            crate::math::test::assert_eq_within_tols(
+                &(cauchy_stress[2][2] / cauchy_stress[0][0]),
+                &0.0,
+            )?;
             assert!(cauchy_stress.is_diagonal());
-            assert_eq!(deformation_gradient[1][1], deformation_gradient[2][2]);
+            crate::math::test::assert_eq(&deformation_gradient[1][1], &deformation_gradient[2][2])?;
             assert!(deformation_gradient.is_diagonal());
+            Ok(())
         }
         #[test]
-        fn solve_uniaxial_undeformed() {
-            let (deformation_gradient, cauchy_stress) = $constitutive_model_constructed
-                .solve_uniaxial(&1.0)
-                .expect("the unexpected");
+        fn solve_uniaxial_undeformed() -> Result<(), crate::math::test::TestError> {
+            let (deformation_gradient, cauchy_stress) =
+                $constitutive_model_constructed.solve_uniaxial(&1.0)?;
             assert!(cauchy_stress.is_zero());
             assert!(deformation_gradient.is_identity());
+            Ok(())
         }
     };
 }
@@ -119,7 +131,6 @@ macro_rules! calculate_helmholtz_free_energy_density_from_deformation_gradient_s
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
         $constitutive_model_constructed
             .calculate_helmholtz_free_energy_density($deformation_gradient)
-            .expect("the unexpected")
     };
 }
 pub(crate) use calculate_helmholtz_free_energy_density_from_deformation_gradient_simple;
@@ -197,7 +208,7 @@ macro_rules! test_solid_hyperelastic_constitutive_model_no_tangents
         crate::constitutive::solid::elastic::test::test_solid_constitutive_model_no_tangents!(
             $constitutive_model_constructed
         );
-        fn calculate_first_piola_kirchoff_stress_from_finite_difference_of_helmholtz_free_energy_density(is_deformed: bool) -> FirstPiolaKirchoffStress
+        fn calculate_first_piola_kirchoff_stress_from_finite_difference_of_helmholtz_free_energy_density(is_deformed: bool) -> Result<FirstPiolaKirchoffStress, TestError>
         {
             let mut first_piola_kirchoff_stress = FirstPiolaKirchoffStress::zero();
             for i in 0..3
@@ -217,7 +228,7 @@ macro_rules! test_solid_hyperelastic_constitutive_model_no_tangents
                     let helmholtz_free_energy_density_plus =
                     calculate_helmholtz_free_energy_density_from_deformation_gradient_simple!(
                         $constitutive_model_constructed, &deformation_gradient_plus
-                    );
+                    )?;
                     let mut deformation_gradient_minus =
                         if is_deformed
                         {
@@ -231,13 +242,13 @@ macro_rules! test_solid_hyperelastic_constitutive_model_no_tangents
                     let helmholtz_free_energy_density_minus =
                     calculate_helmholtz_free_energy_density_from_deformation_gradient_simple!(
                         $constitutive_model_constructed, &deformation_gradient_minus
-                    );
+                    )?;
                     first_piola_kirchoff_stress[i][j] = (
                         helmholtz_free_energy_density_plus - helmholtz_free_energy_density_minus
                     )/EPSILON;
                 }
             }
-            first_piola_kirchoff_stress
+            Ok(first_piola_kirchoff_stress)
         }
         mod helmholtz_free_energy_density
         {
@@ -246,19 +257,20 @@ macro_rules! test_solid_hyperelastic_constitutive_model_no_tangents
             {
                 use super::*;
                 #[test]
-                fn finite_difference()
+                fn finite_difference() -> Result<(), TestError>
                 {
                     calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple!(
                         $constitutive_model_constructed, &get_deformation_gradient()
                     ).iter().zip(
-                        calculate_first_piola_kirchoff_stress_from_finite_difference_of_helmholtz_free_energy_density(true).iter()
+                        calculate_first_piola_kirchoff_stress_from_finite_difference_of_helmholtz_free_energy_density(true)?.iter()
                     ).for_each(|(first_piola_kirchoff_stress_i, fd_first_piola_kirchoff_stress_i)|
                         first_piola_kirchoff_stress_i.iter()
                         .zip(fd_first_piola_kirchoff_stress_i.iter())
                         .for_each(|(first_piola_kirchoff_stress_ij, fd_first_piola_kirchoff_stress_ij)|
                             assert!((first_piola_kirchoff_stress_ij/fd_first_piola_kirchoff_stress_ij - 1.0).abs() < EPSILON)
                         )
-                    )
+                    );
+                    Ok(())
                 }
                 #[test]
                 #[should_panic(expected = "Invalid Jacobian")]
@@ -266,12 +278,12 @@ macro_rules! test_solid_hyperelastic_constitutive_model_no_tangents
                 {
                     let mut deformation_gradient = DeformationGradient::identity();
                     deformation_gradient[0][0] *= -1.0;
-                    let _ = calculate_helmholtz_free_energy_density_from_deformation_gradient_simple!(
+                    calculate_helmholtz_free_energy_density_from_deformation_gradient_simple!(
                         $constitutive_model_constructed, &deformation_gradient
-                    );
+                    ).unwrap();
                 }
                 #[test]
-                fn minimized()
+                fn minimized() -> Result<(), TestError>
                 {
                     let first_piola_kirchoff_stress =
                     calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple!(
@@ -280,18 +292,18 @@ macro_rules! test_solid_hyperelastic_constitutive_model_no_tangents
                     let minimum =
                     calculate_helmholtz_free_energy_density_from_deformation_gradient_simple!(
                         $constitutive_model_constructed, &get_deformation_gradient()
-                    ) - first_piola_kirchoff_stress.full_contraction(
+                    )? - first_piola_kirchoff_stress.full_contraction(
                         &get_deformation_gradient()
                     );
                     let mut perturbed_deformation_gradient = get_deformation_gradient();
-                    (0..3).for_each(|i|
-                        (0..3).for_each(|j|{
+                    (0..3).try_for_each(|i|
+                        (0..3).try_for_each(|j|{
                             perturbed_deformation_gradient = get_deformation_gradient();
                             perturbed_deformation_gradient[i][j] += 0.5 * EPSILON;
                             assert!(
                                 calculate_helmholtz_free_energy_density_from_deformation_gradient_simple!(
                                     $constitutive_model_constructed, &perturbed_deformation_gradient
-                                ) - first_piola_kirchoff_stress.full_contraction(
+                                )? - first_piola_kirchoff_stress.full_contraction(
                                     &perturbed_deformation_gradient
                                 ) > minimum
                             );
@@ -299,83 +311,88 @@ macro_rules! test_solid_hyperelastic_constitutive_model_no_tangents
                             assert!(
                                 calculate_helmholtz_free_energy_density_from_deformation_gradient_simple!(
                                     $constitutive_model_constructed, &perturbed_deformation_gradient
-                                ) - first_piola_kirchoff_stress.full_contraction(
+                                )? - first_piola_kirchoff_stress.full_contraction(
                                     &perturbed_deformation_gradient
                                 ) > minimum
                             );
+                            Ok(())
                         })
                     )
                 }
                 #[test]
-                fn objectivity()
+                fn objectivity() -> Result<(), TestError>
                 {
-                    assert_eq_within_tols(
+                    assert_eq_within_tols_new(
                         &calculate_helmholtz_free_energy_density_from_deformation_gradient_simple!(
                             $constitutive_model_constructed,  &get_deformation_gradient()
-                        ),
+                        )?,
                         &calculate_helmholtz_free_energy_density_from_deformation_gradient_simple!(
                             $constitutive_model_constructed,  &get_deformation_gradient_rotated()
-                        )
+                        )?
                     )
                 }
                 #[test]
-                fn positive()
+                fn positive() -> Result<(), TestError>
                 {
                     assert!(
                         calculate_helmholtz_free_energy_density_from_deformation_gradient_simple!(
                             $constitutive_model_constructed,  &get_deformation_gradient()
-                        ) > 0.0
-                    )
+                        )? > 0.0
+                    );
+                    Ok(())
                 }
             }
             mod undeformed
             {
                 use super::*;
                 #[test]
-                fn finite_difference()
+                fn finite_difference() -> Result<(), TestError>
                 {
-                    calculate_first_piola_kirchoff_stress_from_finite_difference_of_helmholtz_free_energy_density(false).iter()
+                    calculate_first_piola_kirchoff_stress_from_finite_difference_of_helmholtz_free_energy_density(false)?.iter()
                     .for_each(|fd_first_piola_kirchoff_stress_i|
                         fd_first_piola_kirchoff_stress_i.iter()
                         .for_each(|fd_first_piola_kirchoff_stress_ij|
                             assert!(fd_first_piola_kirchoff_stress_ij.abs() < EPSILON)
                         )
-                    )
+                    );
+                    Ok(())
                 }
                 #[test]
-                fn minimized()
+                fn minimized() -> Result<(), TestError>
                 {
                     let minimum =
                     calculate_helmholtz_free_energy_density_from_deformation_gradient_simple!(
                         $constitutive_model_constructed, &DeformationGradient::identity()
-                    );
+                    )?;
                     let mut perturbed_deformation_gradient = DeformationGradient::identity();
-                    (0..3).for_each(|i|
-                        (0..3).for_each(|j|{
+                    (0..3).try_for_each(|i|
+                        (0..3).try_for_each(|j|{
                             perturbed_deformation_gradient = DeformationGradient::identity();
                             perturbed_deformation_gradient[i][j] += 0.5 * EPSILON;
                             assert!(
                                 calculate_helmholtz_free_energy_density_from_deformation_gradient_simple!(
                                     $constitutive_model_constructed, &perturbed_deformation_gradient
-                                ) > minimum
+                                )? > minimum
                             );
                             perturbed_deformation_gradient[i][j] -= EPSILON;
                             assert!(
                                 calculate_helmholtz_free_energy_density_from_deformation_gradient_simple!(
                                     $constitutive_model_constructed, &perturbed_deformation_gradient
-                                ) > minimum
+                                )? > minimum
                             );
+                            Ok(())
                         })
                     )
                 }
                 #[test]
-                fn zero()
+                fn zero() -> Result<(), TestError>
                 {
                     assert_eq!(
                         calculate_helmholtz_free_energy_density_from_deformation_gradient_simple!(
                             $constitutive_model_constructed,  &DeformationGradient::identity()
-                        ), 0.0
-                    )
+                        )?, 0.0
+                    );
+                    Ok(())
                 }
             }
         }
@@ -400,28 +417,23 @@ macro_rules! test_solid_hyperelastic_constitutive_model_tangents
                 {
                     use super::*;
                     #[test]
-                    fn symmetry()
+                    fn symmetry() -> Result<(), TestError>
                     {
                         let first_piola_kirchoff_tangent_stiffness =
                         calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient_simple!(
                             $constitutive_model_constructed, &get_deformation_gradient()
                         );
-                        first_piola_kirchoff_tangent_stiffness.iter().enumerate()
-                        .for_each(|(i, first_piola_kirchoff_tangent_stiffness_i)|
-                            first_piola_kirchoff_tangent_stiffness_i.iter().enumerate()
-                            .for_each(|(j, first_piola_kirchoff_tangent_stiffness_ij)|
-                                first_piola_kirchoff_tangent_stiffness_ij.iter()
-                                .zip(first_piola_kirchoff_tangent_stiffness.iter())
-                                .for_each(|(first_piola_kirchoff_tangent_stiffness_ijk, first_piola_kirchoff_tangent_stiffness_k)|
-                                    first_piola_kirchoff_tangent_stiffness_ijk.iter()
-                                    .zip(first_piola_kirchoff_tangent_stiffness_k.iter())
-                                    .for_each(|(first_piola_kirchoff_tangent_stiffness_ijkl, first_piola_kirchoff_tangent_stiffness_kl)|
-                                        assert_eq_within_tols(
-                                            first_piola_kirchoff_tangent_stiffness_ijkl, &first_piola_kirchoff_tangent_stiffness_kl[i][j]
-                                        )
-                                    )
-                                )
-                            )
+                        assert_eq_within_tols_new(
+                            &first_piola_kirchoff_tangent_stiffness,
+                            &(0..3).map(|i|
+                                (0..3).map(|j|
+                                    (0..3).map(|k|
+                                        (0..3).map(|l|
+                                            first_piola_kirchoff_tangent_stiffness[k][l][i][j].copy()
+                                        ).collect()
+                                    ).collect()
+                                ).collect()
+                            ).collect()
                         )
                     }
                 }
@@ -429,28 +441,23 @@ macro_rules! test_solid_hyperelastic_constitutive_model_tangents
                 {
                     use super::*;
                     #[test]
-                    fn symmetry()
+                    fn symmetry() -> Result<(), TestError>
                     {
                         let first_piola_kirchoff_tangent_stiffness =
                         calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient_simple!(
                             $constitutive_model_constructed, &DeformationGradient::identity()
                         );
-                        first_piola_kirchoff_tangent_stiffness.iter().enumerate()
-                        .for_each(|(i, first_piola_kirchoff_tangent_stiffness_i)|
-                            first_piola_kirchoff_tangent_stiffness_i.iter().enumerate()
-                            .for_each(|(j, first_piola_kirchoff_tangent_stiffness_ij)|
-                                first_piola_kirchoff_tangent_stiffness_ij.iter()
-                                .zip(first_piola_kirchoff_tangent_stiffness.iter())
-                                .for_each(|(first_piola_kirchoff_tangent_stiffness_ijk, first_piola_kirchoff_tangent_stiffness_k)|
-                                    first_piola_kirchoff_tangent_stiffness_ijk.iter()
-                                    .zip(first_piola_kirchoff_tangent_stiffness_k.iter())
-                                    .for_each(|(first_piola_kirchoff_tangent_stiffness_ijkl, first_piola_kirchoff_tangent_stiffness_kl)|
-                                        assert_eq_within_tols(
-                                            first_piola_kirchoff_tangent_stiffness_ijkl, &first_piola_kirchoff_tangent_stiffness_kl[i][j]
-                                        )
-                                    )
-                                )
-                            )
+                        assert_eq_within_tols_new(
+                            &first_piola_kirchoff_tangent_stiffness,
+                            &(0..3).map(|i|
+                                (0..3).map(|j|
+                                    (0..3).map(|k|
+                                        (0..3).map(|l|
+                                            first_piola_kirchoff_tangent_stiffness[k][l][i][j].copy()
+                                        ).collect()
+                                    ).collect()
+                                ).collect()
+                            ).collect()
                         )
                     }
                 }
