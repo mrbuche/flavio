@@ -101,7 +101,7 @@ macro_rules! test_thermoelastic_thermal_conduction_constitutive_model
             )
         }
         #[test]
-        fn calculate_cauchy_tangent_stiffness()
+        fn calculate_cauchy_tangent_stiffness() -> Result<(), crate::math::test::TestError>
         {
             get_thermoelastic_thermal_conduction_constitutive_model()
             .calculate_cauchy_tangent_stiffness(
