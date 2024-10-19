@@ -19,75 +19,46 @@ mod consistency {
                 Hyperelastic, SaintVenantKirchoff as HyperelasticSaintVenantKirchoff,
             },
         },
-        ABS_TOL,
+        math::test::assert_eq_within_tols,
     };
     #[test]
-    fn helmholtz_free_energy_density() {
+    fn helmholtz_free_energy_density() -> Result<(), TestError> {
         let model = SaintVenantKirchoff::new(SAINTVENANTKIRCHOFFPARAMETERS);
         let hyperelastic_model =
             HyperelasticSaintVenantKirchoff::new(HYPERELASTICSAINTVENANTKIRCHOFFPARAMETERS);
-        assert!(
-            (model
-                .calculate_helmholtz_free_energy_density(
-                    &get_deformation_gradient(),
-                    model.get_reference_temperature()
-                )
-                .expect("the unexpected")
-                - hyperelastic_model
-                    .calculate_helmholtz_free_energy_density(&get_deformation_gradient())
-                    .expect("the unexpected"))
-            .abs()
-                < ABS_TOL
+        assert_eq_within_tols(
+            &model.calculate_helmholtz_free_energy_density(
+                &get_deformation_gradient(),
+                model.get_reference_temperature(),
+            )?,
+            &hyperelastic_model
+                .calculate_helmholtz_free_energy_density(&get_deformation_gradient())?,
         )
     }
     #[test]
-    fn cauchy_stress() {
+    fn cauchy_stress() -> Result<(), TestError> {
         let model = SaintVenantKirchoff::new(SAINTVENANTKIRCHOFFPARAMETERS);
         let hyperelastic_model =
             HyperelasticSaintVenantKirchoff::new(HYPERELASTICSAINTVENANTKIRCHOFFPARAMETERS);
-        model
-            .calculate_cauchy_stress(
+        assert_eq_within_tols(
+            &model.calculate_cauchy_stress(
                 &get_deformation_gradient(),
                 model.get_reference_temperature(),
-            )
-            .expect("the unexpected")
-            .iter()
-            .zip(
-                hyperelastic_model
-                    .calculate_cauchy_stress(&get_deformation_gradient())
-                    .expect("the unexpected")
-                    .iter(),
-            )
-            .for_each(|(cauchy_stress_i, elastic_cauchy_stress_i)| {
-                cauchy_stress_i
-                    .iter()
-                    .zip(elastic_cauchy_stress_i.iter())
-                    .for_each(|(cauchy_stress_ij, elastic_cauchy_stress_ij)| {
-                        assert!((cauchy_stress_ij - elastic_cauchy_stress_ij).abs() < ABS_TOL)
-                    })
-            })
+            )?,
+            &hyperelastic_model.calculate_cauchy_stress(&get_deformation_gradient())?,
+        )
     }
     #[test]
-    fn cauchy_tangent_stiffness() {
+    fn cauchy_tangent_stiffness() -> Result<(), TestError> {
         let model = SaintVenantKirchoff::new(SAINTVENANTKIRCHOFFPARAMETERS);
         let hyperelastic_model =
             HyperelasticSaintVenantKirchoff::new(HYPERELASTICSAINTVENANTKIRCHOFFPARAMETERS);
-        model.calculate_cauchy_tangent_stiffness(&get_deformation_gradient(), model.get_reference_temperature()).expect("the unexpected").iter()
-        .zip(hyperelastic_model.calculate_cauchy_tangent_stiffness(&get_deformation_gradient()).expect("the unexpected").iter())
-        .for_each(|(cauchy_tangent_stiffness_i, elastic_cauchy_tangent_stiffness_i)|
-            cauchy_tangent_stiffness_i.iter()
-            .zip(elastic_cauchy_tangent_stiffness_i.iter())
-            .for_each(|(cauchy_tangent_stiffness_ij, elastic_cauchy_tangent_stiffness_ij)|
-                cauchy_tangent_stiffness_ij.iter()
-                .zip(elastic_cauchy_tangent_stiffness_ij.iter())
-                .for_each(|(cauchy_tangent_stiffness_ijk, elastic_cauchy_tangent_stiffness_ijk)|
-                    cauchy_tangent_stiffness_ijk.iter()
-                    .zip(elastic_cauchy_tangent_stiffness_ijk.iter())
-                    .for_each(|(cauchy_tangent_stiffness_ijkl, elastic_cauchy_tangent_stiffness_ijkl)|
-                        assert!((cauchy_tangent_stiffness_ijkl - elastic_cauchy_tangent_stiffness_ijkl).abs() < ABS_TOL)
-                    )
-                )
-            )
+        assert_eq_within_tols(
+            &model.calculate_cauchy_tangent_stiffness(
+                &get_deformation_gradient(),
+                model.get_reference_temperature(),
+            )?,
+            &hyperelastic_model.calculate_cauchy_tangent_stiffness(&get_deformation_gradient())?,
         )
     }
 }

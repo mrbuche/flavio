@@ -87,22 +87,17 @@ macro_rules! test_thermoelastic_thermal_conduction_constitutive_model
             )
         }
         #[test]
-        fn calculate_cauchy_stress()
+        fn calculate_cauchy_stress() -> Result<(), crate::math::test::TestError>
         {
-            get_thermoelastic_thermal_conduction_constitutive_model()
-            .calculate_cauchy_stress(
-                &get_deformation_gradient(), &get_temperature()
-            ).expect("the unexpected").iter().zip(
-                get_thermoelastic_constitutive_model()
+            crate::math::test::assert_eq(
+                &get_thermoelastic_thermal_conduction_constitutive_model()
                 .calculate_cauchy_stress(
                     &get_deformation_gradient(), &get_temperature()
-                ).expect("the unexpected").iter()
-            ).for_each(|(cauchy_stress_i, cauchy_stress_solid_i)|
-                cauchy_stress_i.iter()
-                .zip(cauchy_stress_solid_i.iter())
-                .for_each(|(cauchy_stress_ij, cauchy_stress_solid_ij)|
-                    assert_eq!(cauchy_stress_ij, cauchy_stress_solid_ij)
-                )
+                )?,
+                &get_thermoelastic_constitutive_model()
+                .calculate_cauchy_stress(
+                    &get_deformation_gradient(), &get_temperature()
+                )?
             )
         }
         #[test]

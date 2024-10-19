@@ -88,7 +88,7 @@ macro_rules! test_hybrid_elastic_constitutive_models_no_tangents {
                     NeoHookean::new(NEOHOOKEANPARAMETERS),
                 )
                 .calculate_cauchy_tangent_stiffness(&get_deformation_gradient())
-                .expect("the unexpected");
+                .unwrap();
             }
             #[test]
             #[should_panic]
@@ -98,7 +98,7 @@ macro_rules! test_hybrid_elastic_constitutive_models_no_tangents {
                     NeoHookean::new(NEOHOOKEANPARAMETERS),
                 )
                 .calculate_cauchy_tangent_stiffness(&get_deformation_gradient())
-                .expect("the unexpected");
+                .unwrap();
             }
             #[test]
             #[should_panic]
@@ -108,7 +108,7 @@ macro_rules! test_hybrid_elastic_constitutive_models_no_tangents {
                     NeoHookean::new(NEOHOOKEANPARAMETERS),
                 )
                 .calculate_cauchy_tangent_stiffness(&get_deformation_gradient())
-                .expect("the unexpected");
+                .unwrap();
             }
         }
     };

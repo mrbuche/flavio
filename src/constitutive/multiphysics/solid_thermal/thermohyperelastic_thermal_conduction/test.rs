@@ -15,24 +15,27 @@ macro_rules! test_thermohyperelastic_thermal_conduction_constitutive_model
     ($thermohyperelastic_constitutive_model: ident, $thermohyperelastic_constitutive_model_parameters: expr,
      $thermal_conduction_constitutive_model: ident, $thermal_conduction_constitutive_model_parameters: expr) =>
     {
-        use crate::constitutive::multiphysics::solid_thermal::thermoelastic_thermal_conduction::test::test_thermoelastic_thermal_conduction_constitutive_model;
+        use crate::{
+            constitutive::multiphysics::solid_thermal::thermoelastic_thermal_conduction::test::test_thermoelastic_thermal_conduction_constitutive_model,
+            math::test::{assert_eq, TestError}
+        };
         test_thermoelastic_thermal_conduction_constitutive_model!(
             ThermohyperelasticThermalConduction,
             $thermohyperelastic_constitutive_model, $thermohyperelastic_constitutive_model_parameters,
             $thermal_conduction_constitutive_model, $thermal_conduction_constitutive_model_parameters
         );
         #[test]
-        fn calculate_helmholtz_free_energy_density()
+        fn calculate_helmholtz_free_energy_density() -> Result<(), TestError>
         {
-            assert_eq!(
-                get_thermoelastic_thermal_conduction_constitutive_model()
+            assert_eq(
+                &get_thermoelastic_thermal_conduction_constitutive_model()
                 .calculate_helmholtz_free_energy_density(
                     &get_deformation_gradient(), &get_temperature()
-                ).expect("the unexpected"),
-                get_thermoelastic_constitutive_model()
+                )?,
+                &get_thermoelastic_constitutive_model()
                 .calculate_helmholtz_free_energy_density(
                     &get_deformation_gradient(), &get_temperature()
-                ).expect("the unexpected")
+                )?
             )
         }
     }
