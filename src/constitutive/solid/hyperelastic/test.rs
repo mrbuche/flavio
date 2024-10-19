@@ -261,7 +261,7 @@ macro_rules! test_solid_hyperelastic_constitutive_model_no_tangents
                 {
                     calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple!(
                         $constitutive_model_constructed, &get_deformation_gradient()
-                    ).iter().zip(
+                    )?.iter().zip(
                         calculate_first_piola_kirchoff_stress_from_finite_difference_of_helmholtz_free_energy_density(true)?.iter()
                     ).for_each(|(first_piola_kirchoff_stress_i, fd_first_piola_kirchoff_stress_i)|
                         first_piola_kirchoff_stress_i.iter()
@@ -288,7 +288,7 @@ macro_rules! test_solid_hyperelastic_constitutive_model_no_tangents
                     let first_piola_kirchoff_stress =
                     calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple!(
                         $constitutive_model_constructed, &get_deformation_gradient()
-                    );
+                    )?;
                     let minimum =
                     calculate_helmholtz_free_energy_density_from_deformation_gradient_simple!(
                         $constitutive_model_constructed, &get_deformation_gradient()
@@ -387,12 +387,11 @@ macro_rules! test_solid_hyperelastic_constitutive_model_no_tangents
                 #[test]
                 fn zero() -> Result<(), TestError>
                 {
-                    assert_eq!(
-                        calculate_helmholtz_free_energy_density_from_deformation_gradient_simple!(
+                    assert_eq(
+                        &calculate_helmholtz_free_energy_density_from_deformation_gradient_simple!(
                             $constitutive_model_constructed,  &DeformationGradient::identity()
-                        )?, 0.0
-                    );
-                    Ok(())
+                        )?, &0.0
+                    )
                 }
             }
         }
@@ -422,7 +421,7 @@ macro_rules! test_solid_hyperelastic_constitutive_model_tangents
                         let first_piola_kirchoff_tangent_stiffness =
                         calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient_simple!(
                             $constitutive_model_constructed, &get_deformation_gradient()
-                        );
+                        )?;
                         assert_eq_within_tols_new(
                             &first_piola_kirchoff_tangent_stiffness,
                             &(0..3).map(|i|
@@ -446,7 +445,7 @@ macro_rules! test_solid_hyperelastic_constitutive_model_tangents
                         let first_piola_kirchoff_tangent_stiffness =
                         calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient_simple!(
                             $constitutive_model_constructed, &DeformationGradient::identity()
-                        );
+                        )?;
                         assert_eq_within_tols_new(
                             &first_piola_kirchoff_tangent_stiffness,
                             &(0..3).map(|i|

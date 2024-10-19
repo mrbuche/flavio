@@ -15,8 +15,8 @@ macro_rules! test_hybrid_hyperelastic_constitutive_models {
             },
             math::Tensor,
             mechanics::{
-                CauchyTangentStiffness, DeformationGradient, FirstPiolaKirchoffStress,
-                FirstPiolaKirchoffTangentStiffness, SecondPiolaKirchoffTangentStiffness,
+                CauchyTangentStiffness, DeformationGradient, FirstPiolaKirchoffTangentStiffness,
+                SecondPiolaKirchoffTangentStiffness,
             },
         };
         use_elastic_macros!();
@@ -85,7 +85,7 @@ macro_rules! test_hybrid_hyperelastic_constitutive_models_no_tangents {
                 Constitutive,
             },
             math::Tensor,
-            mechanics::{DeformationGradient, FirstPiolaKirchoffStress},
+            mechanics::DeformationGradient,
         };
         use_elastic_macros_no_tangents!();
         mod hybrid_1 {
