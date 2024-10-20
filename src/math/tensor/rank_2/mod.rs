@@ -30,15 +30,16 @@ impl<const D: usize, const I: usize, const J: usize> Display for TensorRank2<D, 
     fn fmt(&self, f: &mut Formatter) -> Result {
         write!(f, "\x1B[s")?;
         write!(f, "[[")?;
-        self.iter().enumerate().for_each(|(i, row)| {
+        self.iter().enumerate().try_for_each(|(i, row)| {
             row.iter()
-                .for_each(|entry| write_tensor_rank_0(f, entry).unwrap());
+                .try_for_each(|entry| write_tensor_rank_0(f, entry))?;
             if i + 1 < D {
-                writeln!(f, "\x1B[2D],").unwrap();
-                write!(f, "\x1B[u").unwrap();
-                write!(f, "\x1B[{}B [", i + 1).unwrap();
+                writeln!(f, "\x1B[2D],")?;
+                write!(f, "\x1B[u")?;
+                write!(f, "\x1B[{}B [", i + 1)?;
             }
-        });
+            Ok(())
+        })?;
         write!(f, "\x1B[2D]]")?;
         Ok(())
     }

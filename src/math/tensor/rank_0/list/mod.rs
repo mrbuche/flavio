@@ -21,16 +21,17 @@ impl<const W: usize> fmt::Display for TensorRank0List<W> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "\x1B[s")?;
         write!(f, "[")?;
-        self.0.chunks(5).enumerate().for_each(|(i, chunk)| {
+        self.0.chunks(5).enumerate().try_for_each(|(i, chunk)| {
             chunk
                 .iter()
-                .for_each(|entry| write_tensor_rank_0(f, entry).unwrap());
+                .try_for_each(|entry| write_tensor_rank_0(f, entry))?;
             if (i + 1) * 5 < W {
-                writeln!(f, "\x1B[2D,").unwrap();
-                write!(f, "\x1B[u").unwrap();
-                write!(f, "\x1B[{}B ", i + 1).unwrap();
+                writeln!(f, "\x1B[2D,")?;
+                write!(f, "\x1B[u")?;
+                write!(f, "\x1B[{}B ", i + 1)?;
             }
-        });
+            Ok(())
+        })?;
         write!(f, "\x1B[2D]")?;
         Ok(())
     }
