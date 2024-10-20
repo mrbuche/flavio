@@ -1,8 +1,8 @@
 use super::{
     super::{
         super::{
-            Tensor, TensorRank0, TensorRank0List, TensorRank1, TensorRank1List, TensorRank2,
-            Tensors,
+            test::TestError, Tensor, TensorRank0, TensorRank0List, TensorRank1, TensorRank1List,
+            TensorRank2, Tensors,
         },
         test::zero_to_tau,
     },
@@ -27,7 +27,7 @@ fn evaluation_times_not_strictly_increasing() {
         1.0,
         &evaluation_times,
     )
-    .expect("the unexpected");
+    .unwrap();
 }
 
 #[test]
@@ -45,7 +45,7 @@ fn evaluation_times_precede_initial_time() {
         1.0,
         &evaluation_times,
     )
-    .expect("the unexpected");
+    .unwrap();
 }
 
 #[test]
@@ -61,7 +61,7 @@ fn evaluation_times_no_final_time() {
         1.0,
         &TensorRank0List::new([0.0]),
     )
-    .expect("the unexpected");
+    .unwrap();
 }
 
 #[test]
@@ -80,11 +80,11 @@ fn maximum_steps_reached() {
         1.0,
         &evaluation_times,
     )
-    .expect("the unexpected");
+    .unwrap();
 }
 
 #[test]
-fn first_order_tensor_rank_0() {
+fn first_order_tensor_rank_0() -> Result<(), TestError> {
     let evaluation_times = zero_to_tau::<LENGTH>();
     let solution: TensorRank0List<LENGTH> = Ode1be {
         ..Default::default()
@@ -95,18 +95,18 @@ fn first_order_tensor_rank_0() {
         0.0,
         1.0,
         &evaluation_times,
-    )
-    .expect("the unexpected");
+    )?;
     evaluation_times
         .iter()
         .zip(solution.iter())
         .for_each(|(t, y)| {
             assert!(((-t).exp() - y).abs() < TOLERANCE || ((-t).exp() / y - 1.0).abs() < TOLERANCE)
         });
+    Ok(())
 }
 
 #[test]
-fn first_order_tensor_rank_0_one_evaluation_time_after_initial_time() {
+fn first_order_tensor_rank_0_one_evaluation_time_after_initial_time() -> Result<(), TestError> {
     let evaluation_times = TensorRank0List::new([1.0]);
     let solution: TensorRank0List<LENGTH> = Ode1be {
         ..Default::default()
@@ -117,18 +117,18 @@ fn first_order_tensor_rank_0_one_evaluation_time_after_initial_time() {
         0.0,
         1.0,
         &evaluation_times,
-    )
-    .expect("the unexpected");
+    )?;
     evaluation_times
         .iter()
         .zip(solution.iter())
         .for_each(|(t, y)| {
             assert!(((-t).exp() - y).abs() < TOLERANCE || ((-t).exp() / y - 1.0).abs() < TOLERANCE)
         });
+    Ok(())
 }
 
 #[test]
-fn first_order_tensor_rank_0_first_evaluation_time() {
+fn first_order_tensor_rank_0_first_evaluation_time() -> Result<(), TestError> {
     let mut evaluation_times = zero_to_tau::<LENGTH>();
     evaluation_times[0] = 1e-8;
     evaluation_times[3] = evaluation_times[2] + 1e-8;
@@ -143,18 +143,18 @@ fn first_order_tensor_rank_0_first_evaluation_time() {
         0.0,
         1.0,
         &evaluation_times,
-    )
-    .expect("the unexpected");
+    )?;
     evaluation_times
         .iter()
         .zip(solution.iter())
         .for_each(|(t, y)| {
             assert!(((-t).exp() - y).abs() < TOLERANCE || ((-t).exp() / y - 1.0).abs() < TOLERANCE)
         });
+    Ok(())
 }
 
 #[test]
-fn first_order_tensor_rank_0_nearby_evaluation_times() {
+fn first_order_tensor_rank_0_nearby_evaluation_times() -> Result<(), TestError> {
     let mut evaluation_times = zero_to_tau::<LENGTH>();
     evaluation_times[3] = evaluation_times[2] + 1e-10;
     evaluation_times[4] = evaluation_times[3] + 1e-10;
@@ -168,18 +168,18 @@ fn first_order_tensor_rank_0_nearby_evaluation_times() {
         0.0,
         1.0,
         &evaluation_times,
-    )
-    .expect("the unexpected");
+    )?;
     evaluation_times
         .iter()
         .zip(solution.iter())
         .for_each(|(t, y)| {
             assert!(((-t).exp() - y).abs() < TOLERANCE || ((-t).exp() / y - 1.0).abs() < TOLERANCE)
         });
+    Ok(())
 }
 
 #[test]
-fn second_order_tensor_rank_0() {
+fn second_order_tensor_rank_0() -> Result<(), TestError> {
     let evaluation_times = zero_to_tau::<LENGTH>();
     let solution: TensorRank1List<2, 1, LENGTH> = Ode1be {
         ..Default::default()
@@ -190,18 +190,18 @@ fn second_order_tensor_rank_0() {
         0.0,
         TensorRank1::new([0.0, 1.0]),
         &evaluation_times,
-    )
-    .expect("the unexpected");
+    )?;
     evaluation_times
         .iter()
         .zip(solution.iter())
         .for_each(|(t, y)| {
             assert!((t.sin() - y[0]).abs() < TOLERANCE || (t.sin() / y[0] - 1.0).abs() < TOLERANCE)
         });
+    Ok(())
 }
 
 #[test]
-fn third_order_tensor_rank_0() {
+fn third_order_tensor_rank_0() -> Result<(), TestError> {
     let evaluation_times = zero_to_tau::<LENGTH>();
     let solution: TensorRank1List<3, 1, LENGTH> = Ode1be {
         ..Default::default()
@@ -214,18 +214,18 @@ fn third_order_tensor_rank_0() {
         0.0,
         TensorRank1::new([0.0, 1.0, 0.0]),
         &evaluation_times,
-    )
-    .expect("the unexpected");
+    )?;
     evaluation_times
         .iter()
         .zip(solution.iter())
         .for_each(|(t, y)| {
             assert!((t.sin() - y[0]).abs() < TOLERANCE || (t.sin() / y[0] - 1.0).abs() < TOLERANCE)
         });
+    Ok(())
 }
 
 #[test]
-fn fourth_order_tensor_rank_0() {
+fn fourth_order_tensor_rank_0() -> Result<(), TestError> {
     let evaluation_times = zero_to_tau::<LENGTH>();
     let solution: TensorRank1List<4, 1, LENGTH> = Ode1be {
         ..Default::default()
@@ -243,12 +243,12 @@ fn fourth_order_tensor_rank_0() {
         0.0,
         TensorRank1::new([0.0, 1.0, 0.0, -1.0]),
         &evaluation_times,
-    )
-    .expect("the unexpected");
+    )?;
     evaluation_times
         .iter()
         .zip(solution.iter())
         .for_each(|(t, y)| {
             assert!((t.sin() - y[0]).abs() < TOLERANCE || (t.sin() / y[0] - 1.0).abs() < TOLERANCE)
         });
+    Ok(())
 }
