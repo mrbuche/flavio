@@ -272,7 +272,7 @@ macro_rules! test_solid_elastic_hyperviscous_specifics
                     #[test]
                     fn objectivity() -> Result<(), TestError>
                     {
-                        assert_eq_within_tols_new(
+                        assert_eq_within_tols(
                             &calculate_viscous_dissipation_from_deformation_gradient_and_deformation_gradient_rate!(
                                 $constitutive_model_constructed, &get_deformation_gradient(), &get_deformation_gradient_rate()
                             )?,
@@ -458,7 +458,7 @@ macro_rules! test_solid_elastic_hyperviscous_specifics
                     #[test]
                     fn objectivity() -> Result<(), TestError>
                     {
-                        assert_eq_within_tols_new(
+                        assert_eq_within_tols(
                             &calculate_dissipation_potential_from_deformation_gradient_and_deformation_gradient_rate!(
                                 $constitutive_model_constructed, &get_deformation_gradient(), &get_deformation_gradient_rate()
                             )?,
@@ -544,7 +544,7 @@ macro_rules! test_solid_elastic_hyperviscous_specifics
                                     first_piola_kirchoff_rate_tangent_stiffness_ijk.iter()
                                     .zip(first_piola_kirchoff_rate_tangent_stiffness_k.iter())
                                     .try_for_each(|(first_piola_kirchoff_rate_tangent_stiffness_ijkl, first_piola_kirchoff_rate_tangent_stiffness_kl)|
-                                        assert_eq_within_tols_new(
+                                        assert_eq_within_tols(
                                             first_piola_kirchoff_rate_tangent_stiffness_ijkl, &first_piola_kirchoff_rate_tangent_stiffness_kl[i][j]
                                         )
                                     )
@@ -574,7 +574,7 @@ macro_rules! test_solid_elastic_hyperviscous_specifics
                                     first_piola_kirchoff_rate_tangent_stiffness_ijk.iter()
                                     .zip(first_piola_kirchoff_rate_tangent_stiffness_k.iter())
                                     .try_for_each(|(first_piola_kirchoff_rate_tangent_stiffness_ijkl, first_piola_kirchoff_rate_tangent_stiffness_kl)|
-                                        assert_eq_within_tols_new(
+                                        assert_eq_within_tols(
                                             first_piola_kirchoff_rate_tangent_stiffness_ijkl, &first_piola_kirchoff_rate_tangent_stiffness_kl[i][j]
                                         )
                                     )

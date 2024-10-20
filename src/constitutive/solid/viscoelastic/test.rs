@@ -412,7 +412,7 @@ macro_rules! test_solid_viscous_constitutive_model
                     #[test]
                     fn objectivity() -> Result<(), TestError>
                     {
-                        assert_eq_within_tols_new(
+                        assert_eq_within_tols(
                             &calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
                                 &$constitutive_model_constructed, &get_deformation_gradient(), &get_deformation_gradient_rate()
                             )?, &(
@@ -447,7 +447,7 @@ macro_rules! test_solid_viscous_constitutive_model
                                     cauchy_rate_tangent_stiffness_ijk.iter()
                                     .zip(cauchy_rate_tangent_stiffness_jik.iter())
                                     .try_for_each(|(cauchy_rate_tangent_stiffness_ijkl, cauchy_rate_tangent_stiffness_jikl)|
-                                        assert_eq_within_tols_new(
+                                        assert_eq_within_tols(
                                             cauchy_rate_tangent_stiffness_ijkl, cauchy_rate_tangent_stiffness_jikl
                                         )
                                     )
@@ -463,7 +463,7 @@ macro_rules! test_solid_viscous_constitutive_model
                     #[test]
                     fn objectivity() -> Result<(), TestError>
                     {
-                        assert_eq_within_tols_new(
+                        assert_eq_within_tols(
                             &calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
                                 &$constitutive_model_constructed, &DeformationGradient::identity(), &DeformationGradientRate::zero()
                             )?, &(
@@ -497,7 +497,7 @@ macro_rules! test_solid_viscous_constitutive_model
                                     cauchy_rate_tangent_stiffness_ijk.iter()
                                     .zip(cauchy_rate_tangent_stiffness_jik.iter())
                                     .try_for_each(|(cauchy_rate_tangent_stiffness_ijkl, cauchy_rate_tangent_stiffness_jikl)|
-                                        assert_eq_within_tols_new(
+                                        assert_eq_within_tols(
                                             cauchy_rate_tangent_stiffness_ijkl, cauchy_rate_tangent_stiffness_jikl
                                         )
                                     )
@@ -605,7 +605,7 @@ macro_rules! test_solid_viscous_constitutive_model
                                     first_piola_kirchoff_rate_tangent_stiffness_ijk.iter()
                                     .zip(rotated_first_piola_kirchoff_rate_tangent_stiffness_ijk.iter())
                                     .try_for_each(|(first_piola_kirchoff_rate_tangent_stiffness_ijkl, rotated_first_piola_kirchoff_rate_tangent_stiffness_ijkl)|
-                                        assert_eq_within_tols_new(first_piola_kirchoff_rate_tangent_stiffness_ijkl, rotated_first_piola_kirchoff_rate_tangent_stiffness_ijkl)
+                                        assert_eq_within_tols(first_piola_kirchoff_rate_tangent_stiffness_ijkl, rotated_first_piola_kirchoff_rate_tangent_stiffness_ijkl)
                                     )
                                 )
                             )
@@ -640,7 +640,7 @@ macro_rules! test_solid_viscous_constitutive_model
                                     first_piola_kirchoff_rate_tangent_stiffness_ijk.iter()
                                     .zip(rotated_first_piola_kirchoff_rate_tangent_stiffness_ijk.iter())
                                     .try_for_each(|(first_piola_kirchoff_rate_tangent_stiffness_ijkl, rotated_first_piola_kirchoff_rate_tangent_stiffness_ijkl)|
-                                        assert_eq_within_tols_new(first_piola_kirchoff_rate_tangent_stiffness_ijkl, rotated_first_piola_kirchoff_rate_tangent_stiffness_ijkl)
+                                        assert_eq_within_tols(first_piola_kirchoff_rate_tangent_stiffness_ijkl, rotated_first_piola_kirchoff_rate_tangent_stiffness_ijkl)
                                     )
                                 )
                             )
@@ -745,7 +745,7 @@ macro_rules! test_solid_viscous_constitutive_model
                                     second_piola_kirchoff_rate_tangent_stiffness_ijk.iter()
                                     .zip(rotated_second_piola_kirchoff_rate_tangent_stiffness_ijk.iter())
                                     .try_for_each(|(second_piola_kirchoff_rate_tangent_stiffness_ijkl, rotated_second_piola_kirchoff_rate_tangent_stiffness_ijkl)|
-                                        assert_eq_within_tols_new(second_piola_kirchoff_rate_tangent_stiffness_ijkl, rotated_second_piola_kirchoff_rate_tangent_stiffness_ijkl)
+                                        assert_eq_within_tols(second_piola_kirchoff_rate_tangent_stiffness_ijkl, rotated_second_piola_kirchoff_rate_tangent_stiffness_ijkl)
                                     )
                                 )
                             )
@@ -780,7 +780,7 @@ macro_rules! test_solid_viscous_constitutive_model
                                     second_piola_kirchoff_rate_tangent_stiffness_ijk.iter()
                                     .zip(rotated_second_piola_kirchoff_rate_tangent_stiffness_ijk.iter())
                                     .try_for_each(|(second_piola_kirchoff_rate_tangent_stiffness_ijkl, rotated_second_piola_kirchoff_rate_tangent_stiffness_ijkl)|
-                                        assert_eq_within_tols_new(second_piola_kirchoff_rate_tangent_stiffness_ijkl, rotated_second_piola_kirchoff_rate_tangent_stiffness_ijkl)
+                                        assert_eq_within_tols(second_piola_kirchoff_rate_tangent_stiffness_ijkl, rotated_second_piola_kirchoff_rate_tangent_stiffness_ijkl)
                                     )
                                 )
                             )
