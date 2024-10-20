@@ -74,6 +74,19 @@ impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
             None
         }
     }
+    #[cfg(test)]
+    fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<usize> {
+        let error_count = self
+            .iter()
+            .zip(comparator.iter())
+            .filter(|(&self_i, &comparator_i)| &(self_i / comparator_i - 1.0).abs() >= epsilon)
+            .count();
+        if error_count > 0 {
+            Some(error_count)
+        } else {
+            None
+        }
+    }
     fn identity() -> Self {
         panic!()
     }

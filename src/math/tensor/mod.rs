@@ -49,6 +49,8 @@ where
         tol_abs: &TensorRank0,
         tol_rel: &TensorRank0,
     ) -> Option<usize>;
+    #[cfg(test)]
+    fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<usize>;
     /// Returns the identity tensor.
     fn identity() -> Self;
     /// Checks whether the tensor is the zero tensor.

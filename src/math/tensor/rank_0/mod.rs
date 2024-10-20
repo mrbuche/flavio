@@ -30,6 +30,14 @@ impl Tensor for TensorRank0 {
             None
         }
     }
+    #[cfg(test)]
+    fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<usize> {
+        if &(self / comparator - 1.0).abs() >= epsilon {
+            Some(1)
+        } else {
+            None
+        }
+    }
     fn identity() -> Self {
         1.0
     }

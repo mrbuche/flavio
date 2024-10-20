@@ -380,29 +380,12 @@ macro_rules! test_solid_viscous_constitutive_model
                     #[test]
                     fn finite_difference() -> Result<(), TestError>
                     {
-                        calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
-                            &$constitutive_model_constructed, &get_deformation_gradient(), &get_deformation_gradient_rate()
-                        )?.iter()
-                        .zip(calculate_cauchy_rate_tangent_stiffness_from_finite_difference_of_cauchy_stress(true)?.iter())
-                        .for_each(|(cauchy_rate_tangent_stiffness_i, fd_cauchy_rate_tangent_stiffness_i)|
-                            cauchy_rate_tangent_stiffness_i.iter()
-                            .zip(fd_cauchy_rate_tangent_stiffness_i.iter())
-                            .for_each(|(cauchy_rate_tangent_stiffness_ij, fd_cauchy_rate_tangent_stiffness_ij)|
-                                cauchy_rate_tangent_stiffness_ij.iter()
-                                .zip(fd_cauchy_rate_tangent_stiffness_ij.iter())
-                                .for_each(|(cauchy_rate_tangent_stiffness_ijk, fd_cauchy_rate_tangent_stiffness_ijk)|
-                                    cauchy_rate_tangent_stiffness_ijk.iter()
-                                    .zip(fd_cauchy_rate_tangent_stiffness_ijk.iter())
-                                    .for_each(|(cauchy_rate_tangent_stiffness_ijkl, fd_cauchy_rate_tangent_stiffness_ijkl)|
-                                        assert!(
-                                            (cauchy_rate_tangent_stiffness_ijkl/fd_cauchy_rate_tangent_stiffness_ijkl - 1.0).abs() < EPSILON ||
-                                            cauchy_rate_tangent_stiffness_ijkl.abs() < EPSILON
-                                        )
-                                    )
-                                )
-                            )
-                        );
-                        Ok(())
+                        assert_eq_from_fd(
+                            &calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
+                                &$constitutive_model_constructed, &get_deformation_gradient(), &get_deformation_gradient_rate()
+                            )?,
+                            &calculate_cauchy_rate_tangent_stiffness_from_finite_difference_of_cauchy_stress(true)?
+                        )
                     }
                 }
                 mod undeformed
@@ -411,29 +394,12 @@ macro_rules! test_solid_viscous_constitutive_model
                     #[test]
                     fn finite_difference() -> Result<(), TestError>
                     {
-                        calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
-                            &$constitutive_model_constructed, &DeformationGradient::identity(), &DeformationGradientRate::zero()
-                        )?.iter()
-                        .zip(calculate_cauchy_rate_tangent_stiffness_from_finite_difference_of_cauchy_stress(false)?.iter())
-                        .for_each(|(cauchy_rate_tangent_stiffness_i, fd_cauchy_rate_tangent_stiffness_i)|
-                            cauchy_rate_tangent_stiffness_i.iter()
-                            .zip(fd_cauchy_rate_tangent_stiffness_i.iter())
-                            .for_each(|(cauchy_rate_tangent_stiffness_ij, fd_cauchy_rate_tangent_stiffness_ij)|
-                                cauchy_rate_tangent_stiffness_ij.iter()
-                                .zip(fd_cauchy_rate_tangent_stiffness_ij.iter())
-                                .for_each(|(cauchy_rate_tangent_stiffness_ijk, fd_cauchy_rate_tangent_stiffness_ijk)|
-                                    cauchy_rate_tangent_stiffness_ijk.iter()
-                                    .zip(fd_cauchy_rate_tangent_stiffness_ijk.iter())
-                                    .for_each(|(cauchy_rate_tangent_stiffness_ijkl, fd_cauchy_rate_tangent_stiffness_ijkl)|
-                                        assert!(
-                                            (cauchy_rate_tangent_stiffness_ijkl/fd_cauchy_rate_tangent_stiffness_ijkl - 1.0).abs() < EPSILON ||
-                                            cauchy_rate_tangent_stiffness_ijkl.abs() < EPSILON
-                                        )
-                                    )
-                                )
-                            )
-                        );
-                        Ok(())
+                        assert_eq_from_fd(
+                            &calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
+                                &$constitutive_model_constructed, &DeformationGradient::identity(), &DeformationGradientRate::zero()
+                            )?,
+                            &calculate_cauchy_rate_tangent_stiffness_from_finite_difference_of_cauchy_stress(false)?
+                        )
                     }
                 }
             }
@@ -446,37 +412,26 @@ macro_rules! test_solid_viscous_constitutive_model
                     #[test]
                     fn objectivity() -> Result<(), TestError>
                     {
-                        calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
-                            &$constitutive_model_constructed, &get_deformation_gradient(), &get_deformation_gradient_rate()
-                        )?.iter().zip((
-                            calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
-                                &$constitutive_model_constructed, &get_deformation_gradient_rotated(), &get_deformation_gradient_rate_rotated()
-                            )?.contract_all_indices_with_first_indices_of(
-                                &get_rotation_current_configuration(),
-                                &get_rotation_current_configuration(),
-                                &get_rotation_current_configuration(),
-                                &get_rotation_reference_configuration()
-                            )
-                        ).iter())
-                        .try_for_each(|(cauchy_rate_tangent_stiffness_i, rotated_cauchy_rate_tangent_stiffness_i)|
-                            cauchy_rate_tangent_stiffness_i.iter()
-                            .zip(rotated_cauchy_rate_tangent_stiffness_i.iter())
-                            .try_for_each(|(cauchy_rate_tangent_stiffness_ij, rotated_cauchy_rate_tangent_stiffness_ij)|
-                                cauchy_rate_tangent_stiffness_ij.iter()
-                                .zip(rotated_cauchy_rate_tangent_stiffness_ij.iter())
-                                .try_for_each(|(cauchy_rate_tangent_stiffness_ijk, rotated_cauchy_rate_tangent_stiffness_ijk)|
-                                    cauchy_rate_tangent_stiffness_ijk.iter()
-                                    .zip(rotated_cauchy_rate_tangent_stiffness_ijk.iter())
-                                    .try_for_each(|(cauchy_rate_tangent_stiffness_ijkl, rotated_cauchy_rate_tangent_stiffness_ijkl)|
-                                        assert_eq_within_tols_new(cauchy_rate_tangent_stiffness_ijkl, rotated_cauchy_rate_tangent_stiffness_ijkl)
-                                    )
+                        assert_eq_within_tols_new(
+                            &calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
+                                &$constitutive_model_constructed, &get_deformation_gradient(), &get_deformation_gradient_rate()
+                            )?, &(
+                                calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
+                                    &$constitutive_model_constructed, &get_deformation_gradient_rotated(), &get_deformation_gradient_rate_rotated()
+                                )?.contract_all_indices_with_first_indices_of(
+                                    &get_rotation_current_configuration(),
+                                    &get_rotation_current_configuration(),
+                                    &get_rotation_current_configuration(),
+                                    &get_rotation_reference_configuration()
                                 )
                             )
                         )
+
                     }
                     #[test]
                     fn symmetry() -> Result<(), TestError>
                     {
+                        todo!("fix me?");
                         let cauchy_rate_tangent_stiffness =
                         calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
                             &$constitutive_model_constructed, &get_deformation_gradient(), &get_deformation_gradient_rate()
@@ -508,30 +463,17 @@ macro_rules! test_solid_viscous_constitutive_model
                     #[test]
                     fn objectivity() -> Result<(), TestError>
                     {
-                        calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
-                            &$constitutive_model_constructed, &DeformationGradient::identity(), &DeformationGradientRate::zero()
-                        )?.iter().zip((
-                            calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
-                                &$constitutive_model_constructed, &get_deformation_gradient_rotated_undeformed(), &get_deformation_gradient_rate_rotated_undeformed()
-                            )?.contract_all_indices_with_first_indices_of(
-                                &get_rotation_current_configuration(),
-                                &get_rotation_current_configuration(),
-                                &get_rotation_current_configuration(),
-                                &get_rotation_reference_configuration()
-                            )
-                        ).iter())
-                        .try_for_each(|(cauchy_rate_tangent_stiffness_i, rotated_cauchy_rate_tangent_stiffness_i)|
-                            cauchy_rate_tangent_stiffness_i.iter()
-                            .zip(rotated_cauchy_rate_tangent_stiffness_i.iter())
-                            .try_for_each(|(cauchy_rate_tangent_stiffness_ij, rotated_cauchy_rate_tangent_stiffness_ij)|
-                                cauchy_rate_tangent_stiffness_ij.iter()
-                                .zip(rotated_cauchy_rate_tangent_stiffness_ij.iter())
-                                .try_for_each(|(cauchy_rate_tangent_stiffness_ijk, rotated_cauchy_rate_tangent_stiffness_ijk)|
-                                    cauchy_rate_tangent_stiffness_ijk.iter()
-                                    .zip(rotated_cauchy_rate_tangent_stiffness_ijk.iter())
-                                    .try_for_each(|(cauchy_rate_tangent_stiffness_ijkl, rotated_cauchy_rate_tangent_stiffness_ijkl)|
-                                        assert_eq_within_tols_new(cauchy_rate_tangent_stiffness_ijkl, rotated_cauchy_rate_tangent_stiffness_ijkl)
-                                    )
+                        assert_eq_within_tols_new(
+                            &calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
+                                &$constitutive_model_constructed, &DeformationGradient::identity(), &DeformationGradientRate::zero()
+                            )?, &(
+                                calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
+                                    &$constitutive_model_constructed, &get_deformation_gradient_rotated_undeformed(), &get_deformation_gradient_rate_rotated_undeformed()
+                                )?.contract_all_indices_with_first_indices_of(
+                                    &get_rotation_current_configuration(),
+                                    &get_rotation_current_configuration(),
+                                    &get_rotation_current_configuration(),
+                                    &get_rotation_reference_configuration()
                                 )
                             )
                         )
@@ -539,6 +481,7 @@ macro_rules! test_solid_viscous_constitutive_model
                     #[test]
                     fn symmetry() -> Result<(), TestError>
                     {
+                        todo!("fix me?");
                         let cauchy_rate_tangent_stiffness =
                         calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
                             &$constitutive_model_constructed, &DeformationGradient::identity(), &DeformationGradientRate::zero()

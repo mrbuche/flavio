@@ -9,7 +9,10 @@ macro_rules! test_finite_element_block {
                     test_finite_element_block_with_hyperelastic_constitutive_model,
                     test_finite_element_block_with_hyperviscoelastic_constitutive_model,
                 },
-                math::{Convert, TensorRank2},
+                math::{
+                    test::{assert_eq_within_tols as assert_eq_within_tols_new, TestError},
+                    Convert, TensorRank2,
+                },
                 mechanics::test::{
                     get_rotation_current_configuration, get_rotation_rate_current_configuration,
                     get_rotation_reference_configuration, get_translation_current_configuration,

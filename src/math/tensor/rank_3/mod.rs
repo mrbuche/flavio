@@ -103,6 +103,33 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize> Tensor
             None
         }
     }
+    #[cfg(test)]
+    fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<usize> {
+        let error_count = self
+            .iter()
+            .zip(comparator.iter())
+            .map(|(self_i, comparator_i)| {
+                self_i
+                    .iter()
+                    .zip(comparator_i.iter())
+                    .map(|(self_ij, comparator_ij)| {
+                        self_ij
+                            .iter()
+                            .zip(comparator_ij.iter())
+                            .filter(|(&self_ijk, &comparator_ijk)| {
+                                &(self_ijk / comparator_ijk - 1.0).abs() >= epsilon
+                            })
+                            .count()
+                    })
+                    .sum::<usize>()
+            })
+            .sum();
+        if error_count > 0 {
+            Some(error_count)
+        } else {
+            None
+        }
+    }
     fn identity() -> Self {
         panic!()
     }

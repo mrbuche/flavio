@@ -259,18 +259,12 @@ macro_rules! test_solid_hyperelastic_constitutive_model_no_tangents
                 #[test]
                 fn finite_difference() -> Result<(), TestError>
                 {
-                    calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple!(
-                        $constitutive_model_constructed, &get_deformation_gradient()
-                    )?.iter().zip(
-                        calculate_first_piola_kirchoff_stress_from_finite_difference_of_helmholtz_free_energy_density(true)?.iter()
-                    ).for_each(|(first_piola_kirchoff_stress_i, fd_first_piola_kirchoff_stress_i)|
-                        first_piola_kirchoff_stress_i.iter()
-                        .zip(fd_first_piola_kirchoff_stress_i.iter())
-                        .for_each(|(first_piola_kirchoff_stress_ij, fd_first_piola_kirchoff_stress_ij)|
-                            assert!((first_piola_kirchoff_stress_ij/fd_first_piola_kirchoff_stress_ij - 1.0).abs() < EPSILON)
-                        )
-                    );
-                    Ok(())
+                    assert_eq_from_fd(
+                        &calculate_first_piola_kirchoff_stress_from_deformation_gradient_simple!(
+                            $constitutive_model_constructed, &get_deformation_gradient()
+                        )?,
+                        &calculate_first_piola_kirchoff_stress_from_finite_difference_of_helmholtz_free_energy_density(true)?
+                    )
                 }
                 #[test]
                 #[should_panic(expected = "Invalid Jacobian")]
@@ -348,14 +342,10 @@ macro_rules! test_solid_hyperelastic_constitutive_model_no_tangents
                 #[test]
                 fn finite_difference() -> Result<(), TestError>
                 {
-                    calculate_first_piola_kirchoff_stress_from_finite_difference_of_helmholtz_free_energy_density(false)?.iter()
-                    .for_each(|fd_first_piola_kirchoff_stress_i|
-                        fd_first_piola_kirchoff_stress_i.iter()
-                        .for_each(|fd_first_piola_kirchoff_stress_ij|
-                            assert!(fd_first_piola_kirchoff_stress_ij.abs() < EPSILON)
-                        )
-                    );
-                    Ok(())
+                    assert_eq_from_fd(
+                        &calculate_first_piola_kirchoff_stress_from_finite_difference_of_helmholtz_free_energy_density(false)?,
+                        &FirstPiolaKirchoffStress::zero(),
+                    )
                 }
                 #[test]
                 fn minimized() -> Result<(), TestError>

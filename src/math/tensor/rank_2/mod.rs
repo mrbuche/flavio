@@ -550,6 +550,28 @@ impl<const D: usize, const I: usize, const J: usize> Tensor for TensorRank2<D, I
             None
         }
     }
+    #[cfg(test)]
+    fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<usize> {
+        let error_count = self
+            .iter()
+            .zip(comparator.iter())
+            .map(|(self_i, comparator_i)| {
+                self_i
+                    .iter()
+                    .zip(comparator_i.iter())
+                    .filter(|(&self_ij, &comparator_ij)| {
+                        &(self_ij / comparator_ij - 1.0).abs() >= epsilon
+                            && (&self_ij.abs() >= epsilon || &comparator_ij.abs() >= epsilon)
+                    })
+                    .count()
+            })
+            .sum();
+        if error_count > 0 {
+            Some(error_count)
+        } else {
+            None
+        }
+    }
     fn identity() -> Self {
         (0..D)
             .map(|i| (0..D).map(|j| ((i == j) as u8) as TensorRank0).collect())

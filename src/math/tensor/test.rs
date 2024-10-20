@@ -1,5 +1,5 @@
 use super::Tensor;
-use crate::{get_defeat_message, ABS_TOL, REL_TOL};
+use crate::{get_defeat_message, ABS_TOL, EPSILON, REL_TOL};
 use std::{cmp::PartialEq, fmt};
 
 pub fn assert_eq<'a, T: PartialEq + Tensor>(
@@ -15,6 +15,19 @@ pub fn assert_eq<'a, T: PartialEq + Tensor>(
             value_1, value_2
         ),
         })
+    }
+}
+
+pub fn assert_eq_from_fd<'a, T: Tensor>(value: &'a T, value_fd: &'a T) -> Result<(), TestError> {
+    if let Some(error_count) = value.error_fd(value_fd, &EPSILON) {
+        Err(TestError {
+            message: format!(
+            "\n\x1b[1;91mAssertion `left ≈= right` failed in {} places.\n\x1b[0;91m  left: {}\n right: {}\x1b[0",
+            error_count, value, value_fd
+        ),
+        })
+    } else {
+        Ok(())
     }
 }
 

@@ -2,16 +2,6 @@ use crate::mechanics::Scalar;
 
 pub const ALMANSIHAMELPARAMETERS: &[Scalar; 2] = &[13.0, 3.0];
 
-#[test]
-fn finish_getting_rid_of_loops_and_old_assert_eq_with_tols() {
-    todo!()
-}
-
-#[test]
-fn implement_and_use_something_for_epsilon_fd_comparisons() {
-    todo!()
-}
-
 macro_rules! calculate_cauchy_stress_from_deformation_gradient {
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
         $constitutive_model_constructed.calculate_cauchy_stress($deformation_gradient)
@@ -191,7 +181,7 @@ macro_rules! test_solid_constitutive_model_no_tangents
         use crate::
         {
             EPSILON,
-            math::test::{assert_eq, assert_eq_within_tols as assert_eq_within_tols_new, TestError},
+            math::test::{assert_eq, assert_eq_from_fd, assert_eq_within_tols as assert_eq_within_tols_new, TestError},
             mechanics::
             {
                 CauchyStress,
@@ -216,6 +206,7 @@ macro_rules! test_solid_constitutive_model_no_tangents
                 #[should_panic(expected = "Invalid Jacobian")]
                 fn invalid_jacobian()
                 {
+                    let _ = EPSILON;
                     let mut deformation_gradient = DeformationGradient::identity();
                     deformation_gradient[0][0] *= -1.0;
                     calculate_cauchy_stress_from_deformation_gradient!(
@@ -225,7 +216,6 @@ macro_rules! test_solid_constitutive_model_no_tangents
                 #[test]
                 fn objectivity() -> Result<(), TestError>
                 {
-                    let _ = EPSILON;
                     assert_eq_within_tols_new(
                         &calculate_cauchy_stress_from_deformation_gradient!(
                             &$constitutive_model_constructed, &get_deformation_gradient()
@@ -499,25 +489,12 @@ macro_rules! test_solid_constitutive_model_tangents
                     #[test]
                     fn finite_difference() -> Result<(), TestError>
                     {
-                        calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
-                            &$constitutive_model_constructed, &get_deformation_gradient()
-                        )?.iter().zip(calculate_cauchy_tangent_stiffness_from_finite_difference_of_cauchy_stress(true)?.iter())
-                        .for_each(|(cauchy_tangent_stiffness_i, fd_cauchy_tangent_stiffness_i)|
-                            cauchy_tangent_stiffness_i.iter()
-                            .zip(fd_cauchy_tangent_stiffness_i.iter())
-                            .for_each(|(cauchy_tangent_stiffness_ij, fd_cauchy_tangent_stiffness_ij)|
-                                cauchy_tangent_stiffness_ij.iter()
-                                .zip(fd_cauchy_tangent_stiffness_ij.iter())
-                                .for_each(|(cauchy_tangent_stiffness_ijk, fd_cauchy_tangent_stiffness_ijk)|
-                                    cauchy_tangent_stiffness_ijk.iter()
-                                    .zip(fd_cauchy_tangent_stiffness_ijk.iter())
-                                    .for_each(|(cauchy_tangent_stiffness_ijkl, fd_cauchy_tangent_stiffness_ijkl)|
-                                        assert!((cauchy_tangent_stiffness_ijkl/fd_cauchy_tangent_stiffness_ijkl - 1.0).abs() < EPSILON)
-                                    )
-                                )
-                            )
-                        );
-                        Ok(())
+                        assert_eq_from_fd(
+                            &calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
+                                &$constitutive_model_constructed, &get_deformation_gradient()
+                            )?,
+                            &calculate_cauchy_tangent_stiffness_from_finite_difference_of_cauchy_stress(true)?,
+                        )
                     }
                 }
                 mod undeformed
@@ -526,28 +503,12 @@ macro_rules! test_solid_constitutive_model_tangents
                     #[test]
                     fn finite_difference() -> Result<(), TestError>
                     {
-                        calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
-                            &$constitutive_model_constructed, &DeformationGradient::identity()
-                        )?.iter().zip(calculate_cauchy_tangent_stiffness_from_finite_difference_of_cauchy_stress(false)?.iter())
-                        .for_each(|(cauchy_tangent_stiffness_i, fd_cauchy_tangent_stiffness_i)|
-                            cauchy_tangent_stiffness_i.iter()
-                            .zip(fd_cauchy_tangent_stiffness_i.iter())
-                            .for_each(|(cauchy_tangent_stiffness_ij, fd_cauchy_tangent_stiffness_ij)|
-                                cauchy_tangent_stiffness_ij.iter()
-                                .zip(fd_cauchy_tangent_stiffness_ij.iter())
-                                .for_each(|(cauchy_tangent_stiffness_ijk, fd_cauchy_tangent_stiffness_ijk)|
-                                    cauchy_tangent_stiffness_ijk.iter()
-                                    .zip(fd_cauchy_tangent_stiffness_ijk.iter())
-                                    .for_each(|(cauchy_tangent_stiffness_ijkl, fd_cauchy_tangent_stiffness_ijkl)|
-                                        assert!(
-                                            (cauchy_tangent_stiffness_ijkl/fd_cauchy_tangent_stiffness_ijkl - 1.0).abs() < EPSILON ||
-                                            fd_cauchy_tangent_stiffness_ijkl.abs() < EPSILON
-                                        )
-                                    )
-                                )
-                            )
-                        );
-                        Ok(())
+                        assert_eq_from_fd(
+                            &calculate_cauchy_tangent_stiffness_from_deformation_gradient!(
+                                &$constitutive_model_constructed, &DeformationGradient::identity()
+                            )?,
+                            &calculate_cauchy_tangent_stiffness_from_finite_difference_of_cauchy_stress(false)?
+                        )
                     }
                 }
             }
@@ -560,26 +521,12 @@ macro_rules! test_solid_constitutive_model_tangents
                     #[test]
                     fn finite_difference() -> Result<(), TestError>
                     {
-                        calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient!(
-                            &$constitutive_model_constructed, &get_deformation_gradient()
-                        )?.iter()
-                        .zip(calculate_first_piola_kirchoff_tangent_stiffness_from_finite_difference_of_first_piola_kirchoff_stress(true)?.iter())
-                        .for_each(|(first_piola_kirchoff_tangent_stiffness_i, fd_first_piola_kirchoff_tangent_stiffness_i)|
-                            first_piola_kirchoff_tangent_stiffness_i.iter()
-                            .zip(fd_first_piola_kirchoff_tangent_stiffness_i.iter())
-                            .for_each(|(first_piola_kirchoff_tangent_stiffness_ij, fd_first_piola_kirchoff_tangent_stiffness_ij)|
-                                first_piola_kirchoff_tangent_stiffness_ij.iter()
-                                .zip(fd_first_piola_kirchoff_tangent_stiffness_ij.iter())
-                                .for_each(|(first_piola_kirchoff_tangent_stiffness_ijk, fd_first_piola_kirchoff_tangent_stiffness_ijk)|
-                                    first_piola_kirchoff_tangent_stiffness_ijk.iter()
-                                    .zip(fd_first_piola_kirchoff_tangent_stiffness_ijk.iter())
-                                    .for_each(|(first_piola_kirchoff_tangent_stiffness_ijkl, fd_first_piola_kirchoff_tangent_stiffness_ijkl)|
-                                        assert!((first_piola_kirchoff_tangent_stiffness_ijkl/fd_first_piola_kirchoff_tangent_stiffness_ijkl - 1.0).abs() < EPSILON)
-                                    )
-                                )
-                            )
-                        );
-                        Ok(())
+                        assert_eq_from_fd(
+                            &calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient!(
+                                &$constitutive_model_constructed, &get_deformation_gradient()
+                            )?,
+                            &calculate_first_piola_kirchoff_tangent_stiffness_from_finite_difference_of_first_piola_kirchoff_stress(true)?
+                        )
                     }
                 }
                 mod undeformed
@@ -588,29 +535,12 @@ macro_rules! test_solid_constitutive_model_tangents
                     #[test]
                     fn finite_difference() -> Result<(), TestError>
                     {
-                        calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient!(
-                            &$constitutive_model_constructed, &DeformationGradient::identity()
-                        )?.iter()
-                        .zip(calculate_first_piola_kirchoff_tangent_stiffness_from_finite_difference_of_first_piola_kirchoff_stress(false)?.iter())
-                        .for_each(|(first_piola_kirchoff_tangent_stiffness_i, fd_first_piola_kirchoff_tangent_stiffness_i)|
-                            first_piola_kirchoff_tangent_stiffness_i.iter()
-                            .zip(fd_first_piola_kirchoff_tangent_stiffness_i.iter())
-                            .for_each(|(first_piola_kirchoff_tangent_stiffness_ij, fd_first_piola_kirchoff_tangent_stiffness_ij)|
-                                first_piola_kirchoff_tangent_stiffness_ij.iter()
-                                .zip(fd_first_piola_kirchoff_tangent_stiffness_ij.iter())
-                                .for_each(|(first_piola_kirchoff_tangent_stiffness_ijk, fd_first_piola_kirchoff_tangent_stiffness_ijk)|
-                                    first_piola_kirchoff_tangent_stiffness_ijk.iter()
-                                    .zip(fd_first_piola_kirchoff_tangent_stiffness_ijk.iter())
-                                    .for_each(|(first_piola_kirchoff_tangent_stiffness_ijkl, fd_first_piola_kirchoff_tangent_stiffness_ijkl)|
-                                        assert!(
-                                            (first_piola_kirchoff_tangent_stiffness_ijkl/fd_first_piola_kirchoff_tangent_stiffness_ijkl - 1.0).abs() < EPSILON ||
-                                            fd_first_piola_kirchoff_tangent_stiffness_ijkl.abs() < EPSILON
-                                        )
-                                    )
-                                )
-                            )
-                        );
-                        Ok(())
+                        assert_eq_from_fd(
+                            &calculate_first_piola_kirchoff_tangent_stiffness_from_deformation_gradient!(
+                                &$constitutive_model_constructed, &DeformationGradient::identity()
+                            )?,
+                            &calculate_first_piola_kirchoff_tangent_stiffness_from_finite_difference_of_first_piola_kirchoff_stress(false)?
+                        )
                     }
                 }
             }
@@ -623,29 +553,12 @@ macro_rules! test_solid_constitutive_model_tangents
                     #[test]
                     fn finite_difference() -> Result<(), TestError>
                     {
-                        calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient!(
-                            &$constitutive_model_constructed, &get_deformation_gradient()
-                        )?.iter()
-                        .zip(calculate_second_piola_kirchoff_tangent_stiffness_from_finite_difference_of_second_piola_kirchoff_stress(true)?.iter())
-                        .for_each(|(second_piola_kirchoff_tangent_stiffness_i, fd_second_piola_kirchoff_tangent_stiffness_i)|
-                            second_piola_kirchoff_tangent_stiffness_i.iter()
-                            .zip(fd_second_piola_kirchoff_tangent_stiffness_i.iter())
-                            .for_each(|(second_piola_kirchoff_tangent_stiffness_ij, fd_second_piola_kirchoff_tangent_stiffness_ij)|
-                                second_piola_kirchoff_tangent_stiffness_ij.iter()
-                                .zip(fd_second_piola_kirchoff_tangent_stiffness_ij.iter())
-                                .for_each(|(second_piola_kirchoff_tangent_stiffness_ijk, fd_second_piola_kirchoff_tangent_stiffness_ijk)|
-                                    second_piola_kirchoff_tangent_stiffness_ijk.iter()
-                                    .zip(fd_second_piola_kirchoff_tangent_stiffness_ijk.iter())
-                                    .for_each(|(second_piola_kirchoff_tangent_stiffness_ijkl, fd_second_piola_kirchoff_tangent_stiffness_ijkl)|
-                                        assert!(
-                                            (second_piola_kirchoff_tangent_stiffness_ijkl/fd_second_piola_kirchoff_tangent_stiffness_ijkl - 1.0).abs() < EPSILON ||
-                                            fd_second_piola_kirchoff_tangent_stiffness_ijkl.abs() < EPSILON
-                                        )
-                                    )
-                                )
-                            )
-                        );
-                        Ok(())
+                        assert_eq_from_fd(
+                            &calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient!(
+                                &$constitutive_model_constructed, &get_deformation_gradient()
+                            )?,
+                            &calculate_second_piola_kirchoff_tangent_stiffness_from_finite_difference_of_second_piola_kirchoff_stress(true)?
+                        )
                     }
                 }
                 mod undeformed
@@ -654,29 +567,12 @@ macro_rules! test_solid_constitutive_model_tangents
                     #[test]
                     fn finite_difference() -> Result<(), TestError>
                     {
-                        calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient!(
-                            &$constitutive_model_constructed, &DeformationGradient::identity()
-                        )?.iter()
-                        .zip(calculate_second_piola_kirchoff_tangent_stiffness_from_finite_difference_of_second_piola_kirchoff_stress(false)?.iter())
-                        .for_each(|(second_piola_kirchoff_tangent_stiffness_i, fd_second_piola_kirchoff_tangent_stiffness_i)|
-                            second_piola_kirchoff_tangent_stiffness_i.iter()
-                            .zip(fd_second_piola_kirchoff_tangent_stiffness_i.iter())
-                            .for_each(|(second_piola_kirchoff_tangent_stiffness_ij, fd_second_piola_kirchoff_tangent_stiffness_ij)|
-                                second_piola_kirchoff_tangent_stiffness_ij.iter()
-                                .zip(fd_second_piola_kirchoff_tangent_stiffness_ij.iter())
-                                .for_each(|(second_piola_kirchoff_tangent_stiffness_ijk, fd_second_piola_kirchoff_tangent_stiffness_ijk)|
-                                    second_piola_kirchoff_tangent_stiffness_ijk.iter()
-                                    .zip(fd_second_piola_kirchoff_tangent_stiffness_ijk.iter())
-                                    .for_each(|(second_piola_kirchoff_tangent_stiffness_ijkl, fd_second_piola_kirchoff_tangent_stiffness_ijkl)|
-                                        assert!(
-                                            (second_piola_kirchoff_tangent_stiffness_ijkl/fd_second_piola_kirchoff_tangent_stiffness_ijkl - 1.0).abs() < EPSILON ||
-                                            fd_second_piola_kirchoff_tangent_stiffness_ijkl.abs() < EPSILON
-                                        )
-                                    )
-                                )
-                            )
-                        );
-                        Ok(())
+                        assert_eq_from_fd(
+                            &calculate_second_piola_kirchoff_tangent_stiffness_from_deformation_gradient!(
+                                &$constitutive_model_constructed, &DeformationGradient::identity()
+                            )?,
+                            &calculate_second_piola_kirchoff_tangent_stiffness_from_finite_difference_of_second_piola_kirchoff_stress(false)?
+                        )
                     }
                 }
             }
