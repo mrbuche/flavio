@@ -4,7 +4,10 @@ use super::{
     RotationReferenceConfiguration, Scalar, TemperatureGradient, IDENTITY, IDENTITY_00,
     IDENTITY_10, IDENTITY_1010,
 };
-use crate::{math::Tensor, test::assert_eq_within_tols};
+use crate::math::{
+    test::{assert_eq_within_tols, TestError},
+    Tensor,
+};
 
 pub fn get_deformation_gradient() -> DeformationGradient {
     DeformationGradient::new([
@@ -133,10 +136,7 @@ fn identity_1010() {
         entry_i.iter().enumerate().for_each(|(j, entry_ij)| {
             entry_ij.iter().enumerate().for_each(|(k, entry_ijk)| {
                 entry_ijk.iter().enumerate().for_each(|(l, entry_ijkl)| {
-                    assert_eq!(
-                        entry_ijkl,
-                        &(((i == k) as u8 * (j == l) as u8) as u8 as Scalar)
-                    )
+                    assert_eq!(entry_ijkl, &(((i == k) as u8 * (j == l) as u8) as Scalar))
                 })
             })
         })
@@ -144,44 +144,28 @@ fn identity_1010() {
 }
 
 #[test]
-fn rotation_current_configuration() {
-    (get_rotation_current_configuration() * get_rotation_current_configuration().transpose())
-        .iter()
-        .zip(IDENTITY.iter())
-        .for_each(|(res_i, identity_i)| {
-            res_i
-                .iter()
-                .zip(identity_i.iter())
-                .for_each(|(res_ij, identity_ij)| assert_eq_within_tols(res_ij, identity_ij))
-        })
+fn rotation_current_configuration() -> Result<(), TestError> {
+    assert_eq_within_tols(
+        &(get_rotation_current_configuration() * get_rotation_current_configuration().transpose()),
+        &IDENTITY,
+    )
 }
 
 #[test]
-fn rotation_reference_configuration() {
-    (get_rotation_reference_configuration() * get_rotation_reference_configuration().transpose())
-        .iter()
-        .zip(IDENTITY_00.iter())
-        .for_each(|(res_i, identity_i)| {
-            res_i
-                .iter()
-                .zip(identity_i.iter())
-                .for_each(|(res_ij, identity_ij)| assert_eq_within_tols(res_ij, identity_ij))
-        })
+fn rotation_reference_configuration() -> Result<(), TestError> {
+    assert_eq_within_tols(
+        &(get_rotation_reference_configuration()
+            * get_rotation_reference_configuration().transpose()),
+        &IDENTITY_00,
+    )
 }
 
 #[test]
-fn rotation_rate_current_configuration() {
-    get_rotation_rate_current_configuration()
-        .iter()
-        .zip((get_frame_spin() * get_rotation_current_configuration()).iter())
-        .for_each(|(rotation_rate_i, res_rotation_rate_i)| {
-            rotation_rate_i
-                .iter()
-                .zip(res_rotation_rate_i.iter())
-                .for_each(|(rotation_rate_ij, res_rotation_rate_ij)| {
-                    assert_eq_within_tols(rotation_rate_ij, res_rotation_rate_ij)
-                })
-        })
+fn rotation_rate_current_configuration() -> Result<(), TestError> {
+    assert_eq_within_tols(
+        &get_rotation_rate_current_configuration(),
+        &(get_frame_spin() * get_rotation_current_configuration()),
+    )
 }
 
 #[test]

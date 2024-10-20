@@ -23,7 +23,7 @@ mod consistency {
         assert_eq_within_tols(
             &model.calculate_cauchy_stress(
                 &get_deformation_gradient(),
-                &model.get_reference_temperature(),
+                model.get_reference_temperature(),
             )?,
             &elastic_model.calculate_cauchy_stress(&get_deformation_gradient())?,
         )
@@ -35,7 +35,7 @@ mod consistency {
         assert_eq_within_tols(
             &model.calculate_cauchy_tangent_stiffness(
                 &get_deformation_gradient(),
-                &model.get_reference_temperature(),
+                model.get_reference_temperature(),
             )?,
             &elastic_model.calculate_cauchy_tangent_stiffness(&get_deformation_gradient())?,
         )
