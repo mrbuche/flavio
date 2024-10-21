@@ -15,7 +15,6 @@ pub struct TensorRank2List<const D: usize, const I: usize, const J: usize, const
     pub [TensorRank2<D, I, J>; W],
 );
 
-/// Inherent implementation of [`TensorRank2List`].
 impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2List<D, I, J, W> {
     /// Returns a list of rank-2 identity tensors.
     pub fn identity() -> Self {
@@ -23,7 +22,6 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2
     }
 }
 
-/// Implementation of [`Tensors`] for [`TensorRank2List`].
 impl<const D: usize, const I: usize, const J: usize, const W: usize> Tensors
     for TensorRank2List<D, I, J, W>
 {

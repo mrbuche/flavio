@@ -9,7 +9,9 @@ use std::{
     ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
 };
 
-use super::{rank_0::TensorRank0, rank_2::TensorRank2, Convert, Tensor};
+use super::{
+    super::write_tensor_rank_0, rank_0::TensorRank0, rank_2::TensorRank2, Convert, Tensor,
+};
 
 /// A *d*-dimensional tensor of rank 1.
 ///
@@ -19,7 +21,10 @@ pub struct TensorRank1<const D: usize, const I: usize>(pub [TensorRank0; D]);
 
 impl<const D: usize, const I: usize> Display for TensorRank1<D, I> {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        Ok(())
+        write!(f, "[")?;
+        self.iter()
+            .try_for_each(|entry| write_tensor_rank_0(f, entry))?;
+        write!(f, "\x1B[2D]")
     }
 }
 

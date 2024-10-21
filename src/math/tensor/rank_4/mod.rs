@@ -28,7 +28,7 @@ pub struct TensorRank4<
 impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> Display
     for TensorRank4<D, I, J, K, L>
 {
-    fn fmt(&self, f: &mut Formatter) -> Result {
+    fn fmt(&self, _f: &mut Formatter) -> Result {
         Ok(())
     }
 }

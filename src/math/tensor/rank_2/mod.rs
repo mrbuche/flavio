@@ -40,8 +40,7 @@ impl<const D: usize, const I: usize, const J: usize> Display for TensorRank2<D, 
             }
             Ok(())
         })?;
-        write!(f, "\x1B[2D]]")?;
-        Ok(())
+        write!(f, "\x1B[2D]]")
     }
 }
 

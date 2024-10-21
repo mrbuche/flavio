@@ -181,7 +181,7 @@ macro_rules! test_solid_constitutive_model_no_tangents
         use crate::
         {
             EPSILON,
-            math::test::{assert_eq, assert_eq_from_fd, assert_eq_within_tols, TestError},
+            math::test::{assert_eq, assert_eq_within_tols, TestError},
             mechanics::
             {
                 CauchyStress,
@@ -346,7 +346,7 @@ macro_rules! test_solid_constitutive_model_tangents
         {
             use crate::
             {
-                math::ContractAllIndicesWithFirstIndicesOf,
+                math::{ContractAllIndicesWithFirstIndicesOf, test::assert_eq_from_fd},
                 mechanics::test::get_deformation_gradient_rotated_undeformed
             };
             use super::*;

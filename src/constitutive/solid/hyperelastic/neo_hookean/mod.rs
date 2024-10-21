@@ -19,14 +19,12 @@ pub struct NeoHookean<'a> {
     parameters: Parameters<'a>,
 }
 
-/// Constitutive model implementation of the Neo-Hookean hyperelastic constitutive model.
 impl<'a> Constitutive<'a> for NeoHookean<'a> {
     fn new(parameters: Parameters<'a>) -> Self {
         Self { parameters }
     }
 }
 
-/// Solid constitutive model implementation of the Neo-Hookean hyperelastic constitutive model.
 impl<'a> Solid<'a> for NeoHookean<'a> {
     fn get_bulk_modulus(&self) -> &Scalar {
         &self.parameters[0]
@@ -36,7 +34,6 @@ impl<'a> Solid<'a> for NeoHookean<'a> {
     }
 }
 
-/// Elastic constitutive model implementation of the Neo-Hookean hyperelastic constitutive model.
 impl<'a> Elastic<'a> for NeoHookean<'a> {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -101,7 +98,6 @@ impl<'a> Elastic<'a> for NeoHookean<'a> {
     }
 }
 
-/// Hyperelastic constitutive model implementation of the Neo-Hookean hyperelastic constitutive model.
 impl<'a> Hyperelastic<'a> for NeoHookean<'a> {
     /// Calculates and returns the Helmholtz free energy density.
     ///

@@ -1,11 +1,6 @@
 use super::{super::Tensor, levi_civita, TensorRank0, TensorRank2, TensorRank3};
 use crate::{ABS_TOL, REL_TOL};
 
-#[test]
-fn test_partial_eq_impl_cases() {
-    todo!()
-}
-
 fn get_array() -> [[[TensorRank0; 4]; 4]; 4] {
     [
         [

@@ -33,7 +33,7 @@ pub struct TensorRank3<const D: usize, const I: usize, const J: usize, const K: 
 impl<const D: usize, const I: usize, const J: usize, const K: usize> Display
     for TensorRank3<D, I, J, K>
 {
-    fn fmt(&self, f: &mut Formatter) -> Result {
+    fn fmt(&self, _f: &mut Formatter) -> Result {
         Ok(())
     }
 }

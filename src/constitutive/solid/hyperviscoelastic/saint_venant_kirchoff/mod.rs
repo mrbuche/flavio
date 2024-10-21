@@ -25,14 +25,12 @@ pub struct SaintVenantKirchoff<'a> {
     parameters: Parameters<'a>,
 }
 
-/// Constitutive model implementation of the Saint Venant-Kirchoff hyperviscoelastic constitutive model.
 impl<'a> Constitutive<'a> for SaintVenantKirchoff<'a> {
     fn new(parameters: Parameters<'a>) -> Self {
         Self { parameters }
     }
 }
 
-/// Solid constitutive model implementation of the Saint Venant-Kirchoff hyperviscoelastic constitutive model.
 impl<'a> Solid<'a> for SaintVenantKirchoff<'a> {
     fn get_bulk_modulus(&self) -> &Scalar {
         &self.parameters[0]
@@ -42,7 +40,6 @@ impl<'a> Solid<'a> for SaintVenantKirchoff<'a> {
     }
 }
 
-/// Viscous constitutive model implementation of the Saint Venant-Kirchoff hyperviscoelastic constitutive model.
 impl<'a> Viscous<'a> for SaintVenantKirchoff<'a> {
     fn get_bulk_viscosity(&self) -> &Scalar {
         &self.parameters[2]
@@ -52,7 +49,6 @@ impl<'a> Viscous<'a> for SaintVenantKirchoff<'a> {
     }
 }
 
-/// Viscoelastic constitutive model implementation of the Saint Venant-Kirchoff hyperviscoelastic constitutive model.
 impl<'a> Viscoelastic<'a> for SaintVenantKirchoff<'a> {
     /// Calculates and returns the second Piola-Kirchoff stress.
     ///
@@ -122,7 +118,6 @@ impl<'a> Viscoelastic<'a> for SaintVenantKirchoff<'a> {
     }
 }
 
-/// Elastic-hyperviscous constitutive model implementation of the Saint Venant-Kirchoff hyperviscoelastic constitutive model.
 impl<'a> ElasticHyperviscous<'a> for SaintVenantKirchoff<'a> {
     /// Calculates and returns the viscous dissipation.
     ///
@@ -152,7 +147,6 @@ impl<'a> ElasticHyperviscous<'a> for SaintVenantKirchoff<'a> {
     }
 }
 
-/// Hyperviscoelastic constitutive model implementation of the Saint Venant-Kirchoff hyperviscoelastic constitutive model.
 impl<'a> Hyperviscoelastic<'a> for SaintVenantKirchoff<'a> {
     /// Calculates and returns the Helmholtz free energy density.
     ///

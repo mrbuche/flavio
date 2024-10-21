@@ -10,7 +10,6 @@ use crate::{
     mechanics::{DeformationGradient, Scalar},
 };
 
-/// Hyperelastic constitutive model implementation of hybrid hyperelastic constitutive models that are based on the multiplicative decomposition.
 impl<'a, C1: Hyperelastic<'a>, C2: Hyperelastic<'a>> Hyperelastic<'a> for Multiplicative<C1, C2> {
     /// Calculates and returns the Helmholtz free energy density.
     ///

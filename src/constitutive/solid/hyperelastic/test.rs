@@ -252,6 +252,7 @@ macro_rules! test_solid_hyperelastic_constitutive_model_no_tangents
         }
         mod helmholtz_free_energy_density
         {
+        use crate::math::test::assert_eq_from_fd;
             use super::*;
             mod deformed
             {

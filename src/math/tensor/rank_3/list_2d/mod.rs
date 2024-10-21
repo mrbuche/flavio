@@ -16,7 +16,6 @@ pub struct TensorRank3List2D<
     const X: usize,
 >([TensorRank3List<D, I, J, K, W>; X]);
 
-/// Implementation of [`Tensors`] for [`TensorRank3List2D`].
 impl<
         const D: usize,
         const I: usize,

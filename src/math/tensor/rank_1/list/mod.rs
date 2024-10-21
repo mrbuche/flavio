@@ -15,7 +15,6 @@ pub struct TensorRank1List<const D: usize, const I: usize, const W: usize>(
     pub [TensorRank1<D, I>; W],
 );
 
-/// Inherent implementation of [`TensorRank1List`].
 impl<const D: usize, const I: usize, const W: usize> TensorRank1List<D, I, W> {
     /// Returns the sum of the full dot product of each tensor in each list.
     pub fn dot(&self, tensors: &Self) -> TensorRank0 {
@@ -26,7 +25,6 @@ impl<const D: usize, const I: usize, const W: usize> TensorRank1List<D, I, W> {
     }
 }
 
-/// Implementation of [`Tensors`] for [`TensorRank1List`].
 impl<const D: usize, const I: usize, const W: usize> Tensors for TensorRank1List<D, I, W> {
     type Array = [[TensorRank0; D]; W];
     type Item = TensorRank1<D, I>;

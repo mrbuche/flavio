@@ -219,18 +219,12 @@ macro_rules! test_solid_elastic_hyperviscous_specifics
                     #[test]
                     fn finite_difference() -> Result<(), TestError>
                     {
-                        calculate_first_piola_kirchoff_stress_from_deformation_gradient_rate_simple!(
-                            $constitutive_model_constructed, &get_deformation_gradient_rate()
-                        )?.iter().zip(
-                            calculate_first_piola_kirchoff_stress_from_finite_difference_of_viscous_dissipation(true)?.iter()
-                        ).for_each(|(first_piola_kirchoff_stress_i, fd_first_piola_kirchoff_stress_i)|
-                            first_piola_kirchoff_stress_i.iter()
-                            .zip(fd_first_piola_kirchoff_stress_i.iter())
-                            .for_each(|(first_piola_kirchoff_stress_ij, fd_first_piola_kirchoff_stress_ij)|
-                                assert!((first_piola_kirchoff_stress_ij/fd_first_piola_kirchoff_stress_ij - 1.0).abs() < EPSILON)
-                            )
-                        );
-                        Ok(())
+                        assert_eq_from_fd(
+                            &calculate_first_piola_kirchoff_stress_from_deformation_gradient_rate_simple!(
+                                $constitutive_model_constructed, &get_deformation_gradient_rate()
+                            )?,
+                            &calculate_first_piola_kirchoff_stress_from_finite_difference_of_viscous_dissipation(true)?
+                        )
                     }
                     #[test]
                     fn minimized() -> Result<(), TestError>
@@ -298,14 +292,10 @@ macro_rules! test_solid_elastic_hyperviscous_specifics
                     #[test]
                     fn finite_difference() -> Result<(), TestError>
                     {
-                        calculate_first_piola_kirchoff_stress_from_finite_difference_of_viscous_dissipation(false)?.iter()
-                        .for_each(|fd_first_piola_kirchoff_stress_i|
-                            fd_first_piola_kirchoff_stress_i.iter()
-                            .for_each(|fd_first_piola_kirchoff_stress_ij|
-                                assert!(fd_first_piola_kirchoff_stress_ij.abs() < EPSILON)
-                            )
-                        );
-                        Ok(())
+                        assert_eq_from_fd(
+                            &calculate_first_piola_kirchoff_stress_from_finite_difference_of_viscous_dissipation(false)?,
+                            &FirstPiolaKirchoffStress::zero()
+                        )
                     }
                     #[test]
                     fn minimized() -> Result<(), TestError>
@@ -405,18 +395,12 @@ macro_rules! test_solid_elastic_hyperviscous_specifics
                     #[test]
                     fn finite_difference() -> Result<(), TestError>
                     {
-                        calculate_first_piola_kirchoff_stress_from_deformation_gradient_and_deformation_gradient_rate!(
-                            $constitutive_model_constructed, &get_deformation_gradient(), &get_deformation_gradient_rate()
-                        )?.iter().zip(
-                            calculate_first_piola_kirchoff_stress_from_finite_difference_of_dissipation_potential(true)?.iter()
-                        ).for_each(|(first_piola_kirchoff_stress_i, fd_first_piola_kirchoff_stress_i)|
-                            first_piola_kirchoff_stress_i.iter()
-                            .zip(fd_first_piola_kirchoff_stress_i.iter())
-                            .for_each(|(first_piola_kirchoff_stress_ij, fd_first_piola_kirchoff_stress_ij)|
-                                assert!((first_piola_kirchoff_stress_ij/fd_first_piola_kirchoff_stress_ij - 1.0).abs() < EPSILON)
-                            )
-                        );
-                        Ok(())
+                        assert_eq_from_fd(
+                            &calculate_first_piola_kirchoff_stress_from_deformation_gradient_and_deformation_gradient_rate!(
+                                $constitutive_model_constructed, &get_deformation_gradient(), &get_deformation_gradient_rate()
+                            )?,
+                            &calculate_first_piola_kirchoff_stress_from_finite_difference_of_dissipation_potential(true)?
+                        )
                     }
                     #[test]
                     fn minimized() -> Result<(), TestError>
@@ -474,14 +458,10 @@ macro_rules! test_solid_elastic_hyperviscous_specifics
                     #[test]
                     fn finite_difference() -> Result<(), TestError>
                     {
-                        calculate_first_piola_kirchoff_stress_from_finite_difference_of_dissipation_potential(false)?.iter()
-                        .for_each(|fd_first_piola_kirchoff_stress_i|
-                            fd_first_piola_kirchoff_stress_i.iter()
-                            .for_each(|fd_first_piola_kirchoff_stress_ij|
-                                assert!(fd_first_piola_kirchoff_stress_ij.abs() < EPSILON)
-                            )
-                        );
-                        Ok(())
+                        assert_eq_from_fd(
+                            &calculate_first_piola_kirchoff_stress_from_finite_difference_of_dissipation_potential(false)?,
+                            &FirstPiolaKirchoffStress::zero()
+                        )
                     }
                     #[test]
                     fn minimized() -> Result<(), TestError>
@@ -534,24 +514,18 @@ macro_rules! test_solid_elastic_hyperviscous_specifics
                         calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
                             $constitutive_model_constructed, &get_deformation_gradient(), &get_deformation_gradient_rate()
                         )?;
-                        let result = first_piola_kirchoff_rate_tangent_stiffness.iter().enumerate()
-                        .try_for_each(|(i, first_piola_kirchoff_rate_tangent_stiffness_i)|
-                            first_piola_kirchoff_rate_tangent_stiffness_i.iter().enumerate()
-                            .try_for_each(|(j, first_piola_kirchoff_rate_tangent_stiffness_ij)|
-                                first_piola_kirchoff_rate_tangent_stiffness_ij.iter()
-                                .zip(first_piola_kirchoff_rate_tangent_stiffness.iter())
-                                .try_for_each(|(first_piola_kirchoff_rate_tangent_stiffness_ijk, first_piola_kirchoff_rate_tangent_stiffness_k)|
-                                    first_piola_kirchoff_rate_tangent_stiffness_ijk.iter()
-                                    .zip(first_piola_kirchoff_rate_tangent_stiffness_k.iter())
-                                    .try_for_each(|(first_piola_kirchoff_rate_tangent_stiffness_ijkl, first_piola_kirchoff_rate_tangent_stiffness_kl)|
-                                        assert_eq_within_tols(
-                                            first_piola_kirchoff_rate_tangent_stiffness_ijkl, &first_piola_kirchoff_rate_tangent_stiffness_kl[i][j]
-                                        )
-                                    )
-                                )
-                            )
-                        );
-                        result
+                        assert_eq_within_tols(
+                            &first_piola_kirchoff_rate_tangent_stiffness,
+                            &(0..3).map(|i|
+                                (0..3).map(|j|
+                                    (0..3).map(|k|
+                                        (0..3).map(|l|
+                                            first_piola_kirchoff_rate_tangent_stiffness[k][l][i][j].copy()
+                                        ).collect()
+                                    ).collect()
+                                ).collect()
+                            ).collect()
+                        )
                     }
                 }
                 mod undeformed
@@ -564,24 +538,18 @@ macro_rules! test_solid_elastic_hyperviscous_specifics
                         calculate_first_piola_kirchoff_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
                             $constitutive_model_constructed, &DeformationGradient::identity(), &DeformationGradientRate::zero()
                         )?;
-                        let result = first_piola_kirchoff_rate_tangent_stiffness.iter().enumerate()
-                        .try_for_each(|(i, first_piola_kirchoff_rate_tangent_stiffness_i)|
-                            first_piola_kirchoff_rate_tangent_stiffness_i.iter().enumerate()
-                            .try_for_each(|(j, first_piola_kirchoff_rate_tangent_stiffness_ij)|
-                                first_piola_kirchoff_rate_tangent_stiffness_ij.iter()
-                                .zip(first_piola_kirchoff_rate_tangent_stiffness.iter())
-                                .try_for_each(|(first_piola_kirchoff_rate_tangent_stiffness_ijk, first_piola_kirchoff_rate_tangent_stiffness_k)|
-                                    first_piola_kirchoff_rate_tangent_stiffness_ijk.iter()
-                                    .zip(first_piola_kirchoff_rate_tangent_stiffness_k.iter())
-                                    .try_for_each(|(first_piola_kirchoff_rate_tangent_stiffness_ijkl, first_piola_kirchoff_rate_tangent_stiffness_kl)|
-                                        assert_eq_within_tols(
-                                            first_piola_kirchoff_rate_tangent_stiffness_ijkl, &first_piola_kirchoff_rate_tangent_stiffness_kl[i][j]
-                                        )
-                                    )
-                                )
-                            )
-                        );
-                        result
+                        assert_eq_within_tols(
+                            &first_piola_kirchoff_rate_tangent_stiffness,
+                            &(0..3).map(|i|
+                                (0..3).map(|j|
+                                    (0..3).map(|k|
+                                        (0..3).map(|l|
+                                            first_piola_kirchoff_rate_tangent_stiffness[k][l][i][j].copy()
+                                        ).collect()
+                                    ).collect()
+                                ).collect()
+                            ).collect()
+                        )
                     }
                 }
             }

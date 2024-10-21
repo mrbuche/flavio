@@ -20,7 +20,6 @@ pub struct TensorRank4List<
     const W: usize,
 >([TensorRank4<D, I, J, K, L>; W]);
 
-/// Implementation of [`Tensors`] for [`TensorRank4List`].
 impl<
         const D: usize,
         const I: usize,

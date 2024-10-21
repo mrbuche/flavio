@@ -37,7 +37,6 @@ impl<const W: usize> fmt::Display for TensorRank0List<W> {
     }
 }
 
-/// Implementation of [`Tensors`] for [`TensorRank0List`].
 impl<const W: usize> Tensors for TensorRank0List<W> {
     type Array = [TensorRank0; W];
     type Item = TensorRank0;

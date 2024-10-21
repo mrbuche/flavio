@@ -40,7 +40,6 @@ pub trait MultiplicativeTrait {
     ) -> Result<(DeformationGradient, DeformationGradient), ConstitutiveError>;
 }
 
-/// Hybrid constitutive model implementation of hybrid constitutive models based on the additive decomposition.
 impl<'a, C1: Constitutive<'a>, C2: Constitutive<'a>> Hybrid<'a, C1, C2> for Additive<C1, C2> {
     fn construct(constitutive_model_1: C1, constitutive_model_2: C2) -> Self {
         Self {
@@ -56,7 +55,6 @@ impl<'a, C1: Constitutive<'a>, C2: Constitutive<'a>> Hybrid<'a, C1, C2> for Addi
     }
 }
 
-/// Hybrid constitutive model implementation of hybrid constitutive models based on the multiplicative decomposition.
 impl<'a, C1: Constitutive<'a>, C2: Constitutive<'a>> Hybrid<'a, C1, C2> for Multiplicative<C1, C2> {
     fn construct(constitutive_model_1: C1, constitutive_model_2: C2) -> Self {
         Self {

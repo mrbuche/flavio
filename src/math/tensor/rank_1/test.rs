@@ -1,10 +1,8 @@
 use super::{Tensor, TensorRank0, TensorRank1};
-use crate::{ABS_TOL, REL_TOL};
-
-#[test]
-fn test_partial_eq_impl_cases() {
-    todo!()
-}
+use crate::{
+    math::test::{assert_eq, TestError},
+    ABS_TOL, REL_TOL,
+};
 
 fn get_array() -> [TensorRank0; 4] {
     [1.0, 2.0, 3.0, 4.0]
@@ -43,77 +41,54 @@ fn get_tensor_rank_1_sub_tensor_rank_1_a() -> TensorRank1<4, 1> {
 }
 
 #[test]
-fn add_tensor_rank_1_to_self() {
-    (get_tensor_rank_1() + get_tensor_rank_1_a())
-        .iter()
-        .zip(get_tensor_rank_1_add_tensor_rank_1_a().iter())
-        .for_each(|(tensor_rank_1_i, add_tensor_rank_1_i)| {
-            assert_eq!(tensor_rank_1_i, add_tensor_rank_1_i)
-        });
+fn add_tensor_rank_1_to_self() -> Result<(), TestError> {
+    assert_eq(
+        &(get_tensor_rank_1() + get_tensor_rank_1_a()),
+        &get_tensor_rank_1_add_tensor_rank_1_a(),
+    )
 }
 
 #[test]
-fn add_tensor_rank_1_ref_to_self() {
-    (get_tensor_rank_1() + &get_tensor_rank_1_a())
-        .iter()
-        .zip(get_tensor_rank_1_add_tensor_rank_1_a().iter())
-        .for_each(|(tensor_rank_1_i, add_tensor_rank_1_i)| {
-            assert_eq!(tensor_rank_1_i, add_tensor_rank_1_i)
-        });
+fn add_tensor_rank_1_ref_to_self() -> Result<(), TestError> {
+    assert_eq(
+        &(get_tensor_rank_1() + &get_tensor_rank_1_a()),
+        &get_tensor_rank_1_add_tensor_rank_1_a(),
+    )
 }
 
 #[test]
-fn add_tensor_rank_1_to_self_ref() {
-    (&get_tensor_rank_1() + get_tensor_rank_1_a())
-        .iter()
-        .zip(get_tensor_rank_1_add_tensor_rank_1_a().iter())
-        .for_each(|(tensor_rank_1_i, add_tensor_rank_1_i)| {
-            assert_eq!(tensor_rank_1_i, add_tensor_rank_1_i)
-        });
+fn add_tensor_rank_1_to_self_ref() -> Result<(), TestError> {
+    assert_eq(
+        &(&get_tensor_rank_1() + get_tensor_rank_1_a()),
+        &get_tensor_rank_1_add_tensor_rank_1_a(),
+    )
 }
 
 #[test]
-fn add_assign_tensor_rank_1() {
+fn add_assign_tensor_rank_1() -> Result<(), TestError> {
     let mut tensor_rank_1 = get_tensor_rank_1();
     tensor_rank_1 += get_tensor_rank_1_a();
-    tensor_rank_1
-        .iter()
-        .zip(get_tensor_rank_1_add_tensor_rank_1_a().iter())
-        .for_each(|(tensor_rank_1_i, add_tensor_rank_1_i)| {
-            assert_eq!(tensor_rank_1_i, add_tensor_rank_1_i)
-        });
+    assert_eq(&tensor_rank_1, &get_tensor_rank_1_add_tensor_rank_1_a())
 }
 
 #[test]
-fn add_assign_tensor_rank_1_ref() {
+fn add_assign_tensor_rank_1_ref() -> Result<(), TestError> {
     let mut tensor_rank_1 = get_tensor_rank_1();
     tensor_rank_1 += &get_tensor_rank_1_a();
-    tensor_rank_1
-        .iter()
-        .zip(get_tensor_rank_1_add_tensor_rank_1_a().iter())
-        .for_each(|(tensor_rank_1_i, add_tensor_rank_1_i)| {
-            assert_eq!(tensor_rank_1_i, add_tensor_rank_1_i)
-        });
+    assert_eq(&tensor_rank_1, &get_tensor_rank_1_add_tensor_rank_1_a())
 }
 
 #[test]
 fn as_array() {
-    get_tensor_rank_1()
-        .as_array()
-        .iter()
-        .zip(get_array().iter())
-        .for_each(|(tensor_rank_1_as_array_i, array_i)| {
-            assert_eq!(tensor_rank_1_as_array_i, array_i)
-        });
+    assert_eq!(get_tensor_rank_1().as_array(), get_array())
 }
 
 #[test]
-fn cross() {
-    get_tensor_rank_1_b()
-        .cross(&get_tensor_rank_1_c())
-        .iter()
-        .zip(get_tensor_rank_1_b_cross_c().iter())
-        .for_each(|(tensor_rank_1_i, array_i)| assert_eq!(tensor_rank_1_i, array_i));
+fn cross() -> Result<(), TestError> {
+    assert_eq(
+        &(get_tensor_rank_1_b().cross(&get_tensor_rank_1_c())),
+        &get_tensor_rank_1_b_cross_c(),
+    )
 }
 
 #[test]
@@ -123,57 +98,59 @@ fn cross_panic() {
 }
 
 #[test]
-fn div_tensor_rank_0_to_self() {
+fn div_tensor_rank_0_to_self() -> Result<(), TestError> {
     (get_tensor_rank_1() / 3.3)
         .iter()
         .zip(get_array().iter())
-        .for_each(|(tensor_rank_1_i, array_i)| assert_eq!(tensor_rank_1_i, &(array_i / 3.3)));
+        .try_for_each(|(tensor_rank_1_i, array_i)| assert_eq(tensor_rank_1_i, &(array_i / 3.3)))
 }
 
 #[test]
-fn div_tensor_rank_0_to_self_ref() {
+fn div_tensor_rank_0_to_self_ref() -> Result<(), TestError> {
     (&get_tensor_rank_1() / 3.3)
         .iter()
         .zip(get_array().iter())
-        .for_each(|(tensor_rank_1_i, array_i)| assert_eq!(tensor_rank_1_i, &(array_i / 3.3)));
+        .try_for_each(|(tensor_rank_1_i, array_i)| assert_eq(tensor_rank_1_i, &(array_i / 3.3)))
 }
 
 #[test]
 #[allow(clippy::op_ref)]
-fn div_tensor_rank_0_ref_to_self() {
+fn div_tensor_rank_0_ref_to_self() -> Result<(), TestError> {
     (get_tensor_rank_1() / &3.3)
         .iter()
         .zip(get_array().iter())
-        .for_each(|(tensor_rank_1_i, array_i)| assert_eq!(tensor_rank_1_i, &(array_i / 3.3)));
+        .try_for_each(|(tensor_rank_1_i, array_i)| assert_eq(tensor_rank_1_i, &(array_i / 3.3)))
 }
 
 #[test]
 #[allow(clippy::op_ref)]
-fn div_tensor_rank_0_ref_to_self_ref() {
+fn div_tensor_rank_0_ref_to_self_ref() -> Result<(), TestError> {
     (&get_tensor_rank_1() / &3.3)
         .iter()
         .zip(get_array().iter())
-        .for_each(|(tensor_rank_1_i, array_i)| assert_eq!(tensor_rank_1_i, &(array_i / 3.3)));
+        .try_for_each(|(tensor_rank_1_i, array_i)| assert_eq(tensor_rank_1_i, &(array_i / 3.3)))
 }
 
 #[test]
-fn div_assign_tensor_rank_0() {
+fn div_assign_tensor_rank_0() -> Result<(), TestError> {
     let mut tensor_rank_1 = get_tensor_rank_1();
     tensor_rank_1 /= 3.3;
-    tensor_rank_1
+    let result = tensor_rank_1
         .iter()
         .zip(get_array().iter())
-        .for_each(|(tensor_rank_1_i, array_i)| assert_eq!(tensor_rank_1_i, &(array_i / 3.3)));
+        .try_for_each(|(tensor_rank_1_i, array_i)| assert_eq(tensor_rank_1_i, &(array_i / 3.3)));
+    result
 }
 
 #[test]
-fn div_assign_tensor_rank_0_ref() {
+fn div_assign_tensor_rank_0_ref() -> Result<(), TestError> {
     let mut tensor_rank_1 = get_tensor_rank_1();
     tensor_rank_1 /= &3.3;
-    tensor_rank_1
+    let result = tensor_rank_1
         .iter()
         .zip(get_array().iter())
-        .for_each(|(tensor_rank_1_i, array_i)| assert_eq!(tensor_rank_1_i, &(array_i / 3.3)));
+        .try_for_each(|(tensor_rank_1_i, array_i)| assert_eq(tensor_rank_1_i, &(array_i / 3.3)));
+    result
 }
 
 #[test]

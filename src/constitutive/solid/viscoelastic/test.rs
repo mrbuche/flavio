@@ -158,7 +158,7 @@ macro_rules! test_solid_viscous_constitutive_model
     {
         use crate::
         {
-            math::ContractAllIndicesWithFirstIndicesOf,
+            math::{ContractAllIndicesWithFirstIndicesOf, test::assert_eq_from_fd},
             mechanics::test::
             {
                 get_deformation_gradient_rotated_undeformed,
@@ -431,30 +431,18 @@ macro_rules! test_solid_viscous_constitutive_model
                     #[test]
                     fn symmetry() -> Result<(), TestError>
                     {
-                        todo!("fix me?");
                         let cauchy_rate_tangent_stiffness =
                         calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
                             &$constitutive_model_constructed, &get_deformation_gradient(), &get_deformation_gradient_rate()
                         )?;
-                        let result = cauchy_rate_tangent_stiffness.iter().enumerate()
-                        .try_for_each(|(i, cauchy_rate_tangent_stiffness_i)|
-                            cauchy_rate_tangent_stiffness_i.iter()
-                            .zip(cauchy_rate_tangent_stiffness.iter())
-                            .try_for_each(|(cauchy_rate_tangent_stiffness_ij, cauchy_rate_tangent_stiffness_j)|
-                                cauchy_rate_tangent_stiffness_ij.iter()
-                                .zip(cauchy_rate_tangent_stiffness_j[i].iter())
-                                .try_for_each(|(cauchy_rate_tangent_stiffness_ijk, cauchy_rate_tangent_stiffness_jik)|
-                                    cauchy_rate_tangent_stiffness_ijk.iter()
-                                    .zip(cauchy_rate_tangent_stiffness_jik.iter())
-                                    .try_for_each(|(cauchy_rate_tangent_stiffness_ijkl, cauchy_rate_tangent_stiffness_jikl)|
-                                        assert_eq_within_tols(
-                                            cauchy_rate_tangent_stiffness_ijkl, cauchy_rate_tangent_stiffness_jikl
-                                        )
-                                    )
-                                )
-                            )
-                        );
-                        result
+                        assert_eq_within_tols(
+                            &cauchy_rate_tangent_stiffness,
+                            &(0..3).map(|i|
+                                (0..3).map(|j|
+                                    cauchy_rate_tangent_stiffness[j][i].copy()
+                                ).collect()
+                            ).collect()
+                        )
                     }
                 }
                 mod undeformed
@@ -481,30 +469,18 @@ macro_rules! test_solid_viscous_constitutive_model
                     #[test]
                     fn symmetry() -> Result<(), TestError>
                     {
-                        todo!("fix me?");
                         let cauchy_rate_tangent_stiffness =
                         calculate_cauchy_rate_tangent_stiffness_from_deformation_gradient_and_deformation_gradient_rate!(
                             &$constitutive_model_constructed, &DeformationGradient::identity(), &DeformationGradientRate::zero()
                         )?;
-                        let result = cauchy_rate_tangent_stiffness.iter().enumerate()
-                        .try_for_each(|(i, cauchy_rate_tangent_stiffness_i)|
-                            cauchy_rate_tangent_stiffness_i.iter()
-                            .zip(cauchy_rate_tangent_stiffness.iter())
-                            .try_for_each(|(cauchy_rate_tangent_stiffness_ij, cauchy_rate_tangent_stiffness_j)|
-                                cauchy_rate_tangent_stiffness_ij.iter()
-                                .zip(cauchy_rate_tangent_stiffness_j[i].iter())
-                                .try_for_each(|(cauchy_rate_tangent_stiffness_ijk, cauchy_rate_tangent_stiffness_jik)|
-                                    cauchy_rate_tangent_stiffness_ijk.iter()
-                                    .zip(cauchy_rate_tangent_stiffness_jik.iter())
-                                    .try_for_each(|(cauchy_rate_tangent_stiffness_ijkl, cauchy_rate_tangent_stiffness_jikl)|
-                                        assert_eq_within_tols(
-                                            cauchy_rate_tangent_stiffness_ijkl, cauchy_rate_tangent_stiffness_jikl
-                                        )
-                                    )
-                                )
-                            )
-                        );
-                        result
+                        assert_eq_within_tols(
+                            &cauchy_rate_tangent_stiffness,
+                            &(0..3).map(|i|
+                                (0..3).map(|j|
+                                    cauchy_rate_tangent_stiffness[j][i].copy()
+                                ).collect()
+                            ).collect()
+                        )
                     }
                 }
             }

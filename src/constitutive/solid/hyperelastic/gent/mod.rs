@@ -23,7 +23,6 @@ pub struct Gent<'a> {
     parameters: Parameters<'a>,
 }
 
-/// Inherent implementation of the Gent hyperelastic constitutive model.
 impl<'a> Gent<'a> {
     /// Returns the extensibility.
     fn get_extensibility(&self) -> &Scalar {
@@ -31,14 +30,12 @@ impl<'a> Gent<'a> {
     }
 }
 
-/// Constitutive model implementation of the Gent hyperelastic constitutive model.
 impl<'a> Constitutive<'a> for Gent<'a> {
     fn new(parameters: Parameters<'a>) -> Self {
         Self { parameters }
     }
 }
 
-/// Solid constitutive model implementation of the Gent hyperelastic constitutive model.
 impl<'a> Solid<'a> for Gent<'a> {
     fn get_bulk_modulus(&self) -> &Scalar {
         &self.parameters[0]
@@ -48,7 +45,6 @@ impl<'a> Solid<'a> for Gent<'a> {
     }
 }
 
-/// Elastic constitutive model implementation of the Gent hyperelastic constitutive model.
 impl<'a> Elastic<'a> for Gent<'a> {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -155,7 +151,6 @@ impl<'a> Elastic<'a> for Gent<'a> {
     }
 }
 
-/// Hyperelastic constitutive model implementation of the Gent hyperelastic constitutive model.
 impl<'a> Hyperelastic<'a> for Gent<'a> {
     /// Calculates and returns the Helmholtz free energy density.
     ///
