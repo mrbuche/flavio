@@ -219,18 +219,11 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses
                     )
                 }
                 #[test]
-                fn objectivity()
+                fn objectivity() -> Result<(), TestError>
                 {
-                    get_nodal_forces(true, false).iter()
-                    .zip(get_nodal_forces(true, true).iter())
-                    .for_each(|(nodal_force, res_nodal_force)|
-                        nodal_force.iter()
-                        .zip(res_nodal_force.iter())
-                        .for_each(|(nodal_force_i, res_nodal_force_i)|
-                            assert_eq_within_tols(
-                                nodal_force_i, res_nodal_force_i
-                            )
-                        )
+                    assert_eq_within_tols_new(
+                        &get_nodal_forces(true, false),
+                        &get_nodal_forces(true, true)
                     )
                 }
             }
