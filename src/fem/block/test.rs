@@ -11,8 +11,8 @@ macro_rules! test_finite_element_block {
                 },
                 math::{
                     test::{
-                        assert_eq_from_fd, assert_eq_within_tols as assert_eq_within_tols_new,
-                        TestError,
+                        assert_eq, assert_eq_from_fd,
+                        assert_eq_within_tols as assert_eq_within_tols_new, TestError,
                     },
                     Convert, TensorRank2,
                 },
@@ -22,8 +22,8 @@ macro_rules! test_finite_element_block {
                     get_translation_rate_current_configuration,
                     get_translation_reference_configuration,
                 },
-                test::{assert_eq_within_tols, check_eq_within_tols},
-                ABS_TOL, EPSILON,
+                test::check_eq_within_tols,
+                EPSILON,
             };
             mod elastic {
                 use super::*;
@@ -169,137 +169,91 @@ macro_rules! setup_for_test_finite_element_block_with_elastic_constitutive_model
 }
 pub(crate) use setup_for_test_finite_element_block_with_elastic_constitutive_model;
 
-macro_rules! test_nodal_forces_and_nodal_stiffnesses
-{
-    ($block: ident, $element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
-    {
-        setup_for_test_finite_element_block_with_elastic_constitutive_model!($block, $element, $constitutive_model, $constitutive_model_parameters);
-        fn get_coordinates_transformed_block() -> NodalCoordinates<D>
-        {
-            get_coordinates_block().iter()
-            .map(|coordinate|
-                (get_rotation_current_configuration() * coordinate)
-                + get_translation_current_configuration()
-            ).collect()
+macro_rules! test_nodal_forces_and_nodal_stiffnesses {
+    ($block: ident, $element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) => {
+        setup_for_test_finite_element_block_with_elastic_constitutive_model!(
+            $block,
+            $element,
+            $constitutive_model,
+            $constitutive_model_parameters
+        );
+        fn get_coordinates_transformed_block() -> NodalCoordinates<D> {
+            get_coordinates_block()
+                .iter()
+                .map(|coordinate| {
+                    (get_rotation_current_configuration() * coordinate)
+                        + get_translation_current_configuration()
+                })
+                .collect()
         }
-        fn get_reference_coordinates_transformed_block() -> ReferenceNodalCoordinates<D>
-        {
-            get_reference_coordinates_block().iter()
-            .map(|reference_coordinate|
-                (get_rotation_reference_configuration() * reference_coordinate)
-                + get_translation_reference_configuration()
-            ).collect()
+        fn get_reference_coordinates_transformed_block() -> ReferenceNodalCoordinates<D> {
+            get_reference_coordinates_block()
+                .iter()
+                .map(|reference_coordinate| {
+                    (get_rotation_reference_configuration() * reference_coordinate)
+                        + get_translation_reference_configuration()
+                })
+                .collect()
         }
-        mod nodal_forces
-        {
+        mod nodal_forces {
             use super::*;
-            mod deformed
-            {
+            mod deformed {
                 use super::*;
                 #[test]
-                fn finite_difference() -> Result<(), TestError>
-                {
+                fn finite_difference() -> Result<(), TestError> {
                     assert_eq_from_fd(
                         &get_nodal_stiffnesses(true, false),
                         &get_finite_difference_of_nodal_forces(true),
                     )
-                    // get_nodal_stiffnesses(true, false).iter()
-                    // .zip(get_finite_difference_of_nodal_forces(true).iter())
-                    // .for_each(|(nodal_stiffness_a, fd_nodal_stiffness_a)|
-                    //     nodal_stiffness_a.iter()
-                    //     .zip(fd_nodal_stiffness_a.iter())
-                    //     .for_each(|(nodal_stiffness_ab, fd_nodal_stiffness_ab)|
-                    //         nodal_stiffness_ab.iter()
-                    //         .zip(fd_nodal_stiffness_ab.iter())
-                    //         .for_each(|(nodal_stiffness_ab_i, fd_nodal_stiffness_ab_i)|
-                    //             nodal_stiffness_ab_i.iter()
-                    //             .zip(fd_nodal_stiffness_ab_i.iter())
-                    //             .for_each(|(nodal_stiffness_ab_ij, fd_nodal_stiffness_ab_ij)|
-                    //                 assert!(
-                    //                     (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < 13.0 * EPSILON ||
-                    //                     (nodal_stiffness_ab_ij.abs() < ABS_TOL && fd_nodal_stiffness_ab_ij.abs() < ABS_TOL) ||
-                    //                     (nodal_stiffness_ab_ij - fd_nodal_stiffness_ab_ij).abs() < EPSILON / 10.0
-                    //                 )
-                    //             )
-                    //         )
-                    //     )
-                    // )
+                    // (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < 13.0 * EPSILON ||
+                    // (nodal_stiffness_ab_ij.abs() < ABS_TOL && fd_nodal_stiffness_ab_ij.abs() < ABS_TOL) ||
+                    // (nodal_stiffness_ab_ij - fd_nodal_stiffness_ab_ij).abs() < EPSILON / 10.0
                 }
                 #[test]
-                fn objectivity() -> Result<(), TestError>
-                {
+                fn objectivity() -> Result<(), TestError> {
                     assert_eq_within_tols_new(
                         &get_nodal_forces(true, false),
                         &get_nodal_forces(true, true),
                     )
                 }
             }
-            mod undeformed
-            {
+            mod undeformed {
                 use super::*;
                 #[test]
-                fn finite_difference()
-                {
-                    get_nodal_stiffnesses(false, false).iter()
-                    .zip(get_finite_difference_of_nodal_forces(false).iter())
-                    .for_each(|(nodal_stiffness_a, fd_nodal_stiffness_a)|
-                        nodal_stiffness_a.iter()
-                        .zip(fd_nodal_stiffness_a.iter())
-                        .for_each(|(nodal_stiffness_ab, fd_nodal_stiffness_ab)|
-                            nodal_stiffness_ab.iter()
-                            .zip(fd_nodal_stiffness_ab.iter())
-                            .for_each(|(nodal_stiffness_ab_i, fd_nodal_stiffness_ab_i)|
-                                nodal_stiffness_ab_i.iter()
-                                .zip(fd_nodal_stiffness_ab_i.iter())
-                                .for_each(|(nodal_stiffness_ab_ij, fd_nodal_stiffness_ab_ij)|
-                                    assert!(
-                                        (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < EPSILON ||
-                                        (nodal_stiffness_ab_ij.abs() < EPSILON && fd_nodal_stiffness_ab_ij.abs() < EPSILON)
-                                    )
-                                )
-                            )
-                        )
-                    );
+                fn finite_difference() -> Result<(), TestError> {
+                    assert_eq_from_fd(
+                        &get_nodal_stiffnesses(false, false),
+                        &get_finite_difference_of_nodal_forces(false),
+                    )
+                    // (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < EPSILON ||
+                    // (nodal_stiffness_ab_ij.abs() < EPSILON && fd_nodal_stiffness_ab_ij.abs() < EPSILON)
                 }
                 #[test]
-                fn objectivity() -> Result<(), TestError>
-                {
-                    assert_eq_within_tols_new(
-                        &get_nodal_forces(false, true),
-                        &NodalForces::zero(),
-                    )
+                fn objectivity() -> Result<(), TestError> {
+                    assert_eq_within_tols_new(&get_nodal_forces(false, true), &NodalForces::zero())
                 }
                 #[test]
-                fn zero() -> Result<(), TestError>
-                {
-                    assert_eq_within_tols_new(
-                        &get_nodal_forces(false, false),
-                        &NodalForces::zero(),
-                    )
+                fn zero() -> Result<(), TestError> {
+                    assert_eq_within_tols_new(&get_nodal_forces(false, false), &NodalForces::zero())
                 }
             }
         }
-        mod nodal_stiffnesses
-        {
+        mod nodal_stiffnesses {
             use super::*;
-            mod deformed
-            {
+            mod deformed {
                 use super::*;
                 #[test]
-                fn objectivity() -> Result<(), TestError>
-                {
+                fn objectivity() -> Result<(), TestError> {
                     assert_eq_within_tols_new(
                         &get_nodal_stiffnesses(true, false),
                         &get_nodal_stiffnesses(true, true),
                     )
                 }
             }
-            mod undeformed
-            {
+            mod undeformed {
                 use super::*;
                 #[test]
-                fn objectivity() -> Result<(), TestError>
-                {
+                fn objectivity() -> Result<(), TestError> {
                     assert_eq_within_tols_new(
                         &get_nodal_stiffnesses(false, false),
                         &get_nodal_stiffnesses(false, true),
@@ -308,16 +262,15 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses
             }
         }
         #[test]
-        fn size()
-        {
+        fn size() {
             assert_eq!(
                 std::mem::size_of::<ElasticBlock<D, E, $element::<$constitutive_model>, G, N>>(),
                 std::mem::size_of::<Connectivity<E, N>>()
-                + std::mem::size_of::<NodalCoordinates<D>>()
-                + E * std::mem::size_of::<$element::<$constitutive_model>>()
+                    + std::mem::size_of::<NodalCoordinates<D>>()
+                    + E * std::mem::size_of::<$element::<$constitutive_model>>()
             )
         }
-    }
+    };
 }
 pub(crate) use test_nodal_forces_and_nodal_stiffnesses;
 
@@ -357,23 +310,15 @@ macro_rules! test_helmholtz_free_energy {
             mod deformed {
                 use super::*;
                 #[test]
-                fn finite_difference() {
+                fn finite_difference() -> Result<(), TestError> {
                     let mut block = get_block();
                     block.set_nodal_coordinates(get_coordinates_block());
-                    block
-                        .calculate_nodal_forces()
-                        .iter()
-                        .zip(get_finite_difference_of_helmholtz_free_energy(true).iter())
-                        .for_each(|(nodal_force, fd_nodal_force)| {
-                            nodal_force.iter().zip(fd_nodal_force.iter()).for_each(
-                                |(nodal_force_i, fd_nodal_force_i)| {
-                                    assert!(
-                                        (nodal_force_i / fd_nodal_force_i - 1.0).abs()
-                                            < EPSILON * 4.0
-                                    )
-                                },
-                            )
-                        })
+                    assert_eq_from_fd(
+                        &block.calculate_nodal_forces(),
+                        &get_finite_difference_of_helmholtz_free_energy(true),
+                    )
+                    // (nodal_force_i / fd_nodal_force_i - 1.0).abs()
+                    //     < EPSILON * 4.0
                 }
                 #[test]
                 #[should_panic(expected = "Invalid Jacobian")]
@@ -429,24 +374,25 @@ macro_rules! test_helmholtz_free_energy {
                     )
                 }
                 #[test]
-                fn positive() {
+                fn positive() -> Result<(), TestError> {
                     let mut block = get_block();
-                    assert!(block.calculate_helmholtz_free_energy().abs() < ABS_TOL);
+                    assert_eq_within_tols_new(
+                        &block.calculate_helmholtz_free_energy().abs(),
+                        &0.0,
+                    )?;
                     block.set_nodal_coordinates(get_coordinates_block());
                     assert!(block.calculate_helmholtz_free_energy() > 0.0);
+                    Ok(())
                 }
             }
             mod undeformed {
                 use super::*;
                 #[test]
-                fn finite_difference() {
-                    get_finite_difference_of_helmholtz_free_energy(false)
-                        .iter()
-                        .for_each(|fd_nodal_force| {
-                            fd_nodal_force.iter().for_each(|fd_nodal_force_i| {
-                                assert!(fd_nodal_force_i.abs() < EPSILON)
-                            })
-                        })
+                fn finite_difference() -> Result<(), TestError> {
+                    assert_eq_from_fd(
+                        &get_finite_difference_of_helmholtz_free_energy(false),
+                        &NodalForces::zero(),
+                    )
                 }
                 #[test]
                 fn minimized() {
@@ -490,11 +436,14 @@ macro_rules! test_helmholtz_free_energy {
                     )
                 }
                 #[test]
-                fn zero() {
+                fn zero() -> Result<(), TestError> {
                     let mut block = get_block();
-                    assert!(block.calculate_helmholtz_free_energy().abs() < ABS_TOL);
+                    assert_eq_within_tols_new(
+                        &block.calculate_helmholtz_free_energy().abs(),
+                        &0.0,
+                    )?;
                     block.set_nodal_coordinates(get_reference_coordinates_block().into());
-                    assert!(block.calculate_helmholtz_free_energy().abs() < ABS_TOL);
+                    assert_eq_within_tols_new(&block.calculate_helmholtz_free_energy().abs(), &0.0)
                 }
             }
         }
@@ -911,24 +860,17 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
             mod deformed {
                 use super::*;
                 #[test]
-                fn finite_difference() {
+                fn finite_difference() -> Result<(), TestError> {
                     let mut block = get_block();
                     block.set_nodal_coordinates(get_coordinates_block());
                     let nodal_forces_0 = block.calculate_nodal_forces();
                     block.set_nodal_velocities(get_velocities_block());
-                    (block.calculate_nodal_forces() - nodal_forces_0)
-                        .iter()
-                        .zip(get_finite_difference_of_viscous_dissipation(true).iter())
-                        .for_each(|(nodal_force, fd_nodal_force)| {
-                            nodal_force.iter().zip(fd_nodal_force.iter()).for_each(
-                                |(nodal_force_i, fd_nodal_force_i)| {
-                                    assert!(
-                                        (nodal_force_i / fd_nodal_force_i - 1.0).abs()
-                                            < EPSILON * 4.0
-                                    )
-                                },
-                            )
-                        })
+                    assert_eq_from_fd(
+                        &(block.calculate_nodal_forces() - nodal_forces_0),
+                        &get_finite_difference_of_viscous_dissipation(true),
+                    )
+                    // (nodal_force_i / fd_nodal_force_i - 1.0).abs()
+                    //     < EPSILON * 4.0
                 }
                 #[test]
                 fn minimized() {
@@ -974,25 +916,23 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
                     )
                 }
                 #[test]
-                fn positive() {
+                fn positive() -> Result<(), TestError> {
                     let mut block = get_block();
-                    assert_eq!(block.calculate_viscous_dissipation(), 0.0);
+                    assert_eq(&block.calculate_viscous_dissipation(), &0.0)?;
                     block.set_nodal_coordinates(get_coordinates_block());
                     block.set_nodal_velocities(get_velocities_block());
                     assert!(block.calculate_viscous_dissipation() > 0.0);
+                    Ok(())
                 }
             }
             mod undeformed {
                 use super::*;
                 #[test]
-                fn finite_difference() {
-                    get_finite_difference_of_viscous_dissipation(false)
-                        .iter()
-                        .for_each(|fd_nodal_force| {
-                            fd_nodal_force.iter().for_each(|fd_nodal_force_i| {
-                                assert!(fd_nodal_force_i.abs() < EPSILON)
-                            })
-                        })
+                fn finite_difference() -> Result<(), TestError> {
+                    assert_eq_from_fd(
+                        &get_finite_difference_of_viscous_dissipation(false),
+                        &NodalForces::zero(),
+                    )
                 }
                 #[test]
                 fn minimized() {
@@ -1031,11 +971,11 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
                     )
                 }
                 #[test]
-                fn zero() {
+                fn zero() -> Result<(), TestError> {
                     let mut block = get_block();
-                    assert_eq!(block.calculate_viscous_dissipation(), 0.0);
+                    assert_eq(&block.calculate_viscous_dissipation(), &0.0)?;
                     block.set_nodal_coordinates(get_reference_coordinates_block().into());
-                    assert_eq!(block.calculate_viscous_dissipation(), 0.0);
+                    assert_eq(&block.calculate_viscous_dissipation(), &0.0)
                 }
             }
         }
@@ -1044,24 +984,14 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
             mod deformed {
                 use super::*;
                 #[test]
-                fn finite_difference() {
+                fn finite_difference() -> Result<(), TestError> {
                     let mut block = get_block();
                     block.set_nodal_coordinates(get_coordinates_block());
                     block.set_nodal_velocities(get_velocities_block());
-                    block
-                        .calculate_nodal_forces()
-                        .iter()
-                        .zip(get_finite_difference_of_dissipation_potential(true).iter())
-                        .for_each(|(nodal_force, fd_nodal_force)| {
-                            nodal_force.iter().zip(fd_nodal_force.iter()).for_each(
-                                |(nodal_force_i, fd_nodal_force_i)| {
-                                    assert!(
-                                        (nodal_force_i / fd_nodal_force_i - 1.0).abs()
-                                            < EPSILON * 2.0
-                                    )
-                                },
-                            )
-                        })
+                    assert_eq_from_fd(
+                        &block.calculate_nodal_forces(),
+                        &get_finite_difference_of_dissipation_potential(true),
+                    )
                 }
                 #[test]
                 fn minimized() {
@@ -1109,14 +1039,11 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
             mod undeformed {
                 use super::*;
                 #[test]
-                fn finite_difference() {
-                    get_finite_difference_of_dissipation_potential(false)
-                        .iter()
-                        .for_each(|fd_nodal_force| {
-                            fd_nodal_force.iter().for_each(|fd_nodal_force_i| {
-                                assert!(fd_nodal_force_i.abs() < EPSILON)
-                            })
-                        })
+                fn finite_difference() -> Result<(), TestError> {
+                    assert_eq_from_fd(
+                        &get_finite_difference_of_dissipation_potential(false),
+                        &NodalForces::zero(),
+                    )
                 }
                 #[test]
                 fn minimized() {
@@ -1155,11 +1082,11 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
                     )
                 }
                 #[test]
-                fn zero() {
+                fn zero() -> Result<(), TestError> {
                     let mut block = get_block();
-                    assert_eq!(block.calculate_dissipation_potential(), 0.0);
+                    assert_eq(&block.calculate_dissipation_potential(), &0.0)?;
                     block.set_nodal_coordinates(get_reference_coordinates_block().into());
-                    assert_eq!(block.calculate_dissipation_potential(), 0.0);
+                    assert_eq(&block.calculate_dissipation_potential(), &0.0)
                 }
             }
         }

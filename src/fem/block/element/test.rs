@@ -9,9 +9,15 @@ macro_rules! test_finite_element {
                     test_finite_element_with_hyperelastic_constitutive_model,
                     test_finite_element_with_hyperviscoelastic_constitutive_model,
                 },
-                math::{Convert, TensorRank2},
-                test::{assert_eq_within_tols, check_eq_within_tols},
-                ABS_TOL, EPSILON,
+                math::{
+                    test::{
+                        assert_eq, assert_eq_from_fd,
+                        assert_eq_within_tols as assert_eq_within_tols_new, TestError,
+                    },
+                    Convert, TensorRank2,
+                },
+                test::check_eq_within_tols,
+                EPSILON,
             };
             mod elastic {
                 use super::*;
@@ -275,174 +281,86 @@ macro_rules! setup_for_composite_elements {
 }
 pub(crate) use setup_for_composite_elements;
 
-macro_rules! test_nodal_forces_and_nodal_stiffnesses
-{
-    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) =>
-    {
-        setup_for_test_finite_element_with_elastic_constitutive_model!($element, $constitutive_model, $constitutive_model_parameters);
-        mod nodal_forces
-        {
+macro_rules! test_nodal_forces_and_nodal_stiffnesses {
+    ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) => {
+        setup_for_test_finite_element_with_elastic_constitutive_model!(
+            $element,
+            $constitutive_model,
+            $constitutive_model_parameters
+        );
+        mod nodal_forces {
             use super::*;
-            mod deformed
-            {
+            mod deformed {
                 use super::*;
                 #[test]
-                fn finite_difference()
-                {
-                    get_nodal_stiffnesses(true, false).iter()
-                    .zip(get_finite_difference_of_nodal_forces(true).iter())
-                    .for_each(|(nodal_stiffness_a, fd_nodal_stiffness_a)|
-                        nodal_stiffness_a.iter()
-                        .zip(fd_nodal_stiffness_a.iter())
-                        .for_each(|(nodal_stiffness_ab, fd_nodal_stiffness_ab)|
-                            nodal_stiffness_ab.iter()
-                            .zip(fd_nodal_stiffness_ab.iter())
-                            .for_each(|(nodal_stiffness_ab_i, fd_nodal_stiffness_ab_i)|
-                                nodal_stiffness_ab_i.iter()
-                                .zip(fd_nodal_stiffness_ab_i.iter())
-                                .for_each(|(nodal_stiffness_ab_ij, fd_nodal_stiffness_ab_ij)|
-                                    assert!(
-                                        (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < EPSILON ||
-                                        (nodal_stiffness_ab_ij - fd_nodal_stiffness_ab_ij).abs() < EPSILON / 2.0
-                                    )
-                                )
-                            )
-                        )
+                fn finite_difference() -> Result<(), TestError> {
+                    assert_eq_from_fd(
+                        &get_nodal_stiffnesses(true, false),
+                        &get_finite_difference_of_nodal_forces(true),
                     )
+                    // (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < EPSILON ||
+                    // (nodal_stiffness_ab_ij - fd_nodal_stiffness_ab_ij).abs() < EPSILON / 2.0
                 }
                 #[test]
-                fn objectivity()
-                {
-                    get_nodal_forces(true, false, true).iter()
-                    .zip(get_nodal_forces(true, true, true).iter())
-                    .for_each(|(nodal_force, res_nodal_force)|
-                        nodal_force.iter()
-                        .zip(res_nodal_force.iter())
-                        .for_each(|(nodal_force_i, res_nodal_force_i)|
-                            assert_eq_within_tols(
-                                nodal_force_i, res_nodal_force_i
-                            )
-                        )
+                fn objectivity() -> Result<(), TestError> {
+                    assert_eq_within_tols_new(
+                        &get_nodal_forces(true, false, true),
+                        &get_nodal_forces(true, true, true),
                     )
                 }
             }
-            mod undeformed
-            {
+            mod undeformed {
                 use super::*;
                 #[test]
-                fn finite_difference()
-                {
-                    get_nodal_stiffnesses(false, false).iter()
-                    .zip(get_finite_difference_of_nodal_forces(false).iter())
-                    .for_each(|(nodal_stiffness_a, fd_nodal_stiffness_a)|
-                        nodal_stiffness_a.iter()
-                        .zip(fd_nodal_stiffness_a.iter())
-                        .for_each(|(nodal_stiffness_ab, fd_nodal_stiffness_ab)|
-                            nodal_stiffness_ab.iter()
-                            .zip(fd_nodal_stiffness_ab.iter())
-                            .for_each(|(nodal_stiffness_ab_i, fd_nodal_stiffness_ab_i)|
-                                nodal_stiffness_ab_i.iter()
-                                .zip(fd_nodal_stiffness_ab_i.iter())
-                                .for_each(|(nodal_stiffness_ab_ij, fd_nodal_stiffness_ab_ij)|
-                                    assert!(
-                                        (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < EPSILON ||
-                                        (nodal_stiffness_ab_ij - fd_nodal_stiffness_ab_ij).abs() < ABS_TOL ||
-                                        (nodal_stiffness_ab_ij.abs() < EPSILON && fd_nodal_stiffness_ab_ij.abs() < EPSILON)
-                                    )
-                                )
-                            )
-                        )
+                fn finite_difference() -> Result<(), TestError> {
+                    assert_eq_from_fd(
+                        &get_nodal_stiffnesses(false, false),
+                        &get_finite_difference_of_nodal_forces(false),
+                    )
+                    // (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < EPSILON ||
+                    // (nodal_stiffness_ab_ij - fd_nodal_stiffness_ab_ij).abs() < ABS_TOL ||
+                    // (nodal_stiffness_ab_ij.abs() < EPSILON && fd_nodal_stiffness_ab_ij.abs() < EPSILON)
+                }
+                #[test]
+                fn objectivity() -> Result<(), TestError> {
+                    assert_eq_within_tols_new(
+                        &get_nodal_forces(false, true, true),
+                        &NodalForces::zero(),
                     )
                 }
                 #[test]
-                fn objectivity()
-                {
-                    get_nodal_forces(false, false, false).iter()
-                    .for_each(|nodal_force|
-                        nodal_force.iter()
-                        .for_each(|nodal_force_i|
-                            assert_eq_within_tols(
-                                nodal_force_i, &0.0
-                            )
-                        )
-                    )
-                }
-                #[test]
-                fn zero()
-                {
-                    get_nodal_forces(false, false, false).iter()
-                    .for_each(|nodal_force|
-                        nodal_force.iter()
-                        .for_each(|nodal_force_i|
-                            assert_eq_within_tols(
-                                nodal_force_i, &0.0
-                            )
-                        )
+                fn zero() -> Result<(), TestError> {
+                    assert_eq_within_tols_new(
+                        &get_nodal_forces(false, false, false),
+                        &NodalForces::zero(),
                     )
                 }
             }
         }
-        mod nodal_stiffnesses
-        {
+        mod nodal_stiffnesses {
             use super::*;
-            mod deformed
-            {
+            mod deformed {
                 use super::*;
                 #[test]
-                fn objectivity()
-                {
-                    let count =
-                    get_nodal_stiffnesses(true, false).iter()
-                    .zip(get_nodal_stiffnesses(true, true).iter())
-                    .map(|(nodal_stiffness_a, res_nodal_stiffness_a)|
-                        nodal_stiffness_a.iter()
-                        .zip(res_nodal_stiffness_a.iter())
-                        .map(|(nodal_stiffness_ab, res_nodal_stiffness_ab)|
-                            nodal_stiffness_ab.iter()
-                            .zip(res_nodal_stiffness_ab.iter())
-                            .map(|(nodal_stiffness_ab_i, res_nodal_stiffness_ab_i)|
-                                nodal_stiffness_ab_i.iter()
-                                .zip(res_nodal_stiffness_ab_i.iter())
-                                .map(|(nodal_stiffness_ab_ij, res_nodal_stiffness_ab_ij)|
-                                    1.0 - (check_eq_within_tols(
-                                        nodal_stiffness_ab_ij, res_nodal_stiffness_ab_ij
-                                    ) as u8) as Scalar
-                                ).sum::<Scalar>()
-                            ).sum::<Scalar>()
-                        ).sum::<Scalar>()
-                    ).sum::<Scalar>();
-                    assert!(count < 2.0);
+                fn objectivity() -> Result<(), TestError> {
+                    assert_eq_within_tols_new(
+                        &get_nodal_stiffnesses(true, false),
+                        &get_nodal_stiffnesses(true, true),
+                    )
                 }
             }
-            mod undeformed
-            {
+            mod undeformed {
                 use super::*;
                 #[test]
-                fn objectivity()
-                {
-                    get_nodal_stiffnesses(false, false).iter()
-                    .zip(get_nodal_stiffnesses(false, true).iter())
-                    .for_each(|(nodal_stiffness_a, res_nodal_stiffness_a)|
-                        nodal_stiffness_a.iter()
-                        .zip(res_nodal_stiffness_a.iter())
-                        .for_each(|(nodal_stiffness_ab, res_nodal_stiffness_ab)|
-                            nodal_stiffness_ab.iter()
-                            .zip(res_nodal_stiffness_ab.iter())
-                            .for_each(|(nodal_stiffness_ab_i, res_nodal_stiffness_ab_i)|
-                                nodal_stiffness_ab_i.iter()
-                                .zip(res_nodal_stiffness_ab_i.iter())
-                                .for_each(|(nodal_stiffness_ab_ij, res_nodal_stiffness_ab_ij)|
-                                    assert_eq_within_tols(
-                                        nodal_stiffness_ab_ij, res_nodal_stiffness_ab_ij
-                                    )
-                                )
-                            )
-                        )
+                fn objectivity() -> Result<(), TestError> {
+                    assert_eq_within_tols_new(
+                        &get_nodal_stiffnesses(false, false),
+                        &get_nodal_stiffnesses(false, true),
                     )
                 }
             }
         }
-    }
+    };
 }
 pub(crate) use test_nodal_forces_and_nodal_stiffnesses;
 
@@ -496,21 +414,14 @@ macro_rules! test_helmholtz_free_energy {
             mod deformed {
                 use super::*;
                 #[test]
-                fn finite_difference() {
-                    get_nodal_forces(true, false, false)
-                        .iter()
-                        .zip(get_finite_difference_of_helmholtz_free_energy(true).iter())
-                        .for_each(|(nodal_force, fd_nodal_force)| {
-                            nodal_force.iter().zip(fd_nodal_force.iter()).for_each(
-                                |(nodal_force_i, fd_nodal_force_i)| {
-                                    assert!(
-                                        (nodal_force_i / fd_nodal_force_i - 1.0).abs() < EPSILON
-                                            || (nodal_force_i.abs() < EPSILON
-                                                && fd_nodal_force_i.abs() < EPSILON)
-                                    )
-                                },
-                            )
-                        })
+                fn finite_difference() -> Result<(), TestError> {
+                    assert_eq_from_fd(
+                        &get_nodal_forces(true, false, false),
+                        &get_finite_difference_of_helmholtz_free_energy(true),
+                    )
+                    // (nodal_force_i / fd_nodal_force_i - 1.0).abs() < EPSILON
+                    //     || (nodal_force_i.abs() < EPSILON
+                    //         && fd_nodal_force_i.abs() < EPSILON)
                 }
                 #[test]
                 #[should_panic(expected = "Invalid Jacobian")]
@@ -550,8 +461,8 @@ macro_rules! test_helmholtz_free_energy {
                     })
                 }
                 #[test]
-                fn objectivity() {
-                    assert_eq_within_tols(
+                fn objectivity() -> Result<(), TestError> {
+                    assert_eq_within_tols_new(
                         &get_helmholtz_free_energy(true, false),
                         &get_helmholtz_free_energy(true, true),
                     )
@@ -564,14 +475,11 @@ macro_rules! test_helmholtz_free_energy {
             mod undeformed {
                 use super::*;
                 #[test]
-                fn finite_difference() {
-                    get_finite_difference_of_helmholtz_free_energy(false)
-                        .iter()
-                        .for_each(|fd_nodal_force| {
-                            fd_nodal_force.iter().for_each(|fd_nodal_force_i| {
-                                assert!(fd_nodal_force_i.abs() < EPSILON)
-                            })
-                        })
+                fn finite_difference() -> Result<(), TestError> {
+                    assert_eq_from_fd(
+                        &get_finite_difference_of_helmholtz_free_energy(false),
+                        &NodalForces::zero(),
+                    )
                 }
                 #[test]
                 fn minimized() {
@@ -598,98 +506,108 @@ macro_rules! test_helmholtz_free_energy {
                     })
                 }
                 #[test]
-                fn objectivity() {
-                    assert_eq_within_tols(&get_helmholtz_free_energy(false, true), &0.0)
+                fn objectivity() -> Result<(), TestError> {
+                    assert_eq_within_tols_new(&get_helmholtz_free_energy(false, true), &0.0)
                 }
                 #[test]
-                fn zero() {
-                    assert_eq_within_tols(&get_helmholtz_free_energy(false, false), &0.0)
+                fn zero() -> Result<(), TestError> {
+                    assert_eq_within_tols_new(&get_helmholtz_free_energy(false, false), &0.0)
                 }
             }
         }
         #[test]
-        fn nodal_stiffnesses_deformed_symmetry() {
+        fn nodal_stiffnesses_deformed_symmetry() -> Result<(), TestError> {
             let nodal_stiffness = get_nodal_stiffnesses(true, false);
-            nodal_stiffness
-                .iter()
-                .enumerate()
-                .for_each(|(a, nodal_stiffness_a)| {
-                    nodal_stiffness_a
-                        .iter()
-                        .enumerate()
-                        .for_each(|(b, nodal_stiffness_ab)| {
-                            nodal_stiffness_ab
-                                .iter()
-                                .enumerate()
-                                .zip(nodal_stiffness_ab.transpose().iter())
-                                .for_each(|((i, nodal_stiffness_ab_i), nodal_stiffness_ab_j)| {
-                                    nodal_stiffness_ab_i
-                                        .iter()
-                                        .enumerate()
-                                        .zip(nodal_stiffness_ab_j.iter())
-                                        .for_each(
-                                            |(
-                                                (j, nodal_stiffness_ab_ij),
-                                                nodal_stiffness_ab_ji,
-                                            )| {
-                                                if a == b {
-                                                    assert_eq_within_tols(
-                                                        nodal_stiffness_ab_ij,
-                                                        &nodal_stiffness_ab_ji,
-                                                    )
-                                                } else if i == j {
-                                                    assert_eq_within_tols(
-                                                        nodal_stiffness_ab_ij,
-                                                        &nodal_stiffness[b][a][i][j],
-                                                    )
-                                                }
-                                            },
-                                        )
-                                })
-                        })
-                })
+            let result =
+                nodal_stiffness
+                    .iter()
+                    .enumerate()
+                    .try_for_each(|(a, nodal_stiffness_a)| {
+                        nodal_stiffness_a.iter().enumerate().try_for_each(
+                            |(b, nodal_stiffness_ab)| {
+                                nodal_stiffness_ab
+                                    .iter()
+                                    .enumerate()
+                                    .zip(nodal_stiffness_ab.transpose().iter())
+                                    .try_for_each(
+                                        |((i, nodal_stiffness_ab_i), nodal_stiffness_ab_j)| {
+                                            nodal_stiffness_ab_i
+                                                .iter()
+                                                .enumerate()
+                                                .zip(nodal_stiffness_ab_j.iter())
+                                                .try_for_each(
+                                                    |(
+                                                        (j, nodal_stiffness_ab_ij),
+                                                        nodal_stiffness_ab_ji,
+                                                    )| {
+                                                        if a == b {
+                                                            assert_eq_within_tols_new(
+                                                                nodal_stiffness_ab_ij,
+                                                                &nodal_stiffness_ab_ji,
+                                                            )
+                                                        } else if i == j {
+                                                            assert_eq_within_tols_new(
+                                                                nodal_stiffness_ab_ij,
+                                                                &nodal_stiffness[b][a][i][j],
+                                                            )
+                                                        } else {
+                                                            Ok(())
+                                                        }
+                                                    },
+                                                )
+                                        },
+                                    )
+                            },
+                        )
+                    });
+            result
         }
         #[test]
-        fn nodal_stiffnesses_undeformed_symmetry() {
+        fn nodal_stiffnesses_undeformed_symmetry() -> Result<(), TestError> {
             let nodal_stiffness = get_nodal_stiffnesses(false, false);
-            nodal_stiffness
-                .iter()
-                .enumerate()
-                .for_each(|(a, nodal_stiffness_a)| {
-                    nodal_stiffness_a
-                        .iter()
-                        .enumerate()
-                        .for_each(|(b, nodal_stiffness_ab)| {
-                            nodal_stiffness_ab
-                                .iter()
-                                .enumerate()
-                                .zip(nodal_stiffness_ab.transpose().iter())
-                                .for_each(|((i, nodal_stiffness_ab_i), nodal_stiffness_ab_j)| {
-                                    nodal_stiffness_ab_i
-                                        .iter()
-                                        .enumerate()
-                                        .zip(nodal_stiffness_ab_j.iter())
-                                        .for_each(
-                                            |(
-                                                (j, nodal_stiffness_ab_ij),
-                                                nodal_stiffness_ab_ji,
-                                            )| {
-                                                if a == b {
-                                                    assert_eq_within_tols(
-                                                        nodal_stiffness_ab_ij,
-                                                        &nodal_stiffness_ab_ji,
-                                                    )
-                                                } else if i == j {
-                                                    assert_eq_within_tols(
-                                                        nodal_stiffness_ab_ij,
-                                                        &nodal_stiffness[b][a][i][j],
-                                                    )
-                                                }
-                                            },
-                                        )
-                                })
-                        })
-                })
+            let result =
+                nodal_stiffness
+                    .iter()
+                    .enumerate()
+                    .try_for_each(|(a, nodal_stiffness_a)| {
+                        nodal_stiffness_a.iter().enumerate().try_for_each(
+                            |(b, nodal_stiffness_ab)| {
+                                nodal_stiffness_ab
+                                    .iter()
+                                    .enumerate()
+                                    .zip(nodal_stiffness_ab.transpose().iter())
+                                    .try_for_each(
+                                        |((i, nodal_stiffness_ab_i), nodal_stiffness_ab_j)| {
+                                            nodal_stiffness_ab_i
+                                                .iter()
+                                                .enumerate()
+                                                .zip(nodal_stiffness_ab_j.iter())
+                                                .try_for_each(
+                                                    |(
+                                                        (j, nodal_stiffness_ab_ij),
+                                                        nodal_stiffness_ab_ji,
+                                                    )| {
+                                                        if a == b {
+                                                            assert_eq_within_tols_new(
+                                                                nodal_stiffness_ab_ij,
+                                                                &nodal_stiffness_ab_ji,
+                                                            )
+                                                        } else if i == j {
+                                                            assert_eq_within_tols_new(
+                                                                nodal_stiffness_ab_ij,
+                                                                &nodal_stiffness[b][a][i][j],
+                                                            )
+                                                        } else {
+                                                            Ok(())
+                                                        }
+                                                    },
+                                                )
+                                        },
+                                    )
+                            },
+                        )
+                    });
+            result
         }
     };
 }
@@ -1089,21 +1007,15 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
             mod deformed {
                 use super::*;
                 #[test]
-                fn finite_difference() {
-                    (get_nodal_forces(true, false, true) - get_nodal_forces(true, false, false))
-                        .iter()
-                        .zip(get_finite_difference_of_viscous_dissipation(true).iter())
-                        .for_each(|(nodal_force, fd_nodal_force)| {
-                            nodal_force.iter().zip(fd_nodal_force.iter()).for_each(
-                                |(nodal_force_i, fd_nodal_force_i)| {
-                                    assert!(
-                                        (nodal_force_i / fd_nodal_force_i - 1.0).abs() < EPSILON
-                                            || (nodal_force_i.abs() < EPSILON
-                                                && fd_nodal_force_i.abs() < EPSILON)
-                                    )
-                                },
-                            )
-                        })
+                fn finite_difference() -> Result<(), TestError> {
+                    assert_eq_from_fd(
+                        &(get_nodal_forces(true, false, true)
+                            - get_nodal_forces(true, false, false)),
+                        &get_finite_difference_of_viscous_dissipation(true),
+                    )
+                    // (nodal_force_i / fd_nodal_force_i - 1.0).abs() < EPSILON
+                    //     || (nodal_force_i.abs() < EPSILON
+                    //         && fd_nodal_force_i.abs() < EPSILON)
                 }
                 #[test]
                 fn minimized() {
@@ -1137,8 +1049,8 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                     })
                 }
                 #[test]
-                fn objectivity() {
-                    assert_eq_within_tols(
+                fn objectivity() -> Result<(), TestError> {
+                    assert_eq_within_tols_new(
                         &get_viscous_dissipation(true, false),
                         &get_viscous_dissipation(true, true),
                     )
@@ -1151,14 +1063,11 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
             mod undeformed {
                 use super::*;
                 #[test]
-                fn finite_difference() {
-                    get_finite_difference_of_viscous_dissipation(false)
-                        .iter()
-                        .for_each(|fd_nodal_force| {
-                            fd_nodal_force.iter().for_each(|fd_nodal_force_i| {
-                                assert!(fd_nodal_force_i.abs() < EPSILON)
-                            })
-                        })
+                fn finite_difference() -> Result<(), TestError> {
+                    assert_eq_from_fd(
+                        &get_finite_difference_of_viscous_dissipation(false),
+                        &NodalForces::zero(),
+                    )
                 }
                 #[test]
                 fn minimized() {
@@ -1189,12 +1098,12 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                     })
                 }
                 #[test]
-                fn objectivity() {
-                    assert_eq_within_tols(&get_viscous_dissipation(false, true), &0.0)
+                fn objectivity() -> Result<(), TestError> {
+                    assert_eq_within_tols_new(&get_viscous_dissipation(false, true), &0.0)
                 }
                 #[test]
-                fn zero() {
-                    assert_eq!(get_viscous_dissipation(false, false), 0.0)
+                fn zero() -> Result<(), TestError> {
+                    assert_eq(&get_viscous_dissipation(false, false), &0.0)
                 }
             }
         }
@@ -1203,21 +1112,14 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
             mod deformed {
                 use super::*;
                 #[test]
-                fn finite_difference() {
-                    get_nodal_forces(true, false, true)
-                        .iter()
-                        .zip(get_finite_difference_of_dissipation_potential(true).iter())
-                        .for_each(|(nodal_force, fd_nodal_force)| {
-                            nodal_force.iter().zip(fd_nodal_force.iter()).for_each(
-                                |(nodal_force_i, fd_nodal_force_i)| {
-                                    assert!(
-                                        (nodal_force_i / fd_nodal_force_i - 1.0).abs() < EPSILON
-                                            || (nodal_force_i.abs() < EPSILON
-                                                && fd_nodal_force_i.abs() < EPSILON)
-                                    )
-                                },
-                            )
-                        })
+                fn finite_difference() -> Result<(), TestError> {
+                    assert_eq_from_fd(
+                        &get_nodal_forces(true, false, true),
+                        &get_finite_difference_of_dissipation_potential(true),
+                    )
+                    // (nodal_force_i / fd_nodal_force_i - 1.0).abs() < EPSILON
+                    //     || (nodal_force_i.abs() < EPSILON
+                    //         && fd_nodal_force_i.abs() < EPSILON)
                 }
                 #[test]
                 fn minimized() {
@@ -1250,8 +1152,8 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                     })
                 }
                 #[test]
-                fn objectivity() {
-                    assert_eq_within_tols(
+                fn objectivity() -> Result<(), TestError> {
+                    assert_eq_within_tols_new(
                         &get_dissipation_potential(true, false),
                         &get_dissipation_potential(true, true),
                     )
@@ -1260,14 +1162,11 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
             mod undeformed {
                 use super::*;
                 #[test]
-                fn finite_difference() {
-                    get_finite_difference_of_dissipation_potential(false)
-                        .iter()
-                        .for_each(|fd_nodal_force| {
-                            fd_nodal_force.iter().for_each(|fd_nodal_force_i| {
-                                assert!(fd_nodal_force_i.abs() < EPSILON)
-                            })
-                        })
+                fn finite_difference() -> Result<(), TestError> {
+                    assert_eq_from_fd(
+                        &get_finite_difference_of_dissipation_potential(false),
+                        &NodalForces::zero(),
+                    )
                 }
                 #[test]
                 fn minimized() {
@@ -1298,12 +1197,12 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                     })
                 }
                 #[test]
-                fn objectivity() {
-                    assert_eq_within_tols(&get_dissipation_potential(false, true), &0.0)
+                fn objectivity() -> Result<(), TestError> {
+                    assert_eq_within_tols_new(&get_dissipation_potential(false, true), &0.0)
                 }
                 #[test]
-                fn zero() {
-                    assert_eq!(get_dissipation_potential(false, false), 0.0)
+                fn zero() -> Result<(), TestError> {
+                    assert_eq(&get_dissipation_potential(false, false), &0.0)
                 }
             }
         }
