@@ -110,6 +110,8 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
                                     .zip(comparator_ijk.iter())
                                     .filter(|(&self_ijkl, &comparator_ijkl)| {
                                         &(self_ijkl / comparator_ijkl - 1.0).abs() >= epsilon
+                                            && (&self_ijkl.abs() >= epsilon
+                                                || &comparator_ijkl.abs() >= epsilon)
                                     })
                                     .count()
                             })

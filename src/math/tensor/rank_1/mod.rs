@@ -78,7 +78,10 @@ impl<const D: usize, const I: usize> TensorError for TensorRank1<D, I> {
         let error_count = self
             .iter()
             .zip(comparator.iter())
-            .filter(|(&self_i, &comparator_i)| &(self_i / comparator_i - 1.0).abs() >= epsilon)
+            .filter(|(&self_i, &comparator_i)| {
+                &(self_i / comparator_i - 1.0).abs() >= epsilon
+                    && (&self_i.abs() >= epsilon || &comparator_i.abs() >= epsilon)
+            })
             .count();
         if error_count > 0 {
             Some(error_count)

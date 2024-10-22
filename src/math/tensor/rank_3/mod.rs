@@ -105,6 +105,8 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize> TensorError
                             .zip(comparator_ij.iter())
                             .filter(|(&self_ijk, &comparator_ijk)| {
                                 &(self_ijk / comparator_ijk - 1.0).abs() >= epsilon
+                                    && (&self_ijk.abs() >= epsilon
+                                        || &comparator_ijk.abs() >= epsilon)
                             })
                             .count()
                     })
