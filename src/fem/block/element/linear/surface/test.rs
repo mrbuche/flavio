@@ -679,9 +679,17 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                 #[test]
                 fn objectivity() -> Result<(), TestError>
                 {
-                    assert_eq_within_tols(
-                        &get_normal_gradients(true, false),
-                        &get_normal_gradients(true, true)
+                    get_normal_gradients(true, false).iter()
+                    .zip(get_normal_gradients(true, true).iter())
+                    .try_for_each(|(normal_gradient_a, res_normal_gradient_a)|
+                        assert_eq_within_tols(
+                            normal_gradient_a,
+                            &(
+                                get_rotation_current_configuration().transpose() *
+                                res_normal_gradient_a *
+                                get_rotation_current_configuration()
+                            )
+                        )
                     )
                 }
             }
@@ -699,9 +707,17 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                 #[test]
                 fn objectivity() -> Result<(), TestError>
                 {
-                    assert_eq_within_tols(
-                        &get_normal_gradients(false, false),
-                        &get_normal_gradients(false, true)
+                    get_normal_gradients(false, false).iter()
+                    .zip(get_normal_gradients(false, true).iter())
+                    .try_for_each(|(normal_gradient_a, res_normal_gradient_a)|
+                        assert_eq_within_tols(
+                            &normal_gradient_a.convert(),
+                            &(
+                                get_rotation_reference_configuration().transpose() *
+                                res_normal_gradient_a.convert() *
+                                get_rotation_reference_configuration()
+                            )
+                        )
                     )
                 }
             }
