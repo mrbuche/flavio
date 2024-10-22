@@ -18,7 +18,7 @@ macro_rules! test_composite_surface_element_inner
             use crate::
             {
                 fem::block::element::composite::surface::test::test_composite_surface_element_with_constitutive_model,
-                math::{Convert, test::{assert_eq_from_fd, assert_eq_within_tols as assert_eq_within_tols_new, TestError}}
+                math::{Convert, test::{assert_eq_from_fd, assert_eq_within_tols as assert_eq_within_tols_new, TestError}},
                 test::assert_eq_within_tols
             };
             use super::*;
@@ -469,19 +469,17 @@ macro_rules! test_composite_surface_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn objectivity()
+                fn objectivity() -> Result<(), TestError>
                 {
                     get_bases(true, false).iter()
                     .zip(get_bases(true, true).iter())
-                    .for_each(|(basis, res_basis)|
+                    .try_for_each(|(basis, res_basis)|
                         basis.iter()
                         .zip(res_basis.iter())
-                        .for_each(|(basis_m, res_basis_m)|
-                            basis_m.iter()
-                            .zip((get_rotation_current_configuration().transpose() * res_basis_m
-                            ).iter())
-                            .for_each(|(basis_m_i, res_basis_m_i)|
-                                assert_eq_within_tols(basis_m_i, res_basis_m_i)
+                        .try_for_each(|(basis_m, res_basis_m)|
+                            assert_eq_within_tols_new(
+                                basis_m,
+                                &(get_rotation_current_configuration().transpose() * res_basis_m)
                             )
                         )
                     )
@@ -491,19 +489,17 @@ macro_rules! test_composite_surface_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn objectivity()
+                fn objectivity() -> Result<(), TestError>
                 {
                     get_bases(false, false).iter()
                     .zip(get_bases(false, true).iter())
-                    .for_each(|(basis, res_basis)|
+                    .try_for_each(|(basis, res_basis)|
                         basis.iter()
                         .zip(res_basis.iter())
-                        .for_each(|(basis_m, res_basis_m)|
-                            basis_m.iter()
-                            .zip((get_rotation_reference_configuration().transpose() * res_basis_m.convert()
-                            ).iter())
-                            .for_each(|(basis_m_i, res_basis_m_i)|
-                                assert_eq_within_tols(basis_m_i, res_basis_m_i)
+                        .try_for_each(|(basis_m, res_basis_m)|
+                            assert_eq_within_tols_new(
+                                &basis_m.convert(),
+                                &(get_rotation_reference_configuration().transpose() * res_basis_m.convert())
                             )
                         )
                     )
@@ -517,39 +513,37 @@ macro_rules! test_composite_surface_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn basis()
+                fn basis() -> Result<(), TestError>
                 {
+                    let mut surface_identity = DeformationGradient::identity();
+                    surface_identity[2][2] = 0.0;
                     get_bases(true, false).iter()
                     .zip(get_dual_bases(true, false).iter())
-                    .for_each(|(basis, dual_basis)|
-                        basis.iter()
-                        .enumerate()
-                        .for_each(|(m, basis_m)|
-                            dual_basis.iter()
-                            .enumerate()
-                            .for_each(|(n, dual_basis_n)|
-                                assert_eq_within_tols(
-                                    &(basis_m * dual_basis_n),
-                                    &((m == n) as u8 as Scalar)
-                                )
-                            )
+                    .try_for_each(|(basis, dual_basis)|
+                        assert_eq_within_tols_new(
+                            &basis.iter()
+                            .map(|basis|
+                                dual_basis.iter()
+                                .map(|dual_basis|
+                                    basis * dual_basis
+                                ).collect()
+                            ).collect(),
+                            &surface_identity
                         )
                     )
                 }
                 #[test]
-                fn objectivity()
+                fn objectivity() -> Result<(), TestError>
                 {
                     get_dual_bases(true, false).iter()
                     .zip(get_dual_bases(true, true).iter())
-                    .for_each(|(dual_basis, res_dual_basis)|
+                    .try_for_each(|(dual_basis, res_dual_basis)|
                         dual_basis.iter()
                         .zip(res_dual_basis.iter())
-                        .for_each(|(dual_basis_m, res_dual_basis_m)|
-                            dual_basis_m.iter()
-                            .zip((get_rotation_current_configuration().transpose() * res_dual_basis_m
-                            ).iter())
-                            .for_each(|(dual_basis_m_i, res_dual_basis_m_i)|
-                                assert_eq_within_tols(dual_basis_m_i, res_dual_basis_m_i)
+                        .try_for_each(|(dual_basis_m, res_dual_basis_m)|
+                            assert_eq_within_tols_new(
+                                dual_basis_m,
+                                &(get_rotation_current_configuration().transpose() * res_dual_basis_m)
                             )
                         )
                     )
@@ -559,39 +553,37 @@ macro_rules! test_composite_surface_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn basis()
+                fn basis() -> Result<(), TestError>
                 {
+                    let mut surface_identity = DeformationGradient::identity();
+                    surface_identity[2][2] = 0.0;
                     get_bases(false, false).iter()
                     .zip(get_dual_bases(false, false).iter())
-                    .for_each(|(basis, dual_basis)|
-                        basis.iter()
-                        .enumerate()
-                        .for_each(|(m, basis_m)|
-                            dual_basis.iter()
-                            .enumerate()
-                            .for_each(|(n, dual_basis_n)|
-                                assert_eq_within_tols(
-                                    &(basis_m * dual_basis_n),
-                                    &((m == n) as u8 as Scalar)
-                                )
-                            )
+                    .try_for_each(|(basis, dual_basis)|
+                        assert_eq_within_tols_new(
+                            &basis.iter()
+                            .map(|basis|
+                                dual_basis.iter()
+                                .map(|dual_basis|
+                                    basis * dual_basis
+                                ).collect()
+                            ).collect(),
+                            &surface_identity
                         )
                     )
                 }
                 #[test]
-                fn objectivity()
+                fn objectivity() -> Result<(), TestError>
                 {
-                    get_dual_bases(false, false).iter()
-                    .zip(get_dual_bases(false, true).iter())
-                    .for_each(|(dual_basis, res_dual_basis)|
+                    get_dual_bases(true, false).iter()
+                    .zip(get_dual_bases(true, true).iter())
+                    .try_for_each(|(dual_basis, res_dual_basis)|
                         dual_basis.iter()
                         .zip(res_dual_basis.iter())
-                        .for_each(|(dual_basis_m, res_dual_basis_m)|
-                            dual_basis_m.iter()
-                            .zip((get_rotation_reference_configuration().transpose() * res_dual_basis_m.convert()
-                            ).iter())
-                            .for_each(|(dual_basis_m_i, res_dual_basis_m_i)|
-                                assert_eq_within_tols(dual_basis_m_i, res_dual_basis_m_i)
+                        .try_for_each(|(dual_basis_m, res_dual_basis_m)|
+                            assert_eq_within_tols_new(
+                                &dual_basis_m.convert(),
+                                &(get_rotation_reference_configuration().transpose() * res_dual_basis_m.convert())
                             )
                         )
                     )
@@ -1063,29 +1055,28 @@ macro_rules! test_composite_surface_element_with_constitutive_model
         {
             use super::*;
             #[test]
-            fn normals()
+            fn normals() -> Result<(), TestError>
             {
                 get_dual_bases(false, false).iter()
                 .zip(get_reference_normals(false).iter())
-                .for_each(|(dual_basis, reference_normal)|{
-                    assert_eq_within_tols(
+                .try_for_each(|(dual_basis, reference_normal)|{
+                    assert_eq_within_tols_new(
                         &(&dual_basis[0].convert() * reference_normal), &0.0
-                    );
-                    assert_eq_within_tols(
+                    )?;
+                    assert_eq_within_tols_new(
                         &(&dual_basis[1].convert() * reference_normal), &0.0
-                    );
+                    )
                 })
             }
             #[test]
-            fn objectivity()
+            fn objectivity() -> Result<(), TestError>
             {
                 get_reference_normals(false).iter()
                 .zip(get_reference_normals(true).iter())
-                .for_each(|(normal, res_normal)|
-                    normal.iter()
-                    .zip((get_rotation_reference_configuration().transpose() * res_normal).iter())
-                    .for_each(|(normal_i, res_normal_i)|
-                        assert_eq_within_tols(normal_i, res_normal_i)
+                .try_for_each(|(normal, res_normal)|
+                    assert_eq_within_tols_new(
+                        normal,
+                        &(get_rotation_reference_configuration().transpose() * res_normal)
                     )
                 )
             }
