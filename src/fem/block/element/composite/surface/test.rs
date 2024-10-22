@@ -18,7 +18,7 @@ macro_rules! test_composite_surface_element_inner
             use crate::
             {
                 fem::block::element::composite::surface::test::test_composite_surface_element_with_constitutive_model,
-                math::Convert,
+                math::{Convert, test::{assert_eq_from_fd, assert_eq_within_tols as assert_eq_within_tols_new, TestError}}
                 test::assert_eq_within_tols
             };
             use super::*;

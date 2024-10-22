@@ -20,9 +20,7 @@ macro_rules! test_linear_surface_element_inner
             use crate::
             {
                 fem::block::element::linear::surface::test::test_linear_surface_element_with_constitutive_model,
-                math::{Convert, test::{
-                    assert_eq_from_fd, assert_eq_within_tols, TestError,
-                }}
+                math::{Convert, test::{assert_eq_from_fd, assert_eq_within_tols, TestError}}
             };
             use super::*;
             mod elastic
