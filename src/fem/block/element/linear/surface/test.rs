@@ -20,7 +20,9 @@ macro_rules! test_linear_surface_element_inner
             use crate::
             {
                 fem::block::element::linear::surface::test::test_linear_surface_element_with_constitutive_model,
-                math::Convert,
+                math::{Convert, test::{
+                    assert_eq_from_fd, assert_eq_within_tols as assert_eq_within_tols_new, TestError,
+                }},
                 test::assert_eq_within_tols
             };
             use super::*;
@@ -479,16 +481,14 @@ macro_rules! test_linear_surface_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn objectivity()
+                fn objectivity() -> Result<(), TestError>
                 {
                     get_basis(true, false).iter()
                     .zip(get_basis(true, true).iter())
-                    .for_each(|(basis_m, res_basis_m)|
-                        basis_m.iter()
-                        .zip((get_rotation_current_configuration().transpose() * res_basis_m
-                        ).iter())
-                        .for_each(|(basis_m_i, res_basis_m_i)|
-                            assert_eq_within_tols(basis_m_i, res_basis_m_i)
+                    .try_for_each(|(basis_m, res_basis_m)|
+                        assert_eq_within_tols_new(
+                            basis_m,
+                            &(get_rotation_current_configuration().transpose() * res_basis_m)
                         )
                     )
                 }
@@ -497,16 +497,14 @@ macro_rules! test_linear_surface_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn objectivity()
+                fn objectivity() -> Result<(), TestError>
                 {
                     get_basis(false, false).iter()
                     .zip(get_basis(false, true).iter())
-                    .for_each(|(basis_m, res_basis_m)|
-                        basis_m.iter()
-                        .zip((get_rotation_reference_configuration().transpose() * res_basis_m.convert()
-                        ).iter())
-                        .for_each(|(basis_m_i, res_basis_m_i)|
-                            assert_eq_within_tols(basis_m_i, res_basis_m_i)
+                    .try_for_each(|(basis_m, res_basis_m)|
+                        assert_eq_within_tols_new(
+                            &basis_m.convert(),
+                            &(get_rotation_reference_configuration().transpose() * res_basis_m.convert())
                         )
                     )
                 }
@@ -519,32 +517,30 @@ macro_rules! test_linear_surface_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn basis()
+                fn basis() -> Result<(), TestError>
                 {
-                    get_basis(true, false).iter()
-                    .enumerate()
-                    .for_each(|(m, basis_m)|
-                        get_dual_basis(true, false).iter()
-                        .enumerate()
-                        .for_each(|(n, dual_basis_n)|
-                            assert_eq_within_tols(
-                                &(basis_m * dual_basis_n),
-                                &((m == n) as u8 as Scalar)
-                            )
-                        )
+                    let mut surface_identity = DeformationGradient::identity();
+                    surface_identity[2][2] = 0.0;
+                    assert_eq_within_tols_new(
+                        &get_basis(true, false).iter()
+                        .map(|basis|
+                            get_dual_basis(true, false).iter()
+                            .map(|dual_basis|
+                                basis * dual_basis
+                            ).collect()
+                        ).collect(),
+                        &surface_identity
                     )
                 }
                 #[test]
-                fn objectivity()
+                fn objectivity() -> Result<(), TestError>
                 {
                     get_dual_basis(true, false).iter()
                     .zip(get_dual_basis(true, true).iter())
-                    .for_each(|(dual_basis_m, res_dual_basis_m)|
-                        dual_basis_m.iter()
-                        .zip((get_rotation_current_configuration().transpose() * res_dual_basis_m
-                        ).iter())
-                        .for_each(|(dual_basis_m_i, res_dual_basis_m_i)|
-                            assert_eq_within_tols(dual_basis_m_i, res_dual_basis_m_i)
+                    .try_for_each(|(dual_basis_m, res_dual_basis_m)|
+                        assert_eq_within_tols_new(
+                            dual_basis_m,
+                            &(get_rotation_current_configuration().transpose() * res_dual_basis_m)
                         )
                     )
                 }
@@ -553,32 +549,30 @@ macro_rules! test_linear_surface_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn basis()
+                fn basis() -> Result<(), TestError>
                 {
-                    get_basis(false, false).iter()
-                    .enumerate()
-                    .for_each(|(m, basis_m)|
-                        get_dual_basis(false, false).iter()
-                        .enumerate()
-                        .for_each(|(n, dual_basis_n)|
-                            assert_eq_within_tols(
-                                &(basis_m * dual_basis_n),
-                                &((m == n) as u8 as Scalar)
-                            )
-                        )
+                    let mut surface_identity = DeformationGradient::identity();
+                    surface_identity[2][2] = 0.0;
+                    assert_eq_within_tols_new(
+                        &get_basis(false, false).iter()
+                        .map(|basis|
+                            get_dual_basis(false, false).iter()
+                            .map(|dual_basis|
+                                basis * dual_basis
+                            ).collect()
+                        ).collect(),
+                        &surface_identity
                     )
                 }
                 #[test]
-                fn objectivity()
+                fn objectivity() -> Result<(), TestError>
                 {
                     get_dual_basis(false, false).iter()
                     .zip(get_dual_basis(false, true).iter())
-                    .for_each(|(dual_basis_m, res_dual_basis_m)|
-                        dual_basis_m.iter()
-                        .zip((get_rotation_reference_configuration().transpose() * res_dual_basis_m.convert()
-                        ).iter())
-                        .for_each(|(dual_basis_m_i, res_dual_basis_m_i)|
-                            assert_eq_within_tols(dual_basis_m_i, res_dual_basis_m_i)
+                    .try_for_each(|(dual_basis_m, res_dual_basis_m)|
+                        assert_eq_within_tols_new(
+                            &dual_basis_m.convert(),
+                            &(get_rotation_reference_configuration().transpose() * res_dual_basis_m.convert())
                         )
                     )
                 }
@@ -591,40 +585,29 @@ macro_rules! test_linear_surface_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn finite_difference()
+                fn finite_difference() -> Result<(), TestError>
                 {
-                    get_normal_gradients(true, false).iter()
-                    .zip(get_normal_gradients_from_finite_difference(true).iter())
-                    .for_each(|(normal_gradient_a, fd_normal_gradient_a)|
-                        normal_gradient_a.iter()
-                        .zip(fd_normal_gradient_a.iter())
-                        .for_each(|(normal_gradient_a_m, fd_normal_gradient_a_m)|
-                            normal_gradient_a_m.iter()
-                            .zip(fd_normal_gradient_a_m.iter())
-                            .for_each(|(normal_gradient_a_m_i, fd_normal_gradient_a_m_i)|
-                                assert!(
-                                    (normal_gradient_a_m_i/fd_normal_gradient_a_m_i - 1.0).abs() < EPSILON
-                                )
-                            )
-                        )
+                    assert_eq_from_fd(
+                        &get_normal_gradients(true, false),
+                        &get_normal_gradients_from_finite_difference(true)
                     )
                 }
                 #[test]
-                fn normal()
+                fn normal() -> Result<(), TestError>
                 {
                     let basis = get_basis(true, false);
                     let normal = get_normal(true, false);
-                    assert_eq_within_tols(
+                    assert_eq_within_tols_new(
                         &(&basis[0] * &normal), &0.0
-                    );
-                    assert_eq_within_tols(
+                    )?;
+                    assert_eq_within_tols_new(
                         &(&basis[1] * &normal), &0.0
-                    );
+                    )
                 }
                 #[test]
-                fn normalized()
+                fn normalized() -> Result<(), TestError>
                 {
-                    assert_eq_within_tols(
+                    assert_eq_within_tols_new(
                         &get_normal(true, false).norm(), &1.0
                     )
                 }
@@ -645,41 +628,29 @@ macro_rules! test_linear_surface_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn finite_difference()
+                fn finite_difference() -> Result<(), TestError>
                 {
-                    get_normal_gradients(true, false).iter()
-                    .zip(get_normal_gradients_from_finite_difference(true).iter())
-                    .for_each(|(normal_gradient_a, fd_normal_gradient_a)|
-                        normal_gradient_a.iter()
-                        .zip(fd_normal_gradient_a.iter())
-                        .for_each(|(normal_gradient_a_i, fd_normal_gradient_a_i)|
-                            normal_gradient_a_i.iter()
-                            .zip(fd_normal_gradient_a_i.iter())
-                            .for_each(|(normal_gradient_a_i_j, fd_normal_gradient_a_i_j)|
-                                assert!(
-                                    (normal_gradient_a_i_j/fd_normal_gradient_a_i_j - 1.0).abs() < EPSILON ||
-                                    (normal_gradient_a_i_j.abs() < EPSILON && fd_normal_gradient_a_i_j.abs() < EPSILON)
-                                )
-                            )
-                        )
+                    assert_eq_from_fd(
+                        &get_normal_gradients(false, false),
+                        &get_normal_gradients_from_finite_difference(false)
                     )
                 }
                 #[test]
-                fn normal()
+                fn normal() -> Result<(), TestError>
                 {
                     let basis = get_basis(false, false);
                     let normal = get_normal(false, false);
-                    assert_eq_within_tols(
+                    assert_eq_within_tols_new(
                         &(&basis[0] * &normal), &0.0
-                    );
-                    assert_eq_within_tols(
+                    )?;
+                    assert_eq_within_tols_new(
                         &(&basis[1] * &normal), &0.0
-                    );
+                    )
                 }
                 #[test]
-                fn normalized()
+                fn normalized() -> Result<(), TestError>
                 {
-                    assert_eq_within_tols(
+                    assert_eq_within_tols_new(
                         &get_normal(false, false).norm(), &1.0
                     )
                 }
@@ -704,30 +675,11 @@ macro_rules! test_linear_surface_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn finite_difference()
+                fn finite_difference() -> Result<(), TestError>
                 {
-                    get_normal_tangents(true, false).iter()
-                    .zip(get_normal_tangents_from_finite_difference(true).iter())
-                    .for_each(|(normal_tangent_a, fd_normal_tangent_a)|
-                        normal_tangent_a.iter()
-                        .zip(fd_normal_tangent_a.iter())
-                        .for_each(|(normal_tangent_ab, fd_normal_tangent_ab)|
-                            normal_tangent_ab.iter()
-                            .zip(fd_normal_tangent_ab.iter())
-                            .for_each(|(normal_tangent_ab_m, fd_normal_tangent_ab_m)|
-                                normal_tangent_ab_m.iter()
-                                .zip(fd_normal_tangent_ab_m.iter())
-                                .for_each(|(normal_tangent_ab_m_i, fd_normal_tangent_ab_m_i)|
-                                    normal_tangent_ab_m_i.iter()
-                                    .zip(fd_normal_tangent_ab_m_i.iter())
-                                    .for_each(|(normal_tangent_ab_mn_i, fd_normal_tangent_ab_mn_i)|
-                                        assert!(
-                                            (normal_tangent_ab_mn_i/fd_normal_tangent_ab_mn_i - 1.0).abs() < EPSILON
-                                        )
-                                    )
-                                )
-                            )
-                        )
+                    assert_eq_from_fd(
+                        &get_normal_tangents(true, false),
+                        &get_normal_tangents_from_finite_difference(true)
                     )
                 }
                 #[test]
@@ -756,31 +708,11 @@ macro_rules! test_linear_surface_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn finite_difference()
+                fn finite_difference() -> Result<(), TestError>
                 {
-                    get_normal_tangents(false, false).iter()
-                    .zip(get_normal_tangents_from_finite_difference(false).iter())
-                    .for_each(|(normal_tangent_a, fd_normal_tangent_a)|
-                        normal_tangent_a.iter()
-                        .zip(fd_normal_tangent_a.iter())
-                        .for_each(|(normal_tangent_ab, fd_normal_tangent_ab)|
-                            normal_tangent_ab.iter()
-                            .zip(fd_normal_tangent_ab.iter())
-                            .for_each(|(normal_tangent_ab_i, fd_normal_tangent_ab_i)|
-                                normal_tangent_ab_i.iter()
-                                .zip(fd_normal_tangent_ab_i.iter())
-                                .for_each(|(normal_tangent_ab_i_m, fd_normal_tangent_ab_i_m)|
-                                    normal_tangent_ab_i_m.iter()
-                                    .zip(fd_normal_tangent_ab_i_m.iter())
-                                    .for_each(|(normal_tangent_ab_i_mn, fd_normal_tangent_ab_i_mn)|
-                                        assert!(
-                                            (normal_tangent_ab_i_mn/fd_normal_tangent_ab_i_mn - 1.0).abs() < EPSILON ||
-                                            (normal_tangent_ab_i_mn.abs() < EPSILON && fd_normal_tangent_ab_i_mn.abs() < EPSILON)
-                                        )
-                                    )
-                                )
-                            )
-                        )
+                    assert_eq_from_fd(
+                        &get_normal_tangents(false, false),
+                        &get_normal_tangents_from_finite_difference(false)
                     )
                 }
                 #[test]
@@ -813,15 +745,11 @@ macro_rules! test_linear_surface_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn finite_difference()
+                fn finite_difference() -> Result<(), TestError>
                 {
-                    get_normal_rate(true, false).iter()
-                    .zip(get_normal_rate_from_finite_difference(true).iter())
-                    .for_each(|(normal_rate_i, fd_normal_rate_i)|
-                        assert!(
-                            (normal_rate_i/fd_normal_rate_i - 1.0).abs() < EPSILON ||
-                            normal_rate_i.abs() < EPSILON
-                        )
+                    assert_eq_from_fd(
+                        &get_normal_rate(true, false),
+                        &get_normal_rate_from_finite_difference(true)
                     )
                 }
                 #[test]
@@ -843,15 +771,11 @@ macro_rules! test_linear_surface_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn finite_difference()
+                fn finite_difference() -> Result<(), TestError>
                 {
-                    get_normal_rate(false, false).iter()
-                    .zip(get_normal_rate_from_finite_difference(false).iter())
-                    .for_each(|(normal_rate_i, fd_normal_rate_i)|
-                        assert!(
-                            (normal_rate_i/fd_normal_rate_i - 1.0).abs() < EPSILON ||
-                            normal_rate_i.abs() < EPSILON
-                        )
+                    assert_eq_from_fd(
+                        &get_normal_rate(false, false),
+                        &get_normal_rate_from_finite_difference(false)
                     )
                 }
                 #[test]
@@ -986,27 +910,26 @@ macro_rules! test_linear_surface_element_with_constitutive_model
         {
             use super::*;
             #[test]
-            fn normal()
+            fn normal() -> Result<(), TestError>
             {
                 let basis = get_dual_basis(false, false);
                 let element = get_element();
-                assert_eq_within_tols(
+                assert_eq_within_tols_new(
                     &(&basis[0].convert() * element.get_reference_normal()), &0.0
-                );
-                assert_eq_within_tols(
+                )?;
+                assert_eq_within_tols_new(
                     &(&basis[1].convert() * element.get_reference_normal()), &0.0
-                );
+                )
             }
             #[test]
-            fn objectivity()
+            fn objectivity() -> Result<(), TestError>
             {
-                get_element().get_reference_normal().iter()
-                .zip((
-                    get_rotation_reference_configuration().transpose() *
-                    get_element_transformed().get_reference_normal()
-                ).iter())
-                .for_each(|(normal_i, res_normal_i)|
-                    assert_eq_within_tols(normal_i, res_normal_i)
+                assert_eq_within_tols_new(
+                    get_element().get_reference_normal(),
+                    &(
+                        get_rotation_reference_configuration().transpose() *
+                        get_element_transformed().get_reference_normal()
+                    )
                 )
             }
         }

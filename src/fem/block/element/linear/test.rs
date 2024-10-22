@@ -16,9 +16,7 @@ macro_rules! test_linear_element_inner {
             use super::*;
             use crate::{
                 fem::block::element::linear::test::test_linear_element_with_constitutive_model,
-                math::test::{
-                    assert_eq, assert_eq_within_tols as assert_eq_within_tols_new, TestError,
-                },
+                math::test::{assert_eq, assert_eq_within_tols, TestError},
             };
             mod elastic {
                 use super::*;
@@ -233,14 +231,14 @@ macro_rules! test_linear_element_with_constitutive_model {
                 use super::*;
                 #[test]
                 fn calculate() -> Result<(), TestError> {
-                    assert_eq_within_tols_new(
+                    assert_eq_within_tols(
                         &get_element().calculate_deformation_gradient(&get_coordinates()),
                         &get_deformation_gradient(),
                     )
                 }
                 #[test]
                 fn objectivity() -> Result<(), TestError> {
-                    assert_eq_within_tols_new(
+                    assert_eq_within_tols(
                         &get_element().calculate_deformation_gradient(&get_coordinates()),
                         &(get_rotation_current_configuration().transpose()
                             * get_element_transformed()
@@ -253,7 +251,7 @@ macro_rules! test_linear_element_with_constitutive_model {
                 use super::*;
                 #[test]
                 fn calculate() -> Result<(), TestError> {
-                    assert_eq_within_tols_new(
+                    assert_eq_within_tols(
                         &get_element()
                             .calculate_deformation_gradient(&get_reference_coordinates().into()),
                         &DeformationGradient::identity(),
@@ -261,7 +259,7 @@ macro_rules! test_linear_element_with_constitutive_model {
                 }
                 #[test]
                 fn objectivity() -> Result<(), TestError> {
-                    assert_eq_within_tols_new(
+                    assert_eq_within_tols(
                         &get_element_transformed().calculate_deformation_gradient(
                             &get_reference_coordinates_transformed().into(),
                         ),
@@ -276,7 +274,7 @@ macro_rules! test_linear_element_with_constitutive_model {
                 use super::*;
                 #[test]
                 fn calculate() -> Result<(), TestError> {
-                    assert_eq_within_tols_new(
+                    assert_eq_within_tols(
                         &get_element().calculate_deformation_gradient_rate(
                             &get_coordinates(),
                             &get_velocities(),
@@ -286,7 +284,7 @@ macro_rules! test_linear_element_with_constitutive_model {
                 }
                 #[test]
                 fn objectivity() -> Result<(), TestError> {
-                    assert_eq_within_tols_new(
+                    assert_eq_within_tols(
                         &get_element().calculate_deformation_gradient_rate(
                             &get_coordinates(),
                             &get_velocities(),
@@ -306,7 +304,7 @@ macro_rules! test_linear_element_with_constitutive_model {
                 use super::*;
                 #[test]
                 fn calculate() -> Result<(), TestError> {
-                    assert_eq_within_tols_new(
+                    assert_eq_within_tols(
                         &get_element().calculate_deformation_gradient_rate(
                             &get_reference_coordinates().into(),
                             &NodalVelocities::zero().into(),
@@ -316,7 +314,7 @@ macro_rules! test_linear_element_with_constitutive_model {
                 }
                 #[test]
                 fn objectivity() -> Result<(), TestError> {
-                    assert_eq_within_tols_new(
+                    assert_eq_within_tols(
                         &get_element_transformed().calculate_deformation_gradient_rate(
                             &get_reference_coordinates_transformed().into(),
                             &NodalVelocities::zero().into(),
