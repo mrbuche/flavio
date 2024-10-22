@@ -1,8 +1,19 @@
-use super::Tensor;
+use super::TensorRank0;
 use crate::{get_defeat_message, ABS_TOL, EPSILON, REL_TOL};
 use std::{cmp::PartialEq, fmt};
 
-pub fn assert_eq<'a, T: PartialEq + Tensor>(
+#[cfg(test)]
+pub trait TensorError {
+    fn error(
+        &self,
+        comparator: &Self,
+        tol_abs: &TensorRank0,
+        tol_rel: &TensorRank0,
+    ) -> Option<usize>;
+    fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<usize>;
+}
+
+pub fn assert_eq<'a, T: fmt::Display + PartialEq + TensorError>(
     value_1: &'a T,
     value_2: &'a T,
 ) -> Result<(), TestError> {
@@ -18,7 +29,10 @@ pub fn assert_eq<'a, T: PartialEq + Tensor>(
     }
 }
 
-pub fn assert_eq_from_fd<'a, T: Tensor>(value: &'a T, value_fd: &'a T) -> Result<(), TestError> {
+pub fn assert_eq_from_fd<'a, T: fmt::Display + TensorError>(
+    value: &'a T,
+    value_fd: &'a T,
+) -> Result<(), TestError> {
     if let Some(error_count) = value.error_fd(value_fd, &EPSILON) {
         Err(TestError {
             message: format!(
@@ -31,7 +45,7 @@ pub fn assert_eq_from_fd<'a, T: Tensor>(value: &'a T, value_fd: &'a T) -> Result
     }
 }
 
-pub fn assert_eq_within_tols<'a, T: Tensor>(
+pub fn assert_eq_within_tols<'a, T: fmt::Display + TensorError>(
     value_1: &'a T,
     value_2: &'a T,
 ) -> Result<(), TestError> {

@@ -1,5 +1,5 @@
 use super::{
-    super::test::{assert_eq, assert_eq_within_tols, TestError},
+    super::test::{assert_eq, assert_eq_within_tols, TensorError, TestError},
     Tensor, TensorRank0, TensorRank1, TensorRank1List, TensorRank2, TensorRank2List2D, TensorRank4,
     Tensors,
 };

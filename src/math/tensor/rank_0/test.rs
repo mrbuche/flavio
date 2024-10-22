@@ -1,4 +1,4 @@
-use super::{Tensor, TensorRank0};
+use super::{super::test::TensorError, TensorRank0};
 use crate::{ABS_TOL, REL_TOL};
 
 #[test]

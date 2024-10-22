@@ -1,8 +1,14 @@
 #[cfg(test)]
 mod test;
 
+#[cfg(test)]
+use super::super::test::TensorError;
+
 use std::array::from_fn;
-use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign};
+use std::{
+    fmt::{Display, Formatter, Result},
+    ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
+};
 
 use crate::math::{Tensor, TensorRank2, Tensors};
 
@@ -14,6 +20,63 @@ use super::{super::Convert, TensorRank0, TensorRank1};
 pub struct TensorRank1List<const D: usize, const I: usize, const W: usize>(
     pub [TensorRank1<D, I>; W],
 );
+
+impl<const D: usize, const I: usize, const W: usize> Display for TensorRank1List<D, I, W> {
+    fn fmt(&self, _f: &mut Formatter) -> Result {
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+impl<const D: usize, const I: usize, const W: usize> TensorError for TensorRank1List<D, I, W> {
+    fn error(
+        &self,
+        comparator: &Self,
+        tol_abs: &TensorRank0,
+        tol_rel: &TensorRank0,
+    ) -> Option<usize> {
+        let error_count = self
+            .iter()
+            .zip(comparator.iter())
+            .map(|(entry, comparator_entry)| {
+                entry
+                    .iter()
+                    .zip(comparator_entry.iter())
+                    .filter(|(&entry_i, &comparator_entry_i)| {
+                        &(entry_i - comparator_entry_i).abs() >= tol_abs
+                            && &(entry_i / comparator_entry_i - 1.0).abs() >= tol_rel
+                    })
+                    .count()
+            })
+            .sum();
+        if error_count > 0 {
+            Some(error_count)
+        } else {
+            None
+        }
+    }
+    fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<usize> {
+        let error_count = self
+            .iter()
+            .zip(comparator.iter())
+            .map(|(entry, comparator_entry)| {
+                entry
+                    .iter()
+                    .zip(comparator_entry.iter())
+                    .filter(|(&entry_i, &comparator_entry_i)| {
+                        &(entry_i / comparator_entry_i - 1.0).abs() >= epsilon
+                            && (&entry_i.abs() >= epsilon || &comparator_entry_i.abs() >= epsilon)
+                    })
+                    .count()
+            })
+            .sum();
+        if error_count > 0 {
+            Some(error_count)
+        } else {
+            None
+        }
+    }
+}
 
 impl<const D: usize, const I: usize, const W: usize> TensorRank1List<D, I, W> {
     /// Returns the sum of the full dot product of each tensor in each list.

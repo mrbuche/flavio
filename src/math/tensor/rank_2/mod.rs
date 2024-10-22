@@ -1,6 +1,9 @@
 #[cfg(test)]
 mod test;
 
+#[cfg(test)]
+use super::test::TensorError;
+
 pub mod list;
 pub mod list_2d;
 
@@ -53,6 +56,57 @@ impl<const D: usize, const I: usize, const J: usize> PartialEq for TensorRank2<D
             }
         });
         result
+    }
+}
+
+#[cfg(test)]
+impl<const D: usize, const I: usize, const J: usize> TensorError for TensorRank2<D, I, J> {
+    fn error(
+        &self,
+        comparator: &Self,
+        tol_abs: &TensorRank0,
+        tol_rel: &TensorRank0,
+    ) -> Option<usize> {
+        let error_count = self
+            .iter()
+            .zip(comparator.iter())
+            .map(|(self_i, comparator_i)| {
+                self_i
+                    .iter()
+                    .zip(comparator_i.iter())
+                    .filter(|(&self_ij, &comparator_ij)| {
+                        &(self_ij - comparator_ij).abs() >= tol_abs
+                            && &(self_ij / comparator_ij - 1.0).abs() >= tol_rel
+                    })
+                    .count()
+            })
+            .sum();
+        if error_count > 0 {
+            Some(error_count)
+        } else {
+            None
+        }
+    }
+    fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<usize> {
+        let error_count = self
+            .iter()
+            .zip(comparator.iter())
+            .map(|(self_i, comparator_i)| {
+                self_i
+                    .iter()
+                    .zip(comparator_i.iter())
+                    .filter(|(&self_ij, &comparator_ij)| {
+                        &(self_ij / comparator_ij - 1.0).abs() >= epsilon
+                            && (&self_ij.abs() >= epsilon || &comparator_ij.abs() >= epsilon)
+                    })
+                    .count()
+            })
+            .sum();
+        if error_count > 0 {
+            Some(error_count)
+        } else {
+            None
+        }
     }
 }
 
@@ -521,55 +575,6 @@ impl<const D: usize, const I: usize, const J: usize> Tensor for TensorRank2<D, I
     }
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
-    }
-    #[cfg(test)]
-    fn error(
-        &self,
-        comparator: &Self,
-        tol_abs: &TensorRank0,
-        tol_rel: &TensorRank0,
-    ) -> Option<usize> {
-        let error_count = self
-            .iter()
-            .zip(comparator.iter())
-            .map(|(self_i, comparator_i)| {
-                self_i
-                    .iter()
-                    .zip(comparator_i.iter())
-                    .filter(|(&self_ij, &comparator_ij)| {
-                        &(self_ij - comparator_ij).abs() >= tol_abs
-                            && &(self_ij / comparator_ij - 1.0).abs() >= tol_rel
-                    })
-                    .count()
-            })
-            .sum();
-        if error_count > 0 {
-            Some(error_count)
-        } else {
-            None
-        }
-    }
-    #[cfg(test)]
-    fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<usize> {
-        let error_count = self
-            .iter()
-            .zip(comparator.iter())
-            .map(|(self_i, comparator_i)| {
-                self_i
-                    .iter()
-                    .zip(comparator_i.iter())
-                    .filter(|(&self_ij, &comparator_ij)| {
-                        &(self_ij / comparator_ij - 1.0).abs() >= epsilon
-                            && (&self_ij.abs() >= epsilon || &comparator_ij.abs() >= epsilon)
-                    })
-                    .count()
-            })
-            .sum();
-        if error_count > 0 {
-            Some(error_count)
-        } else {
-            None
-        }
     }
     fn identity() -> Self {
         (0..D)

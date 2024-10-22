@@ -1,8 +1,12 @@
 #[cfg(test)]
 mod test;
 
+#[cfg(test)]
+use super::super::{test::TensorError, Tensor};
+
 use std::{
     array::from_fn,
+    fmt::{Display, Formatter, Result},
     ops::{Add, AddAssign, Index, IndexMut, Mul},
 };
 
@@ -18,6 +22,91 @@ pub struct TensorRank2List2D<
     const W: usize,
     const X: usize,
 >([TensorRank2List<D, I, J, W>; X]);
+
+impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize> Display
+    for TensorRank2List2D<D, I, J, W, X>
+{
+    fn fmt(&self, _f: &mut Formatter) -> Result {
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize> TensorError
+    for TensorRank2List2D<D, I, J, W, X>
+{
+    fn error(
+        &self,
+        comparator: &Self,
+        tol_abs: &TensorRank0,
+        tol_rel: &TensorRank0,
+    ) -> Option<usize> {
+        let error_count = self
+            .iter()
+            .zip(comparator.iter())
+            .map(|(self_a, comparator_a)| {
+                self_a
+                    .iter()
+                    .zip(comparator_a.iter())
+                    .map(|(self_ab, comparator_ab)| {
+                        self_ab
+                            .iter()
+                            .zip(comparator_ab.iter())
+                            .map(|(self_ab_i, comparator_ab_i)| {
+                                self_ab_i
+                                    .iter()
+                                    .zip(comparator_ab_i.iter())
+                                    .filter(|(&self_ab_ij, &comparator_ab_ij)| {
+                                        &(self_ab_ij - comparator_ab_ij).abs() >= tol_abs
+                                            && &(self_ab_ij / comparator_ab_ij - 1.0).abs()
+                                                >= tol_rel
+                                    })
+                                    .count()
+                            })
+                            .sum::<usize>()
+                    })
+                    .sum::<usize>()
+            })
+            .sum();
+        if error_count > 0 {
+            Some(error_count)
+        } else {
+            None
+        }
+    }
+    fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<usize> {
+        let error_count = self
+            .iter()
+            .zip(comparator.iter())
+            .map(|(self_a, comparator_a)| {
+                self_a
+                    .iter()
+                    .zip(comparator_a.iter())
+                    .map(|(self_ab, comparator_ab)| {
+                        self_ab
+                            .iter()
+                            .zip(comparator_ab.iter())
+                            .map(|(self_ab_i, comparator_ab_i)| {
+                                self_ab_i
+                                    .iter()
+                                    .zip(comparator_ab_i.iter())
+                                    .filter(|(&self_ab_ij, &comparator_ab_ij)| {
+                                        &(self_ab_ij / comparator_ab_ij - 1.0).abs() >= epsilon
+                                    })
+                                    .count()
+                            })
+                            .sum::<usize>()
+                    })
+                    .sum::<usize>()
+            })
+            .sum();
+        if error_count > 0 {
+            Some(error_count)
+        } else {
+            None
+        }
+    }
+}
 
 impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize> Tensors
     for TensorRank2List2D<D, I, J, W, X>

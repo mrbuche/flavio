@@ -1,6 +1,6 @@
 use super::{
-    super::Tensor, ContractAllIndicesWithFirstIndicesOf,
-    ContractFirstSecondIndicesWithSecondIndicesOf,
+    super::{test::TensorError, Tensor},
+    ContractAllIndicesWithFirstIndicesOf, ContractFirstSecondIndicesWithSecondIndicesOf,
     ContractFirstThirdFourthIndicesWithFirstIndicesOf,
     ContractSecondFourthIndicesWithFirstIndicesOf, ContractSecondIndexWithFirstIndexOf,
     ContractThirdFourthIndicesWithFirstSecondIndicesOf, TensorRank0, TensorRank1, TensorRank2,

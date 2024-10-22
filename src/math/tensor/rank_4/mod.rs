@@ -1,6 +1,9 @@
 #[cfg(test)]
 mod test;
 
+#[cfg(test)]
+use super::test::TensorError;
+
 use std::{
     array::from_fn,
     fmt::{Display, Formatter, Result},
@@ -44,6 +47,82 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
             }
         });
         result
+    }
+}
+
+#[cfg(test)]
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> TensorError
+    for TensorRank4<D, I, J, K, L>
+{
+    fn error(
+        &self,
+        comparator: &Self,
+        tol_abs: &TensorRank0,
+        tol_rel: &TensorRank0,
+    ) -> Option<usize> {
+        let error_count = self
+            .iter()
+            .zip(comparator.iter())
+            .map(|(self_i, comparator_i)| {
+                self_i
+                    .iter()
+                    .zip(comparator_i.iter())
+                    .map(|(self_ij, comparator_ij)| {
+                        self_ij
+                            .iter()
+                            .zip(comparator_ij.iter())
+                            .map(|(self_ijk, comparator_ijk)| {
+                                self_ijk
+                                    .iter()
+                                    .zip(comparator_ijk.iter())
+                                    .filter(|(&self_ijkl, &comparator_ijkl)| {
+                                        &(self_ijkl - comparator_ijkl).abs() >= tol_abs
+                                            && &(self_ijkl / comparator_ijkl - 1.0).abs() >= tol_rel
+                                    })
+                                    .count()
+                            })
+                            .sum::<usize>()
+                    })
+                    .sum::<usize>()
+            })
+            .sum();
+        if error_count > 0 {
+            Some(error_count)
+        } else {
+            None
+        }
+    }
+    fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<usize> {
+        let error_count = self
+            .iter()
+            .zip(comparator.iter())
+            .map(|(self_i, comparator_i)| {
+                self_i
+                    .iter()
+                    .zip(comparator_i.iter())
+                    .map(|(self_ij, comparator_ij)| {
+                        self_ij
+                            .iter()
+                            .zip(comparator_ij.iter())
+                            .map(|(self_ijk, comparator_ijk)| {
+                                self_ijk
+                                    .iter()
+                                    .zip(comparator_ijk.iter())
+                                    .filter(|(&self_ijkl, &comparator_ijkl)| {
+                                        &(self_ijkl / comparator_ijkl - 1.0).abs() >= epsilon
+                                    })
+                                    .count()
+                            })
+                            .sum::<usize>()
+                    })
+                    .sum::<usize>()
+            })
+            .sum();
+        if error_count > 0 {
+            Some(error_count)
+        } else {
+            None
+        }
     }
 }
 
@@ -127,78 +206,6 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
         self.iter()
             .map(|entry_rank_3| entry_rank_3.copy())
             .collect()
-    }
-    #[cfg(test)]
-    fn error(
-        &self,
-        comparator: &Self,
-        tol_abs: &TensorRank0,
-        tol_rel: &TensorRank0,
-    ) -> Option<usize> {
-        let error_count = self
-            .iter()
-            .zip(comparator.iter())
-            .map(|(self_i, comparator_i)| {
-                self_i
-                    .iter()
-                    .zip(comparator_i.iter())
-                    .map(|(self_ij, comparator_ij)| {
-                        self_ij
-                            .iter()
-                            .zip(comparator_ij.iter())
-                            .map(|(self_ijk, comparator_ijk)| {
-                                self_ijk
-                                    .iter()
-                                    .zip(comparator_ijk.iter())
-                                    .filter(|(&self_ijkl, &comparator_ijkl)| {
-                                        &(self_ijkl - comparator_ijkl).abs() >= tol_abs
-                                            && &(self_ijkl / comparator_ijkl - 1.0).abs() >= tol_rel
-                                    })
-                                    .count()
-                            })
-                            .sum::<usize>()
-                    })
-                    .sum::<usize>()
-            })
-            .sum();
-        if error_count > 0 {
-            Some(error_count)
-        } else {
-            None
-        }
-    }
-    #[cfg(test)]
-    fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<usize> {
-        let error_count = self
-            .iter()
-            .zip(comparator.iter())
-            .map(|(self_i, comparator_i)| {
-                self_i
-                    .iter()
-                    .zip(comparator_i.iter())
-                    .map(|(self_ij, comparator_ij)| {
-                        self_ij
-                            .iter()
-                            .zip(comparator_ij.iter())
-                            .map(|(self_ijk, comparator_ijk)| {
-                                self_ijk
-                                    .iter()
-                                    .zip(comparator_ijk.iter())
-                                    .filter(|(&self_ijkl, &comparator_ijkl)| {
-                                        &(self_ijkl / comparator_ijkl - 1.0).abs() >= epsilon
-                                    })
-                                    .count()
-                            })
-                            .sum::<usize>()
-                    })
-                    .sum::<usize>()
-            })
-            .sum();
-        if error_count > 0 {
-            Some(error_count)
-        } else {
-            None
-        }
     }
     fn identity() -> Self {
         Self::dyad_ij_kl(&TensorRank2::identity(), &TensorRank2::identity())

@@ -1,6 +1,9 @@
 #[cfg(test)]
 mod test;
 
+#[cfg(test)]
+use super::test::TensorError;
+
 pub mod list;
 pub mod list_2d;
 
@@ -49,16 +52,8 @@ impl<const D: usize, const I: usize> TensorRank1<D, I> {
     }
 }
 
-impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
-    type Array = [TensorRank0; D];
-    type Item = TensorRank0;
-    fn as_array(&self) -> Self::Array {
-        self.0
-    }
-    fn copy(&self) -> Self {
-        self.iter().map(|entry| entry.copy()).collect()
-    }
-    #[cfg(test)]
+#[cfg(test)]
+impl<const D: usize, const I: usize> TensorError for TensorRank1<D, I> {
     fn error(
         &self,
         comparator: &Self,
@@ -79,7 +74,6 @@ impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
             None
         }
     }
-    #[cfg(test)]
     fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<usize> {
         let error_count = self
             .iter()
@@ -91,6 +85,17 @@ impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
         } else {
             None
         }
+    }
+}
+
+impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
+    type Array = [TensorRank0; D];
+    type Item = TensorRank0;
+    fn as_array(&self) -> Self::Array {
+        self.0
+    }
+    fn copy(&self) -> Self {
+        self.iter().map(|entry| entry.copy()).collect()
     }
     fn identity() -> Self {
         panic!()

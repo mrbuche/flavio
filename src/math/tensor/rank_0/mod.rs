@@ -1,6 +1,9 @@
 #[cfg(test)]
 mod test;
 
+#[cfg(test)]
+use super::test::TensorError;
+
 pub mod list;
 
 use super::Tensor;
@@ -8,16 +11,8 @@ use super::Tensor;
 /// A tensor of rank 0 (a scalar).
 pub type TensorRank0 = f64;
 
-impl Tensor for TensorRank0 {
-    type Array = [Self; 1];
-    type Item = TensorRank0;
-    fn as_array(&self) -> Self::Array {
-        [self.copy()]
-    }
-    fn copy(&self) -> TensorRank0 {
-        *self
-    }
-    #[cfg(test)]
+#[cfg(test)]
+impl TensorError for TensorRank0 {
     fn error(
         &self,
         comparator: &Self,
@@ -30,13 +25,23 @@ impl Tensor for TensorRank0 {
             None
         }
     }
-    #[cfg(test)]
     fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<usize> {
         if &(self / comparator - 1.0).abs() >= epsilon {
             Some(1)
         } else {
             None
         }
+    }
+}
+
+impl Tensor for TensorRank0 {
+    type Array = [Self; 1];
+    type Item = TensorRank0;
+    fn as_array(&self) -> Self::Array {
+        [self.copy()]
+    }
+    fn copy(&self) -> TensorRank0 {
+        *self
     }
     fn identity() -> Self {
         1.0

@@ -1,6 +1,9 @@
 #[cfg(test)]
 mod test;
 
+#[cfg(test)]
+use super::test::TensorError;
+
 pub mod list;
 pub mod list_2d;
 pub mod list_3d;
@@ -52,25 +55,10 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize> PartialEq
     }
 }
 
-impl<const D: usize, const I: usize, const J: usize, const K: usize> Tensor
+#[cfg(test)]
+impl<const D: usize, const I: usize, const J: usize, const K: usize> TensorError
     for TensorRank3<D, I, J, K>
 {
-    type Array = [[[TensorRank0; D]; D]; D];
-    type Item = TensorRank2<D, J, K>;
-    fn as_array(&self) -> Self::Array {
-        let mut array = [[[0.0; D]; D]; D];
-        array
-            .iter_mut()
-            .zip(self.iter())
-            .for_each(|(entry_rank_2, tensor_rank_2)| *entry_rank_2 = tensor_rank_2.as_array());
-        array
-    }
-    fn copy(&self) -> Self {
-        self.iter()
-            .map(|entry_rank_2| entry_rank_2.copy())
-            .collect()
-    }
-    #[cfg(test)]
     fn error(
         &self,
         comparator: &Self,
@@ -103,7 +91,6 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize> Tensor
             None
         }
     }
-    #[cfg(test)]
     fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<usize> {
         let error_count = self
             .iter()
@@ -129,6 +116,26 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize> Tensor
         } else {
             None
         }
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize> Tensor
+    for TensorRank3<D, I, J, K>
+{
+    type Array = [[[TensorRank0; D]; D]; D];
+    type Item = TensorRank2<D, J, K>;
+    fn as_array(&self) -> Self::Array {
+        let mut array = [[[0.0; D]; D]; D];
+        array
+            .iter_mut()
+            .zip(self.iter())
+            .for_each(|(entry_rank_2, tensor_rank_2)| *entry_rank_2 = tensor_rank_2.as_array());
+        array
+    }
+    fn copy(&self) -> Self {
+        self.iter()
+            .map(|entry_rank_2| entry_rank_2.copy())
+            .collect()
     }
     fn identity() -> Self {
         panic!()

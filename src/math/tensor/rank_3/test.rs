@@ -1,4 +1,7 @@
-use super::{super::Tensor, levi_civita, TensorRank0, TensorRank2, TensorRank3};
+use super::{
+    super::{test::TensorError, Tensor},
+    levi_civita, TensorRank0, TensorRank2, TensorRank3,
+};
 use crate::{ABS_TOL, REL_TOL};
 
 fn get_array() -> [[[TensorRank0; 4]; 4]; 4] {
