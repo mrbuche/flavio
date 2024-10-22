@@ -10,10 +10,7 @@ macro_rules! test_finite_element_block {
                     test_finite_element_block_with_hyperviscoelastic_constitutive_model,
                 },
                 math::{
-                    test::{
-                        assert_eq, assert_eq_from_fd,
-                        assert_eq_within_tols as assert_eq_within_tols_new, TestError,
-                    },
+                    test::{assert_eq, assert_eq_from_fd, assert_eq_within_tols, TestError},
                     Convert, TensorRank2,
                 },
                 mechanics::test::{
@@ -211,7 +208,7 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses {
                 }
                 #[test]
                 fn objectivity() -> Result<(), TestError> {
-                    assert_eq_within_tols_new(
+                    assert_eq_within_tols(
                         &get_nodal_forces(true, false),
                         &get_nodal_forces(true, true),
                     )
@@ -230,11 +227,11 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses {
                 }
                 #[test]
                 fn objectivity() -> Result<(), TestError> {
-                    assert_eq_within_tols_new(&get_nodal_forces(false, true), &NodalForces::zero())
+                    assert_eq_within_tols(&get_nodal_forces(false, true), &NodalForces::zero())
                 }
                 #[test]
                 fn zero() -> Result<(), TestError> {
-                    assert_eq_within_tols_new(&get_nodal_forces(false, false), &NodalForces::zero())
+                    assert_eq_within_tols(&get_nodal_forces(false, false), &NodalForces::zero())
                 }
             }
         }
@@ -244,7 +241,7 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses {
                 use super::*;
                 #[test]
                 fn objectivity() -> Result<(), TestError> {
-                    assert_eq_within_tols_new(
+                    assert_eq_within_tols(
                         &get_nodal_stiffnesses(true, false),
                         &get_nodal_stiffnesses(true, true),
                     )
@@ -254,7 +251,7 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses {
                 use super::*;
                 #[test]
                 fn objectivity() -> Result<(), TestError> {
-                    assert_eq_within_tols_new(
+                    assert_eq_within_tols(
                         &get_nodal_stiffnesses(false, false),
                         &get_nodal_stiffnesses(false, true),
                     )
@@ -368,7 +365,7 @@ macro_rules! test_helmholtz_free_energy {
                     let mut block_2 = get_block_transformed();
                     block_1.set_nodal_coordinates(get_coordinates_block());
                     block_2.set_nodal_coordinates(get_coordinates_transformed_block());
-                    assert_eq_within_tols_new(
+                    assert_eq_within_tols(
                         &block_1.calculate_helmholtz_free_energy(),
                         &block_2.calculate_helmholtz_free_energy(),
                     )
@@ -376,10 +373,7 @@ macro_rules! test_helmholtz_free_energy {
                 #[test]
                 fn positive() -> Result<(), TestError> {
                     let mut block = get_block();
-                    assert_eq_within_tols_new(
-                        &block.calculate_helmholtz_free_energy().abs(),
-                        &0.0,
-                    )?;
+                    assert_eq_within_tols(&block.calculate_helmholtz_free_energy().abs(), &0.0)?;
                     block.set_nodal_coordinates(get_coordinates_block());
                     assert!(block.calculate_helmholtz_free_energy() > 0.0);
                     Ok(())
@@ -422,7 +416,7 @@ macro_rules! test_helmholtz_free_energy {
                 fn objectivity() -> Result<(), TestError> {
                     let mut block_1 = get_block();
                     let mut block_2 = get_block_transformed();
-                    assert_eq_within_tols_new(
+                    assert_eq_within_tols(
                         &block_1.calculate_helmholtz_free_energy(),
                         &block_2.calculate_helmholtz_free_energy(),
                     )?;
@@ -430,7 +424,7 @@ macro_rules! test_helmholtz_free_energy {
                     block_2.set_nodal_coordinates(
                         get_reference_coordinates_transformed_block().into(),
                     );
-                    assert_eq_within_tols_new(
+                    assert_eq_within_tols(
                         &block_1.calculate_helmholtz_free_energy(),
                         &block_2.calculate_helmholtz_free_energy(),
                     )
@@ -438,12 +432,9 @@ macro_rules! test_helmholtz_free_energy {
                 #[test]
                 fn zero() -> Result<(), TestError> {
                     let mut block = get_block();
-                    assert_eq_within_tols_new(
-                        &block.calculate_helmholtz_free_energy().abs(),
-                        &0.0,
-                    )?;
+                    assert_eq_within_tols(&block.calculate_helmholtz_free_energy().abs(), &0.0)?;
                     block.set_nodal_coordinates(get_reference_coordinates_block().into());
-                    assert_eq_within_tols_new(&block.calculate_helmholtz_free_energy().abs(), &0.0)
+                    assert_eq_within_tols(&block.calculate_helmholtz_free_energy().abs(), &0.0)
                 }
             }
         }
@@ -473,12 +464,12 @@ macro_rules! test_helmholtz_free_energy {
                                                         nodal_stiffness_ab_ji,
                                                     )| {
                                                         if a == b {
-                                                            assert_eq_within_tols_new(
+                                                            assert_eq_within_tols(
                                                                 nodal_stiffness_ab_ij,
                                                                 &nodal_stiffness_ab_ji,
                                                             )
                                                         } else if i == j {
-                                                            assert_eq_within_tols_new(
+                                                            assert_eq_within_tols(
                                                                 nodal_stiffness_ab_ij,
                                                                 &nodal_stiffness[b][a][i][j],
                                                             )
@@ -520,12 +511,12 @@ macro_rules! test_helmholtz_free_energy {
                                                         nodal_stiffness_ab_ji,
                                                     )| {
                                                         if a == b {
-                                                            assert_eq_within_tols_new(
+                                                            assert_eq_within_tols(
                                                                 nodal_stiffness_ab_ij,
                                                                 &nodal_stiffness_ab_ji,
                                                             )
                                                         } else if i == j {
-                                                            assert_eq_within_tols_new(
+                                                            assert_eq_within_tols(
                                                                 nodal_stiffness_ab_ij,
                                                                 &nodal_stiffness[b][a][i][j],
                                                             )
@@ -910,7 +901,7 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
                     block_1.set_nodal_velocities(get_velocities_block());
                     block_2.set_nodal_coordinates(get_coordinates_transformed_block());
                     block_2.set_nodal_velocities(get_velocities_transformed_block());
-                    assert_eq_within_tols_new(
+                    assert_eq_within_tols(
                         &block_1.calculate_viscous_dissipation(),
                         &block_2.calculate_viscous_dissipation(),
                     )
@@ -955,7 +946,7 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
                 fn objectivity() -> Result<(), TestError> {
                     let mut block_1 = get_block();
                     let mut block_2 = get_block_transformed();
-                    assert_eq_within_tols_new(
+                    assert_eq_within_tols(
                         &block_1.calculate_viscous_dissipation(),
                         &block_2.calculate_viscous_dissipation(),
                     )?;
@@ -965,7 +956,7 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
                         get_reference_coordinates_transformed_block().into(),
                     );
                     block_2.set_nodal_velocities(NodalVelocities::zero());
-                    assert_eq_within_tols_new(
+                    assert_eq_within_tols(
                         &block_1.calculate_viscous_dissipation(),
                         &block_2.calculate_viscous_dissipation(),
                     )
@@ -1030,7 +1021,7 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
                     block_1.set_nodal_velocities(get_velocities_block());
                     block_2.set_nodal_coordinates(get_coordinates_transformed_block());
                     block_2.set_nodal_velocities(get_velocities_transformed_block());
-                    assert_eq_within_tols_new(
+                    assert_eq_within_tols(
                         &block_1.calculate_dissipation_potential(),
                         &block_2.calculate_dissipation_potential(),
                     )
@@ -1066,7 +1057,7 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
                 fn objectivity() -> Result<(), TestError> {
                     let mut block_1 = get_block();
                     let mut block_2 = get_block_transformed();
-                    assert_eq_within_tols_new(
+                    assert_eq_within_tols(
                         &block_1.calculate_dissipation_potential(),
                         &block_2.calculate_dissipation_potential(),
                     )?;
@@ -1076,7 +1067,7 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
                         get_reference_coordinates_transformed_block().into(),
                     );
                     block_2.set_nodal_velocities(NodalVelocities::zero());
-                    assert_eq_within_tols_new(
+                    assert_eq_within_tols(
                         &block_1.calculate_dissipation_potential(),
                         &block_2.calculate_dissipation_potential(),
                     )
