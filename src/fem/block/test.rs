@@ -19,7 +19,6 @@ macro_rules! test_finite_element_block {
                     get_translation_rate_current_configuration,
                     get_translation_reference_configuration,
                 },
-                test::check_eq_within_tols,
                 EPSILON,
             };
             mod elastic {
@@ -346,16 +345,16 @@ macro_rules! test_helmholtz_free_energy {
                             block.set_nodal_coordinates(&perturbed_coordinates * 1.0);
                             perturbed = block.calculate_helmholtz_free_energy()
                                 - nodal_forces.dot(&perturbed_coordinates);
-                            assert!(
-                                perturbed > minimum || check_eq_within_tols(&perturbed, &minimum)
-                            );
+                            if assert_eq_within_tols(&perturbed, &minimum).is_err() {
+                                assert!(perturbed > minimum)
+                            }
                             perturbed_coordinates[node][i] -= EPSILON;
                             block.set_nodal_coordinates(&perturbed_coordinates * 1.0);
                             perturbed = block.calculate_helmholtz_free_energy()
                                 - nodal_forces.dot(&perturbed_coordinates);
-                            assert!(
-                                perturbed > minimum || check_eq_within_tols(&perturbed, &minimum)
-                            );
+                            if assert_eq_within_tols(&perturbed, &minimum).is_err() {
+                                assert!(perturbed > minimum)
+                            }
                         })
                     })
                 }
@@ -400,15 +399,15 @@ macro_rules! test_helmholtz_free_energy {
                             perturbed_coordinates[node][i] += 0.5 * EPSILON;
                             block.set_nodal_coordinates(perturbed_coordinates.convert());
                             perturbed = block.calculate_helmholtz_free_energy();
-                            assert!(
-                                perturbed > minimum || check_eq_within_tols(&perturbed, &minimum)
-                            );
+                            if assert_eq_within_tols(&perturbed, &minimum).is_err() {
+                                assert!(perturbed > minimum)
+                            }
                             perturbed_coordinates[node][i] -= EPSILON;
                             block.set_nodal_coordinates(perturbed_coordinates.convert());
                             perturbed = block.calculate_helmholtz_free_energy();
-                            assert!(
-                                perturbed > minimum || check_eq_within_tols(&perturbed, &minimum)
-                            );
+                            if assert_eq_within_tols(&perturbed, &minimum).is_err() {
+                                assert!(perturbed > minimum)
+                            }
                         })
                     })
                 }

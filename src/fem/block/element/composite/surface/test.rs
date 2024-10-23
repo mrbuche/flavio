@@ -18,8 +18,7 @@ macro_rules! test_composite_surface_element_inner
             use crate::
             {
                 fem::block::element::composite::surface::test::test_composite_surface_element_with_constitutive_model,
-                math::{Convert, test::{assert_eq_from_fd, assert_eq_within_tols as assert_eq_within_tols_new, TestError}},
-                test::assert_eq_within_tols
+                math::{Convert, test::{assert_eq_from_fd, assert_eq_within_tols as assert_eq_within_tols_new, TestError}}
             };
             use super::*;
             mod elastic
@@ -575,8 +574,8 @@ macro_rules! test_composite_surface_element_with_constitutive_model
                 #[test]
                 fn objectivity() -> Result<(), TestError>
                 {
-                    get_dual_bases(true, false).iter()
-                    .zip(get_dual_bases(true, true).iter())
+                    get_dual_bases(false, false).iter()
+                    .zip(get_dual_bases(false, true).iter())
                     .try_for_each(|(dual_basis, res_dual_basis)|
                         dual_basis.iter()
                         .zip(res_dual_basis.iter())
@@ -597,63 +596,46 @@ macro_rules! test_composite_surface_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn finite_difference()
+                fn finite_difference() -> Result<(), TestError>
                 {
-                    get_normal_gradients(true, false).iter()
-                    .zip(get_normal_gradients_from_finite_difference(true).iter())
-                    .for_each(|(normal_gradient, fd_normal_gradient)|
-                        normal_gradient.iter()
-                        .zip(fd_normal_gradient.iter())
-                        .for_each(|(normal_gradient_a, fd_normal_gradient_a)|
-                            normal_gradient_a.iter()
-                            .zip(fd_normal_gradient_a.iter())
-                            .for_each(|(normal_gradient_a_m, fd_normal_gradient_a_m)|
-                                normal_gradient_a_m.iter()
-                                .zip(fd_normal_gradient_a_m.iter())
-                                .for_each(|(normal_gradient_a_m_i, fd_normal_gradient_a_m_i)|
-                                    assert!(
-                                        (normal_gradient_a_m_i/fd_normal_gradient_a_m_i - 1.0).abs() < EPSILON ||
-                                        (normal_gradient_a_m_i.abs() < EPSILON && fd_normal_gradient_a_m_i.abs() < EPSILON)
-                                    )
-                                )
-                            )
-                        )
+                    assert_eq_from_fd(
+                        &get_normal_gradients(true, false),
+                        &get_normal_gradients_from_finite_difference(true)
                     )
                 }
                 #[test]
-                fn normal()
+                fn normal() -> Result<(), TestError>
                 {
                     get_bases(true, false).iter()
                     .zip(get_normals(true, false).iter())
-                    .for_each(|(basis, normal)|{
-                        assert_eq_within_tols(
+                    .try_for_each(|(basis, normal)|{
+                        assert_eq_within_tols_new(
                             &(&basis[0] * normal), &0.0
-                        );
-                        assert_eq_within_tols(
+                        )?;
+                        assert_eq_within_tols_new(
                             &(&basis[1] * normal), &0.0
-                        );
+                        )
                     })
                 }
                 #[test]
-                fn normalized()
+                fn normalized() -> Result<(), TestError>
                 {
                     get_normals(true, false).iter()
-                    .for_each(|normal|
-                        assert_eq_within_tols(
+                    .try_for_each(|normal|
+                        assert_eq_within_tols_new(
                             &normal.norm(), &1.0
                         )
                     )
                 }
                 #[test]
-                fn objectivity()
+                fn objectivity() -> Result<(), TestError>
                 {
                     get_normals(true, false).iter()
                     .zip(get_normals(true, true).iter())
-                    .for_each(|(normal, res_normal)|
-                        normal.iter()
-                        .zip((get_rotation_current_configuration().transpose() * res_normal).iter())
-                        .for_each(|(normal_i, res_normal_i)|
-                            assert_eq_within_tols(normal_i, res_normal_i)
+                    .try_for_each(|(normal, res_normal)|
+                        assert_eq_within_tols_new(
+                            normal,
+                            &(get_rotation_current_configuration().transpose() * res_normal)
                         )
                     )
                 }
@@ -662,63 +644,46 @@ macro_rules! test_composite_surface_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn finite_difference()
+                fn finite_difference() -> Result<(), TestError>
                 {
-                    get_normal_gradients(false, false).iter()
-                    .zip(get_normal_gradients_from_finite_difference(false).iter())
-                    .for_each(|(normal_gradient, fd_normal_gradient)|
-                        normal_gradient.iter()
-                        .zip(fd_normal_gradient.iter())
-                        .for_each(|(normal_gradient_a, fd_normal_gradient_a)|
-                            normal_gradient_a.iter()
-                            .zip(fd_normal_gradient_a.iter())
-                            .for_each(|(normal_gradient_a_m, fd_normal_gradient_a_m)|
-                                normal_gradient_a_m.iter()
-                                .zip(fd_normal_gradient_a_m.iter())
-                                .for_each(|(normal_gradient_a_m_i, fd_normal_gradient_a_m_i)|
-                                    assert!(
-                                        (normal_gradient_a_m_i/fd_normal_gradient_a_m_i - 1.0).abs() < EPSILON ||
-                                        (normal_gradient_a_m_i.abs() < EPSILON && fd_normal_gradient_a_m_i.abs() < EPSILON)
-                                    )
-                                )
-                            )
-                        )
+                    assert_eq_from_fd(
+                        &get_normal_gradients(false, false),
+                        &get_normal_gradients_from_finite_difference(false)
                     )
                 }
                 #[test]
-                fn normal()
+                fn normal() -> Result<(), TestError>
                 {
                     get_bases(false, false).iter()
                     .zip(get_normals(false, false).iter())
-                    .for_each(|(basis, normal)|{
-                        assert_eq_within_tols(
+                    .try_for_each(|(basis, normal)|{
+                        assert_eq_within_tols_new(
                             &(&basis[0] * normal), &0.0
-                        );
-                        assert_eq_within_tols(
+                        )?;
+                        assert_eq_within_tols_new(
                             &(&basis[1] * normal), &0.0
-                        );
+                        )
                     })
                 }
                 #[test]
-                fn normalized()
+                fn normalized() -> Result<(), TestError>
                 {
                     get_normals(false, false).iter()
-                    .for_each(|normal|
-                        assert_eq_within_tols(
+                    .try_for_each(|normal|
+                        assert_eq_within_tols_new(
                             &normal.norm(), &1.0
                         )
                     )
                 }
                 #[test]
-                fn objectivity()
+                fn objectivity() -> Result<(), TestError>
                 {
                     get_normals(false, false).iter()
                     .zip(get_normals(false, true).iter())
-                    .for_each(|(normal, res_normal)|
-                        normal.iter()
-                        .zip((get_rotation_reference_configuration().transpose() * res_normal.convert()).iter())
-                        .for_each(|(normal_i, res_normal_i)|
-                            assert_eq_within_tols(normal_i, res_normal_i)
+                    .try_for_each(|(normal, res_normal)|
+                        assert_eq_within_tols_new(
+                            &normal.convert(),
+                            &(get_rotation_reference_configuration().transpose() * res_normal.convert())
                         )
                     )
                 }
@@ -731,57 +696,28 @@ macro_rules! test_composite_surface_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn finite_difference()
+                fn finite_difference() -> Result<(), TestError>
                 {
-                    get_normal_tangents(true, false).iter()
-                    .zip(get_normal_tangents_from_finite_difference(true).iter())
-                    .for_each(|(normal_tangent, fd_normal_tangent)|
-                        normal_tangent.iter()
-                        .zip(fd_normal_tangent.iter())
-                        .for_each(|(normal_tangent_a, fd_normal_tangent_a)|
-                            normal_tangent_a.iter()
-                            .zip(fd_normal_tangent_a.iter())
-                            .for_each(|(normal_tangent_ab, fd_normal_tangent_ab)|
-                                normal_tangent_ab.iter()
-                                .zip(fd_normal_tangent_ab.iter())
-                                .for_each(|(normal_tangent_ab_m, fd_normal_tangent_ab_m)|
-                                    normal_tangent_ab_m.iter()
-                                    .zip(fd_normal_tangent_ab_m.iter())
-                                    .for_each(|(normal_tangent_ab_m_i, fd_normal_tangent_ab_m_i)|
-                                        normal_tangent_ab_m_i.iter()
-                                        .zip(fd_normal_tangent_ab_m_i.iter())
-                                        .for_each(|(normal_tangent_ab_mn_i, fd_normal_tangent_ab_mn_i)|
-                                            assert!(
-                                                (normal_tangent_ab_mn_i/fd_normal_tangent_ab_mn_i - 1.0).abs() < EPSILON ||
-                                                (normal_tangent_ab_mn_i.abs() < EPSILON && fd_normal_tangent_ab_mn_i.abs() < EPSILON)
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
+                    assert_eq_from_fd(
+                        &get_normal_tangents(true, false),
+                        &get_normal_tangents_from_finite_difference(true)
                     )
                 }
                 #[test]
-                fn objectivity()
+                fn objectivity() -> Result<(), TestError>
                 {
                     get_normal_gradients(true, false).iter()
                     .zip(get_normal_gradients(true, true).iter())
-                    .for_each(|(normal_gradient, res_normal_gradient)|
+                    .try_for_each(|(normal_gradient, res_normal_gradient)|
                         normal_gradient.iter()
                         .zip(res_normal_gradient.iter())
-                        .for_each(|(normal_gradient_a, res_normal_gradient_a)|
-                            normal_gradient_a.iter()
-                            .zip((
-                                get_rotation_current_configuration().transpose() *
-                                res_normal_gradient_a *
-                                get_rotation_current_configuration()
-                            ).iter())
-                            .for_each(|(normal_gradient_a_i, res_normal_gradient_a_i)|
-                                normal_gradient_a_i.iter()
-                                .zip(res_normal_gradient_a_i.iter())
-                                .for_each(|(normal_gradient_a_i_j, res_normal_gradient_a_i_j)|
-                                    assert_eq_within_tols(normal_gradient_a_i_j, res_normal_gradient_a_i_j)
+                        .try_for_each(|(normal_gradient_a, res_normal_gradient_a)|
+                            assert_eq_within_tols_new(
+                                normal_gradient_a,
+                                &(
+                                    get_rotation_current_configuration().transpose() *
+                                    res_normal_gradient_a *
+                                    get_rotation_current_configuration()
                                 )
                             )
                         )
@@ -792,57 +728,28 @@ macro_rules! test_composite_surface_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn finite_difference()
+                fn finite_difference() -> Result<(), TestError>
                 {
-                    get_normal_tangents(false, false).iter()
-                    .zip(get_normal_tangents_from_finite_difference(false).iter())
-                    .for_each(|(normal_tangent, fd_normal_tangent)|
-                        normal_tangent.iter()
-                        .zip(fd_normal_tangent.iter())
-                        .for_each(|(normal_tangent_a, fd_normal_tangent_a)|
-                            normal_tangent_a.iter()
-                            .zip(fd_normal_tangent_a.iter())
-                            .for_each(|(normal_tangent_ab, fd_normal_tangent_ab)|
-                                normal_tangent_ab.iter()
-                                .zip(fd_normal_tangent_ab.iter())
-                                .for_each(|(normal_tangent_ab_i, fd_normal_tangent_ab_i)|
-                                    normal_tangent_ab_i.iter()
-                                    .zip(fd_normal_tangent_ab_i.iter())
-                                    .for_each(|(normal_tangent_ab_i_m, fd_normal_tangent_ab_i_m)|
-                                        normal_tangent_ab_i_m.iter()
-                                        .zip(fd_normal_tangent_ab_i_m.iter())
-                                        .for_each(|(normal_tangent_ab_i_mn, fd_normal_tangent_ab_i_mn)|
-                                            assert!(
-                                                (normal_tangent_ab_i_mn/fd_normal_tangent_ab_i_mn - 1.0).abs() < EPSILON ||
-                                                (normal_tangent_ab_i_mn.abs() < EPSILON && fd_normal_tangent_ab_i_mn.abs() < EPSILON)
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
+                    assert_eq_from_fd(
+                        &get_normal_tangents(false, false),
+                        &get_normal_tangents_from_finite_difference(false)
                     )
                 }
                 #[test]
-                fn objectivity()
+                fn objectivity() -> Result<(), TestError>
                 {
                     get_normal_gradients(false, false).iter()
                     .zip(get_normal_gradients(false, true).iter())
-                    .for_each(|(normal_gradient, res_normal_gradient)|
+                    .try_for_each(|(normal_gradient, res_normal_gradient)|
                         normal_gradient.iter()
                         .zip(res_normal_gradient.iter())
-                        .for_each(|(normal_gradient_a, res_normal_gradient_a)|
-                            normal_gradient_a.iter()
-                            .zip((
-                                get_rotation_reference_configuration().transpose() *
-                                res_normal_gradient_a.convert() *
-                                get_rotation_reference_configuration()
-                            ).iter())
-                            .for_each(|(normal_gradient_a_i, res_normal_gradient_a_i)|
-                                normal_gradient_a_i.iter()
-                                .zip(res_normal_gradient_a_i.iter())
-                                .for_each(|(normal_gradient_a_i_j, res_normal_gradient_a_i_j)|
-                                    assert_eq_within_tols(normal_gradient_a_i_j, res_normal_gradient_a_i_j)
+                        .try_for_each(|(normal_gradient_a, res_normal_gradient_a)|
+                            assert_eq_within_tols_new(
+                                &normal_gradient_a.convert(),
+                                &(
+                                    get_rotation_reference_configuration().transpose() *
+                                    res_normal_gradient_a.convert() *
+                                    get_rotation_reference_configuration()
                                 )
                             )
                         )
@@ -857,37 +764,28 @@ macro_rules! test_composite_surface_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn finite_difference()
+                fn finite_difference() -> Result<(), TestError>
                 {
-                    get_normal_rates(true, false).iter()
-                    .zip(get_normal_rates_from_finite_difference(true).iter())
-                    .for_each(|(normal_rate, fd_normal_rate)|
-                        normal_rate.iter()
-                        .zip(fd_normal_rate.iter())
-                        .for_each(|(normal_rate_i, fd_normal_rate_i)|
-                            assert!(
-                                (normal_rate_i/fd_normal_rate_i - 1.0).abs() < EPSILON ||
-                                normal_rate_i.abs() < EPSILON
-                            )
-                        )
+                    assert_eq_from_fd(
+                        &get_normal_rates(true, false),
+                        &get_normal_rates_from_finite_difference(true)
                     )
                 }
                 #[test]
-                fn objectivity()
+                fn objectivity() -> Result<(), TestError>
                 {
                     get_normal_rates(true, false).iter()
                     .zip(get_normal_rates(true, true).iter()
                     .zip(get_normals(true, true).iter()))
-                    .for_each(|(normal_rate, (res_normal_rate, res_normal))|
-                        normal_rate.iter()
-                        .zip((
-                            get_rotation_current_configuration().transpose() *
-                            res_normal_rate +
-                            get_rotation_rate_current_configuration().transpose() *
-                            res_normal
-                        ).iter())
-                        .for_each(|(normal_rate_i, res_normal_rate_i)|
-                            assert_eq_within_tols(normal_rate_i, res_normal_rate_i)
+                    .try_for_each(|(normal_rate, (res_normal_rate, res_normal))|
+                        assert_eq_within_tols_new(
+                            normal_rate,
+                            &(
+                                get_rotation_current_configuration().transpose() *
+                                res_normal_rate +
+                                get_rotation_rate_current_configuration().transpose() *
+                                res_normal
+                            )
                         )
                     )
                 }
@@ -896,34 +794,25 @@ macro_rules! test_composite_surface_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn finite_difference()
+                fn finite_difference() -> Result<(), TestError>
                 {
-                    get_normal_rates(false, false).iter()
-                    .zip(get_normal_rates_from_finite_difference(false).iter())
-                    .for_each(|(normal_rate, fd_normal_rate)|
-                        normal_rate.iter()
-                        .zip(fd_normal_rate.iter())
-                        .for_each(|(normal_rate_i, fd_normal_rate_i)|
-                            assert!(
-                                (normal_rate_i/fd_normal_rate_i - 1.0).abs() < EPSILON ||
-                                normal_rate_i.abs() < EPSILON
-                            )
-                        )
+                    assert_eq_from_fd(
+                        &get_normal_rates(false, false),
+                        &get_normal_rates_from_finite_difference(false)
                     )
                 }
                 #[test]
-                fn objectivity()
+                fn objectivity() -> Result<(), TestError>
                 {
                     get_normal_rates(false, false).iter()
                     .zip(get_normal_rates(false, true).iter())
-                    .for_each(|(normal_rate, res_normal_rate)|
-                        normal_rate.iter()
-                        .zip((
-                            get_rotation_reference_configuration().transpose() *
-                            res_normal_rate.convert()
-                        ).iter())
-                        .for_each(|(normal_rate_i, res_normal_rate_i)|
-                            assert_eq_within_tols(normal_rate_i, res_normal_rate_i)
+                    .try_for_each(|(normal_rate, res_normal_rate)|
+                        assert_eq_within_tols_new(
+                            &normal_rate.convert(),
+                            &(
+                                get_rotation_reference_configuration().transpose() *
+                                res_normal_rate.convert()
+                            )
                         )
                     )
                 }
@@ -936,55 +825,43 @@ macro_rules! test_composite_surface_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn objectivity()
+                fn objectivity() -> Result<(), TestError>
                 {
                     let rotation_transpose = get_rotation_current_configuration().transpose();
                     get_normal_tangents(true, false).iter()
                     .zip(get_normal_tangents(true, true).iter())
-                    .for_each(|(normal_tangents, res_normal_tangents)|
+                    .try_for_each(|(normal_tangents, res_normal_tangents)|
                         normal_tangents.iter()
                         .zip(res_normal_tangents.iter())
-                        .for_each(|(normal_tangent_a, res_normal_tangent_a)|
+                        .try_for_each(|(normal_tangent_a, res_normal_tangent_a)|
                             normal_tangent_a.iter()
                             .zip(res_normal_tangent_a.iter())
-                            .for_each(|(normal_tangent_ab, res_normal_tangent_ab)|
-                                rotation_transpose.iter()
-                                .map(|rotation_transpose_m|
-                                    rotation_transpose.iter()
-                                    .map(|rotation_transpose_n|
+                            .try_for_each(|(normal_tangent_ab, res_normal_tangent_ab)|
+                                assert_eq_within_tols_new(
+                                    normal_tangent_ab,
+                                    &rotation_transpose.iter()
+                                    .map(|rotation_transpose_m|
                                         rotation_transpose.iter()
-                                        .map(|rotation_transpose_k|
-                                            rotation_transpose_m.iter()
-                                            .zip(res_normal_tangent_ab.iter())
-                                            .map(|(rotation_transpose_mo, res_normal_tangent_ab_o)|
-                                                rotation_transpose_n.iter()
-                                                .zip(res_normal_tangent_ab_o.iter())
-                                                .map(|(rotation_transpose_np, res_normal_tangent_ab_op)|
-                                                    rotation_transpose_k.iter()
-                                                    .zip(res_normal_tangent_ab_op.iter())
-                                                    .map(|(rotation_transpose_kq, res_normal_tangent_ab_opq)|
-                                                        res_normal_tangent_ab_opq * rotation_transpose_mo *
-                                                        rotation_transpose_np * rotation_transpose_kq
+                                        .map(|rotation_transpose_n|
+                                            rotation_transpose.iter()
+                                            .map(|rotation_transpose_k|
+                                                rotation_transpose_m.iter()
+                                                .zip(res_normal_tangent_ab.iter())
+                                                .map(|(rotation_transpose_mo, res_normal_tangent_ab_o)|
+                                                    rotation_transpose_n.iter()
+                                                    .zip(res_normal_tangent_ab_o.iter())
+                                                    .map(|(rotation_transpose_np, res_normal_tangent_ab_op)|
+                                                        rotation_transpose_k.iter()
+                                                        .zip(res_normal_tangent_ab_op.iter())
+                                                        .map(|(rotation_transpose_kq, res_normal_tangent_ab_opq)|
+                                                            res_normal_tangent_ab_opq * rotation_transpose_mo *
+                                                            rotation_transpose_np * rotation_transpose_kq
+                                                        ).sum::<Scalar>()
                                                     ).sum::<Scalar>()
-                                                ).sum::<Scalar>()
-                                            ).sum()
+                                                ).sum()
+                                            ).collect()
                                         ).collect()
                                     ).collect()
-                                ).collect::<crate::math::TensorRank3<3, 1, 1, 1>>()
-                                .iter()
-                                .zip(normal_tangent_ab.iter())
-                                .for_each(|(rez_normal_tangent_ab_m, normal_tangent_ab_m)|
-                                    normal_tangent_ab_m.iter()
-                                    .zip(rez_normal_tangent_ab_m.iter())
-                                    .for_each(|(normal_tangent_ab_mn, rez_normal_tangent_ab_mn)|
-                                        normal_tangent_ab_mn.iter()
-                                        .zip(rez_normal_tangent_ab_mn.iter())
-                                        .for_each(|(normal_tangent_ab_mn_k, rez_normal_tangent_ab_mn_k)|
-                                            assert_eq_within_tols(
-                                                normal_tangent_ab_mn_k, rez_normal_tangent_ab_mn_k
-                                            )
-                                        )
-                                    )
                                 )
                             )
                         )
@@ -995,55 +872,43 @@ macro_rules! test_composite_surface_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn objectivity()
+                fn objectivity() -> Result<(), TestError>
                 {
                     let rotation_transpose = get_rotation_reference_configuration().transpose();
                     get_normal_tangents(false, false).iter()
                     .zip(get_normal_tangents(false, true).iter())
-                    .for_each(|(normal_tangents, res_normal_tangents)|
+                    .try_for_each(|(normal_tangents, res_normal_tangents)|
                         normal_tangents.iter()
                         .zip(res_normal_tangents.iter())
-                        .for_each(|(normal_tangent_a, res_normal_tangent_a)|
+                        .try_for_each(|(normal_tangent_a, res_normal_tangent_a)|
                             normal_tangent_a.iter()
                             .zip(res_normal_tangent_a.iter())
-                            .for_each(|(normal_tangent_ab, res_normal_tangent_ab)|
-                                rotation_transpose.iter()
-                                .map(|rotation_transpose_m|
-                                    rotation_transpose.iter()
-                                    .map(|rotation_transpose_n|
+                            .try_for_each(|(normal_tangent_ab, res_normal_tangent_ab)|
+                                assert_eq_within_tols_new(
+                                    normal_tangent_ab,
+                                    &rotation_transpose.iter()
+                                    .map(|rotation_transpose_m|
                                         rotation_transpose.iter()
-                                        .map(|rotation_transpose_k|
-                                            rotation_transpose_m.iter()
-                                            .zip(res_normal_tangent_ab.iter())
-                                            .map(|(rotation_transpose_mo, res_normal_tangent_ab_o)|
-                                                rotation_transpose_n.iter()
-                                                .zip(res_normal_tangent_ab_o.iter())
-                                                .map(|(rotation_transpose_np, res_normal_tangent_ab_op)|
-                                                    rotation_transpose_k.iter()
-                                                    .zip(res_normal_tangent_ab_op.iter())
-                                                    .map(|(rotation_transpose_kq, res_normal_tangent_ab_opq)|
-                                                        res_normal_tangent_ab_opq * rotation_transpose_mo *
-                                                        rotation_transpose_np * rotation_transpose_kq
+                                        .map(|rotation_transpose_n|
+                                            rotation_transpose.iter()
+                                            .map(|rotation_transpose_k|
+                                                rotation_transpose_m.iter()
+                                                .zip(res_normal_tangent_ab.iter())
+                                                .map(|(rotation_transpose_mo, res_normal_tangent_ab_o)|
+                                                    rotation_transpose_n.iter()
+                                                    .zip(res_normal_tangent_ab_o.iter())
+                                                    .map(|(rotation_transpose_np, res_normal_tangent_ab_op)|
+                                                        rotation_transpose_k.iter()
+                                                        .zip(res_normal_tangent_ab_op.iter())
+                                                        .map(|(rotation_transpose_kq, res_normal_tangent_ab_opq)|
+                                                            res_normal_tangent_ab_opq * rotation_transpose_mo *
+                                                            rotation_transpose_np * rotation_transpose_kq
+                                                        ).sum::<Scalar>()
                                                     ).sum::<Scalar>()
-                                                ).sum::<Scalar>()
-                                            ).sum()
+                                                ).sum()
+                                            ).collect()
                                         ).collect()
                                     ).collect()
-                                ).collect::<crate::math::TensorRank3<3, 1, 1, 1>>()
-                                .iter()
-                                .zip(normal_tangent_ab.iter())
-                                .for_each(|(rez_normal_tangent_ab_m, normal_tangent_ab_m)|
-                                    normal_tangent_ab_m.iter()
-                                    .zip(rez_normal_tangent_ab_m.iter())
-                                    .for_each(|(normal_tangent_ab_mn, rez_normal_tangent_ab_mn)|
-                                        normal_tangent_ab_mn.iter()
-                                        .zip(rez_normal_tangent_ab_mn.iter())
-                                        .for_each(|(normal_tangent_ab_mn_k, rez_normal_tangent_ab_mn_k)|
-                                            assert_eq_within_tols(
-                                                normal_tangent_ab_mn_k, rez_normal_tangent_ab_mn_k
-                                            )
-                                        )
-                                    )
                                 )
                             )
                         )

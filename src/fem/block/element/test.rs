@@ -13,7 +13,6 @@ macro_rules! test_finite_element {
                     test::{assert_eq, assert_eq_from_fd, assert_eq_within_tols, TestError},
                     Convert, TensorRank2,
                 },
-                test::check_eq_within_tols,
                 EPSILON,
             };
             mod elastic {
@@ -444,16 +443,16 @@ macro_rules! test_helmholtz_free_energy {
                             perturbed = element
                                 .calculate_helmholtz_free_energy(&perturbed_coordinates)
                                 - nodal_forces.dot(&perturbed_coordinates);
-                            assert!(
-                                perturbed > minimum || check_eq_within_tols(&perturbed, &minimum)
-                            );
+                            if assert_eq_within_tols(&perturbed, &minimum).is_err() {
+                                assert!(perturbed > minimum)
+                            }
                             perturbed_coordinates[node][i] -= EPSILON;
                             perturbed = element
                                 .calculate_helmholtz_free_energy(&perturbed_coordinates)
                                 - nodal_forces.dot(&perturbed_coordinates);
-                            assert!(
-                                perturbed > minimum || check_eq_within_tols(&perturbed, &minimum)
-                            );
+                            if assert_eq_within_tols(&perturbed, &minimum).is_err() {
+                                assert!(perturbed > minimum)
+                            }
                         })
                     })
                 }
@@ -490,15 +489,15 @@ macro_rules! test_helmholtz_free_energy {
                             perturbed_coordinates[node][i] += 0.5 * EPSILON;
                             perturbed = element
                                 .calculate_helmholtz_free_energy(&perturbed_coordinates.convert());
-                            assert!(
-                                perturbed > minimum || check_eq_within_tols(&perturbed, &minimum)
-                            );
+                            if assert_eq_within_tols(&perturbed, &minimum).is_err() {
+                                assert!(perturbed > minimum)
+                            }
                             perturbed_coordinates[node][i] -= EPSILON;
                             perturbed = element
                                 .calculate_helmholtz_free_energy(&perturbed_coordinates.convert());
-                            assert!(
-                                perturbed > minimum || check_eq_within_tols(&perturbed, &minimum)
-                            );
+                            if assert_eq_within_tols(&perturbed, &minimum).is_err() {
+                                assert!(perturbed > minimum)
+                            }
                         })
                     })
                 }
@@ -1031,17 +1030,17 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                                 &get_coordinates(),
                                 &perturbed_velocities,
                             ) - nodal_forces.dot(&perturbed_velocities);
-                            assert!(
-                                perturbed > minimum || check_eq_within_tols(&perturbed, &minimum)
-                            );
+                            if assert_eq_within_tols(&perturbed, &minimum).is_err() {
+                                assert!(perturbed > minimum)
+                            }
                             perturbed_velocities[node][i] -= EPSILON;
                             perturbed = element.calculate_viscous_dissipation(
                                 &get_coordinates(),
                                 &perturbed_velocities,
                             ) - nodal_forces.dot(&perturbed_velocities);
-                            assert!(
-                                perturbed > minimum || check_eq_within_tols(&perturbed, &minimum)
-                            );
+                            if assert_eq_within_tols(&perturbed, &minimum).is_err() {
+                                assert!(perturbed > minimum)
+                            }
                         })
                     })
                 }
@@ -1080,17 +1079,17 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                                 &get_reference_coordinates().into(),
                                 &perturbed_velocities,
                             );
-                            assert!(
-                                perturbed > minimum || check_eq_within_tols(&perturbed, &minimum)
-                            );
+                            if assert_eq_within_tols(&perturbed, &minimum).is_err() {
+                                assert!(perturbed > minimum)
+                            }
                             perturbed_velocities[node][i] -= EPSILON;
                             perturbed = element.calculate_viscous_dissipation(
                                 &get_reference_coordinates().into(),
                                 &perturbed_velocities,
                             );
-                            assert!(
-                                perturbed > minimum || check_eq_within_tols(&perturbed, &minimum)
-                            );
+                            if assert_eq_within_tols(&perturbed, &minimum).is_err() {
+                                assert!(perturbed > minimum)
+                            }
                         })
                     })
                 }
@@ -1134,17 +1133,17 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                                 &get_coordinates(),
                                 &perturbed_velocities,
                             ) - nodal_forces.dot(&perturbed_velocities);
-                            assert!(
-                                perturbed > minimum || check_eq_within_tols(&perturbed, &minimum)
-                            );
+                            if assert_eq_within_tols(&perturbed, &minimum).is_err() {
+                                assert!(perturbed > minimum)
+                            }
                             perturbed_velocities[node][i] -= EPSILON;
                             perturbed = element.calculate_dissipation_potential(
                                 &get_coordinates(),
                                 &perturbed_velocities,
                             ) - nodal_forces.dot(&perturbed_velocities);
-                            assert!(
-                                perturbed > minimum || check_eq_within_tols(&perturbed, &minimum)
-                            );
+                            if assert_eq_within_tols(&perturbed, &minimum).is_err() {
+                                assert!(perturbed > minimum)
+                            }
                         })
                     })
                 }
@@ -1179,17 +1178,17 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                                 &get_reference_coordinates().into(),
                                 &perturbed_velocities,
                             );
-                            assert!(
-                                perturbed > minimum || check_eq_within_tols(&perturbed, &minimum)
-                            );
+                            if assert_eq_within_tols(&perturbed, &minimum).is_err() {
+                                assert!(perturbed > minimum)
+                            }
                             perturbed_velocities[node][i] -= EPSILON;
                             perturbed = element.calculate_dissipation_potential(
                                 &get_reference_coordinates().into(),
                                 &perturbed_velocities,
                             );
-                            assert!(
-                                perturbed > minimum || check_eq_within_tols(&perturbed, &minimum)
-                            );
+                            if assert_eq_within_tols(&perturbed, &minimum).is_err() {
+                                assert!(perturbed > minimum)
+                            }
                         })
                     })
                 }

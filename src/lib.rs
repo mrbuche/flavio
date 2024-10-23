@@ -1,17 +1,5 @@
 #![doc = include_str!("../README.md")]
 
-#[cfg(test)]
-#[cfg(feature = "fem")]
-mod test {
-    use super::{ABS_TOL, REL_TOL};
-    pub fn assert_eq_within_tols(value_1: &f64, value_2: &f64) {
-        assert!(check_eq_within_tols(value_1, value_2))
-    }
-    pub fn check_eq_within_tols(value_1: &f64, value_2: &f64) -> bool {
-        (value_1 - value_2).abs() < ABS_TOL || (value_1 / value_2 - 1.0).abs() < REL_TOL
-    }
-}
-
 #[cfg(feature = "constitutive")]
 pub mod constitutive;
 
