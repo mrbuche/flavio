@@ -752,14 +752,6 @@ macro_rules! test_linear_surface_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn finite_difference() -> Result<(), TestError>
-                {
-                    assert_eq_from_fd(
-                        &get_normal_rate(false, false),
-                        &get_normal_rate_from_finite_difference(false)
-                    )
-                }
-                #[test]
                 fn objectivity() -> Result<(), TestError>
                 {
                     assert_eq_within_tols(
@@ -767,6 +759,14 @@ macro_rules! test_linear_surface_element_with_constitutive_model
                         &(get_rotation_reference_configuration().transpose() *
                             get_normal_rate(false, true).convert()
                         )
+                    )
+                }
+                #[test]
+                fn zero() -> Result<(), TestError>
+                {
+                    assert_eq_within_tols(
+                        &get_normal_rate(false, false),
+                        &NormalRate::zero()
                     )
                 }
             }

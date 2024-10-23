@@ -18,7 +18,7 @@ macro_rules! test_composite_surface_element_inner
             use crate::
             {
                 fem::block::element::composite::surface::test::test_composite_surface_element_with_constitutive_model,
-                math::{Convert, test::{assert_eq_from_fd, assert_eq_within_tols as assert_eq_within_tols_new, TestError}}
+                math::{Convert, test::{assert_eq_from_fd, assert_eq_within_tols, TestError}}
             };
             use super::*;
             mod elastic
@@ -476,7 +476,7 @@ macro_rules! test_composite_surface_element_with_constitutive_model
                         basis.iter()
                         .zip(res_basis.iter())
                         .try_for_each(|(basis_m, res_basis_m)|
-                            assert_eq_within_tols_new(
+                            assert_eq_within_tols(
                                 basis_m,
                                 &(get_rotation_current_configuration().transpose() * res_basis_m)
                             )
@@ -496,7 +496,7 @@ macro_rules! test_composite_surface_element_with_constitutive_model
                         basis.iter()
                         .zip(res_basis.iter())
                         .try_for_each(|(basis_m, res_basis_m)|
-                            assert_eq_within_tols_new(
+                            assert_eq_within_tols(
                                 &basis_m.convert(),
                                 &(get_rotation_reference_configuration().transpose() * res_basis_m.convert())
                             )
@@ -519,7 +519,7 @@ macro_rules! test_composite_surface_element_with_constitutive_model
                     get_bases(true, false).iter()
                     .zip(get_dual_bases(true, false).iter())
                     .try_for_each(|(basis, dual_basis)|
-                        assert_eq_within_tols_new(
+                        assert_eq_within_tols(
                             &basis.iter()
                             .map(|basis|
                                 dual_basis.iter()
@@ -540,7 +540,7 @@ macro_rules! test_composite_surface_element_with_constitutive_model
                         dual_basis.iter()
                         .zip(res_dual_basis.iter())
                         .try_for_each(|(dual_basis_m, res_dual_basis_m)|
-                            assert_eq_within_tols_new(
+                            assert_eq_within_tols(
                                 dual_basis_m,
                                 &(get_rotation_current_configuration().transpose() * res_dual_basis_m)
                             )
@@ -559,7 +559,7 @@ macro_rules! test_composite_surface_element_with_constitutive_model
                     get_bases(false, false).iter()
                     .zip(get_dual_bases(false, false).iter())
                     .try_for_each(|(basis, dual_basis)|
-                        assert_eq_within_tols_new(
+                        assert_eq_within_tols(
                             &basis.iter()
                             .map(|basis|
                                 dual_basis.iter()
@@ -580,7 +580,7 @@ macro_rules! test_composite_surface_element_with_constitutive_model
                         dual_basis.iter()
                         .zip(res_dual_basis.iter())
                         .try_for_each(|(dual_basis_m, res_dual_basis_m)|
-                            assert_eq_within_tols_new(
+                            assert_eq_within_tols(
                                 &dual_basis_m.convert(),
                                 &(get_rotation_reference_configuration().transpose() * res_dual_basis_m.convert())
                             )
@@ -609,10 +609,10 @@ macro_rules! test_composite_surface_element_with_constitutive_model
                     get_bases(true, false).iter()
                     .zip(get_normals(true, false).iter())
                     .try_for_each(|(basis, normal)|{
-                        assert_eq_within_tols_new(
+                        assert_eq_within_tols(
                             &(&basis[0] * normal), &0.0
                         )?;
-                        assert_eq_within_tols_new(
+                        assert_eq_within_tols(
                             &(&basis[1] * normal), &0.0
                         )
                     })
@@ -622,7 +622,7 @@ macro_rules! test_composite_surface_element_with_constitutive_model
                 {
                     get_normals(true, false).iter()
                     .try_for_each(|normal|
-                        assert_eq_within_tols_new(
+                        assert_eq_within_tols(
                             &normal.norm(), &1.0
                         )
                     )
@@ -633,7 +633,7 @@ macro_rules! test_composite_surface_element_with_constitutive_model
                     get_normals(true, false).iter()
                     .zip(get_normals(true, true).iter())
                     .try_for_each(|(normal, res_normal)|
-                        assert_eq_within_tols_new(
+                        assert_eq_within_tols(
                             normal,
                             &(get_rotation_current_configuration().transpose() * res_normal)
                         )
@@ -657,10 +657,10 @@ macro_rules! test_composite_surface_element_with_constitutive_model
                     get_bases(false, false).iter()
                     .zip(get_normals(false, false).iter())
                     .try_for_each(|(basis, normal)|{
-                        assert_eq_within_tols_new(
+                        assert_eq_within_tols(
                             &(&basis[0] * normal), &0.0
                         )?;
-                        assert_eq_within_tols_new(
+                        assert_eq_within_tols(
                             &(&basis[1] * normal), &0.0
                         )
                     })
@@ -670,7 +670,7 @@ macro_rules! test_composite_surface_element_with_constitutive_model
                 {
                     get_normals(false, false).iter()
                     .try_for_each(|normal|
-                        assert_eq_within_tols_new(
+                        assert_eq_within_tols(
                             &normal.norm(), &1.0
                         )
                     )
@@ -681,7 +681,7 @@ macro_rules! test_composite_surface_element_with_constitutive_model
                     get_normals(false, false).iter()
                     .zip(get_normals(false, true).iter())
                     .try_for_each(|(normal, res_normal)|
-                        assert_eq_within_tols_new(
+                        assert_eq_within_tols(
                             &normal.convert(),
                             &(get_rotation_reference_configuration().transpose() * res_normal.convert())
                         )
@@ -712,7 +712,7 @@ macro_rules! test_composite_surface_element_with_constitutive_model
                         normal_gradient.iter()
                         .zip(res_normal_gradient.iter())
                         .try_for_each(|(normal_gradient_a, res_normal_gradient_a)|
-                            assert_eq_within_tols_new(
+                            assert_eq_within_tols(
                                 normal_gradient_a,
                                 &(
                                     get_rotation_current_configuration().transpose() *
@@ -744,7 +744,7 @@ macro_rules! test_composite_surface_element_with_constitutive_model
                         normal_gradient.iter()
                         .zip(res_normal_gradient.iter())
                         .try_for_each(|(normal_gradient_a, res_normal_gradient_a)|
-                            assert_eq_within_tols_new(
+                            assert_eq_within_tols(
                                 &normal_gradient_a.convert(),
                                 &(
                                     get_rotation_reference_configuration().transpose() *
@@ -778,7 +778,7 @@ macro_rules! test_composite_surface_element_with_constitutive_model
                     .zip(get_normal_rates(true, true).iter()
                     .zip(get_normals(true, true).iter()))
                     .try_for_each(|(normal_rate, (res_normal_rate, res_normal))|
-                        assert_eq_within_tols_new(
+                        assert_eq_within_tols(
                             normal_rate,
                             &(
                                 get_rotation_current_configuration().transpose() *
@@ -794,26 +794,26 @@ macro_rules! test_composite_surface_element_with_constitutive_model
             {
                 use super::*;
                 #[test]
-                fn finite_difference() -> Result<(), TestError>
-                {
-                    assert_eq_from_fd(
-                        &get_normal_rates(false, false),
-                        &get_normal_rates_from_finite_difference(false)
-                    )
-                }
-                #[test]
                 fn objectivity() -> Result<(), TestError>
                 {
                     get_normal_rates(false, false).iter()
                     .zip(get_normal_rates(false, true).iter())
                     .try_for_each(|(normal_rate, res_normal_rate)|
-                        assert_eq_within_tols_new(
+                        assert_eq_within_tols(
                             &normal_rate.convert(),
                             &(
                                 get_rotation_reference_configuration().transpose() *
                                 res_normal_rate.convert()
                             )
                         )
+                    )
+                }
+                #[test]
+                fn zero() -> Result<(), TestError>
+                {
+                    assert_eq_within_tols(
+                        &get_normal_rates(false, false),
+                        &NormalRates::zero()
                     )
                 }
             }
@@ -837,7 +837,7 @@ macro_rules! test_composite_surface_element_with_constitutive_model
                             normal_tangent_a.iter()
                             .zip(res_normal_tangent_a.iter())
                             .try_for_each(|(normal_tangent_ab, res_normal_tangent_ab)|
-                                assert_eq_within_tols_new(
+                                assert_eq_within_tols(
                                     normal_tangent_ab,
                                     &rotation_transpose.iter()
                                     .map(|rotation_transpose_m|
@@ -884,7 +884,7 @@ macro_rules! test_composite_surface_element_with_constitutive_model
                             normal_tangent_a.iter()
                             .zip(res_normal_tangent_a.iter())
                             .try_for_each(|(normal_tangent_ab, res_normal_tangent_ab)|
-                                assert_eq_within_tols_new(
+                                assert_eq_within_tols(
                                     normal_tangent_ab,
                                     &rotation_transpose.iter()
                                     .map(|rotation_transpose_m|
@@ -925,10 +925,10 @@ macro_rules! test_composite_surface_element_with_constitutive_model
                 get_dual_bases(false, false).iter()
                 .zip(get_reference_normals(false).iter())
                 .try_for_each(|(dual_basis, reference_normal)|{
-                    assert_eq_within_tols_new(
+                    assert_eq_within_tols(
                         &(&dual_basis[0].convert() * reference_normal), &0.0
                     )?;
-                    assert_eq_within_tols_new(
+                    assert_eq_within_tols(
                         &(&dual_basis[1].convert() * reference_normal), &0.0
                     )
                 })
@@ -939,7 +939,7 @@ macro_rules! test_composite_surface_element_with_constitutive_model
                 get_reference_normals(false).iter()
                 .zip(get_reference_normals(true).iter())
                 .try_for_each(|(normal, res_normal)|
-                    assert_eq_within_tols_new(
+                    assert_eq_within_tols(
                         normal,
                         &(get_rotation_reference_configuration().transpose() * res_normal)
                     )

@@ -12,7 +12,10 @@ use std::{
 
 use crate::math::{Tensor, TensorRank2, Tensors};
 
-use super::{super::Convert, TensorRank0, TensorRank1};
+use super::{
+    super::{super::write_tensor_rank_0, Convert},
+    TensorRank0, TensorRank1,
+};
 
 /// A list of *d*-dimensional tensors of rank 1.
 ///
@@ -22,8 +25,21 @@ pub struct TensorRank1List<const D: usize, const I: usize, const W: usize>(
 );
 
 impl<const D: usize, const I: usize, const W: usize> Display for TensorRank1List<D, I, W> {
-    fn fmt(&self, _f: &mut Formatter) -> Result {
-        Ok(())
+    fn fmt(&self, f: &mut Formatter) -> Result {
+        write!(f, "\x1B[s")?;
+        write!(f, "[[")?;
+        self.iter().enumerate().try_for_each(|(i, tensor_rank_1)| {
+            tensor_rank_1
+                .iter()
+                .try_for_each(|entry| write_tensor_rank_0(f, entry))?;
+            if i + 1 < W {
+                writeln!(f, "\x1B[2D],")?;
+                write!(f, "\x1B[u")?;
+                write!(f, "\x1B[{}B [", i + 1)?;
+            }
+            Ok(())
+        })?;
+        write!(f, "\x1B[2D]]")
     }
 }
 
