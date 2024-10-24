@@ -313,9 +313,6 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses {
                         &get_nodal_stiffnesses(false, false),
                         &get_finite_difference_of_nodal_forces(false),
                     )
-                    // (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < EPSILON ||
-                    // (nodal_stiffness_ab_ij - fd_nodal_stiffness_ab_ij).abs() < ABS_TOL ||
-                    // (nodal_stiffness_ab_ij.abs() < EPSILON && fd_nodal_stiffness_ab_ij.abs() < EPSILON)
                 }
                 #[test]
                 fn objectivity() -> Result<(), TestError> {
@@ -415,9 +412,6 @@ macro_rules! test_helmholtz_free_energy {
                         &get_nodal_forces(true, false, false),
                         &get_finite_difference_of_helmholtz_free_energy(true),
                     )
-                    // (nodal_force_i / fd_nodal_force_i - 1.0).abs() < EPSILON
-                    //     || (nodal_force_i.abs() < EPSILON
-                    //         && fd_nodal_force_i.abs() < EPSILON)
                 }
                 #[test]
                 #[should_panic(expected = "Invalid Jacobian")]
@@ -1009,9 +1003,6 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                             - get_nodal_forces(true, false, false)),
                         &get_finite_difference_of_viscous_dissipation(true),
                     )
-                    // (nodal_force_i / fd_nodal_force_i - 1.0).abs() < EPSILON
-                    //     || (nodal_force_i.abs() < EPSILON
-                    //         && fd_nodal_force_i.abs() < EPSILON)
                 }
                 #[test]
                 fn minimized() {
@@ -1113,9 +1104,6 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                         &get_nodal_forces(true, false, true),
                         &get_finite_difference_of_dissipation_potential(true),
                     )
-                    // (nodal_force_i / fd_nodal_force_i - 1.0).abs() < EPSILON
-                    //     || (nodal_force_i.abs() < EPSILON
-                    //         && fd_nodal_force_i.abs() < EPSILON)
                 }
                 #[test]
                 fn minimized() {

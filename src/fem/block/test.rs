@@ -221,8 +221,6 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses {
                         &get_nodal_stiffnesses(false, false),
                         &get_finite_difference_of_nodal_forces(false),
                     )
-                    // (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < EPSILON ||
-                    // (nodal_stiffness_ab_ij.abs() < EPSILON && fd_nodal_stiffness_ab_ij.abs() < EPSILON)
                 }
                 #[test]
                 fn objectivity() -> Result<(), TestError> {
