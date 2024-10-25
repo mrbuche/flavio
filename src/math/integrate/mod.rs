@@ -27,7 +27,7 @@ where
     Y: Tensor,
     U: Tensors<Item = Y>,
 {
-    /// ???
+    /// Setup for ordinary different equation solvers.
     fn setup<'a>(
         &'a self,
         initial_time: TensorRank0,
