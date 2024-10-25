@@ -25,9 +25,9 @@ impl TensorError for TensorRank0 {
             None
         }
     }
-    fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<usize> {
+    fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<(bool, usize)> {
         if &(self / comparator - 1.0).abs() >= epsilon {
-            Some(1)
+            Some((true, 1))
         } else {
             None
         }

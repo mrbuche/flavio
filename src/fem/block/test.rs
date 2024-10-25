@@ -201,9 +201,6 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses {
                         &get_nodal_stiffnesses(true, false),
                         &get_finite_difference_of_nodal_forces(true),
                     )
-                    // (nodal_stiffness_ab_ij/fd_nodal_stiffness_ab_ij - 1.0).abs() < 13.0 * EPSILON ||
-                    // (nodal_stiffness_ab_ij.abs() < ABS_TOL && fd_nodal_stiffness_ab_ij.abs() < ABS_TOL) ||
-                    // (nodal_stiffness_ab_ij - fd_nodal_stiffness_ab_ij).abs() < EPSILON / 10.0
                 }
                 #[test]
                 fn objectivity() -> Result<(), TestError> {
@@ -311,8 +308,6 @@ macro_rules! test_helmholtz_free_energy {
                         &block.calculate_nodal_forces(),
                         &get_finite_difference_of_helmholtz_free_energy(true),
                     )
-                    // (nodal_force_i / fd_nodal_force_i - 1.0).abs()
-                    //     < EPSILON * 4.0
                 }
                 #[test]
                 #[should_panic(expected = "Invalid Jacobian")]
@@ -857,8 +852,6 @@ macro_rules! test_finite_element_block_with_elastic_hyperviscous_constitutive_mo
                         &(block.calculate_nodal_forces() - nodal_forces_0),
                         &get_finite_difference_of_viscous_dissipation(true),
                     )
-                    // (nodal_force_i / fd_nodal_force_i - 1.0).abs()
-                    //     < EPSILON * 4.0
                 }
                 #[test]
                 fn minimized() {

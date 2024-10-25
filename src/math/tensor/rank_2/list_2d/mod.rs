@@ -74,7 +74,7 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: us
             None
         }
     }
-    fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<usize> {
+    fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<(bool, usize)> {
         let error_count = self
             .iter()
             .zip(comparator.iter())
@@ -103,7 +103,36 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: us
             })
             .sum();
         if error_count > 0 {
-            Some(error_count)
+            let auxillary = self
+                .iter()
+                .zip(comparator.iter())
+                .map(|(self_a, comparator_a)| {
+                    self_a
+                        .iter()
+                        .zip(comparator_a.iter())
+                        .map(|(self_ab, comparator_ab)| {
+                            self_ab
+                                .iter()
+                                .zip(comparator_ab.iter())
+                                .map(|(self_ab_i, comparator_ab_i)| {
+                                    self_ab_i
+                                        .iter()
+                                        .zip(comparator_ab_i.iter())
+                                        .filter(|(&self_ab_ij, &comparator_ab_ij)| {
+                                            &(self_ab_ij / comparator_ab_ij - 1.0).abs() >= epsilon
+                                                && &(self_ab_ij - comparator_ab_ij).abs() >= epsilon
+                                                && (&self_ab_ij.abs() >= epsilon
+                                                    || &comparator_ab_ij.abs() >= epsilon)
+                                        })
+                                        .count()
+                                })
+                                .sum::<usize>()
+                        })
+                        .sum::<usize>()
+                })
+                .sum::<usize>()
+                > 0;
+            Some((auxillary, error_count))
         } else {
             None
         }

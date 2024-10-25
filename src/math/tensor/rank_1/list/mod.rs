@@ -71,7 +71,7 @@ impl<const D: usize, const I: usize, const W: usize> TensorError for TensorRank1
             None
         }
     }
-    fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<usize> {
+    fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<(bool, usize)> {
         let error_count = self
             .iter()
             .zip(comparator.iter())
@@ -87,7 +87,24 @@ impl<const D: usize, const I: usize, const W: usize> TensorError for TensorRank1
             })
             .sum();
         if error_count > 0 {
-            Some(error_count)
+            let auxillary = self
+                .iter()
+                .zip(comparator.iter())
+                .map(|(entry, comparator_entry)| {
+                    entry
+                        .iter()
+                        .zip(comparator_entry.iter())
+                        .filter(|(&entry_i, &comparator_entry_i)| {
+                            &(entry_i / comparator_entry_i - 1.0).abs() >= epsilon
+                                && &(entry_i - comparator_entry_i).abs() >= epsilon
+                                && (&entry_i.abs() >= epsilon
+                                    || &comparator_entry_i.abs() >= epsilon)
+                        })
+                        .count()
+                })
+                .sum::<usize>()
+                > 0;
+            Some((auxillary, error_count))
         } else {
             None
         }

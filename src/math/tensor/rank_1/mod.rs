@@ -74,7 +74,7 @@ impl<const D: usize, const I: usize> TensorError for TensorRank1<D, I> {
             None
         }
     }
-    fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<usize> {
+    fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<(bool, usize)> {
         let error_count = self
             .iter()
             .zip(comparator.iter())
@@ -84,7 +84,7 @@ impl<const D: usize, const I: usize> TensorError for TensorRank1<D, I> {
             })
             .count();
         if error_count > 0 {
-            Some(error_count)
+            Some((true, error_count))
         } else {
             None
         }
