@@ -9,6 +9,9 @@ pub mod special;
 /// Integration and ODEs.
 pub mod integrate;
 
+/// Optimization and root finding.
+pub mod optimize;
+
 mod tensor;
 
 pub const FOUR_THIRDS: TensorRank0 = 4.0 / 3.0;

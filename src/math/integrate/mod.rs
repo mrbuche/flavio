@@ -20,14 +20,14 @@ use std::{
 
 type EvalTimes<const W: usize> = Peekable<std::array::IntoIter<TensorRank0, W>>;
 
-/// Base trait for ordinary different equation solvers.
+/// Base trait for ordinary differential equation solvers.
 pub trait OdeSolver<Y, U, const W: usize>
 where
     Self: fmt::Debug,
     Y: Tensor,
     U: Tensors<Item = Y>,
 {
-    /// Setup for ordinary different equation solvers.
+    /// Setup for ordinary differential equation solvers.
     fn setup<'a>(
         &'a self,
         initial_time: TensorRank0,
@@ -91,14 +91,14 @@ where
 {
 }
 
-/// Base trait for explicit ordinary different equation solvers.
+/// Base trait for explicit ordinary differential equation solvers.
 pub trait Explicit<Y, U, const W: usize>: OdeSolver<Y, U, W>
 where
     Y: Tensor,
     for<'a> &'a Y: Mul<TensorRank0, Output = Y> + Sub<&'a Y, Output = Y>,
     U: Tensors<Item = Y>,
 {
-    /// Solves an initial value problem by explicitly integrating a system of ordinary different equations.
+    /// Solves an initial value problem by explicitly integrating a system of ordinary differential equations.
     ///
     /// ```math
     /// \frac{dy}{dt} = f(t, y),\quad y(t_0) = y_0
@@ -112,7 +112,7 @@ where
     ) -> Result<U, IntegrationError<W>>;
 }
 
-/// Base trait for implicit ordinary different equation solvers.
+/// Base trait for implicit ordinary differential equation solvers.
 pub trait Implicit<Y, J, U, const W: usize>: OdeSolver<Y, U, W>
 where
     Y: Tensor + Div<J, Output = Y>,
@@ -120,7 +120,7 @@ where
     J: Tensor,
     U: Tensors<Item = Y>,
 {
-    /// Solves an initial value problem by implicitly integrating a system of ordinary different equations.
+    /// Solves an initial value problem by implicitly integrating a system of ordinary differential equations.
     ///
     /// ```math
     /// \frac{dy}{dt} = f(t, y),\quad y(t_0) = y_0,\quad \frac{\partial f}{\partial y} = J(t, y)
