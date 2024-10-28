@@ -61,11 +61,8 @@ where
         let mut solution = U::zero();
         let mut t_trial;
         let mut y_trial;
-        let Optimization::Newton(optimization) = &self.optimization;
-        // let optimization = match &self.optimization {
-        //     Optimization::Newton(newton) => newton,
-        // };
         let identity = J::identity();
+        let Optimization::Newton(optimization) = &self.optimization;
         {
             let (mut eval_times, mut dt, mut t, mut y, mut y_sol) = self.setup(
                 initial_time,

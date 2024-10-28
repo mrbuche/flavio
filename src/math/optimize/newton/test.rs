@@ -1,5 +1,4 @@
 use super::{Newton, Optimize, TensorRank0};
-// use std::f64::consts::FRAC_PI_2;
 
 const TOLERANCE: TensorRank0 = 1e-6;
 
