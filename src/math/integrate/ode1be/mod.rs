@@ -33,6 +33,7 @@ impl Default for Ode1be {
             dec_fac: 0.5,
             inc_fac: 1.1,
             optimization: Optimization::Newton(Newton {
+                check_minimum: false,
                 ..Default::default()
             }),
             rel_tol: REL_TOL,

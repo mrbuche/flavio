@@ -13,6 +13,8 @@ use std::ops::Div;
 pub struct Newton {
     /// Absolute error tolerance.
     pub abs_tol: TensorRank0,
+    /// Whether to check if solution is minimum.
+    pub check_minimum: bool,
     /// Maximum number of steps.
     pub max_steps: usize,
 }
@@ -21,6 +23,7 @@ impl Default for Newton {
     fn default() -> Self {
         Self {
             abs_tol: ABS_TOL,
+            check_minimum: true,
             max_steps: 100,
         }
     }
@@ -40,19 +43,21 @@ where
     ) -> Result<X, OptimizeError> {
         let mut residual;
         let mut solution = initial_guess;
+        let mut tangent;
         for _ in 0..self.max_steps {
             residual = jacobian(&solution);
+            tangent = hessian(&solution);
             if residual.norm() < self.abs_tol {
-                if hessian(&solution).is_positive_definite() {
-                    return Ok(solution);
-                } else {
+                if self.check_minimum && !tangent.is_positive_definite() {
                     return Err(OptimizeError::NotMinimum(
                         format!("{}", solution),
                         format!("{:?}", &self),
                     ));
+                } else {
+                    return Ok(solution);
                 }
             } else {
-                solution -= residual / hessian(&solution);
+                solution -= residual / tangent;
             }
         }
         Err(OptimizeError::MaximumStepsReached(

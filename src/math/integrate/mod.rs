@@ -149,12 +149,6 @@ impl<const W: usize> From<&str> for IntegrationError<W> {
     }
 }
 
-// impl<const W: usize> From<OptimizeError> for IntegrationError<W> {
-//     fn from(error: OptimizeError) -> Self {
-//         Self::OptimizeError(format!("{}", error))
-//     }
-// }
-
 impl<const W: usize> fmt::Debug for IntegrationError<W> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let error = match self {

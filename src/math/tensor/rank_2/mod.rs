@@ -581,10 +581,6 @@ impl<const D: usize, const I: usize, const J: usize> Tensor for TensorRank2<D, I
             .map(|i| (0..D).map(|j| ((i == j) as u8) as TensorRank0).collect())
             .collect()
     }
-    fn is_positive_definite(&self) -> bool {
-        true
-        // todo!("Need to implement is_positive_definite() for TensorRank2.")
-    }
     fn is_zero(&self) -> bool {
         self.iter()
             .map(|self_i| {

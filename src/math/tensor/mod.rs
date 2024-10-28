@@ -33,6 +33,7 @@ where
         + Sub<&'a Self, Output = Self>
         + SubAssign
         + Sized
+        + fmt::Debug
         + fmt::Display,
 {
     type Array;
@@ -47,7 +48,7 @@ where
     fn identity() -> Self;
     /// Checks whether the tensor is positive-definite.
     fn is_positive_definite(&self) -> bool {
-        panic!()
+        panic!("Need to implement is_positive_definite() for {:?}.", self)
     }
     /// Checks whether the tensor is the zero tensor.
     fn is_zero(&self) -> bool;
