@@ -10,7 +10,7 @@ pub mod rank_4;
 use rank_0::TensorRank0;
 use std::{
     fmt,
-    ops::{Add, AddAssign, Div, Mul, Sub},
+    ops::{Add, AddAssign, Div, Mul, Sub, SubAssign},
 };
 
 /// A value-to-value conversion that does not consume the input value.
@@ -31,6 +31,7 @@ where
         + Mul<TensorRank0, Output = Self>
         + Sub<Self, Output = Self>
         + Sub<&'a Self, Output = Self>
+        + SubAssign
         + Sized
         + fmt::Display,
 {
