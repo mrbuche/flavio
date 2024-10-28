@@ -1,19 +1,20 @@
+#[cfg(test)]
+mod test;
+
 use super::{
     super::{Tensor, TensorRank0},
     Optimize, OptimizeError,
 };
-use crate::{ABS_TOL, REL_TOL};
+use crate::ABS_TOL;
 use std::{fmt, ops::Div};
 
-/// ???
+/// Newton's method.
 #[derive(Debug)]
 pub struct Newton {
     /// Absolute error tolerance.
     pub abs_tol: TensorRank0,
     /// Maximum number of steps.
     pub max_steps: usize,
-    /// Relative error tolerance.
-    pub rel_tol: TensorRank0,
 }
 
 impl Default for Newton {
@@ -21,7 +22,6 @@ impl Default for Newton {
         Self {
             abs_tol: ABS_TOL,
             max_steps: 100,
-            rel_tol: REL_TOL,
         }
     }
 }
@@ -43,10 +43,6 @@ where
         let mut residual_norm = residual.norm();
         let mut solution = initial_guess;
         let mut steps = 0;
-
-        println!("Relative tolerance: {}.", self.rel_tol);
-        println!("Other Newton solvers have a relative tolerance, how to use that and absolute tolerance here?");
-
         while residual_norm >= self.abs_tol {
             if steps >= self.max_steps {
                 return Err(OptimizeError::MaximumStepsReached(
@@ -60,6 +56,13 @@ where
                 steps += 1;
             }
         }
-        Ok(solution)
+        if hessian(&solution).is_positive_definite() {
+            Ok(solution)
+        } else {
+            Err(OptimizeError::NotMinimum(
+                format!("{}", solution),
+                format!("{:?}", &self),
+            ))
+        }
     }
 }

@@ -45,6 +45,10 @@ where
     fn copy(&self) -> Self;
     /// Returns the identity tensor.
     fn identity() -> Self;
+    /// Checks whether the tensor is positive-definite.
+    fn is_positive_definite(&self) -> bool {
+        panic!()
+    }
     /// Checks whether the tensor is the zero tensor.
     fn is_zero(&self) -> bool;
     /// Returns an iterator.

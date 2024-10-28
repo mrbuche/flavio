@@ -46,6 +46,9 @@ impl Tensor for TensorRank0 {
     fn identity() -> Self {
         1.0
     }
+    fn is_positive_definite(&self) -> bool {
+        self > &0.0
+    }
     fn is_zero(&self) -> bool {
         self == &0.0
     }

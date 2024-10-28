@@ -72,6 +72,9 @@ where
                 // what about making a dedicated Newton solver implementation?
                 // with max steps, tolerances (ABS_TOL below), etc. as an attributes?
                 //
+                // AND THEN THE SOLVER SHOULD BE A STRUCT FIELD FOR IMPLICIT SOLVERS
+                // and you can make it default to Newton
+                //
                 k_2 = Y::zero();
                 residual_norm = 1.0;
                 steps = 0;
