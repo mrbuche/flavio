@@ -140,6 +140,7 @@ pub enum IntegrationError<const W: usize> {
     EvaluationTimesNoFinalTime(TensorRank0List<W>, String),
     EvaluationTimesNotStrictlyIncreasing(TensorRank0List<W>, String),
     EvaluationTimesPrecedeInitialTime(TensorRank0List<W>, TensorRank0, String),
+    OptimizeError(OptimizeError, String),
 }
 
 impl<const W: usize> From<&str> for IntegrationError<W> {
@@ -148,11 +149,11 @@ impl<const W: usize> From<&str> for IntegrationError<W> {
     }
 }
 
-impl<const W: usize> From<OptimizeError> for IntegrationError<W> {
-    fn from(error: OptimizeError) -> Self {
-        todo!("{:?}", error)
-    }
-}
+// impl<const W: usize> From<OptimizeError> for IntegrationError<W> {
+//     fn from(error: OptimizeError) -> Self {
+//         Self::OptimizeError(format!("{}", error))
+//     }
+// }
 
 impl<const W: usize> fmt::Debug for IntegrationError<W> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -182,6 +183,13 @@ impl<const W: usize> fmt::Debug for IntegrationError<W> {
                     evaluation_times, initial_time, integrator
                 )
             }
+            Self::OptimizeError(error, integrator) => {
+                format!(
+                    "{}\x1b[0;91m\n\
+                     In integrator: {}.",
+                    error, integrator
+                )
+            }
         };
         write!(
             f,
@@ -189,5 +197,45 @@ impl<const W: usize> fmt::Debug for IntegrationError<W> {
             error,
             get_defeat_message()
         )
+    }
+}
+
+impl<const W: usize> fmt::Display for IntegrationError<W> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let error = match self {
+            Self::EvaluationTimesNoFinalTime(evaluation_times, integrator) => {
+                format!(
+                    "\x1b[1;91mEvaluation times must include a final time.\x1b[0;91m\n\
+                     From evaluation times: {}.\n\
+                     In integrator: {}.",
+                    evaluation_times, integrator
+                )
+            }
+            Self::EvaluationTimesNotStrictlyIncreasing(evaluation_times, integrator) => {
+                format!(
+                    "\x1b[1;91mEvaluation times must be strictly increasing.\x1b[0;91m\n\
+                     From evaluation times: {}.\n\
+                     In integrator: {}.",
+                    evaluation_times, integrator
+                )
+            }
+            Self::EvaluationTimesPrecedeInitialTime(evaluation_times, initial_time, integrator) => {
+                format!(
+                    "\x1b[1;91mEvaluation times precede the initial time.\x1b[0;91m\n\
+                     From evaluation times: {}.\n\
+                     With initial time: {}.\n\
+                     In integrator: {}.",
+                    evaluation_times, initial_time, integrator
+                )
+            }
+            Self::OptimizeError(error, integrator) => {
+                format!(
+                    "{}\x1b[0;91m\n\
+                     In integrator: {}.",
+                    error, integrator
+                )
+            }
+        };
+        write!(f, "{}\x1b[0m", error)
     }
 }

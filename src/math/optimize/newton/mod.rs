@@ -21,7 +21,7 @@ impl Default for Newton {
     fn default() -> Self {
         Self {
             abs_tol: ABS_TOL,
-            max_steps: 1_000,
+            max_steps: 100,
         }
     }
 }

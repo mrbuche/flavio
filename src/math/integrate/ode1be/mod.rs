@@ -72,11 +72,19 @@ where
             )?;
             while eval_times.peek().is_some() {
                 t_trial = t + dt;
-                y_trial = optimization.minimize(
+                y_trial = match optimization.minimize(
                     |y_trial: &Y| y_trial - &y - &(&function(&t_trial, y_trial) * dt),
                     |y_trial: &Y| jacobian(&t_trial, y_trial) * -dt + &identity,
                     y.copy(),
-                )?;
+                ) {
+                    Err(error) => {
+                        return Err(IntegrationError::OptimizeError(
+                            error,
+                            format!("{:?}", &self),
+                        ))
+                    }
+                    Ok(solution_y_trial) => solution_y_trial,
+                };
                 k_2 = function(&t_trial, &y_trial);
                 e = ((&k_2 - &k_1) * (dt / 2.0)).norm();
                 if e < self.abs_tol || e / y_trial.norm() < self.rel_tol {

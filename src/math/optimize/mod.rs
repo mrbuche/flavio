@@ -63,3 +63,26 @@ impl fmt::Debug for OptimizeError {
         )
     }
 }
+
+impl fmt::Display for OptimizeError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let error = match self {
+            Self::MaximumStepsReached(steps, optimizer) => {
+                format!(
+                    "\x1b[1;91mMaximum number of steps ({}) reached.\x1b[0;91m\n\
+                     In optimizer: {}.",
+                    steps, optimizer
+                )
+            }
+            Self::NotMinimum(solution, optimizer) => {
+                format!(
+                    "\x1b[1;91mThe obtained solution is not a minimum.\x1b[0;91m\n\
+                     For solution: {}.\n\
+                     In optimizer: {}.",
+                    solution, optimizer
+                )
+            }
+        };
+        write!(f, "{}\x1b[0m", error)
+    }
+}
