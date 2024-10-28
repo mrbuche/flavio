@@ -7,17 +7,14 @@ use super::Tensor;
 use crate::get_defeat_message;
 use std::{fmt, ops::Div};
 
-// Newton doesn't need the objective function,
-// so whether it's actually an optimization or root finding problem,
-// the i/o is the same, so it can live in optimize safely.
+pub use newton::Newton;
 
-/// ???
-pub trait Optimize<X, J, H>
+/// Base trait for optimization algorithms.
+pub trait Optimize<H, J, X>
 where
-    Self: fmt::Debug,
-    X: Tensor,
-    J: Tensor + Div<H, Output = X>,
     H: Tensor,
+    J: Tensor + Div<H, Output = X>,
+    X: Tensor,
 {
     fn minimize(
         &self,
@@ -25,6 +22,12 @@ where
         hessian: impl Fn(&X) -> H,
         initial_guess: X,
     ) -> Result<X, OptimizeError>;
+}
+
+/// Possible optimization algorithms.
+#[derive(Debug)]
+pub enum Optimization {
+    Newton(Newton),
 }
 
 /// Possible errors encountered when optimizing.

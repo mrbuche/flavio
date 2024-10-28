@@ -2,7 +2,10 @@
 mod test;
 
 use super::{
-    super::{Tensor, TensorRank0, TensorRank0List, Tensors},
+    super::{
+        optimize::{Newton, Optimization, Optimize},
+        Tensor, TensorRank0, TensorRank0List, Tensors,
+    },
     Implicit, IntegrationError, OdeSolver,
 };
 use crate::{ABS_TOL, REL_TOL};
@@ -17,8 +20,8 @@ pub struct Ode1be {
     pub dec_fac: TensorRank0,
     /// Multiplying factor when increasing time steps.
     pub inc_fac: TensorRank0,
-    /// Maximum number of Newton steps MOVE THIS FIELD AND ANY ERROR HANDLING TO DEDICATED NEWTON SOLVER.
-    pub max_steps: usize,
+    /// Optimization algorithm for equation solving.
+    pub optimization: Optimization,
     /// Relative error tolerance.
     pub rel_tol: TensorRank0,
 }
@@ -29,7 +32,9 @@ impl Default for Ode1be {
             abs_tol: ABS_TOL,
             dec_fac: 0.5,
             inc_fac: 1.1,
-            max_steps: 1_000,
+            optimization: Optimization::Newton(Newton {
+                ..Default::default()
+            }),
             rel_tol: REL_TOL,
         }
     }
@@ -56,9 +61,10 @@ where
         let mut solution = U::zero();
         let mut t_trial;
         let mut y_trial;
-        let mut residual;
-        let mut residual_norm;
-        let mut steps;
+        let Optimization::Newton(optimization) = &self.optimization;
+        // let optimization = match &self.optimization {
+        //     Optimization::Newton(newton) => newton,
+        // };
         let identity = J::identity();
         {
             let (mut eval_times, mut dt, mut t, mut y, mut y_sol) = self.setup(
@@ -68,37 +74,13 @@ where
                 &mut solution,
             )?;
             while eval_times.peek().is_some() {
-                //
-                // what about making a dedicated Newton solver implementation?
-                // with max steps, tolerances (ABS_TOL below), etc. as an attributes?
-                //
-                // AND THEN THE SOLVER SHOULD BE A STRUCT FIELD FOR IMPLICIT SOLVERS
-                // and you can make it default to Newton
-                //
-                k_2 = Y::zero();
-                residual_norm = 1.0;
-                steps = 0;
                 t_trial = t + dt;
-                y_trial = y.copy();
-                while residual_norm >= ABS_TOL {
-                    if steps >= self.max_steps {
-                        return Err(IntegrationError::MaximumStepsReached(
-                            steps,
-                            format!("{:?}", &self),
-                        ));
-                    } else {
-                        println!("ADFGHGFDDFGHGF {:?}", steps);
-                        k_2 = function(&t_trial, &y_trial);
-                        residual = &y_trial - &y - &(&k_2 * dt);
-                        residual_norm = residual.norm();
-                        y_trial += residual / (jacobian(&t_trial, &y_trial) * dt - &identity);
-                        //
-                        // (1) you dont want to reset the trial guess after evaluating the residual, in case it's below the tolerance
-                        // (2) why arent we taking more than one netwon step?
-                        //
-                        steps += 1;
-                    }
-                }
+                y_trial = optimization.minimize(
+                    |y_trial: &Y| y_trial - &y - &(&function(&t_trial, y_trial) * dt),
+                    |y_trial: &Y| jacobian(&t_trial, y_trial) * -dt + &identity,
+                    y.copy(),
+                )?;
+                k_2 = function(&t_trial, &y_trial);
                 e = ((&k_2 - &k_1) * (dt / 2.0)).norm();
                 if e < self.abs_tol || e / y_trial.norm() < self.rel_tol {
                     while let Some(eval_time) = eval_times.next_if(|&eval_time| t > eval_time) {

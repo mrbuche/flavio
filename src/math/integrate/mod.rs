@@ -10,7 +10,7 @@ mod ode23;
 pub use ode1be::Ode1be;
 pub use ode23::Ode23;
 
-use super::{Tensor, TensorRank0, TensorRank0List, Tensors};
+use super::{optimize::OptimizeError, Tensor, TensorRank0, TensorRank0List, Tensors};
 use crate::get_defeat_message;
 use std::{
     fmt,
@@ -140,12 +140,17 @@ pub enum IntegrationError<const W: usize> {
     EvaluationTimesNoFinalTime(TensorRank0List<W>, String),
     EvaluationTimesNotStrictlyIncreasing(TensorRank0List<W>, String),
     EvaluationTimesPrecedeInitialTime(TensorRank0List<W>, TensorRank0, String),
-    MaximumStepsReached(usize, String),
 }
 
 impl<const W: usize> From<&str> for IntegrationError<W> {
     fn from(string: &str) -> Self {
         todo!("{}", string)
+    }
+}
+
+impl<const W: usize> From<OptimizeError> for IntegrationError<W> {
+    fn from(error: OptimizeError) -> Self {
+        todo!("{:?}", error)
     }
 }
 
@@ -175,13 +180,6 @@ impl<const W: usize> fmt::Debug for IntegrationError<W> {
                      With initial time: {}.\n\
                      In integrator: {}.",
                     evaluation_times, initial_time, integrator
-                )
-            }
-            Self::MaximumStepsReached(steps, integrator) => {
-                format!(
-                    "\x1b[1;91mMaximum number of steps ({}) reached.\x1b[0;91m\n\
-                     In integrator: {}.",
-                    steps, integrator
                 )
             }
         };

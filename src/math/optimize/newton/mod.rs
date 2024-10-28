@@ -6,7 +6,7 @@ use super::{
     Optimize, OptimizeError,
 };
 use crate::ABS_TOL;
-use std::{fmt, ops::Div};
+use std::ops::Div;
 
 /// Newton's method.
 #[derive(Debug)]
@@ -21,17 +21,16 @@ impl Default for Newton {
     fn default() -> Self {
         Self {
             abs_tol: ABS_TOL,
-            max_steps: 100,
+            max_steps: 1_000,
         }
     }
 }
 
-impl<X, J, H> Optimize<X, J, H> for Newton
+impl<H, J, X> Optimize<H, J, X> for Newton
 where
-    Self: fmt::Debug,
-    X: Tensor,
-    J: Tensor + Div<H, Output = X>,
     H: Tensor,
+    J: Tensor + Div<H, Output = X>,
+    X: Tensor,
 {
     fn minimize(
         &self,
@@ -39,30 +38,26 @@ where
         hessian: impl Fn(&X) -> H,
         initial_guess: X,
     ) -> Result<X, OptimizeError> {
-        let mut residual = jacobian(&initial_guess);
-        let mut residual_norm = residual.norm();
+        let mut residual;
         let mut solution = initial_guess;
-        let mut steps = 0;
-        while residual_norm >= self.abs_tol {
-            if steps >= self.max_steps {
-                return Err(OptimizeError::MaximumStepsReached(
-                    steps,
-                    format!("{:?}", &self),
-                ));
+        for _ in 0..self.max_steps {
+            residual = jacobian(&solution);
+            if residual.norm() < self.abs_tol {
+                if hessian(&solution).is_positive_definite() {
+                    return Ok(solution);
+                } else {
+                    return Err(OptimizeError::NotMinimum(
+                        format!("{}", solution),
+                        format!("{:?}", &self),
+                    ));
+                }
             } else {
-                residual = jacobian(&solution);
-                residual_norm = residual.norm();
                 solution -= residual / hessian(&solution);
-                steps += 1;
             }
         }
-        if hessian(&solution).is_positive_definite() {
-            Ok(solution)
-        } else {
-            Err(OptimizeError::NotMinimum(
-                format!("{}", solution),
-                format!("{:?}", &self),
-            ))
-        }
+        Err(OptimizeError::MaximumStepsReached(
+            self.max_steps,
+            format!("{:?}", &self),
+        ))
     }
 }
