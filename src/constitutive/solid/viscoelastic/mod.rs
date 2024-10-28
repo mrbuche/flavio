@@ -165,7 +165,8 @@ where
         let mut tangent = IDENTITY_1010;
         while residual_abs >= ABS_TOL {
             if steps > MAXIMUM_STEPS {
-                return Err(ConstitutiveError::SolveError);
+                // return Err(ConstitutiveError::SolveError);
+                panic!("MAX STEPS REACHED")
             } else {
                 deformation_gradient -= residual / tangent;
                 (deformation_gradient_rate, cauchy_stress) = self.solve_uniaxial_inner_inner(
@@ -204,7 +205,8 @@ where
         let mut steps = 0;
         while residual_abs >= ABS_TOL && residual_rel >= REL_TOL {
             if steps > MAXIMUM_STEPS {
-                return Err(ConstitutiveError::SolveError);
+                // return Err(ConstitutiveError::SolveError);
+                panic!("MAX STEPS REACHED")
             } else {
                 deformation_gradient_rate[1][1] -= residual
                     / self.calculate_cauchy_rate_tangent_stiffness(

@@ -32,7 +32,8 @@ pub const CONSTITUTIVE_MODEL_ERROR: &str = "\n\x1b[91mConstitutive model error.\
 pub enum ConstitutiveError {
     Custom(String, DeformationGradient, String),
     InvalidJacobian(Scalar, DeformationGradient, String),
-    SolveError,
+    MaximumStepsReached(usize, String),
+    NotMinimum(DeformationGradient, String),
 }
 
 impl fmt::Debug for ConstitutiveError {
@@ -51,8 +52,22 @@ impl fmt::Debug for ConstitutiveError {
                      In constitutive model: {}.",
                     jacobian, deformation_gradient, constitutive_model
                 )
-            },
-            Self::SolveError => "\x1b[1;91mThe maximum number of steps was reached before the tolerance was satisfied.\x1b[0;91m".to_string()
+            }
+            Self::MaximumStepsReached(steps, constitutive_model) => {
+                format!(
+                    "\x1b[1;91mMaximum number of steps ({}) reached.\x1b[0;91m\n\
+                     In constitutive model: {}.",
+                    steps, constitutive_model
+                )
+            }
+            Self::NotMinimum(deformation_gradient, constitutive_model) => {
+                format!(
+                    "\x1b[1;91mThe obtained solution is not a minimum.\x1b[0;91m\n\
+                     From deformation gradient: {}.\n\
+                     In constitutive model: {}.",
+                    deformation_gradient, constitutive_model
+                )
+            }
         };
         write!(
             f,
@@ -74,7 +89,8 @@ impl PartialEq for ConstitutiveError {
                 Self::InvalidJacobian(d, e, f) => a == d && b == e && c == f,
                 _ => false,
             },
-            Self::SolveError => todo!(),
+            Self::MaximumStepsReached(_, _) => todo!(),
+            Self::NotMinimum(_, _) => todo!(),
         }
     }
 }

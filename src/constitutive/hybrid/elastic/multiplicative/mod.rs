@@ -162,7 +162,8 @@ impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> MultiplicativeTrait for Multiplicativ
                 steps += 1;
             }
             if residual_norm >= ABS_TOL && steps == steps_maximum {
-                return Err(ConstitutiveError::SolveError);
+                // return Err(ConstitutiveError::SolveError);
+                panic!("MAX STEPS REACHED")
             }
             Ok((deformation_gradient_1, deformation_gradient_2))
         }

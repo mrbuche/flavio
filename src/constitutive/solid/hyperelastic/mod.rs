@@ -34,11 +34,12 @@ pub use self::{
     neo_hookean::NeoHookean, saint_venant_kirchoff::SaintVenantKirchoff, yeoh::Yeoh,
 };
 use super::{elastic::Elastic, *};
+use std::fmt::Debug;
 
 /// Required methods for hyperelastic constitutive models.
 pub trait Hyperelastic<'a>
 where
-    Self: Elastic<'a>,
+    Self: Elastic<'a> + Debug,
 {
     /// Calculates and returns the Helmholtz free energy density.
     ///
@@ -49,6 +50,7 @@ where
         &self,
         deformation_gradient: &DeformationGradient,
     ) -> Result<Scalar, ConstitutiveError>;
+    /// ???
     fn solve_biaxial(
         &self,
         deformation_gradient_11: &Scalar,
@@ -74,14 +76,21 @@ where
                 if tangent > 0.0 {
                     return Ok((deformation_gradient, cauchy_stress));
                 } else {
-                    panic!("Not a minimum.")
+                    return Err(ConstitutiveError::NotMinimum(
+                        deformation_gradient.copy(),
+                        format!("{:?}", &self),
+                    ));
                 }
             } else {
                 deformation_gradient[2][2] -= residual / tangent;
             }
         }
-        Err(ConstitutiveError::SolveError)
+        Err(ConstitutiveError::MaximumStepsReached(
+            MAXIMUM_STEPS,
+            format!("{:?}", &self),
+        ))
     }
+    /// ???
     fn solve_uniaxial(
         &self,
         deformation_gradient_11: &Scalar,
@@ -103,13 +112,19 @@ where
                 if tangent > 0.0 {
                     return Ok((deformation_gradient, cauchy_stress));
                 } else {
-                    panic!("Not a minimum.")
+                    return Err(ConstitutiveError::NotMinimum(
+                        deformation_gradient.copy(),
+                        format!("{:?}", &self),
+                    ));
                 }
             } else {
                 deformation_gradient[1][1] -= residual / tangent;
                 deformation_gradient[2][2] = deformation_gradient[1][1];
             }
         }
-        Err(ConstitutiveError::SolveError)
+        Err(ConstitutiveError::MaximumStepsReached(
+            MAXIMUM_STEPS,
+            format!("{:?}", &self),
+        ))
     }
 }
