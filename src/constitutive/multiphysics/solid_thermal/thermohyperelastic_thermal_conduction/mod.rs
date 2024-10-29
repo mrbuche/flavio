@@ -115,7 +115,7 @@ where
     }
 }
 
-impl<'a, C1, C2> Thermal<'a> for ThermohyperelasticThermalConduction<C1, C2> {}
+impl<C1, C2> Thermal<'_> for ThermohyperelasticThermalConduction<C1, C2> {}
 
 impl<'a, C1, C2> ThermalConduction<'a> for ThermohyperelasticThermalConduction<C1, C2>
 where
@@ -128,7 +128,7 @@ where
     }
 }
 
-impl<'a, C1, C2> Multiphysics<'a> for ThermohyperelasticThermalConduction<C1, C2> {}
+impl<C1, C2> Multiphysics<'_> for ThermohyperelasticThermalConduction<C1, C2> {}
 
 impl<'a, C1, C2> SolidThermal<'a, C1, C2> for ThermohyperelasticThermalConduction<C1, C2>
 where

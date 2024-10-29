@@ -23,7 +23,7 @@ pub struct Gent<'a> {
     parameters: Parameters<'a>,
 }
 
-impl<'a> Gent<'a> {
+impl Gent<'_> {
     /// Returns the extensibility.
     fn get_extensibility(&self) -> &Scalar {
         &self.parameters[2]

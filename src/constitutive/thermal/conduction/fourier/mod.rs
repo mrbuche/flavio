@@ -19,7 +19,7 @@ pub struct Fourier<'a> {
     parameters: Parameters<'a>,
 }
 
-impl<'a> Fourier<'a> {
+impl Fourier<'_> {
     fn get_thermal_conductivity(&self) -> &Scalar {
         &self.parameters[0]
     }

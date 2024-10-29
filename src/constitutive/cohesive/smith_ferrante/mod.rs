@@ -8,7 +8,7 @@ pub struct SmithFerrante<'a> {
     parameters: Parameters<'a>,
 }
 
-impl<'a> SmithFerrante<'a> {
+impl SmithFerrante<'_> {
     fn get_characteristic_displacement(&self) -> &Scalar {
         &self.parameters[0]
     }

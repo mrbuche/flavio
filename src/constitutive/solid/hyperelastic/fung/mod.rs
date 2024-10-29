@@ -24,7 +24,7 @@ pub struct Fung<'a> {
     parameters: Parameters<'a>,
 }
 
-impl<'a> Fung<'a> {
+impl Fung<'_> {
     /// Returns the extra modulus.
     fn get_extra_modulus(&self) -> &Scalar {
         &self.parameters[2]

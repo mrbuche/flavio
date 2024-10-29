@@ -23,7 +23,7 @@ pub struct Yeoh<'a> {
     parameters: Parameters<'a>,
 }
 
-impl<'a> Yeoh<'a> {
+impl Yeoh<'_> {
     /// Returns an array of the moduli.
     pub fn get_moduli(&self) -> &[Scalar] {
         &self.parameters[1..]

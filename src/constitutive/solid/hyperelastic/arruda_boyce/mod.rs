@@ -27,7 +27,7 @@ pub struct ArrudaBoyce<'a> {
     parameters: Parameters<'a>,
 }
 
-impl<'a> ArrudaBoyce<'a> {
+impl ArrudaBoyce<'_> {
     /// Returns the number of links.
     fn get_number_of_links(&self) -> &Scalar {
         &self.parameters[2]
