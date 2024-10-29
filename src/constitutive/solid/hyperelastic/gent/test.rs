@@ -5,7 +5,7 @@ use_elastic_macros!();
 
 test_solid_hyperelastic_constitutive_model!(Gent, GENTPARAMETERS, Gent::new(GENTPARAMETERS));
 
-test_solve_uniaxial!(Gent::new(GENTPARAMETERS));
+test_solve!(Gent::new(GENTPARAMETERS));
 
 #[test]
 fn get_extensibility() {
@@ -18,36 +18,45 @@ fn get_extensibility() {
 mod maximum_extensibility {
     use super::*;
     #[test]
-    #[should_panic(expected = "Maximum extensibility reached.")]
     fn calculate_cauchy_stress() {
-        Gent::new(GENTPARAMETERS)
-            .calculate_cauchy_stress(&DeformationGradient::new([
-                [16.0, 0.00, 0.00],
-                [0.0, 0.25, 0.00],
-                [0.0, 0.00, 0.25],
-            ]))
-            .expect("the unexpected");
+        let deformation_gradient =
+            DeformationGradient::new([[16.0, 0.0, 0.0], [0.0, 0.25, 0.0], [0.0, 0.0, 0.25]]);
+        let model = Gent::new(GENTPARAMETERS);
+        assert_eq!(
+            model.calculate_cauchy_stress(&deformation_gradient),
+            Err(ConstitutiveError::Custom(
+                "Maximum extensibility reached.".to_string(),
+                deformation_gradient.copy(),
+                format!("{:?}", &model),
+            ))
+        )
     }
     #[test]
-    #[should_panic(expected = "Maximum extensibility reached.")]
     fn calculate_cauchy_tangent_stiffness() {
-        Gent::new(GENTPARAMETERS)
-            .calculate_cauchy_tangent_stiffness(&DeformationGradient::new([
-                [16.0, 0.00, 0.00],
-                [0.0, 0.25, 0.00],
-                [0.0, 0.00, 0.25],
-            ]))
-            .expect("the unexpected");
+        let deformation_gradient =
+            DeformationGradient::new([[16.0, 0.0, 0.0], [0.0, 0.25, 0.0], [0.0, 0.0, 0.25]]);
+        let model = Gent::new(GENTPARAMETERS);
+        assert_eq!(
+            model.calculate_cauchy_tangent_stiffness(&deformation_gradient),
+            Err(ConstitutiveError::Custom(
+                "Maximum extensibility reached.".to_string(),
+                deformation_gradient.copy(),
+                format!("{:?}", &model),
+            ))
+        )
     }
     #[test]
-    #[should_panic(expected = "Maximum extensibility reached.")]
     fn calculate_helmholtz_free_energy_density() {
-        Gent::new(GENTPARAMETERS)
-            .calculate_helmholtz_free_energy_density(&DeformationGradient::new([
-                [16.0, 0.00, 0.00],
-                [0.0, 0.25, 0.00],
-                [0.0, 0.00, 0.25],
-            ]))
-            .expect("the unexpected");
+        let deformation_gradient =
+            DeformationGradient::new([[16.0, 0.0, 0.0], [0.0, 0.25, 0.0], [0.0, 0.0, 0.25]]);
+        let model = Gent::new(GENTPARAMETERS);
+        assert_eq!(
+            model.calculate_helmholtz_free_energy_density(&deformation_gradient),
+            Err(ConstitutiveError::Custom(
+                "Maximum extensibility reached.".to_string(),
+                deformation_gradient.copy(),
+                format!("{:?}", &model),
+            ))
+        )
     }
 }

@@ -1,10 +1,8 @@
 #[cfg(test)]
 mod test;
 
-use super::{
-    list::{TensorRank1List, TensorRank1ListTrait},
-    TensorRank0,
-};
+use super::{super::Tensors, list::TensorRank1List, TensorRank0};
+use std::array::from_fn;
 
 /// A 2D list of *d*-dimensional tensors of rank 1.
 ///
@@ -13,42 +11,36 @@ pub struct TensorRank1List2D<const D: usize, const I: usize, const W: usize, con
     pub [TensorRank1List<D, I, W>; X],
 );
 
-/// Inherent implementation of [`TensorRank1List2D`].
-impl<const D: usize, const I: usize, const W: usize, const X: usize> TensorRank1List2D<D, I, W, X> {
-    /// Returns an iterator.
-    ///
-    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    pub fn iter(&self) -> impl Iterator<Item = &TensorRank1List<D, I, W>> {
-        self.0.iter()
-    }
-    /// Returns an iterator that allows modifying each value.
-    ///
-    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut TensorRank1List<D, I, W>> {
-        self.0.iter_mut()
-    }
-}
-
-/// Required methods for 2D rank-2 tensor lists.
-pub trait TensorRank1List2DTrait<const D: usize, const W: usize, const X: usize> {
-    /// Returns a list of rank-1 tensors given an array.
-    fn new(array: [[[TensorRank0; D]; W]; X]) -> Self;
-    /// Returns a list of rank-1 zero tensors.
-    fn zero() -> Self;
-}
-
-/// Implementation of [`TensorRank1List2DTrait`] for [`TensorRank1List2D`].
-impl<const D: usize, const I: usize, const W: usize, const X: usize> TensorRank1List2DTrait<D, W, X>
+impl<const D: usize, const I: usize, const W: usize, const X: usize> Tensors
     for TensorRank1List2D<D, I, W, X>
 {
-    fn new(array: [[[TensorRank0; D]; W]; X]) -> Self {
+    type Array = [[[TensorRank0; D]; W]; X];
+    type Item = TensorRank1List<D, I, W>;
+    fn as_array(&self) -> Self::Array {
+        let mut array = [[[0.0; D]; W]; X];
+        array
+            .iter_mut()
+            .zip(self.iter())
+            .for_each(|(entry, tensor_rank_1_list)| *entry = tensor_rank_1_list.as_array());
+        array
+    }
+    fn copy(&self) -> Self {
+        self.iter().map(|entry| entry.copy()).collect()
+    }
+    fn iter(&self) -> impl Iterator<Item = &TensorRank1List<D, I, W>> {
+        self.0.iter()
+    }
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
+        self.0.iter_mut()
+    }
+    fn new(array: Self::Array) -> Self {
         array
             .iter()
             .map(|array_i| TensorRank1List::new(*array_i))
             .collect()
     }
     fn zero() -> Self {
-        Self(std::array::from_fn(|_| TensorRank1List::zero()))
+        Self(from_fn(|_| TensorRank1List::zero()))
     }
 }
 

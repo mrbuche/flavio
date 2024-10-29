@@ -1,9 +1,9 @@
 use super::{
-    super::rank_1::list::TensorRank1ListTrait, list_2d::TensorRank2List2DTrait, TensorRank0,
-    TensorRank1, TensorRank1List, TensorRank1Trait, TensorRank2, TensorRank2List2D,
-    TensorRank2Trait,
+    super::test::{assert_eq, assert_eq_within_tols, TensorError, TestError},
+    Tensor, TensorRank0, TensorRank1, TensorRank1List, TensorRank2, TensorRank2List2D, TensorRank4,
+    Tensors,
 };
-use crate::test::assert_eq_within_tols;
+use crate::{ABS_TOL, REL_TOL};
 use std::cmp::Ordering;
 
 fn get_array_dim_2() -> [[TensorRank0; 2]; 2] {
@@ -171,431 +171,292 @@ fn get_tensor_rank_2_mul_tensor_rank_2_list_2d() -> TensorRank2List2D<3, 1, 1, 2
     ])
 }
 
-#[test]
-fn add_tensor_rank_2_to_self() {
-    (get_tensor_rank_2_dim_4() + get_other_tensor_rank_2_dim_4())
-        .iter()
-        .zip(get_other_tensor_rank_2_add_tensor_rank_2_dim_4().iter())
-        .for_each(|(tensor_rank_2_i, res_tensor_rank_2_i)| {
-            tensor_rank_2_i
-                .iter()
-                .zip(res_tensor_rank_2_i.iter())
-                .for_each(|(tensor_rank_2_ij, res_tensor_rank_2_ij)| {
-                    assert_eq!(tensor_rank_2_ij, res_tensor_rank_2_ij)
-                })
-        });
+fn get_tensor_rank_4() -> TensorRank4<3, 1, 1, 2, 3> {
+    TensorRank4::new([
+        [
+            [[7.0, 3.0, 7.0], [3.0, 2.0, 7.0], [9.0, 8.0, 4.0]],
+            [[1.0, 10.0, 7.0], [0.0, 3.0, 3.0], [4.0, 8.0, 8.0]],
+            [[0.0, 1.0, 7.0], [1.0, 2.0, 9.0], [3.0, 5.0, 4.0]],
+        ],
+        [
+            [[2.0, 1.0, 8.0], [6.0, 2.0, 6.0], [4.0, 6.0, 2.0]],
+            [[7.0, 7.0, 8.0], [8.0, 4.0, 4.0], [10.0, 9.0, 9.0]],
+            [[3.0, 3.0, 3.0], [1.0, 4.0, 3.0], [10.0, 9.0, 5.0]],
+        ],
+        [
+            [[9.0, 5.0, 1.0], [7.0, 9.0, 9.0], [5.0, 9.0, 10.0]],
+            [[5.0, 9.0, 0.0], [4.0, 5.0, 7.0], [5.0, 4.0, 7.0]],
+            [[1.0, 2.0, 7.0], [8.0, 2.0, 6.0], [2.0, 7.0, 5.0]],
+        ],
+    ])
+}
+
+fn get_tensor_rank_2_div_tensor_rank_4() -> TensorRank2<3, 2, 3> {
+    TensorRank2::new([
+        [-0.8591023283605275, 0.5463144610682097, 0.48148464803521684],
+        [0.14461826142457423, 2.8819091589827597, 0.3555608669979796],
+        [
+            0.29609312727618836,
+            -0.4778620587076813,
+            -1.3810401169942013,
+        ],
+    ])
 }
 
 #[test]
-fn add_tensor_rank_2_ref_to_self() {
-    (get_tensor_rank_2_dim_4() + &get_other_tensor_rank_2_dim_4())
-        .iter()
-        .zip(get_other_tensor_rank_2_add_tensor_rank_2_dim_4().iter())
-        .for_each(|(tensor_rank_2_i, res_tensor_rank_2_i)| {
-            tensor_rank_2_i
-                .iter()
-                .zip(res_tensor_rank_2_i.iter())
-                .for_each(|(tensor_rank_2_ij, res_tensor_rank_2_ij)| {
-                    assert_eq!(tensor_rank_2_ij, res_tensor_rank_2_ij)
-                })
-        });
+fn add_tensor_rank_2_to_self() -> Result<(), TestError> {
+    assert_eq(
+        &(get_tensor_rank_2_dim_4() + get_other_tensor_rank_2_dim_4()),
+        &get_other_tensor_rank_2_add_tensor_rank_2_dim_4(),
+    )
 }
 
 #[test]
-fn add_tensor_rank_2_to_self_ref() {
-    (&get_tensor_rank_2_dim_4() + get_other_tensor_rank_2_dim_4())
-        .iter()
-        .zip(get_other_tensor_rank_2_add_tensor_rank_2_dim_4().iter())
-        .for_each(|(tensor_rank_2_i, res_tensor_rank_2_i)| {
-            tensor_rank_2_i
-                .iter()
-                .zip(res_tensor_rank_2_i.iter())
-                .for_each(|(tensor_rank_2_ij, res_tensor_rank_2_ij)| {
-                    assert_eq!(tensor_rank_2_ij, res_tensor_rank_2_ij)
-                })
-        });
+fn add_tensor_rank_2_ref_to_self() -> Result<(), TestError> {
+    assert_eq(
+        &(get_tensor_rank_2_dim_4() + &get_other_tensor_rank_2_dim_4()),
+        &get_other_tensor_rank_2_add_tensor_rank_2_dim_4(),
+    )
 }
 
 #[test]
-fn add_assign_tensor_rank_2() {
+fn add_tensor_rank_2_to_self_ref() -> Result<(), TestError> {
+    assert_eq(
+        &(&get_tensor_rank_2_dim_4() + get_other_tensor_rank_2_dim_4()),
+        &get_other_tensor_rank_2_add_tensor_rank_2_dim_4(),
+    )
+}
+
+#[test]
+fn add_assign_tensor_rank_2() -> Result<(), TestError> {
     let mut tensor_rank_2 = get_tensor_rank_2_dim_4();
     tensor_rank_2 += get_other_tensor_rank_2_dim_4();
-    tensor_rank_2
-        .iter()
-        .zip(get_other_tensor_rank_2_add_tensor_rank_2_dim_4().iter())
-        .for_each(|(tensor_rank_2_i, res_tensor_rank_2_i)| {
-            tensor_rank_2_i
-                .iter()
-                .zip(res_tensor_rank_2_i.iter())
-                .for_each(|(tensor_rank_2_ij, res_tensor_rank_2_ij)| {
-                    assert_eq!(tensor_rank_2_ij, res_tensor_rank_2_ij)
-                })
-        });
+    assert_eq(
+        &tensor_rank_2,
+        &get_other_tensor_rank_2_add_tensor_rank_2_dim_4(),
+    )
 }
 
 #[test]
-fn add_assign_tensor_rank_2_ref() {
+fn add_assign_tensor_rank_2_ref() -> Result<(), TestError> {
     let mut tensor_rank_2 = get_tensor_rank_2_dim_4();
     tensor_rank_2 += &get_other_tensor_rank_2_dim_4();
-    tensor_rank_2
-        .iter()
-        .zip(get_other_tensor_rank_2_add_tensor_rank_2_dim_4().iter())
-        .for_each(|(tensor_rank_2_i, res_tensor_rank_2_i)| {
-            tensor_rank_2_i
-                .iter()
-                .zip(res_tensor_rank_2_i.iter())
-                .for_each(|(tensor_rank_2_ij, res_tensor_rank_2_ij)| {
-                    assert_eq!(tensor_rank_2_ij, res_tensor_rank_2_ij)
-                })
-        });
+    assert_eq(
+        &tensor_rank_2,
+        &get_other_tensor_rank_2_add_tensor_rank_2_dim_4(),
+    )
 }
 
 #[test]
 fn as_array_dim_2() {
-    get_tensor_rank_2_dim_2()
-        .as_array()
-        .iter()
-        .zip(get_array_dim_2().iter())
-        .for_each(|(tensor_rank_2_as_array_i, array_i)| {
-            tensor_rank_2_as_array_i
-                .iter()
-                .zip(array_i.iter())
-                .for_each(|(tensor_rank_2_as_array_ij, array_ij)| {
-                    assert_eq!(tensor_rank_2_as_array_ij, array_ij)
-                })
-        });
+    assert_eq!(get_tensor_rank_2_dim_2().as_array(), get_array_dim_2())
 }
 
 #[test]
 fn as_array_dim_3() {
-    get_tensor_rank_2_dim_3()
-        .as_array()
-        .iter()
-        .zip(get_array_dim_3().iter())
-        .for_each(|(tensor_rank_2_as_array_i, array_i)| {
-            tensor_rank_2_as_array_i
-                .iter()
-                .zip(array_i.iter())
-                .for_each(|(tensor_rank_2_as_array_ij, array_ij)| {
-                    assert_eq!(tensor_rank_2_as_array_ij, array_ij)
-                })
-        });
+    assert_eq!(get_tensor_rank_2_dim_3().as_array(), get_array_dim_3())
 }
 
 #[test]
 fn as_array_dim_4() {
-    get_tensor_rank_2_dim_4()
-        .as_array()
-        .iter()
-        .zip(get_array_dim_4().iter())
-        .for_each(|(tensor_rank_2_as_array_i, array_i)| {
-            tensor_rank_2_as_array_i
-                .iter()
-                .zip(array_i.iter())
-                .for_each(|(tensor_rank_2_as_array_ij, array_ij)| {
-                    assert_eq!(tensor_rank_2_as_array_ij, array_ij)
-                })
-        });
+    assert_eq!(get_tensor_rank_2_dim_4().as_array(), get_array_dim_4())
 }
 
 #[test]
 fn as_array_dim_9() {
-    get_tensor_rank_2_dim_9()
-        .as_array()
-        .iter()
-        .zip(get_array_dim_9().iter())
-        .for_each(|(tensor_rank_2_as_array_i, array_i)| {
-            tensor_rank_2_as_array_i
-                .iter()
-                .zip(array_i.iter())
-                .for_each(|(tensor_rank_2_as_array_ij, array_ij)| {
-                    assert_eq!(tensor_rank_2_as_array_ij, array_ij)
-                })
-        });
+    assert_eq!(get_tensor_rank_2_dim_9().as_array(), get_array_dim_9())
 }
 
 #[test]
-fn div_tensor_rank_0_to_self() {
+fn div_tensor_rank_4_to_self() -> Result<(), TestError> {
+    assert_eq(
+        &(get_tensor_rank_2_dim_3() / get_tensor_rank_4()),
+        &get_tensor_rank_2_div_tensor_rank_4(),
+    )
+}
+
+#[test]
+fn div_tensor_rank_0_to_self() -> Result<(), TestError> {
     (get_tensor_rank_2_dim_4() / 3.3)
         .iter()
         .zip(get_array_dim_4().iter())
-        .for_each(|(tensor_rank_2_i, array_i)| {
-            tensor_rank_2_i
-                .iter()
-                .zip(array_i.iter())
-                .for_each(|(tensor_rank_2_ij, array_ij)| {
-                    assert_eq!(tensor_rank_2_ij, &(array_ij / 3.3))
-                })
-        });
+        .try_for_each(|(tensor_rank_2_i, array_i)| {
+            tensor_rank_2_i.iter().zip(array_i.iter()).try_for_each(
+                |(tensor_rank_2_ij, array_ij)| assert_eq(tensor_rank_2_ij, &(array_ij / 3.3)),
+            )
+        })?;
+    Ok(())
 }
 
 #[test]
-fn div_tensor_rank_0_to_self_ref() {
+fn div_tensor_rank_0_to_self_ref() -> Result<(), TestError> {
     (&get_tensor_rank_2_dim_4() / 3.3)
         .iter()
         .zip(get_array_dim_4().iter())
-        .for_each(|(tensor_rank_2_i, array_i)| {
-            tensor_rank_2_i
-                .iter()
-                .zip(array_i.iter())
-                .for_each(|(tensor_rank_2_ij, array_ij)| {
-                    assert_eq!(tensor_rank_2_ij, &(array_ij / 3.3))
-                })
-        });
+        .try_for_each(|(tensor_rank_2_i, array_i)| {
+            tensor_rank_2_i.iter().zip(array_i.iter()).try_for_each(
+                |(tensor_rank_2_ij, array_ij)| assert_eq(tensor_rank_2_ij, &(array_ij / 3.3)),
+            )
+        })?;
+    Ok(())
 }
 
 #[test]
 #[allow(clippy::op_ref)]
-fn div_tensor_rank_0_ref_to_self() {
+fn div_tensor_rank_0_ref_to_self() -> Result<(), TestError> {
     (get_tensor_rank_2_dim_4() / &3.3)
         .iter()
         .zip(get_array_dim_4().iter())
-        .for_each(|(tensor_rank_2_i, array_i)| {
-            tensor_rank_2_i
-                .iter()
-                .zip(array_i.iter())
-                .for_each(|(tensor_rank_2_ij, array_ij)| {
-                    assert_eq!(tensor_rank_2_ij, &(array_ij / 3.3))
-                })
-        });
+        .try_for_each(|(tensor_rank_2_i, array_i)| {
+            tensor_rank_2_i.iter().zip(array_i.iter()).try_for_each(
+                |(tensor_rank_2_ij, array_ij)| assert_eq(tensor_rank_2_ij, &(array_ij / 3.3)),
+            )
+        })?;
+    Ok(())
 }
 
 #[test]
 #[allow(clippy::op_ref)]
-fn div_tensor_rank_0_ref_to_self_ref() {
+fn div_tensor_rank_0_ref_to_self_ref() -> Result<(), TestError> {
     (&get_tensor_rank_2_dim_4() / &3.3)
         .iter()
         .zip(get_array_dim_4().iter())
-        .for_each(|(tensor_rank_2_i, array_i)| {
-            tensor_rank_2_i
-                .iter()
-                .zip(array_i.iter())
-                .for_each(|(tensor_rank_2_ij, array_ij)| {
-                    assert_eq!(tensor_rank_2_ij, &(array_ij / 3.3))
-                })
-        });
+        .try_for_each(|(tensor_rank_2_i, array_i)| {
+            tensor_rank_2_i.iter().zip(array_i.iter()).try_for_each(
+                |(tensor_rank_2_ij, array_ij)| assert_eq(tensor_rank_2_ij, &(array_ij / 3.3)),
+            )
+        })?;
+    Ok(())
 }
 
 #[test]
-fn div_assign_tensor_rank_0() {
+fn div_assign_tensor_rank_0() -> Result<(), TestError> {
     let mut tensor_rank_2 = get_tensor_rank_2_dim_4();
     tensor_rank_2 /= 3.3;
     tensor_rank_2
         .iter()
         .zip(get_array_dim_4().iter())
-        .for_each(|(tensor_rank_2_i, array_i)| {
-            tensor_rank_2_i
-                .iter()
-                .zip(array_i.iter())
-                .for_each(|(tensor_rank_2_ij, array_ij)| {
-                    assert_eq!(tensor_rank_2_ij, &(array_ij / 3.3))
-                })
-        });
+        .try_for_each(|(tensor_rank_2_i, array_i)| {
+            tensor_rank_2_i.iter().zip(array_i.iter()).try_for_each(
+                |(tensor_rank_2_ij, array_ij)| assert_eq(tensor_rank_2_ij, &(array_ij / 3.3)),
+            )
+        })?;
+    Ok(())
 }
 
 #[test]
-fn div_assign_tensor_rank_0_ref() {
+fn div_assign_tensor_rank_0_ref() -> Result<(), TestError> {
     let mut tensor_rank_2 = get_tensor_rank_2_dim_4();
     tensor_rank_2 /= &3.3;
     tensor_rank_2
         .iter()
         .zip(get_array_dim_4().iter())
-        .for_each(|(tensor_rank_2_i, array_i)| {
-            tensor_rank_2_i
-                .iter()
-                .zip(array_i.iter())
-                .for_each(|(tensor_rank_2_ij, array_ij)| {
-                    assert_eq!(tensor_rank_2_ij, &(array_ij / 3.3))
-                })
-        });
+        .try_for_each(|(tensor_rank_2_i, array_i)| {
+            tensor_rank_2_i.iter().zip(array_i.iter()).try_for_each(
+                |(tensor_rank_2_ij, array_ij)| assert_eq(tensor_rank_2_ij, &(array_ij / 3.3)),
+            )
+        })?;
+    Ok(())
 }
 
 #[test]
-fn determinant_dim_2() {
-    assert_eq_within_tols(&get_tensor_rank_2_dim_2().determinant(), &(-2.0));
+fn determinant_dim_2() -> Result<(), TestError> {
+    assert_eq(&get_tensor_rank_2_dim_2().determinant(), &-2.0)
 }
 
 #[test]
-fn determinant_dim_3() {
-    assert_eq_within_tols(&get_tensor_rank_2_dim_3().determinant(), &290.0);
+fn determinant_dim_3() -> Result<(), TestError> {
+    assert_eq(&get_tensor_rank_2_dim_3().determinant(), &290.0)
 }
 
 #[test]
-fn determinant_dim_4() {
-    assert_eq_within_tols(&get_tensor_rank_2_dim_4().determinant(), &36.0);
+fn determinant_dim_4() -> Result<(), TestError> {
+    assert_eq_within_tols(&get_tensor_rank_2_dim_4().determinant(), &36.0)
 }
 
 #[test]
-fn determinant_dim_9() {
-    assert_eq_within_tols(&get_tensor_rank_2_dim_9().determinant(), &2398.0);
+fn determinant_dim_9() -> Result<(), TestError> {
+    assert_eq_within_tols(&get_tensor_rank_2_dim_9().determinant(), &2398.0)
 }
 
 #[test]
-fn deviatoric_dim_2() {
+fn deviatoric_dim_2() -> Result<(), TestError> {
     let tensor_rank_2 = get_tensor_rank_2_dim_2();
     let trace = tensor_rank_2.trace();
     let deviatoric_tensor_rank_2 = tensor_rank_2.deviatoric();
-    assert_eq!(deviatoric_tensor_rank_2.trace(), 0.0);
-    deviatoric_tensor_rank_2
-        .iter()
-        .enumerate()
-        .zip(tensor_rank_2.iter())
-        .for_each(|((i, deviatoric_tensor_rank_2_i), tensor_rank_2_i)| {
-            deviatoric_tensor_rank_2_i
-                .iter()
-                .enumerate()
-                .zip(tensor_rank_2_i.iter())
-                .for_each(|((j, deviatoric_tensor_rank_2_ij), tensor_rank_2_ij)| {
-                    assert_eq!(
-                        deviatoric_tensor_rank_2_ij,
-                        &(tensor_rank_2_ij - (((i == j) as u8) as TensorRank0) * trace / 2.0)
-                    )
-                })
-        });
+    assert_eq(&deviatoric_tensor_rank_2.trace(), &0.0)?;
+    assert_eq(
+        &deviatoric_tensor_rank_2,
+        &(tensor_rank_2 - TensorRank2::identity() * (trace / 2.0)),
+    )
 }
 
 #[test]
-fn deviatoric_dim_3() {
+fn deviatoric_dim_3() -> Result<(), TestError> {
     let tensor_rank_2 = get_tensor_rank_2_dim_3();
     let trace = tensor_rank_2.trace();
     let deviatoric_tensor_rank_2 = tensor_rank_2.deviatoric();
-    assert_eq!(deviatoric_tensor_rank_2.trace(), 0.0);
-    deviatoric_tensor_rank_2
-        .iter()
-        .enumerate()
-        .zip(tensor_rank_2.iter())
-        .for_each(|((i, deviatoric_tensor_rank_2_i), tensor_rank_2_i)| {
-            deviatoric_tensor_rank_2_i
-                .iter()
-                .enumerate()
-                .zip(tensor_rank_2_i.iter())
-                .for_each(|((j, deviatoric_tensor_rank_2_ij), tensor_rank_2_ij)| {
-                    assert_eq!(
-                        deviatoric_tensor_rank_2_ij,
-                        &(tensor_rank_2_ij - (((i == j) as u8) as TensorRank0) * trace / 3.0)
-                    )
-                })
-        });
+    assert_eq(&deviatoric_tensor_rank_2.trace(), &0.0)?;
+    assert_eq(
+        &deviatoric_tensor_rank_2,
+        &(tensor_rank_2 - TensorRank2::identity() * (trace / 3.0)),
+    )
 }
 
 #[test]
-fn deviatoric_dim_4() {
+fn deviatoric_dim_4() -> Result<(), TestError> {
     let tensor_rank_2 = get_tensor_rank_2_dim_4();
     let trace = tensor_rank_2.trace();
     let deviatoric_tensor_rank_2 = tensor_rank_2.deviatoric();
-    assert_eq!(deviatoric_tensor_rank_2.trace(), 0.0);
-    deviatoric_tensor_rank_2
-        .iter()
-        .enumerate()
-        .zip(tensor_rank_2.iter())
-        .for_each(|((i, deviatoric_tensor_rank_2_i), tensor_rank_2_i)| {
-            deviatoric_tensor_rank_2_i
-                .iter()
-                .enumerate()
-                .zip(tensor_rank_2_i.iter())
-                .for_each(|((j, deviatoric_tensor_rank_2_ij), tensor_rank_2_ij)| {
-                    assert_eq!(
-                        deviatoric_tensor_rank_2_ij,
-                        &(tensor_rank_2_ij - (((i == j) as u8) as TensorRank0) * trace / 4.0)
-                    )
-                })
-        });
+    assert_eq(&deviatoric_tensor_rank_2.trace(), &0.0)?;
+    assert_eq(
+        &deviatoric_tensor_rank_2,
+        &(tensor_rank_2 - TensorRank2::identity() * (trace / 4.0)),
+    )
 }
 
 #[test]
-fn deviatoric_dim_9() {
+fn deviatoric_dim_9() -> Result<(), TestError> {
     let tensor_rank_2 = get_tensor_rank_2_dim_9();
     let trace = tensor_rank_2.trace();
     let deviatoric_tensor_rank_2 = tensor_rank_2.deviatoric();
-    assert_eq!(deviatoric_tensor_rank_2.trace(), 0.0);
-    deviatoric_tensor_rank_2
-        .iter()
-        .enumerate()
-        .zip(tensor_rank_2.iter())
-        .for_each(|((i, deviatoric_tensor_rank_2_i), tensor_rank_2_i)| {
-            deviatoric_tensor_rank_2_i
-                .iter()
-                .enumerate()
-                .zip(tensor_rank_2_i.iter())
-                .for_each(|((j, deviatoric_tensor_rank_2_ij), tensor_rank_2_ij)| {
-                    assert_eq!(
-                        deviatoric_tensor_rank_2_ij,
-                        &(tensor_rank_2_ij - (((i == j) as u8) as TensorRank0) * trace / 9.0)
-                    )
-                })
-        });
+    assert_eq(&deviatoric_tensor_rank_2.trace(), &0.0)?;
+    assert_eq(
+        &deviatoric_tensor_rank_2,
+        &(tensor_rank_2 - TensorRank2::identity() * (trace / 9.0)),
+    )
 }
 
 #[test]
-fn deviatoric_and_trace_dim_2() {
+fn deviatoric_and_trace_dim_2() -> Result<(), TestError> {
     let tensor_rank_2 = get_tensor_rank_2_dim_2();
     let (deviatoric, trace) = tensor_rank_2.deviatoric_and_trace();
-    assert_eq!(trace, tensor_rank_2.trace());
-    deviatoric
-        .iter()
-        .zip(tensor_rank_2.deviatoric().iter())
-        .for_each(|(deviatoric_i, tensor_rank_2_deviatoric_i)| {
-            deviatoric_i
-                .iter()
-                .zip(tensor_rank_2_deviatoric_i.iter())
-                .for_each(|(deviatoric_ij, tensor_rank_2_deviatoric_ij)| {
-                    assert_eq!(deviatoric_ij, tensor_rank_2_deviatoric_ij)
-                })
-        });
+    assert_eq(&tensor_rank_2.trace(), &trace)?;
+    assert_eq(&tensor_rank_2.deviatoric(), &deviatoric)
 }
 
 #[test]
-fn deviatoric_and_trace_dim_3() {
+fn deviatoric_and_trace_dim_3() -> Result<(), TestError> {
     let tensor_rank_2 = get_tensor_rank_2_dim_3();
     let (deviatoric, trace) = tensor_rank_2.deviatoric_and_trace();
-    assert_eq!(trace, tensor_rank_2.trace());
-    deviatoric
-        .iter()
-        .zip(tensor_rank_2.deviatoric().iter())
-        .for_each(|(deviatoric_i, tensor_rank_2_deviatoric_i)| {
-            deviatoric_i
-                .iter()
-                .zip(tensor_rank_2_deviatoric_i.iter())
-                .for_each(|(deviatoric_ij, tensor_rank_2_deviatoric_ij)| {
-                    assert_eq!(deviatoric_ij, tensor_rank_2_deviatoric_ij)
-                })
-        });
+    assert_eq(&tensor_rank_2.trace(), &trace)?;
+    assert_eq(&tensor_rank_2.deviatoric(), &deviatoric)
 }
 
 #[test]
-fn deviatoric_and_trace_dim_4() {
+fn deviatoric_and_trace_dim_4() -> Result<(), TestError> {
     let tensor_rank_2 = get_tensor_rank_2_dim_4();
     let (deviatoric, trace) = tensor_rank_2.deviatoric_and_trace();
-    assert_eq!(trace, tensor_rank_2.trace());
-    deviatoric
-        .iter()
-        .zip(tensor_rank_2.deviatoric().iter())
-        .for_each(|(deviatoric_i, tensor_rank_2_deviatoric_i)| {
-            deviatoric_i
-                .iter()
-                .zip(tensor_rank_2_deviatoric_i.iter())
-                .for_each(|(deviatoric_ij, tensor_rank_2_deviatoric_ij)| {
-                    assert_eq!(deviatoric_ij, tensor_rank_2_deviatoric_ij)
-                })
-        });
+    assert_eq(&tensor_rank_2.trace(), &trace)?;
+    assert_eq(&tensor_rank_2.deviatoric(), &deviatoric)
 }
 
 #[test]
-fn deviatoric_and_trace_dim_9() {
+fn deviatoric_and_trace_dim_9() -> Result<(), TestError> {
     let tensor_rank_2 = get_tensor_rank_2_dim_9();
     let (deviatoric, trace) = tensor_rank_2.deviatoric_and_trace();
-    assert_eq!(trace, tensor_rank_2.trace());
-    deviatoric
-        .iter()
-        .zip(tensor_rank_2.deviatoric().iter())
-        .for_each(|(deviatoric_i, tensor_rank_2_deviatoric_i)| {
-            deviatoric_i
-                .iter()
-                .zip(tensor_rank_2_deviatoric_i.iter())
-                .for_each(|(deviatoric_ij, tensor_rank_2_deviatoric_ij)| {
-                    assert_eq!(deviatoric_ij, tensor_rank_2_deviatoric_ij)
-                })
-        });
+    assert_eq(&tensor_rank_2.trace(), &trace)?;
+    assert_eq(&tensor_rank_2.deviatoric(), &deviatoric)
 }
 
 #[test]
@@ -615,6 +476,14 @@ fn dyad() {
 }
 
 #[test]
+fn error() {
+    let a = get_tensor_rank_1_a();
+    let b = get_tensor_rank_1_b();
+    assert_eq!(a.error(&a, &ABS_TOL, &REL_TOL), None);
+    assert_eq!(a.error(&b, &ABS_TOL, &REL_TOL), Some(4));
+}
+
+#[test]
 fn from_iter() {
     let into_iterator = get_tensor_rank_2_dim_4().0.into_iter();
     let tensor_rank_2 = TensorRank2::<4, 1, 1>::from_iter(get_tensor_rank_2_dim_4().0);
@@ -630,35 +499,35 @@ fn from_iter() {
 }
 
 #[test]
-fn full_contraction_dim_2() {
+fn full_contraction_dim_2() -> Result<(), TestError> {
     assert_eq_within_tols(
         &get_tensor_rank_2_dim_2().full_contraction(&get_other_tensor_rank_2_dim_2()),
         &70.0,
-    );
+    )
 }
 
 #[test]
-fn full_contraction_dim_3() {
+fn full_contraction_dim_3() -> Result<(), TestError> {
     assert_eq_within_tols(
         &get_tensor_rank_2_dim_3().full_contraction(&get_other_tensor_rank_2_dim_3()),
         &167.0,
-    );
+    )
 }
 
 #[test]
-fn full_contraction_dim_4() {
+fn full_contraction_dim_4() -> Result<(), TestError> {
     assert_eq_within_tols(
         &get_tensor_rank_2_dim_4().full_contraction(&get_other_tensor_rank_2_dim_4()),
         &137.0,
-    );
+    )
 }
 
 #[test]
-fn full_contraction_dim_9() {
+fn full_contraction_dim_9() -> Result<(), TestError> {
     assert_eq_within_tols(
         &get_tensor_rank_2_dim_9().full_contraction(&get_other_tensor_rank_2_dim_9()),
         &269.0,
-    );
+    )
 }
 
 #[test]
@@ -681,266 +550,115 @@ fn identity() {
 }
 
 #[test]
-fn inverse_dim_2() {
-    (get_tensor_rank_2_dim_2() * get_tensor_rank_2_dim_2().inverse())
-        .iter()
-        .enumerate()
-        .for_each(|(i, tensor_rank_2_i)| {
-            tensor_rank_2_i
-                .iter()
-                .enumerate()
-                .for_each(|(j, tensor_rank_2_ij)| {
-                    if i == j {
-                        assert_eq_within_tols(tensor_rank_2_ij, &1.0)
-                    } else {
-                        assert_eq_within_tols(tensor_rank_2_ij, &0.0)
-                    }
-                })
-        });
+fn inverse_dim_2() -> Result<(), TestError> {
+    assert_eq_within_tols(
+        &(get_tensor_rank_2_dim_2() * get_tensor_rank_2_dim_2().inverse()),
+        &TensorRank2::identity(),
+    )
 }
 
 #[test]
-fn inverse_dim_3() {
-    (get_tensor_rank_2_dim_3() * get_tensor_rank_2_dim_3().inverse())
-        .iter()
-        .enumerate()
-        .for_each(|(i, tensor_rank_2_i)| {
-            tensor_rank_2_i
-                .iter()
-                .enumerate()
-                .for_each(|(j, tensor_rank_2_ij)| {
-                    if i == j {
-                        assert_eq_within_tols(tensor_rank_2_ij, &1.0)
-                    } else {
-                        assert_eq_within_tols(tensor_rank_2_ij, &0.0)
-                    }
-                })
-        });
+fn inverse_dim_3() -> Result<(), TestError> {
+    assert_eq_within_tols(
+        &(get_tensor_rank_2_dim_3() * get_tensor_rank_2_dim_3().inverse()),
+        &TensorRank2::identity(),
+    )
 }
 
 #[test]
-fn inverse_dim_4() {
-    (get_tensor_rank_2_dim_4() * get_tensor_rank_2_dim_4().inverse())
-        .iter()
-        .enumerate()
-        .for_each(|(i, tensor_rank_2_i)| {
-            tensor_rank_2_i
-                .iter()
-                .enumerate()
-                .for_each(|(j, tensor_rank_2_ij)| {
-                    if i == j {
-                        assert_eq_within_tols(tensor_rank_2_ij, &1.0)
-                    } else {
-                        assert_eq_within_tols(tensor_rank_2_ij, &0.0)
-                    }
-                })
-        });
+fn inverse_dim_4() -> Result<(), TestError> {
+    assert_eq_within_tols(
+        &(get_tensor_rank_2_dim_4() * get_tensor_rank_2_dim_4().inverse()),
+        &TensorRank2::identity(),
+    )
 }
 
 #[test]
-fn inverse_dim_9() {
-    (get_tensor_rank_2_dim_9() * get_tensor_rank_2_dim_9().inverse())
-        .iter()
-        .enumerate()
-        .for_each(|(i, tensor_rank_2_i)| {
-            tensor_rank_2_i
-                .iter()
-                .enumerate()
-                .for_each(|(j, tensor_rank_2_ij)| {
-                    if i == j {
-                        assert_eq_within_tols(tensor_rank_2_ij, &1.0)
-                    } else {
-                        assert_eq_within_tols(tensor_rank_2_ij, &0.0)
-                    }
-                })
-        });
+fn inverse_dim_9() -> Result<(), TestError> {
+    assert_eq_within_tols(
+        &(get_tensor_rank_2_dim_9() * get_tensor_rank_2_dim_9().inverse()),
+        &TensorRank2::identity(),
+    )
 }
 
 #[test]
-fn inverse_and_determinant_dim_2() {
+fn inverse_and_determinant_dim_2() -> Result<(), TestError> {
     let tensor_rank_2 = get_tensor_rank_2_dim_2();
     let (inverse, determinant) = tensor_rank_2.inverse_and_determinant();
-    assert_eq!(determinant, tensor_rank_2.determinant());
-    inverse.iter().zip(tensor_rank_2.inverse().iter()).for_each(
-        |(inverse_i, tensor_rank_2_inverse_i)| {
-            inverse_i
-                .iter()
-                .zip(tensor_rank_2_inverse_i.iter())
-                .for_each(|(inverse_ij, tensor_rank_2_inverse_ij)| {
-                    assert_eq!(inverse_ij, tensor_rank_2_inverse_ij)
-                })
-        },
-    );
+    assert_eq(&determinant, &tensor_rank_2.determinant())?;
+    assert_eq(&inverse, &tensor_rank_2.inverse())
 }
 
 #[test]
-fn inverse_and_determinant_dim_3() {
+fn inverse_and_determinant_dim_3() -> Result<(), TestError> {
     let tensor_rank_2 = get_tensor_rank_2_dim_3();
     let (inverse, determinant) = tensor_rank_2.inverse_and_determinant();
-    assert_eq!(determinant, tensor_rank_2.determinant());
-    inverse.iter().zip(tensor_rank_2.inverse().iter()).for_each(
-        |(inverse_i, tensor_rank_2_inverse_i)| {
-            inverse_i
-                .iter()
-                .zip(tensor_rank_2_inverse_i.iter())
-                .for_each(|(inverse_ij, tensor_rank_2_inverse_ij)| {
-                    assert_eq!(inverse_ij, tensor_rank_2_inverse_ij)
-                })
-        },
-    );
+    assert_eq(&determinant, &tensor_rank_2.determinant())?;
+    assert_eq(&inverse, &tensor_rank_2.inverse())
 }
 
 #[test]
-fn inverse_and_determinant_dim_4() {
+fn inverse_and_determinant_dim_4() -> Result<(), TestError> {
     let tensor_rank_2 = get_tensor_rank_2_dim_4();
     let (inverse, determinant) = tensor_rank_2.inverse_and_determinant();
-    assert_eq!(determinant, tensor_rank_2.determinant());
-    inverse.iter().zip(tensor_rank_2.inverse().iter()).for_each(
-        |(inverse_i, tensor_rank_2_inverse_i)| {
-            inverse_i
-                .iter()
-                .zip(tensor_rank_2_inverse_i.iter())
-                .for_each(|(inverse_ij, tensor_rank_2_inverse_ij)| {
-                    assert_eq!(inverse_ij, tensor_rank_2_inverse_ij)
-                })
-        },
-    );
+    assert_eq(&determinant, &tensor_rank_2.determinant())?;
+    assert_eq(&inverse, &tensor_rank_2.inverse())
 }
 
 #[test]
-fn inverse_transpose_dim_2() {
-    (get_tensor_rank_2_dim_2().transpose() * get_tensor_rank_2_dim_2().inverse_transpose())
-        .iter()
-        .enumerate()
-        .for_each(|(i, tensor_rank_2_i)| {
-            tensor_rank_2_i
-                .iter()
-                .enumerate()
-                .for_each(|(j, tensor_rank_2_ij)| {
-                    if i == j {
-                        assert_eq!(tensor_rank_2_ij, &1.0)
-                    } else {
-                        assert_eq!(tensor_rank_2_ij, &0.0)
-                    }
-                })
-        });
+fn inverse_transpose_dim_2() -> Result<(), TestError> {
+    assert_eq_within_tols(
+        &(get_tensor_rank_2_dim_2().transpose() * get_tensor_rank_2_dim_2().inverse_transpose()),
+        &TensorRank2::identity(),
+    )
 }
 
 #[test]
-fn inverse_transpose_dim_3() {
-    (get_tensor_rank_2_dim_3().transpose() * get_tensor_rank_2_dim_3().inverse_transpose())
-        .iter()
-        .enumerate()
-        .for_each(|(i, tensor_rank_2_i)| {
-            tensor_rank_2_i
-                .iter()
-                .enumerate()
-                .for_each(|(j, tensor_rank_2_ij)| {
-                    if i == j {
-                        assert_eq_within_tols(tensor_rank_2_ij, &1.0)
-                    } else {
-                        assert_eq_within_tols(tensor_rank_2_ij, &0.0)
-                    }
-                })
-        });
+fn inverse_transpose_dim_3() -> Result<(), TestError> {
+    assert_eq_within_tols(
+        &(get_tensor_rank_2_dim_3().transpose() * get_tensor_rank_2_dim_3().inverse_transpose()),
+        &TensorRank2::identity(),
+    )
 }
 
 #[test]
-fn inverse_transpose_dim_4() {
-    (get_tensor_rank_2_dim_4().transpose() * get_tensor_rank_2_dim_4().inverse_transpose())
-        .iter()
-        .enumerate()
-        .for_each(|(i, tensor_rank_2_i)| {
-            tensor_rank_2_i
-                .iter()
-                .enumerate()
-                .for_each(|(j, tensor_rank_2_ij)| {
-                    if i == j {
-                        assert_eq_within_tols(tensor_rank_2_ij, &1.0)
-                    } else {
-                        assert_eq_within_tols(tensor_rank_2_ij, &0.0)
-                    }
-                })
-        });
+fn inverse_transpose_dim_4() -> Result<(), TestError> {
+    assert_eq_within_tols(
+        &(get_tensor_rank_2_dim_4().transpose() * get_tensor_rank_2_dim_4().inverse_transpose()),
+        &TensorRank2::identity(),
+    )
 }
 
 #[test]
-fn inverse_transpose_9() {
-    (get_tensor_rank_2_dim_9().transpose() * get_tensor_rank_2_dim_9().inverse_transpose())
-        .iter()
-        .enumerate()
-        .for_each(|(i, tensor_rank_2_i)| {
-            tensor_rank_2_i
-                .iter()
-                .enumerate()
-                .for_each(|(j, tensor_rank_2_ij)| {
-                    if i == j {
-                        assert_eq_within_tols(tensor_rank_2_ij, &1.0)
-                    } else {
-                        assert_eq_within_tols(tensor_rank_2_ij, &0.0)
-                    }
-                })
-        });
+fn inverse_transpose_9() -> Result<(), TestError> {
+    assert_eq_within_tols(
+        &(get_tensor_rank_2_dim_9().transpose() * get_tensor_rank_2_dim_9().inverse_transpose()),
+        &TensorRank2::identity(),
+    )
 }
 
 #[test]
-fn inverse_transpose_and_determinant_dim_2() {
+fn inverse_transpose_and_determinant_dim_2() -> Result<(), TestError> {
     let tensor_rank_2 = get_tensor_rank_2_dim_2();
     let (inverse_transpose, determinant) = tensor_rank_2.inverse_transpose_and_determinant();
-    assert_eq!(determinant, tensor_rank_2.determinant());
-    inverse_transpose
-        .iter()
-        .zip(tensor_rank_2.inverse_transpose().iter())
-        .for_each(|(inverse_transpose_i, tensor_rank_2_inverse_transpose_i)| {
-            inverse_transpose_i
-                .iter()
-                .zip(tensor_rank_2_inverse_transpose_i.iter())
-                .for_each(
-                    |(inverse_transpose_ij, tensor_rank_2_inverse_transpose_ij)| {
-                        assert_eq!(inverse_transpose_ij, tensor_rank_2_inverse_transpose_ij)
-                    },
-                )
-        });
+    assert_eq(&determinant, &tensor_rank_2.determinant())?;
+    assert_eq(&inverse_transpose, &tensor_rank_2.inverse_transpose())
 }
 
 #[test]
-fn inverse_transpose_and_determinant_dim_3() {
+fn inverse_transpose_and_determinant_dim_3() -> Result<(), TestError> {
     let tensor_rank_2 = get_tensor_rank_2_dim_3();
     let (inverse_transpose, determinant) = tensor_rank_2.inverse_transpose_and_determinant();
-    assert_eq!(determinant, tensor_rank_2.determinant());
-    inverse_transpose
-        .iter()
-        .zip(tensor_rank_2.inverse_transpose().iter())
-        .for_each(|(inverse_transpose_i, tensor_rank_2_inverse_transpose_i)| {
-            inverse_transpose_i
-                .iter()
-                .zip(tensor_rank_2_inverse_transpose_i.iter())
-                .for_each(
-                    |(inverse_transpose_ij, tensor_rank_2_inverse_transpose_ij)| {
-                        assert_eq!(inverse_transpose_ij, tensor_rank_2_inverse_transpose_ij)
-                    },
-                )
-        });
+    assert_eq(&determinant, &tensor_rank_2.determinant())?;
+    assert_eq(&inverse_transpose, &tensor_rank_2.inverse_transpose())
 }
 
 #[test]
-fn inverse_transpose_and_determinant_dim_4() {
+fn inverse_transpose_and_determinant_dim_4() -> Result<(), TestError> {
     let tensor_rank_2 = get_tensor_rank_2_dim_4();
     let (inverse_transpose, determinant) = tensor_rank_2.inverse_transpose_and_determinant();
-    assert_eq!(determinant, tensor_rank_2.determinant());
-    inverse_transpose
-        .iter()
-        .zip(tensor_rank_2.inverse_transpose().iter())
-        .for_each(|(inverse_transpose_i, tensor_rank_2_inverse_transpose_i)| {
-            inverse_transpose_i
-                .iter()
-                .zip(tensor_rank_2_inverse_transpose_i.iter())
-                .for_each(
-                    |(inverse_transpose_ij, tensor_rank_2_inverse_transpose_ij)| {
-                        assert_eq!(inverse_transpose_ij, tensor_rank_2_inverse_transpose_ij)
-                    },
-                )
-        });
+    assert_eq(&determinant, &tensor_rank_2.determinant())?;
+    assert_eq(&inverse_transpose, &tensor_rank_2.inverse_transpose())
 }
 
 #[test]
@@ -1363,23 +1081,23 @@ fn new() {
 }
 
 #[test]
-fn norm_dim_2() {
-    assert_eq!(get_tensor_rank_2_dim_2().norm(), 5.477_225_575_051_661);
+fn norm_dim_2() -> Result<(), TestError> {
+    assert_eq(&get_tensor_rank_2_dim_2().norm(), &5.477_225_575_051_661)
 }
 
 #[test]
-fn norm_dim_3() {
-    assert_eq!(get_tensor_rank_2_dim_3().norm(), 16.881_943_016_134_134);
+fn norm_dim_3() -> Result<(), TestError> {
+    assert_eq(&get_tensor_rank_2_dim_3().norm(), &16.881_943_016_134_134)
 }
 
 #[test]
-fn norm_dim_4() {
-    assert_eq!(get_tensor_rank_2_dim_4().norm(), 14.282_856_857_085_7);
+fn norm_dim_4() -> Result<(), TestError> {
+    assert_eq(&get_tensor_rank_2_dim_4().norm(), &14.282_856_857_085_7)
 }
 
 #[test]
-fn norm_dim_9() {
-    assert_eq!(get_tensor_rank_2_dim_9().norm(), 20.976_176_963_403_03);
+fn norm_dim_9() -> Result<(), TestError> {
+    assert_eq(&get_tensor_rank_2_dim_9().norm(), &20.976_176_963_403_03)
 }
 
 #[test]
@@ -1396,23 +1114,23 @@ fn second_invariant() {
 }
 
 #[test]
-fn squared_trace_dim_2() {
-    assert_eq_within_tols(&get_tensor_rank_2_dim_2().squared_trace(), &29.0);
+fn squared_trace_dim_2() -> Result<(), TestError> {
+    assert_eq_within_tols(&get_tensor_rank_2_dim_2().squared_trace(), &29.0)
 }
 
 #[test]
-fn squared_trace_dim_3() {
-    assert_eq_within_tols(&get_tensor_rank_2_dim_3().squared_trace(), &258.0);
+fn squared_trace_dim_3() -> Result<(), TestError> {
+    assert_eq_within_tols(&get_tensor_rank_2_dim_3().squared_trace(), &258.0)
 }
 
 #[test]
-fn squared_trace_dim_4() {
-    assert_eq_within_tols(&get_tensor_rank_2_dim_4().squared_trace(), &89.0);
+fn squared_trace_dim_4() -> Result<(), TestError> {
+    assert_eq_within_tols(&get_tensor_rank_2_dim_4().squared_trace(), &89.0)
 }
 
 #[test]
-fn squared_trace_dim_9() {
-    assert_eq_within_tols(&get_tensor_rank_2_dim_9().squared_trace(), &318.0);
+fn squared_trace_dim_9() -> Result<(), TestError> {
+    assert_eq_within_tols(&get_tensor_rank_2_dim_9().squared_trace(), &318.0)
 }
 
 #[test]
@@ -1480,23 +1198,23 @@ fn sub_assign_tensor_rank_2_ref() {
 }
 
 #[test]
-fn trace_dim_2() {
-    assert_eq!(get_tensor_rank_2_dim_2().trace(), 5.0);
+fn trace_dim_2() -> Result<(), TestError> {
+    assert_eq(&get_tensor_rank_2_dim_2().trace(), &5.0)
 }
 
 #[test]
-fn trace_dim_3() {
-    assert_eq!(get_tensor_rank_2_dim_3().trace(), 6.0);
+fn trace_dim_3() -> Result<(), TestError> {
+    assert_eq(&get_tensor_rank_2_dim_3().trace(), &6.0)
 }
 
 #[test]
-fn trace_dim_4() {
-    assert_eq!(get_tensor_rank_2_dim_4().trace(), 11.0);
+fn trace_dim_4() -> Result<(), TestError> {
+    assert_eq(&get_tensor_rank_2_dim_4().trace(), &11.0)
 }
 
 #[test]
-fn trace_dim_9() {
-    assert_eq!(get_tensor_rank_2_dim_9().trace(), 18.0);
+fn trace_dim_9() -> Result<(), TestError> {
+    assert_eq(&get_tensor_rank_2_dim_9().trace(), &18.0)
 }
 
 #[test]

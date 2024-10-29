@@ -9,6 +9,8 @@ test_solid_hyperviscoelastic_constitutive_model!(
     SaintVenantKirchoff::new(SAINTVENANTKIRCHOFFPARAMETERS)
 );
 
+test_solve!(SaintVenantKirchoff::new(SAINTVENANTKIRCHOFFPARAMETERS));
+
 mod consistency {
     use super::*;
     use crate::{
@@ -19,49 +21,30 @@ mod consistency {
                 Hyperelastic, SaintVenantKirchoff as HyperelasticSaintVenantKirchoff,
             },
         },
-        ABS_TOL,
+        math::test::assert_eq_within_tols,
     };
     #[test]
-    fn helmholtz_free_energy_density() {
+    fn helmholtz_free_energy_density() -> Result<(), TestError> {
         let model = SaintVenantKirchoff::new(SAINTVENANTKIRCHOFFPARAMETERS);
         let hyperelastic_model =
             HyperelasticSaintVenantKirchoff::new(HYPERELASTICSAINTVENANTKIRCHOFFPARAMETERS);
-        assert!(
-            (model
-                .calculate_helmholtz_free_energy_density(&get_deformation_gradient())
-                .expect("the unexpected")
-                - hyperelastic_model
-                    .calculate_helmholtz_free_energy_density(&get_deformation_gradient())
-                    .expect("the unexpected"))
-            .abs()
-                < ABS_TOL
+        assert_eq_within_tols(
+            &model.calculate_helmholtz_free_energy_density(&get_deformation_gradient())?,
+            &hyperelastic_model
+                .calculate_helmholtz_free_energy_density(&get_deformation_gradient())?,
         )
     }
     #[test]
-    fn cauchy_stress() {
+    fn cauchy_stress() -> Result<(), TestError> {
         let model = SaintVenantKirchoff::new(SAINTVENANTKIRCHOFFPARAMETERS);
         let hyperelastic_model =
             HyperelasticSaintVenantKirchoff::new(HYPERELASTICSAINTVENANTKIRCHOFFPARAMETERS);
-        model
-            .calculate_cauchy_stress(
+        assert_eq_within_tols(
+            &model.calculate_cauchy_stress(
                 &get_deformation_gradient(),
                 &DeformationGradientRate::zero(),
-            )
-            .expect("the unexpected")
-            .iter()
-            .zip(
-                hyperelastic_model
-                    .calculate_cauchy_stress(&get_deformation_gradient())
-                    .expect("the unexpected")
-                    .iter(),
-            )
-            .for_each(|(cauchy_stress_i, elastic_cauchy_stress_i)| {
-                cauchy_stress_i
-                    .iter()
-                    .zip(elastic_cauchy_stress_i.iter())
-                    .for_each(|(cauchy_stress_ij, elastic_cauchy_stress_ij)| {
-                        assert!((cauchy_stress_ij - elastic_cauchy_stress_ij).abs() < ABS_TOL)
-                    })
-            })
+            )?,
+            &hyperelastic_model.calculate_cauchy_stress(&get_deformation_gradient())?,
+        )
     }
 }

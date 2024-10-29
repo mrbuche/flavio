@@ -1,8 +1,5 @@
 #![doc = include_str!("../README.md")]
 
-#[cfg(test)]
-mod test;
-
 #[cfg(feature = "constitutive")]
 pub mod constitutive;
 
@@ -46,7 +43,8 @@ fn get_victory_message<'a>() -> &'a str {
     match get_random_number() {
         0 => "Flawless victory.",
         1 => "Hey, that's pretty good!",
-        2.. => "You win!",
+        2 => "That's Numberwang!",
+        3.. => "Totes yeet, yo!",
     }
 }
 

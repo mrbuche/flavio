@@ -1,7 +1,7 @@
 use super::{
     super::test::FOURIERPARAMETERS, Constitutive, Fourier, TemperatureGradient, ThermalConduction,
 };
-use crate::{math::TensorRank1Trait, mechanics::test::get_temperature_gradient};
+use crate::{math::Tensor, mechanics::test::get_temperature_gradient};
 
 fn get_constitutive_model<'a>() -> Fourier<'a> {
     Fourier::new(FOURIERPARAMETERS)

@@ -25,17 +25,17 @@ pub trait Constitutive<'a> {
     fn new(parameters: Parameters<'a>) -> Self;
 }
 
-/// Error message prefix for constitutive model errors.
+#[doc(hidden)]
 pub const CONSTITUTIVE_MODEL_ERROR: &str = "\n\x1b[91mConstitutive model error.\x1b[0";
 
 /// Possible errors encountered in constitutive models.
 pub enum ConstitutiveError {
     Custom(String, DeformationGradient, String),
     InvalidJacobian(Scalar, DeformationGradient, String),
-    SolveError,
+    MaximumStepsReached(usize, String),
+    NotMinimum(String, String),
 }
 
-/// Debug implementation for constitutive model errors.
 impl fmt::Debug for ConstitutiveError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let error = match self {
@@ -52,8 +52,21 @@ impl fmt::Debug for ConstitutiveError {
                      In constitutive model: {}.",
                     jacobian, deformation_gradient, constitutive_model
                 )
-            },
-            Self::SolveError => "\x1b[1;91mThe maximum number of steps was reached before the tolerance was satisfied.\x1b[0;91m".to_string()
+            }
+            Self::MaximumStepsReached(steps, constitutive_model) => {
+                format!(
+                    "\x1b[1;91mMaximum number of steps ({}) reached.\x1b[0;91m\n\
+                     In constitutive model: {}.",
+                    steps, constitutive_model
+                )
+            }
+            Self::NotMinimum(deformation_gradient, constitutive_model) => {
+                format!(
+                    "\x1b[1;91mThe obtained solution is not a minimum.\x1b[0;91m\n\
+                     {}\nIn constitutive model: {}.",
+                    deformation_gradient, constitutive_model
+                )
+            }
         };
         write!(
             f,
@@ -64,9 +77,8 @@ impl fmt::Debug for ConstitutiveError {
     }
 }
 
-/// Display implementation for constitutive model errors.
 impl fmt::Display for ConstitutiveError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let error = match self {
             Self::Custom(message, deformation_gradient, constitutive_model) => format!(
                 "\x1b[1;91m{}\x1b[0;91m\n\
@@ -81,14 +93,39 @@ impl fmt::Display for ConstitutiveError {
                      In constitutive model: {}.",
                     jacobian, deformation_gradient, constitutive_model
                 )
-            },
-            Self::SolveError => "\x1b[1;91mThe maximum number of steps was reached before the tolerance was satisfied.\x1b[0;91m".to_string()
+            }
+            Self::MaximumStepsReached(steps, constitutive_model) => {
+                format!(
+                    "\x1b[1;91mMaximum number of steps ({}) reached.\x1b[0;91m\n\
+                     In constitutive model: {}.",
+                    steps, constitutive_model
+                )
+            }
+            Self::NotMinimum(deformation_gradient, constitutive_model) => {
+                format!(
+                    "\x1b[1;91mThe obtained solution is not a minimum.\x1b[0;91m\n\
+                     {}\nIn constitutive model: {}.",
+                    deformation_gradient, constitutive_model
+                )
+            }
         };
-        write!(
-            f,
-            "\n{}\n\x1b[0;2;31m{}\x1b[0m\n",
-            error,
-            get_defeat_message()
-        )
+        write!(f, "{}\x1b[0m", error)
+    }
+}
+
+impl PartialEq for ConstitutiveError {
+    fn eq(&self, other: &Self) -> bool {
+        match self {
+            Self::Custom(a, b, c) => match other {
+                Self::Custom(d, e, f) => a == d && b == e && c == f,
+                _ => false,
+            },
+            Self::InvalidJacobian(a, b, c) => match other {
+                Self::InvalidJacobian(d, e, f) => a == d && b == e && c == f,
+                _ => false,
+            },
+            Self::MaximumStepsReached(_, _) => todo!(),
+            Self::NotMinimum(_, _) => todo!(),
+        }
     }
 }

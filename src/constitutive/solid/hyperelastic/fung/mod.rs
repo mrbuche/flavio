@@ -24,8 +24,7 @@ pub struct Fung<'a> {
     parameters: Parameters<'a>,
 }
 
-/// Inherent implementation of the Fung hyperelastic constitutive model.
-impl<'a> Fung<'a> {
+impl Fung<'_> {
     /// Returns the extra modulus.
     fn get_extra_modulus(&self) -> &Scalar {
         &self.parameters[2]
@@ -36,14 +35,12 @@ impl<'a> Fung<'a> {
     }
 }
 
-/// Constitutive model implementation of the Fung hyperelastic constitutive model.
 impl<'a> Constitutive<'a> for Fung<'a> {
     fn new(parameters: Parameters<'a>) -> Self {
         Self { parameters }
     }
 }
 
-/// Solid constitutive model implementation of the Fung hyperelastic constitutive model.
 impl<'a> Solid<'a> for Fung<'a> {
     fn get_bulk_modulus(&self) -> &Scalar {
         &self.parameters[0]
@@ -53,7 +50,6 @@ impl<'a> Solid<'a> for Fung<'a> {
     }
 }
 
-/// Elastic constitutive model implementation of the Fung hyperelastic constitutive model.
 impl<'a> Elastic<'a> for Fung<'a> {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -146,7 +142,6 @@ impl<'a> Elastic<'a> for Fung<'a> {
     }
 }
 
-/// Hyperelastic constitutive model implementation of the Fung hyperelastic constitutive model.
 impl<'a> Hyperelastic<'a> for Fung<'a> {
     /// Calculates and returns the Helmholtz free energy density.
     ///

@@ -13,16 +13,16 @@ macro_rules! test_hybrid_hyperelastic_constitutive_models {
                 },
                 Constitutive,
             },
-            math::TensorRank2Trait,
+            math::Tensor,
             mechanics::{
-                CauchyTangentStiffness, DeformationGradient, FirstPiolaKirchoffStress,
-                FirstPiolaKirchoffTangentStiffness, SecondPiolaKirchoffTangentStiffness,
+                CauchyTangentStiffness, DeformationGradient, FirstPiolaKirchoffTangentStiffness,
+                SecondPiolaKirchoffTangentStiffness,
             },
         };
         use_elastic_macros!();
         mod hybrid_0 {
             use super::*;
-            test_solve_uniaxial!($hybrid_type::construct(
+            test_solve!($hybrid_type::construct(
                 ArrudaBoyce::new(ARRUDABOYCEPARAMETERS),
                 Fung::new(FUNGPARAMETERS)
             ));
@@ -84,8 +84,8 @@ macro_rules! test_hybrid_hyperelastic_constitutive_models_no_tangents {
                 },
                 Constitutive,
             },
-            math::TensorRank2Trait,
-            mechanics::{DeformationGradient, FirstPiolaKirchoffStress},
+            math::Tensor,
+            mechanics::DeformationGradient,
         };
         use_elastic_macros_no_tangents!();
         mod hybrid_1 {
@@ -114,7 +114,7 @@ macro_rules! test_hybrid_hyperelastic_constitutive_models_no_tangents {
                     Fung::new(FUNGPARAMETERS),
                 )
                 .calculate_cauchy_tangent_stiffness(&get_deformation_gradient())
-                .expect("the unexpected");
+                .unwrap();
             }
             #[test]
             #[should_panic]
@@ -124,7 +124,7 @@ macro_rules! test_hybrid_hyperelastic_constitutive_models_no_tangents {
                     Fung::new(FUNGPARAMETERS),
                 )
                 .calculate_cauchy_tangent_stiffness(&get_deformation_gradient())
-                .expect("the unexpected");
+                .unwrap();
             }
             #[test]
             #[should_panic]
@@ -134,7 +134,7 @@ macro_rules! test_hybrid_hyperelastic_constitutive_models_no_tangents {
                     Fung::new(FUNGPARAMETERS),
                 )
                 .calculate_cauchy_tangent_stiffness(&get_deformation_gradient())
-                .expect("the unexpected");
+                .unwrap();
             }
         }
     };

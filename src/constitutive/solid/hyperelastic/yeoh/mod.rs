@@ -23,8 +23,7 @@ pub struct Yeoh<'a> {
     parameters: Parameters<'a>,
 }
 
-/// Inherent implementation of the Yeoh hyperelastic constitutive model.
-impl<'a> Yeoh<'a> {
+impl Yeoh<'_> {
     /// Returns an array of the moduli.
     pub fn get_moduli(&self) -> &[Scalar] {
         &self.parameters[1..]
@@ -35,14 +34,12 @@ impl<'a> Yeoh<'a> {
     }
 }
 
-/// Constitutive model implementation of the Yeoh hyperelastic constitutive model.
 impl<'a> Constitutive<'a> for Yeoh<'a> {
     fn new(parameters: Parameters<'a>) -> Self {
         Self { parameters }
     }
 }
 
-/// Solid constitutive model implementation of the Yeoh hyperelastic constitutive model.
 impl<'a> Solid<'a> for Yeoh<'a> {
     fn get_bulk_modulus(&self) -> &Scalar {
         &self.parameters[0]
@@ -52,7 +49,6 @@ impl<'a> Solid<'a> for Yeoh<'a> {
     }
 }
 
-/// Elastic constitutive model implementation of the Yeoh hyperelastic constitutive model.
 impl<'a> Elastic<'a> for Yeoh<'a> {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -157,7 +153,6 @@ impl<'a> Elastic<'a> for Yeoh<'a> {
     }
 }
 
-/// Hyperelastic constitutive model implementation of the Yeoh hyperelastic constitutive model.
 impl<'a> Hyperelastic<'a> for Yeoh<'a> {
     /// Calculates and returns the Helmholtz free energy density.
     ///

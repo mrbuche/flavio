@@ -22,14 +22,12 @@ pub struct SaintVenantKirchoff<'a> {
     parameters: Parameters<'a>,
 }
 
-/// Constitutive model implementation of the Saint Venant-Kirchoff hyperelastic constitutive model.
 impl<'a> Constitutive<'a> for SaintVenantKirchoff<'a> {
     fn new(parameters: Parameters<'a>) -> Self {
         Self { parameters }
     }
 }
 
-/// Solid constitutive model implementation of the Saint Venant-Kirchoff hyperelastic constitutive model.
 impl<'a> Solid<'a> for SaintVenantKirchoff<'a> {
     fn get_bulk_modulus(&self) -> &Scalar {
         &self.parameters[0]
@@ -39,7 +37,6 @@ impl<'a> Solid<'a> for SaintVenantKirchoff<'a> {
     }
 }
 
-/// Elastic constitutive model implementation of the Saint Venant-Kirchoff hyperelastic constitutive model.
 impl<'a> Elastic<'a> for SaintVenantKirchoff<'a> {
     /// Calculates and returns the second Piola-Kirchoff stress.
     ///
@@ -100,7 +97,6 @@ impl<'a> Elastic<'a> for SaintVenantKirchoff<'a> {
     }
 }
 
-/// Hyperelastic constitutive model implementation of the Saint Venant-Kirchoff hyperelastic constitutive model.
 impl<'a> Hyperelastic<'a> for SaintVenantKirchoff<'a> {
     /// Calculates and returns the Helmholtz free energy density.
     ///

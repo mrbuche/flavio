@@ -1,12 +1,20 @@
 #[cfg(test)]
 mod test;
 
+#[cfg(test)]
+use super::test::TensorError;
+
 pub mod list;
 pub mod list_2d;
 
-use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign};
+use std::{
+    fmt::{Display, Formatter, Result},
+    ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
+};
 
-use super::{rank_0::TensorRank0, Convert};
+use super::{
+    super::write_tensor_rank_0, rank_0::TensorRank0, rank_2::TensorRank2, Convert, Tensor,
+};
 
 /// A *d*-dimensional tensor of rank 1.
 ///
@@ -14,50 +22,24 @@ use super::{rank_0::TensorRank0, Convert};
 #[derive(Debug)]
 pub struct TensorRank1<const D: usize, const I: usize>(pub [TensorRank0; D]);
 
-/// Inherent implementation of [`TensorRank1`].
+impl<const D: usize, const I: usize> Display for TensorRank1<D, I> {
+    fn fmt(&self, f: &mut Formatter) -> Result {
+        write!(f, "[")?;
+        self.iter()
+            .try_for_each(|entry| write_tensor_rank_0(f, entry))?;
+        write!(f, "\x1B[2D]")
+    }
+}
+
+impl<const D: usize, const I: usize> PartialEq for TensorRank1<D, I> {
+    fn eq(&self, other: &Self) -> bool {
+        self.0 == other.0
+    }
+}
+
 impl<const D: usize, const I: usize> TensorRank1<D, I> {
-    /// Returns an iterator.
-    ///
-    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    pub fn iter(&self) -> impl Iterator<Item = &TensorRank0> {
-        self.0.iter()
-    }
-    /// Returns an iterator that allows modifying each value.
-    ///
-    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut TensorRank0> {
-        self.0.iter_mut()
-    }
-}
-
-/// Required methods for rank-1 tensors.
-pub trait TensorRank1Trait<const D: usize, const I: usize> {
-    /// Returns the rank-1 tensor as an array.
-    fn as_array(&self) -> [TensorRank0; D];
     /// Returns the cross product with another rank-1 tensor.
-    fn cross(&self, tensor_rank_1: &Self) -> Self;
-    /// Returns a rank-1 tensor given an array.
-    fn new(array: [TensorRank0; D]) -> Self;
-    /// Returns the rank-1 tensor norm.
-    fn norm(&self) -> TensorRank0;
-    /// Returns the rank-1 tensor normalized.
-    fn normalized(&self) -> Self;
-    /// Returns the rank-1 tensor in the current configuration.
-    fn to_current_configuration(self) -> TensorRank1<D, 1>;
-    /// Returns the rank-1 tensor in the intermediate configuration.
-    fn to_intermediate_configuration(self) -> TensorRank1<D, 2>;
-    /// Returns the rank-1 tensor in the reference configuration.
-    fn to_reference_configuration(self) -> TensorRank1<D, 0>;
-    /// Returns the rank-1 zero tensor.
-    fn zero() -> Self;
-}
-
-/// Implementation of [`TensorRank1Trait`] for [`TensorRank1`].
-impl<const D: usize, const I: usize> TensorRank1Trait<D, I> for TensorRank1<D, I> {
-    fn as_array(&self) -> [TensorRank0; D] {
-        self.0
-    }
-    fn cross(&self, tensor_rank_1: &Self) -> Self {
+    pub fn cross(&self, tensor_rank_1: &Self) -> Self {
         if D == 3 {
             let mut output = zero();
             output[0] = self[1] * tensor_rank_1[2] - self[2] * tensor_rank_1[1];
@@ -68,29 +50,83 @@ impl<const D: usize, const I: usize> TensorRank1Trait<D, I> for TensorRank1<D, I
             panic!()
         }
     }
-    fn new(array: [TensorRank0; D]) -> Self {
+}
+
+#[cfg(test)]
+impl<const D: usize, const I: usize> TensorError for TensorRank1<D, I> {
+    fn error(
+        &self,
+        comparator: &Self,
+        tol_abs: &TensorRank0,
+        tol_rel: &TensorRank0,
+    ) -> Option<usize> {
+        let error_count = self
+            .iter()
+            .zip(comparator.iter())
+            .filter(|(&self_i, &comparator_i)| {
+                &(self_i - comparator_i).abs() >= tol_abs
+                    && &(self_i / comparator_i - 1.0).abs() >= tol_rel
+            })
+            .count();
+        if error_count > 0 {
+            Some(error_count)
+        } else {
+            None
+        }
+    }
+    fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<(bool, usize)> {
+        let error_count = self
+            .iter()
+            .zip(comparator.iter())
+            .filter(|(&self_i, &comparator_i)| {
+                &(self_i / comparator_i - 1.0).abs() >= epsilon
+                    && (&self_i.abs() >= epsilon || &comparator_i.abs() >= epsilon)
+            })
+            .count();
+        if error_count > 0 {
+            Some((true, error_count))
+        } else {
+            None
+        }
+    }
+}
+
+impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
+    type Array = [TensorRank0; D];
+    type Item = TensorRank0;
+    fn as_array(&self) -> Self::Array {
+        self.0
+    }
+    fn copy(&self) -> Self {
+        self.iter().map(|entry| entry.copy()).collect()
+    }
+    fn identity() -> Self {
+        panic!()
+    }
+    fn is_zero(&self) -> bool {
+        self.iter().map(|entry| (entry == &0.0) as u8).sum::<u8>() == (D as u8)
+    }
+    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
+        self.0.iter()
+    }
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
+        self.0.iter_mut()
+    }
+    fn new(array: Self::Array) -> Self {
         array.into_iter().collect()
     }
-    fn norm(&self) -> TensorRank0 {
-        (self * self).sqrt()
+    fn norm_squared(&self) -> TensorRank0 {
+        self * self
     }
     fn normalized(&self) -> Self {
         self / self.norm()
-    }
-    fn to_current_configuration(self) -> TensorRank1<D, 1> {
-        TensorRank1(self.0)
-    }
-    fn to_intermediate_configuration(self) -> TensorRank1<D, 2> {
-        TensorRank1(self.0)
-    }
-    fn to_reference_configuration(self) -> TensorRank1<D, 0> {
-        TensorRank1(self.0)
     }
     fn zero() -> Self {
         zero()
     }
 }
 
+/// Returns the rank-1 zero tensor as a constant.
 pub const fn zero<const D: usize, const I: usize>() -> TensorRank1<D, I> {
     TensorRank1([0.0; D])
 }
@@ -297,6 +333,17 @@ impl<const D: usize, const I: usize> Sub<TensorRank1<D, I>> for &TensorRank1<D, 
     }
 }
 
+impl<const D: usize, const I: usize> Sub<Self> for &TensorRank1<D, I> {
+    type Output = TensorRank1<D, I>;
+    fn sub(self, tensor_rank_1: Self) -> Self::Output {
+        tensor_rank_1
+            .iter()
+            .zip(self.iter())
+            .map(|(tensor_rank_1_i, self_i)| self_i - *tensor_rank_1_i)
+            .collect()
+    }
+}
+
 impl<const D: usize, const I: usize> SubAssign for TensorRank1<D, I> {
     fn sub_assign(&mut self, tensor_rank_1: Self) {
         self.iter_mut()
@@ -350,5 +397,15 @@ impl<const D: usize, const I: usize> Mul for &TensorRank1<D, I> {
             .zip(tensor_rank_1.iter())
             .map(|(self_i, tensor_rank_1_i)| self_i * tensor_rank_1_i)
             .sum()
+    }
+}
+
+#[allow(clippy::suspicious_arithmetic_impl)]
+impl<const D: usize, const I: usize, const J: usize> Div<TensorRank2<D, I, J>>
+    for TensorRank1<D, I>
+{
+    type Output = TensorRank1<D, J>;
+    fn div(self, tensor_rank_2: TensorRank2<D, I, J>) -> Self::Output {
+        tensor_rank_2.inverse() * self
     }
 }

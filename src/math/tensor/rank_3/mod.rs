@@ -1,16 +1,20 @@
 #[cfg(test)]
 mod test;
 
+#[cfg(test)]
+use super::test::TensorError;
+
 pub mod list;
 pub mod list_2d;
 pub mod list_3d;
 
-use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign};
-
-use super::{
-    rank_0::TensorRank0,
-    rank_2::{TensorRank2, TensorRank2Trait},
+use std::{
+    array::from_fn,
+    fmt::{Display, Formatter, Result},
+    ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
 };
+
+use super::{rank_0::TensorRank0, rank_2::TensorRank2, Tensor};
 
 /// Returns the rank-3 Levi-Civita symbol.
 pub fn levi_civita<const I: usize, const J: usize, const K: usize>() -> TensorRank3<3, I, J, K> {
@@ -24,43 +28,105 @@ pub fn levi_civita<const I: usize, const J: usize, const K: usize>() -> TensorRa
 /// A *d*-dimensional tensor of rank 3.
 ///
 /// `D` is the dimension, `I`, `J`, `K` are the configurations.
+#[derive(Debug)]
 pub struct TensorRank3<const D: usize, const I: usize, const J: usize, const K: usize>(
-    [TensorRank2<D, J, K>; D],
+    pub [TensorRank2<D, J, K>; D],
 );
 
-/// Inherent implementation of [`TensorRank3`].
-impl<const D: usize, const I: usize, const J: usize, const K: usize> TensorRank3<D, I, J, K> {
-    /// Returns an iterator.
-    ///
-    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    pub fn iter(&self) -> impl Iterator<Item = &TensorRank2<D, J, K>> {
-        self.0.iter()
-    }
-    /// Returns an iterator that allows modifying each value.
-    ///
-    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut TensorRank2<D, J, K>> {
-        self.0.iter_mut()
-    }
-    /// Returns the rank-3 zero tensor.
-    pub fn zero() -> Self {
-        Self(std::array::from_fn(|_| TensorRank2::zero()))
-    }
-}
-
-/// Required methods for rank-3 tensors.
-pub trait TensorRank3Trait<const D: usize> {
-    /// Returns the rank-3 tensor as an array.
-    fn as_array(&self) -> [[[TensorRank0; D]; D]; D];
-    /// Returns a rank-3 tensor given an array.
-    fn new(array: [[[TensorRank0; D]; D]; D]) -> Self;
-}
-
-/// Implementation of [`TensorRank3Trait`] for [`TensorRank3`].
-impl<const D: usize, const I: usize, const J: usize, const K: usize> TensorRank3Trait<D>
+impl<const D: usize, const I: usize, const J: usize, const K: usize> Display
     for TensorRank3<D, I, J, K>
 {
-    fn as_array(&self) -> [[[TensorRank0; D]; D]; D] {
+    fn fmt(&self, _f: &mut Formatter) -> Result {
+        Ok(())
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize> PartialEq
+    for TensorRank3<D, I, J, K>
+{
+    fn eq(&self, other: &Self) -> bool {
+        let mut result = true;
+        self.iter().zip(other.iter()).for_each(|(self_i, other_i)| {
+            if self_i != other_i {
+                result = false
+            }
+        });
+        result
+    }
+}
+
+#[cfg(test)]
+impl<const D: usize, const I: usize, const J: usize, const K: usize> TensorError
+    for TensorRank3<D, I, J, K>
+{
+    fn error(
+        &self,
+        comparator: &Self,
+        tol_abs: &TensorRank0,
+        tol_rel: &TensorRank0,
+    ) -> Option<usize> {
+        let error_count = self
+            .iter()
+            .zip(comparator.iter())
+            .map(|(self_i, comparator_i)| {
+                self_i
+                    .iter()
+                    .zip(comparator_i.iter())
+                    .map(|(self_ij, comparator_ij)| {
+                        self_ij
+                            .iter()
+                            .zip(comparator_ij.iter())
+                            .filter(|(&self_ijk, &comparator_ijk)| {
+                                &(self_ijk - comparator_ijk).abs() >= tol_abs
+                                    && &(self_ijk / comparator_ijk - 1.0).abs() >= tol_rel
+                            })
+                            .count()
+                    })
+                    .sum::<usize>()
+            })
+            .sum();
+        if error_count > 0 {
+            Some(error_count)
+        } else {
+            None
+        }
+    }
+    fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<(bool, usize)> {
+        let error_count = self
+            .iter()
+            .zip(comparator.iter())
+            .map(|(self_i, comparator_i)| {
+                self_i
+                    .iter()
+                    .zip(comparator_i.iter())
+                    .map(|(self_ij, comparator_ij)| {
+                        self_ij
+                            .iter()
+                            .zip(comparator_ij.iter())
+                            .filter(|(&self_ijk, &comparator_ijk)| {
+                                &(self_ijk / comparator_ijk - 1.0).abs() >= epsilon
+                                    && (&self_ijk.abs() >= epsilon
+                                        || &comparator_ijk.abs() >= epsilon)
+                            })
+                            .count()
+                    })
+                    .sum::<usize>()
+            })
+            .sum();
+        if error_count > 0 {
+            Some((true, error_count))
+        } else {
+            None
+        }
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize> Tensor
+    for TensorRank3<D, I, J, K>
+{
+    type Array = [[[TensorRank0; D]; D]; D];
+    type Item = TensorRank2<D, J, K>;
+    fn as_array(&self) -> Self::Array {
         let mut array = [[[0.0; D]; D]; D];
         array
             .iter_mut()
@@ -68,11 +134,47 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize> TensorRank3
             .for_each(|(entry_rank_2, tensor_rank_2)| *entry_rank_2 = tensor_rank_2.as_array());
         array
     }
-    fn new(array: [[[TensorRank0; D]; D]; D]) -> Self {
-        array
-            .iter()
-            .map(|array_i| TensorRank2::new(*array_i))
+    fn copy(&self) -> Self {
+        self.iter()
+            .map(|entry_rank_2| entry_rank_2.copy())
             .collect()
+    }
+    fn identity() -> Self {
+        panic!()
+    }
+    fn is_zero(&self) -> bool {
+        self.iter()
+            .map(|entry_rank_2| {
+                entry_rank_2
+                    .iter()
+                    .map(|entry_rank_1| {
+                        entry_rank_1
+                            .iter()
+                            .map(|entry_rank_0| (entry_rank_0 == &0.0) as u8)
+                            .sum::<u8>()
+                    })
+                    .sum::<u8>()
+            })
+            .sum::<u8>()
+            == ((D * D * D) as u8)
+    }
+    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
+        self.0.iter()
+    }
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
+        self.0.iter_mut()
+    }
+    fn new(array: Self::Array) -> Self {
+        array.iter().map(|entry| TensorRank2::new(*entry)).collect()
+    }
+    fn norm_squared(&self) -> TensorRank0 {
+        panic!()
+    }
+    fn normalized(&self) -> Self {
+        panic!()
+    }
+    fn zero() -> Self {
+        Self(from_fn(|_| TensorRank2::zero()))
     }
 }
 

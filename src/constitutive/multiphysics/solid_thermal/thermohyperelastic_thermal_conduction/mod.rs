@@ -17,7 +17,6 @@ pub struct ThermohyperelasticThermalConduction<C1, C2> {
     thermal_conduction_constitutive_model: C2,
 }
 
-/// Constitutive model implementation of a thermohyperelastic-thermal conduction constitutive model.
 impl<'a, C1, C2> Constitutive<'a> for ThermohyperelasticThermalConduction<C1, C2> {
     /// Dummy method that will panic, use [Self::construct()] instead.
     fn new(_parameters: Parameters<'a>) -> Self {
@@ -25,7 +24,6 @@ impl<'a, C1, C2> Constitutive<'a> for ThermohyperelasticThermalConduction<C1, C2
     }
 }
 
-/// Solid constitutive model implementation of a thermohyperelastic-thermal conduction constitutive model.
 impl<'a, C1, C2> Solid<'a> for ThermohyperelasticThermalConduction<C1, C2>
 where
     C1: Thermohyperelastic<'a>,
@@ -39,7 +37,6 @@ where
     }
 }
 
-/// Thermoelastic constitutive model implementation of a thermohyperelastic-thermal conduction constitutive model.
 impl<'a, C1, C2> Thermoelastic<'a> for ThermohyperelasticThermalConduction<C1, C2>
 where
     C1: Thermohyperelastic<'a>,
@@ -103,7 +100,6 @@ where
     }
 }
 
-/// Thermohyperelastic constitutive model implementation of a thermohyperelastic-thermal conduction constitutive model.
 impl<'a, C1, C2> Thermohyperelastic<'a> for ThermohyperelasticThermalConduction<C1, C2>
 where
     C1: Thermohyperelastic<'a>,
@@ -119,10 +115,8 @@ where
     }
 }
 
-/// Thermal constitutive model implementation of a thermohyperelastic-thermal conduction constitutive model.
-impl<'a, C1, C2> Thermal<'a> for ThermohyperelasticThermalConduction<C1, C2> {}
+impl<C1, C2> Thermal<'_> for ThermohyperelasticThermalConduction<C1, C2> {}
 
-/// Thermal conduction constitutive model implementation of a thermhyperoelastic-thermal conduction constitutive model.
 impl<'a, C1, C2> ThermalConduction<'a> for ThermohyperelasticThermalConduction<C1, C2>
 where
     C1: Thermohyperelastic<'a>,
@@ -134,10 +128,8 @@ where
     }
 }
 
-/// Multiphysics constitutive model implementation of a thermohyperelastic-thermal conduction constitutive model.
-impl<'a, C1, C2> Multiphysics<'a> for ThermohyperelasticThermalConduction<C1, C2> {}
+impl<C1, C2> Multiphysics<'_> for ThermohyperelasticThermalConduction<C1, C2> {}
 
-/// Solid-thermal constitutive model implementation of a thermohyperelastic-thermal conduction constitutive model.
 impl<'a, C1, C2> SolidThermal<'a, C1, C2> for ThermohyperelasticThermalConduction<C1, C2>
 where
     C1: Thermohyperelastic<'a>,

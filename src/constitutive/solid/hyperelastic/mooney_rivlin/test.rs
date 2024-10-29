@@ -9,7 +9,7 @@ test_solid_hyperelastic_constitutive_model!(
     MooneyRivlin::new(MOONEYRIVLINPARAMETERS)
 );
 
-test_solve_uniaxial!(MooneyRivlin::new(MOONEYRIVLINPARAMETERS));
+test_solve!(MooneyRivlin::new(MOONEYRIVLINPARAMETERS));
 
 #[test]
 fn get_extra_modulus() {

@@ -14,54 +14,30 @@ mod consistency {
             test::ALMANSIHAMELPARAMETERS as ELASTICALMANSIHAMELPARAMETERS,
             AlmansiHamel as ElasticAlmansiHamel, Elastic,
         },
-        ABS_TOL,
+        math::test::assert_eq_within_tols,
     };
     #[test]
-    fn cauchy_stress() {
+    fn cauchy_stress() -> Result<(), TestError> {
         let model = AlmansiHamel::new(ALMANSIHAMELPARAMETERS);
         let elastic_model = ElasticAlmansiHamel::new(ELASTICALMANSIHAMELPARAMETERS);
-        model
-            .calculate_cauchy_stress(
+        assert_eq_within_tols(
+            &model.calculate_cauchy_stress(
                 &get_deformation_gradient(),
                 model.get_reference_temperature(),
-            )
-            .expect("the unexpected")
-            .iter()
-            .zip(
-                elastic_model
-                    .calculate_cauchy_stress(&get_deformation_gradient())
-                    .expect("the unexpected")
-                    .iter(),
-            )
-            .for_each(|(cauchy_stress_i, elastic_cauchy_stress_i)| {
-                cauchy_stress_i
-                    .iter()
-                    .zip(elastic_cauchy_stress_i.iter())
-                    .for_each(|(cauchy_stress_ij, elastic_cauchy_stress_ij)| {
-                        assert!((cauchy_stress_ij - elastic_cauchy_stress_ij).abs() < ABS_TOL)
-                    })
-            })
+            )?,
+            &elastic_model.calculate_cauchy_stress(&get_deformation_gradient())?,
+        )
     }
     #[test]
-    fn cauchy_tangent_stiffness() {
+    fn cauchy_tangent_stiffness() -> Result<(), TestError> {
         let model = AlmansiHamel::new(ALMANSIHAMELPARAMETERS);
         let elastic_model = ElasticAlmansiHamel::new(ELASTICALMANSIHAMELPARAMETERS);
-        model.calculate_cauchy_tangent_stiffness(&get_deformation_gradient(), model.get_reference_temperature()).expect("the unexpected").iter()
-        .zip(elastic_model.calculate_cauchy_tangent_stiffness(&get_deformation_gradient()).expect("the unexpected").iter())
-        .for_each(|(cauchy_tangent_stiffness_i, elastic_cauchy_tangent_stiffness_i)|
-            cauchy_tangent_stiffness_i.iter()
-            .zip(elastic_cauchy_tangent_stiffness_i.iter())
-            .for_each(|(cauchy_tangent_stiffness_ij, elastic_cauchy_tangent_stiffness_ij)|
-                cauchy_tangent_stiffness_ij.iter()
-                .zip(elastic_cauchy_tangent_stiffness_ij.iter())
-                .for_each(|(cauchy_tangent_stiffness_ijk, elastic_cauchy_tangent_stiffness_ijk)|
-                    cauchy_tangent_stiffness_ijk.iter()
-                    .zip(elastic_cauchy_tangent_stiffness_ijk.iter())
-                    .for_each(|(cauchy_tangent_stiffness_ijkl, elastic_cauchy_tangent_stiffness_ijkl)|
-                        assert!((cauchy_tangent_stiffness_ijkl - elastic_cauchy_tangent_stiffness_ijkl).abs() < ABS_TOL)
-                    )
-                )
-            )
+        assert_eq_within_tols(
+            &model.calculate_cauchy_tangent_stiffness(
+                &get_deformation_gradient(),
+                model.get_reference_temperature(),
+            )?,
+            &elastic_model.calculate_cauchy_tangent_stiffness(&get_deformation_gradient())?,
         )
     }
 }

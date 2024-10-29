@@ -12,7 +12,6 @@ macro_rules! calculate_helmholtz_free_energy_density_from_deformation_gradient_s
     ($constitutive_model_constructed: expr, $deformation_gradient: expr) => {
         $constitutive_model_constructed
             .calculate_helmholtz_free_energy_density($deformation_gradient)
-            .unwrap()
     };
 }
 pub(crate) use calculate_helmholtz_free_energy_density_from_deformation_gradient_simple;
@@ -22,7 +21,7 @@ macro_rules! use_elastic_hyperviscous_macros {
         use crate::constitutive::solid::elastic_hyperviscous::test::{
             calculate_dissipation_potential_from_deformation_gradient_and_deformation_gradient_rate,
             calculate_viscous_dissipation_from_deformation_gradient_and_deformation_gradient_rate,
-            calculate_viscous_dissipation_from_deformation_gradient_rate_simple,
+            calculate_viscous_dissipation_from_deformation_gradient_rate_simple, test_solve,
             use_viscoelastic_macros,
         };
         use_viscoelastic_macros!();
@@ -47,13 +46,14 @@ macro_rules! test_solid_hyperviscoelastic_constitutive_model
             $constitutive_model, $constitutive_model_parameters, $constitutive_model_constructed
         );
         #[test]
-        fn dissipation_potential_deformed_positive()
+        fn dissipation_potential_deformed_positive() -> Result<(), TestError>
         {
             assert!(
                 calculate_dissipation_potential_from_deformation_gradient_and_deformation_gradient_rate!(
                     $constitutive_model_constructed, &get_deformation_gradient(), &get_deformation_gradient_rate()
-                ) > 0.0
-            )
+                )? > 0.0
+            );
+            Ok(())
         }
     }
 }

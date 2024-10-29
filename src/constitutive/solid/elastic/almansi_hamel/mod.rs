@@ -22,14 +22,12 @@ pub struct AlmansiHamel<'a> {
     parameters: Parameters<'a>,
 }
 
-/// Constitutive model implementation of the Almansi-Hamel elastic constitutive model.
 impl<'a> Constitutive<'a> for AlmansiHamel<'a> {
     fn new(parameters: Parameters<'a>) -> Self {
         Self { parameters }
     }
 }
 
-/// Solid constitutive model implementation of the Almansi-Hamel elastic constitutive model.
 impl<'a> Solid<'a> for AlmansiHamel<'a> {
     fn get_bulk_modulus(&self) -> &Scalar {
         &self.parameters[0]
@@ -39,7 +37,6 @@ impl<'a> Solid<'a> for AlmansiHamel<'a> {
     }
 }
 
-/// Elastic constitutive model implementation of the Almansi-Hamel elastic constitutive model.
 impl<'a> Elastic<'a> for AlmansiHamel<'a> {
     /// Calculates and returns the Cauchy stress.
     ///

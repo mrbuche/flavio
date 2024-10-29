@@ -16,7 +16,6 @@ pub struct ThermoelasticThermalConduction<C1, C2> {
     thermal_conduction_constitutive_model: C2,
 }
 
-/// Constitutive model implementation of a thermoelastic-thermal conduction constitutive model.
 impl<'a, C1, C2> Constitutive<'a> for ThermoelasticThermalConduction<C1, C2> {
     /// Dummy method that will panic, use [Self::construct()] instead.
     fn new(_parameters: Parameters<'a>) -> Self {
@@ -24,7 +23,6 @@ impl<'a, C1, C2> Constitutive<'a> for ThermoelasticThermalConduction<C1, C2> {
     }
 }
 
-/// Solid constitutive model implementation of a thermoelastic-thermal conduction constitutive model.
 impl<'a, C1, C2> Solid<'a> for ThermoelasticThermalConduction<C1, C2>
 where
     C1: Thermoelastic<'a>,
@@ -38,7 +36,6 @@ where
     }
 }
 
-/// Thermoelastic constitutive model implementation of a thermoelastic-thermal conduction constitutive model.
 impl<'a, C1, C2> Thermoelastic<'a> for ThermoelasticThermalConduction<C1, C2>
 where
     C1: Thermoelastic<'a>,
@@ -102,10 +99,8 @@ where
     }
 }
 
-/// Thermal constitutive model implementation of a thermoelastic-thermal conduction constitutive model.
-impl<'a, C1, C2> Thermal<'a> for ThermoelasticThermalConduction<C1, C2> {}
+impl<C1, C2> Thermal<'_> for ThermoelasticThermalConduction<C1, C2> {}
 
-/// Thermal conduction constitutive model implementation of a thermoelastic-thermal conduction constitutive model.
 impl<'a, C1, C2> ThermalConduction<'a> for ThermoelasticThermalConduction<C1, C2>
 where
     C1: Thermoelastic<'a>,
@@ -117,10 +112,8 @@ where
     }
 }
 
-/// Multiphysics constitutive model implementation of a thermoelastic-thermal conduction constitutive model.
-impl<'a, C1, C2> Multiphysics<'a> for ThermoelasticThermalConduction<C1, C2> {}
+impl<C1, C2> Multiphysics<'_> for ThermoelasticThermalConduction<C1, C2> {}
 
-/// Solid-thermal constitutive model implementation of a thermoelastic-thermal conduction constitutive model.
 impl<'a, C1, C2> SolidThermal<'a, C1, C2> for ThermoelasticThermalConduction<C1, C2>
 where
     C1: Thermoelastic<'a>,

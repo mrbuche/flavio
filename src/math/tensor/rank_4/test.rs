@@ -1,12 +1,12 @@
 use super::{
-    super::rank_1::TensorRank1Trait, ContractAllIndicesWithFirstIndicesOf,
-    ContractFirstSecondIndicesWithSecondIndicesOf,
+    super::{test::TensorError, Tensor},
+    ContractAllIndicesWithFirstIndicesOf, ContractFirstSecondIndicesWithSecondIndicesOf,
     ContractFirstThirdFourthIndicesWithFirstIndicesOf,
     ContractSecondFourthIndicesWithFirstIndicesOf, ContractSecondIndexWithFirstIndexOf,
     ContractThirdFourthIndicesWithFirstSecondIndicesOf, TensorRank0, TensorRank1, TensorRank2,
-    TensorRank2Trait, TensorRank3, TensorRank4, TensorRank4Inverse, TensorRank4Trait,
+    TensorRank3, TensorRank4,
 };
-use crate::test::assert_eq_within_tols;
+use crate::{ABS_TOL, REL_TOL};
 
 fn get_array() -> [[[[TensorRank0; 3]; 3]; 3]; 3] {
     [
@@ -344,36 +344,6 @@ fn get_other_other_tensor_rank_2() -> TensorRank2<3, 1, 1> {
 
 fn get_other_other_other_tensor_rank_2() -> TensorRank2<3, 1, 1> {
     TensorRank2::new([[3.0, 2.0, 4.0], [1.0, 0.0, 0.0], [3.0, 2.0, 2.0]])
-}
-
-fn get_tensor_rank_4_as_tensor_rank_2() -> TensorRank2<9, 1, 1> {
-    TensorRank2::new([
-        [4.0, 2.0, 4.0, 1.0, 4.0, 3.0, 2.0, 4.0, 4.0],
-        [2.0, 2.0, 2.0, 3.0, 1.0, 1.0, 1.0, 4.0, 2.0],
-        [1.0, 2.0, 3.0, 2.0, 2.0, 3.0, 1.0, 1.0, 0.0],
-        [2.0, 4.0, 2.0, 1.0, 2.0, 3.0, 3.0, 3.0, 2.0],
-        [1.0, 1.0, 1.0, 4.0, 2.0, 1.0, 1.0, 4.0, 1.0],
-        [2.0, 2.0, 4.0, 3.0, 3.0, 1.0, 0.0, 3.0, 3.0],
-        [0.0, 1.0, 4.0, 3.0, 3.0, 3.0, 4.0, 4.0, 0.0],
-        [2.0, 3.0, 1.0, 1.0, 2.0, 0.0, 2.0, 2.0, 4.0],
-        [3.0, 4.0, 1.0, 2.0, 1.0, 2.0, 4.0, 4.0, 1.0],
-    ])
-}
-
-#[test]
-fn as_tensor_rank_2() {
-    get_tensor_rank_4()
-        .as_tensor_rank_2::<9, 88, 88>()
-        .iter()
-        .zip(get_tensor_rank_4_as_tensor_rank_2().iter())
-        .for_each(|(as_tensor_rank_2_i, tensor_rank_2_i)| {
-            as_tensor_rank_2_i
-                .iter()
-                .zip(tensor_rank_2_i.iter())
-                .for_each(|(as_tensor_rank_2_ij, tensor_rank_2_ij)| {
-                    assert_eq!(as_tensor_rank_2_ij, tensor_rank_2_ij)
-                })
-        });
 }
 
 #[test]
@@ -885,6 +855,14 @@ fn dyad_il_kj() {
 }
 
 #[test]
+fn error() {
+    let a = get_tensor_rank_4();
+    let b = get_other_tensor_rank_4();
+    assert_eq!(a.error(&a, &ABS_TOL, &REL_TOL), None);
+    assert_eq!(a.error(&b, &ABS_TOL, &REL_TOL), Some(67));
+}
+
+#[test]
 fn from_iter() {
     let into_iterator = get_tensor_rank_4().0.into_iter();
     let tensor_rank_4 = TensorRank4::<3, 1, 1, 1, 1>::from_iter(get_tensor_rank_4().0);
@@ -907,28 +885,6 @@ fn from_iter() {
                     )
                 })
         });
-}
-
-#[test]
-fn inverse() {
-    (get_tensor_rank_4().as_tensor_rank_2::<9, 88, 88>()
-        * get_tensor_rank_4()
-            .inverse::<9>()
-            .as_tensor_rank_2::<9, 88, 88>())
-    .iter()
-    .enumerate()
-    .for_each(|(i, tensor_rank_2_i)| {
-        tensor_rank_2_i
-            .iter()
-            .enumerate()
-            .for_each(|(j, tensor_rank_2_ij)| {
-                if i == j {
-                    assert_eq_within_tols(tensor_rank_2_ij, &1.0)
-                } else {
-                    assert_eq_within_tols(tensor_rank_2_ij, &0.0)
-                }
-            })
-    });
 }
 
 #[test]

@@ -1,12 +1,16 @@
 #[cfg(test)]
 mod test;
 
-use std::ops::{Add, AddAssign, Index, IndexMut, Mul};
+#[cfg(test)]
+use super::super::{test::TensorError, Tensor};
 
-use super::{
-    list::{TensorRank2List, TensorRank2ListTrait},
-    TensorRank0, TensorRank1Trait, TensorRank2,
+use std::{
+    array::from_fn,
+    fmt::{Display, Formatter, Result},
+    ops::{Add, AddAssign, Index, IndexMut, Mul},
 };
+
+use super::{super::Tensors, list::TensorRank2List, TensorRank0, TensorRank2};
 
 /// A 2D list of *d*-dimensional tensors of rank 2.
 ///
@@ -19,64 +23,154 @@ pub struct TensorRank2List2D<
     const X: usize,
 >([TensorRank2List<D, I, J, W>; X]);
 
-/// Inherent implementation of [`TensorRank2List2D`].
-impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize>
-    TensorRank2List2D<D, I, J, W, X>
+impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize> Display
+    for TensorRank2List2D<D, I, J, W, X>
 {
-    /// Returns an iterator.
-    ///
-    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    pub fn iter(&self) -> impl Iterator<Item = &TensorRank2List<D, I, J, W>> {
-        self.0.iter()
-    }
-    /// Returns an iterator that allows modifying each value.
-    ///
-    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut TensorRank2List<D, I, J, W>> {
-        self.0.iter_mut()
+    fn fmt(&self, _f: &mut Formatter) -> Result {
+        Ok(())
     }
 }
 
-/// Required methods for 2D rank-2 tensor lists.
-pub trait TensorRank2List2DTrait<const D: usize, const W: usize, const X: usize> {
-    /// Returns the 2D rank-2 tensor list as an array.
-    fn as_array(&self) -> [[[[TensorRank0; D]; D]; W]; X];
-    /// Returns a list of rank-2 tensors given an array.
-    fn new(array: [[[[TensorRank0; D]; D]; W]; X]) -> Self;
-    /// Returns a list of rank-2 zero tensors.
-    fn zero() -> Self;
+#[cfg(test)]
+impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize> TensorError
+    for TensorRank2List2D<D, I, J, W, X>
+{
+    fn error(
+        &self,
+        comparator: &Self,
+        tol_abs: &TensorRank0,
+        tol_rel: &TensorRank0,
+    ) -> Option<usize> {
+        let error_count = self
+            .iter()
+            .zip(comparator.iter())
+            .map(|(self_a, comparator_a)| {
+                self_a
+                    .iter()
+                    .zip(comparator_a.iter())
+                    .map(|(self_ab, comparator_ab)| {
+                        self_ab
+                            .iter()
+                            .zip(comparator_ab.iter())
+                            .map(|(self_ab_i, comparator_ab_i)| {
+                                self_ab_i
+                                    .iter()
+                                    .zip(comparator_ab_i.iter())
+                                    .filter(|(&self_ab_ij, &comparator_ab_ij)| {
+                                        &(self_ab_ij - comparator_ab_ij).abs() >= tol_abs
+                                            && &(self_ab_ij / comparator_ab_ij - 1.0).abs()
+                                                >= tol_rel
+                                    })
+                                    .count()
+                            })
+                            .sum::<usize>()
+                    })
+                    .sum::<usize>()
+            })
+            .sum();
+        if error_count > 0 {
+            Some(error_count)
+        } else {
+            None
+        }
+    }
+    fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<(bool, usize)> {
+        let error_count = self
+            .iter()
+            .zip(comparator.iter())
+            .map(|(self_a, comparator_a)| {
+                self_a
+                    .iter()
+                    .zip(comparator_a.iter())
+                    .map(|(self_ab, comparator_ab)| {
+                        self_ab
+                            .iter()
+                            .zip(comparator_ab.iter())
+                            .map(|(self_ab_i, comparator_ab_i)| {
+                                self_ab_i
+                                    .iter()
+                                    .zip(comparator_ab_i.iter())
+                                    .filter(|(&self_ab_ij, &comparator_ab_ij)| {
+                                        &(self_ab_ij / comparator_ab_ij - 1.0).abs() >= epsilon
+                                            && (&self_ab_ij.abs() >= epsilon
+                                                || &comparator_ab_ij.abs() >= epsilon)
+                                    })
+                                    .count()
+                            })
+                            .sum::<usize>()
+                    })
+                    .sum::<usize>()
+            })
+            .sum();
+        if error_count > 0 {
+            let auxillary = self
+                .iter()
+                .zip(comparator.iter())
+                .map(|(self_a, comparator_a)| {
+                    self_a
+                        .iter()
+                        .zip(comparator_a.iter())
+                        .map(|(self_ab, comparator_ab)| {
+                            self_ab
+                                .iter()
+                                .zip(comparator_ab.iter())
+                                .map(|(self_ab_i, comparator_ab_i)| {
+                                    self_ab_i
+                                        .iter()
+                                        .zip(comparator_ab_i.iter())
+                                        .filter(|(&self_ab_ij, &comparator_ab_ij)| {
+                                            &(self_ab_ij / comparator_ab_ij - 1.0).abs() >= epsilon
+                                                && &(self_ab_ij - comparator_ab_ij).abs() >= epsilon
+                                                && (&self_ab_ij.abs() >= epsilon
+                                                    || &comparator_ab_ij.abs() >= epsilon)
+                                        })
+                                        .count()
+                                })
+                                .sum::<usize>()
+                        })
+                        .sum::<usize>()
+                })
+                .sum::<usize>()
+                > 0;
+            Some((auxillary, error_count))
+        } else {
+            None
+        }
+    }
 }
 
-/// Implementation of [`TensorRank2List2DTrait`] for [`TensorRank2List2D`].
-impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize>
-    TensorRank2List2DTrait<D, W, X> for TensorRank2List2D<D, I, J, W, X>
+impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize> Tensors
+    for TensorRank2List2D<D, I, J, W, X>
 {
-    fn as_array(&self) -> [[[[TensorRank0; D]; D]; W]; X] {
+    type Array = [[[[TensorRank0; D]; D]; W]; X];
+    type Item = TensorRank2List<D, I, J, W>;
+    fn as_array(&self) -> Self::Array {
         let mut array = [[[[0.0; D]; D]; W]; X];
         array
             .iter_mut()
             .zip(self.iter())
-            .for_each(|(entry, array_entry)| {
-                entry.iter_mut().zip(array_entry.iter()).for_each(
-                    |(entry_rank_2, tensor_rank_2)| {
-                        entry_rank_2.iter_mut().zip(tensor_rank_2.iter()).for_each(
-                            |(entry_rank_1, tensor_rank_1)| {
-                                *entry_rank_1 = tensor_rank_1.as_array()
-                            },
-                        )
-                    },
-                )
+            .for_each(|(entry_rank_2_list, tensor_rank_2_list)| {
+                *entry_rank_2_list = tensor_rank_2_list.as_array()
             });
         array
     }
-    fn new(array: [[[[TensorRank0; D]; D]; W]; X]) -> Self {
+    fn copy(&self) -> Self {
+        self.iter().map(|entry| entry.copy()).collect()
+    }
+    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
+        self.0.iter()
+    }
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
+        self.0.iter_mut()
+    }
+    fn new(array: Self::Array) -> Self {
         array
             .iter()
             .map(|array_i| TensorRank2List::new(*array_i))
             .collect()
     }
     fn zero() -> Self {
-        Self(std::array::from_fn(|_| TensorRank2List::zero()))
+        Self(from_fn(|_| TensorRank2List::zero()))
     }
 }
 

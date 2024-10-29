@@ -1,9 +1,13 @@
 #[cfg(test)]
 pub mod test;
 
-use super::{
-    list::{TensorRank3List, TensorRank3ListTrait},
-    TensorRank0,
+#[cfg(test)]
+use super::super::{test::TensorError, Tensor};
+
+use super::{super::Tensors, list::TensorRank3List, TensorRank0};
+use std::{
+    array::from_fn,
+    fmt::{Display, Formatter, Result},
 };
 
 /// A 2D list of *d*-dimensional tensors of rank 3.
@@ -18,7 +22,6 @@ pub struct TensorRank3List2D<
     const X: usize,
 >([TensorRank3List<D, I, J, K, W>; X]);
 
-/// Inherent implementation of [`TensorRank3List2D`].
 impl<
         const D: usize,
         const I: usize,
@@ -26,48 +29,150 @@ impl<
         const K: usize,
         const W: usize,
         const X: usize,
-    > TensorRank3List2D<D, I, J, K, W, X>
+    > Display for TensorRank3List2D<D, I, J, K, W, X>
 {
-    /// Returns an iterator.
-    ///
-    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    pub fn iter(&self) -> impl Iterator<Item = &TensorRank3List<D, I, J, K, W>> {
+    fn fmt(&self, _f: &mut Formatter) -> Result {
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+impl<
+        const D: usize,
+        const I: usize,
+        const J: usize,
+        const K: usize,
+        const W: usize,
+        const X: usize,
+    > TensorError for TensorRank3List2D<D, I, J, K, W, X>
+{
+    fn error(
+        &self,
+        comparator: &Self,
+        tol_abs: &TensorRank0,
+        tol_rel: &TensorRank0,
+    ) -> Option<usize> {
+        let error_count = self
+            .iter()
+            .zip(comparator.iter())
+            .map(|(self_a, comparator_a)| {
+                self_a
+                    .iter()
+                    .zip(comparator_a.iter())
+                    .map(|(self_ab, comparator_ab)| {
+                        self_ab
+                            .iter()
+                            .zip(comparator_ab.iter())
+                            .map(|(self_ab_i, comparator_ab_i)| {
+                                self_ab_i
+                                    .iter()
+                                    .zip(comparator_ab_i.iter())
+                                    .map(|(self_ab_ij, comparator_ab_ij)| {
+                                        self_ab_ij
+                                            .iter()
+                                            .zip(comparator_ab_ij.iter())
+                                            .filter(|(&self_ab_ijk, &comparator_ab_ijk)| {
+                                                &(self_ab_ijk - comparator_ab_ijk).abs() >= tol_abs
+                                                    && &(self_ab_ijk / comparator_ab_ijk - 1.0)
+                                                        .abs()
+                                                        >= tol_rel
+                                            })
+                                            .count()
+                                    })
+                                    .sum::<usize>()
+                            })
+                            .sum::<usize>()
+                    })
+                    .sum::<usize>()
+            })
+            .sum();
+        if error_count > 0 {
+            Some(error_count)
+        } else {
+            None
+        }
+    }
+    fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<(bool, usize)> {
+        let error_count = self
+            .iter()
+            .zip(comparator.iter())
+            .map(|(self_a, comparator_a)| {
+                self_a
+                    .iter()
+                    .zip(comparator_a.iter())
+                    .map(|(self_ab, comparator_ab)| {
+                        self_ab
+                            .iter()
+                            .zip(comparator_ab.iter())
+                            .map(|(self_ab_i, comparator_ab_i)| {
+                                self_ab_i
+                                    .iter()
+                                    .zip(comparator_ab_i.iter())
+                                    .map(|(self_ab_ij, comparator_ab_ij)| {
+                                        self_ab_ij
+                                            .iter()
+                                            .zip(comparator_ab_ij.iter())
+                                            .filter(|(&self_ab_ijk, &comparator_ab_ijk)| {
+                                                &(self_ab_ijk / comparator_ab_ijk - 1.0).abs()
+                                                    >= epsilon
+                                                    && (&self_ab_ijk.abs() >= epsilon
+                                                        || &comparator_ab_ijk.abs() >= epsilon)
+                                            })
+                                            .count()
+                                    })
+                                    .sum::<usize>()
+                            })
+                            .sum::<usize>()
+                    })
+                    .sum::<usize>()
+            })
+            .sum();
+        if error_count > 0 {
+            Some((true, error_count))
+        } else {
+            None
+        }
+    }
+}
+
+impl<
+        const D: usize,
+        const I: usize,
+        const J: usize,
+        const K: usize,
+        const W: usize,
+        const X: usize,
+    > Tensors for TensorRank3List2D<D, I, J, K, W, X>
+{
+    type Array = [[[[[TensorRank0; D]; D]; D]; W]; X];
+    type Item = TensorRank3List<D, I, J, K, W>;
+    fn as_array(&self) -> Self::Array {
+        let mut array = [[[[[0.0; D]; D]; D]; W]; X];
+        array
+            .iter_mut()
+            .zip(self.iter())
+            .for_each(|(entry_rank_4_list, tensor_rank_4_list)| {
+                *entry_rank_4_list = tensor_rank_4_list.as_array()
+            });
+        array
+    }
+    fn copy(&self) -> Self {
+        self.iter().map(|entry| entry.copy()).collect()
+    }
+    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()
     }
-    /// Returns an iterator that allows modifying each value.
-    ///
-    /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut TensorRank3List<D, I, J, K, W>> {
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
         self.0.iter_mut()
     }
-}
-
-/// Required methods for 2D rank-3 tensor lists.
-pub trait TensorRank3List2DTrait<const D: usize, const W: usize, const X: usize> {
-    /// Returns a list of rank-3 tensors given an array.
-    fn new(array: [[[[[TensorRank0; D]; D]; D]; W]; X]) -> Self;
-    /// Returns a list of rank-3 zero tensors.
-    fn zero() -> Self;
-}
-
-/// Implementation of [`TensorRank3List2DTrait`] for [`TensorRank3List2D`].
-impl<
-        const D: usize,
-        const I: usize,
-        const J: usize,
-        const K: usize,
-        const W: usize,
-        const X: usize,
-    > TensorRank3List2DTrait<D, W, X> for TensorRank3List2D<D, I, J, K, W, X>
-{
-    fn new(array: [[[[[TensorRank0; D]; D]; D]; W]; X]) -> Self {
+    fn new(array: Self::Array) -> Self {
         array
             .iter()
             .map(|array_i| TensorRank3List::new(*array_i))
             .collect()
     }
     fn zero() -> Self {
-        Self(std::array::from_fn(|_| TensorRank3List::zero()))
+        Self(from_fn(|_| TensorRank3List::zero()))
     }
 }
 

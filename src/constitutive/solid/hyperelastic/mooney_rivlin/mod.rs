@@ -23,22 +23,19 @@ pub struct MooneyRivlin<'a> {
     parameters: Parameters<'a>,
 }
 
-/// Inherent implementation of the Mooney-Rivlin hyperelastic constitutive model.
-impl<'a> MooneyRivlin<'a> {
+impl MooneyRivlin<'_> {
     /// Returns the extra modulus.
     fn get_extra_modulus(&self) -> &Scalar {
         &self.parameters[2]
     }
 }
 
-/// Constitutive model implementation of the Mooney-Rivlin hyperelastic constitutive model.
 impl<'a> Constitutive<'a> for MooneyRivlin<'a> {
     fn new(parameters: Parameters<'a>) -> Self {
         Self { parameters }
     }
 }
 
-/// Solid constitutive model implementation of the Mooney-Rivlin hyperelastic constitutive model.
 impl<'a> Solid<'a> for MooneyRivlin<'a> {
     fn get_bulk_modulus(&self) -> &Scalar {
         &self.parameters[0]
@@ -48,7 +45,6 @@ impl<'a> Solid<'a> for MooneyRivlin<'a> {
     }
 }
 
-/// Elastic constitutive model implementation of the Mooney-Rivlin hyperelastic constitutive model.
 impl<'a> Elastic<'a> for MooneyRivlin<'a> {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -147,7 +143,6 @@ impl<'a> Elastic<'a> for MooneyRivlin<'a> {
     }
 }
 
-/// Hyperelastic constitutive model implementation of the Mooney-Rivlin hyperelastic constitutive model.
 impl<'a> Hyperelastic<'a> for MooneyRivlin<'a> {
     /// Calculates and returns the Helmholtz free energy density.
     ///

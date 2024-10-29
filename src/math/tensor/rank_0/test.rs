@@ -1,4 +1,5 @@
-use super::TensorRank0;
+use super::{super::test::TensorError, TensorRank0};
+use crate::{ABS_TOL, REL_TOL};
 
 #[test]
 fn tensor_rank_0() {
@@ -17,6 +18,15 @@ fn add() {
     let a: TensorRank0 = 1.0;
     let b: TensorRank0 = 2.0;
     assert_eq!(a + b, 3.0);
+}
+
+#[test]
+fn error() {
+    let a: TensorRank0 = 1.0;
+    let b: TensorRank0 = 1.0;
+    let c: TensorRank0 = 2.0;
+    assert_eq!(a.error(&b, &ABS_TOL, &REL_TOL), None);
+    assert_eq!(a.error(&c, &ABS_TOL, &REL_TOL), Some(1));
 }
 
 #[test]

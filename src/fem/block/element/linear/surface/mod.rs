@@ -110,7 +110,7 @@ pub trait LinearSurfaceElement<
     }
     fn calculate_normal_gradients(nodal_coordinates: &Coordinates<1, O>) -> NormalGradients<O> {
         let basis_vectors = Self::calculate_basis(nodal_coordinates);
-        let levi_civita_symbol = levi_civita::<1, 1, 1>();
+        let levi_civita_symbol = LEVI_CIVITA;
         let normalization = basis_vectors[0].cross(&basis_vectors[1]).norm();
         let normal_vector = basis_vectors[0].cross(&basis_vectors[1]) / normalization;
         Self::calculate_standard_gradient_operator().iter()
@@ -143,7 +143,7 @@ pub trait LinearSurfaceElement<
         nodal_velocities: &NodalVelocities<O>,
     ) -> NormalRate {
         let basis_vectors = Self::calculate_basis(nodal_coordinates);
-        let levi_civita_symbol = levi_civita::<1, 1, 1>();
+        let levi_civita_symbol = LEVI_CIVITA;
         let normalization = basis_vectors[0].cross(&basis_vectors[1]).norm();
         let normal_vector = basis_vectors[0].cross(&basis_vectors[1]) / normalization;
         let standard_gradient_operator = Self::calculate_standard_gradient_operator();
@@ -176,7 +176,7 @@ pub trait LinearSurfaceElement<
     }
     fn calculate_normal_tangents(nodal_coordinates: &Coordinates<1, O>) -> NormalTangents<O> {
         let basis_vectors = Self::calculate_basis(nodal_coordinates);
-        let levi_civita_symbol = levi_civita::<1, 1, 1>();
+        let levi_civita_symbol = LEVI_CIVITA;
         let normalization = basis_vectors[0].cross(&basis_vectors[1]).norm();
         let normal_gradients = Self::calculate_normal_gradients(nodal_coordinates);
         let normal_vector = basis_vectors[0].cross(&basis_vectors[1]) / normalization;

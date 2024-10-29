@@ -12,19 +12,22 @@ use super::{Constitutive, Parameters};
 use crate::{
     constitutive::ConstitutiveError,
     math::{
-        ContractFirstSecondIndicesWithSecondIndicesOf, ContractSecondIndexWithFirstIndexOf,
-        TensorRank2Trait, TensorRank4Trait, FIVE_THIRDS, SEVEN_THIRDS, TWO_THIRDS,
+        ContractFirstSecondIndicesWithSecondIndicesOf, ContractSecondIndexWithFirstIndexOf, Tensor,
+        TensorRank4, Tensors, FIVE_THIRDS, SEVEN_THIRDS, TWO_THIRDS,
     },
     mechanics::{
-        CauchyRateTangentStiffness, CauchyStress, CauchyTangentStiffness, DeformationGradient,
-        DeformationGradientRate, FirstPiolaKirchoffRateTangentStiffness, FirstPiolaKirchoffStress,
+        CauchyRateTangentStiffness, CauchyStress, CauchyStresses, CauchyTangentStiffness,
+        DeformationGradient, DeformationGradientRate, DeformationGradients,
+        FirstPiolaKirchoffRateTangentStiffness, FirstPiolaKirchoffStress,
         FirstPiolaKirchoffTangentStiffness, LeftCauchyGreenDeformation,
         RightCauchyGreenDeformation, Scalar, SecondPiolaKirchoffRateTangentStiffness,
         SecondPiolaKirchoffStress, SecondPiolaKirchoffTangentStiffness, IDENTITY, IDENTITY_00,
-        IDENTITY_10, ZERO, ZERO_10,
+        IDENTITY_10, IDENTITY_1010, ZERO_10,
     },
     ABS_TOL, REL_TOL,
 };
+
+const MAXIMUM_STEPS: usize = 1_000;
 
 /// Required methods for solid constitutive models.
 pub trait Solid<'a>

@@ -5,9 +5,9 @@ use crate::{
     constitutive::{
         hybrid::{Hybrid, Multiplicative, MultiplicativeTrait},
         solid::{elastic::Elastic, Solid},
-        Constitutive, ConstitutiveError, Parameters, CONSTITUTIVE_MODEL_ERROR,
+        Constitutive, ConstitutiveError, Parameters,
     },
-    math::{TensorRank2, TensorRank2Trait},
+    math::{Tensor, TensorRank2},
     mechanics::{
         CauchyStress, CauchyTangentStiffness, DeformationGradient, FirstPiolaKirchoffStress,
         FirstPiolaKirchoffTangentStiffness, Scalar, SecondPiolaKirchoffStress,
@@ -16,7 +16,6 @@ use crate::{
     ABS_TOL,
 };
 
-/// Constitutive model implementation of hybrid elastic constitutive models that are based on the multiplicative decomposition.
 impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> Constitutive<'a> for Multiplicative<C1, C2> {
     /// Dummy method that will panic, use [Self::construct()] instead.
     fn new(_parameters: Parameters<'a>) -> Self {
@@ -24,7 +23,6 @@ impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> Constitutive<'a> for Multiplicative<C
     }
 }
 
-/// Solid constitutive model implementation of hybrid elastic constitutive models that are based on the multiplicative decomposition.
 impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> Solid<'a> for Multiplicative<C1, C2> {
     /// Dummy method that will panic.
     fn get_bulk_modulus(&self) -> &Scalar {
@@ -36,7 +34,6 @@ impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> Solid<'a> for Multiplicative<C1, C2> 
     }
 }
 
-/// Elastic constitutive model implementation of hybrid elastic constitutive models that are based on the multiplicative decomposition.
 impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> Elastic<'a> for Multiplicative<C1, C2> {
     /// Calculates and returns the Cauchy stress.
     ///
@@ -114,7 +111,6 @@ impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> Elastic<'a> for Multiplicative<C1, C2
     }
 }
 
-/// Multiplicative hybrid constitutive model implementation of hybrid elastic constitutive models that are based on the multiplicative decomposition.
 impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> MultiplicativeTrait for Multiplicative<C1, C2> {
     fn calculate_deformation_gradients(
         &self,
@@ -143,14 +139,12 @@ impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> MultiplicativeTrait for Multiplicativ
                 right_hand_side = (deformation_gradient_1.transpose()
                     * self
                         .get_constitutive_model_1()
-                        .calculate_first_piola_kirchoff_stress(&deformation_gradient_1)
-                        .expect(CONSTITUTIVE_MODEL_ERROR)
+                        .calculate_first_piola_kirchoff_stress(&deformation_gradient_1)?
                     * deformation_gradient_2_inverse_transpose)
                     .into();
                 residual = self
                     .get_constitutive_model_2()
-                    .calculate_first_piola_kirchoff_stress(&deformation_gradient_2)
-                    .expect(CONSTITUTIVE_MODEL_ERROR)
+                    .calculate_first_piola_kirchoff_stress(&deformation_gradient_2)?
                     - right_hand_side;
                 residual_norm = residual.norm();
                 if residual_norm >= ABS_TOL {
@@ -168,9 +162,10 @@ impl<'a, C1: Elastic<'a>, C2: Elastic<'a>> MultiplicativeTrait for Multiplicativ
                 steps += 1;
             }
             if residual_norm >= ABS_TOL && steps == steps_maximum {
-                return Err(ConstitutiveError::SolveError);
+                panic!("MAX STEPS REACHED")
+            } else {
+                Ok((deformation_gradient_1, deformation_gradient_2))
             }
-            Ok((deformation_gradient_1, deformation_gradient_2))
         }
     }
 }
