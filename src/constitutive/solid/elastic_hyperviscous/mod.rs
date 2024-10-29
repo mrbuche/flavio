@@ -65,8 +65,8 @@ where
         deformation_gradient_rate_11: impl Fn(Scalar) -> Scalar,
         evaluation_times: [Scalar; W],
     ) -> Result<(DeformationGradients<W>, CauchyStresses<W>), ConstitutiveError> {
-        let mut cauchy_stresses = CauchyStresses::<W>::zero();
-        let mut deformation_gradients = DeformationGradients::<W>::identity();
+        let mut cauchy_stresses = CauchyStresses::zero();
+        let mut deformation_gradients = DeformationGradients::identity();
         let time_steps = evaluation_times.windows(2).map(|time| time[1] - time[0]);
         for ((index, time_step), time) in time_steps.enumerate().zip(evaluation_times.into_iter()) {
             (deformation_gradients[index + 1], cauchy_stresses[index + 1]) = self
