@@ -50,7 +50,7 @@ where
         &self,
         deformation_gradient: &DeformationGradient,
     ) -> Result<Scalar, ConstitutiveError>;
-    /// ???
+    /// Solve for the unknown components of the Cauchy stress and deformation gradient under biaxial stress.
     fn solve_biaxial(
         &self,
         deformation_gradient_11: &Scalar,
@@ -77,7 +77,7 @@ where
                     return Ok((deformation_gradient, cauchy_stress));
                 } else {
                     return Err(ConstitutiveError::NotMinimum(
-                        deformation_gradient.copy(),
+                        format!("From deformation gradient: {}.", deformation_gradient),
                         format!("{:?}", &self),
                     ));
                 }
@@ -90,7 +90,7 @@ where
             format!("{:?}", &self),
         ))
     }
-    /// ???
+    /// Solve for the unknown components of the Cauchy stress and deformation gradient under uniaxial stress.
     fn solve_uniaxial(
         &self,
         deformation_gradient_11: &Scalar,
@@ -113,7 +113,7 @@ where
                     return Ok((deformation_gradient, cauchy_stress));
                 } else {
                     return Err(ConstitutiveError::NotMinimum(
-                        deformation_gradient.copy(),
+                        format!("From deformation gradient: {}.", deformation_gradient),
                         format!("{:?}", &self),
                     ));
                 }

@@ -33,7 +33,7 @@ pub enum ConstitutiveError {
     Custom(String, DeformationGradient, String),
     InvalidJacobian(Scalar, DeformationGradient, String),
     MaximumStepsReached(usize, String),
-    NotMinimum(DeformationGradient, String),
+    NotMinimum(String, String),
 }
 
 impl fmt::Debug for ConstitutiveError {
@@ -63,8 +63,7 @@ impl fmt::Debug for ConstitutiveError {
             Self::NotMinimum(deformation_gradient, constitutive_model) => {
                 format!(
                     "\x1b[1;91mThe obtained solution is not a minimum.\x1b[0;91m\n\
-                     From deformation gradient: {}.\n\
-                     In constitutive model: {}.",
+                     {}\nIn constitutive model: {}.",
                     deformation_gradient, constitutive_model
                 )
             }
@@ -75,6 +74,42 @@ impl fmt::Debug for ConstitutiveError {
             error,
             get_defeat_message()
         )
+    }
+}
+
+impl fmt::Display for ConstitutiveError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let error = match self {
+            Self::Custom(message, deformation_gradient, constitutive_model) => format!(
+                "\x1b[1;91m{}\x1b[0;91m\n\
+                 From deformation gradient: {}.\n\
+                 In constitutive model: {}.",
+                message, deformation_gradient, constitutive_model
+            ),
+            Self::InvalidJacobian(jacobian, deformation_gradient, constitutive_model) => {
+                format!(
+                    "\x1b[1;91mInvalid Jacobian: {:.6e}.\x1b[0;91m\n\
+                     From deformation gradient: {}.\n\
+                     In constitutive model: {}.",
+                    jacobian, deformation_gradient, constitutive_model
+                )
+            }
+            Self::MaximumStepsReached(steps, constitutive_model) => {
+                format!(
+                    "\x1b[1;91mMaximum number of steps ({}) reached.\x1b[0;91m\n\
+                     In constitutive model: {}.",
+                    steps, constitutive_model
+                )
+            }
+            Self::NotMinimum(deformation_gradient, constitutive_model) => {
+                format!(
+                    "\x1b[1;91mThe obtained solution is not a minimum.\x1b[0;91m\n\
+                     {}\nIn constitutive model: {}.",
+                    deformation_gradient, constitutive_model
+                )
+            }
+        };
+        write!(f, "{}\x1b[0m", error)
     }
 }
 

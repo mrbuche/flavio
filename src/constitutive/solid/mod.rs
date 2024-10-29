@@ -22,12 +22,12 @@ use crate::{
         FirstPiolaKirchoffTangentStiffness, LeftCauchyGreenDeformation,
         RightCauchyGreenDeformation, Scalar, SecondPiolaKirchoffRateTangentStiffness,
         SecondPiolaKirchoffStress, SecondPiolaKirchoffTangentStiffness, IDENTITY, IDENTITY_00,
-        IDENTITY_10, IDENTITY_1010, ZERO, ZERO_10,
+        IDENTITY_10, IDENTITY_1010, ZERO_10,
     },
     ABS_TOL, REL_TOL,
 };
 
-const MAXIMUM_STEPS: usize = 10_000;
+const MAXIMUM_STEPS: usize = 1_000;
 
 /// Required methods for solid constitutive models.
 pub trait Solid<'a>

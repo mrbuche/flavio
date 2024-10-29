@@ -12,29 +12,6 @@ pub const ALMANSIHAMELPARAMETERS: &[Scalar; 4] = &[
 macro_rules! test_solve {
     ($constitutive_model_constructed: expr) => {
         #[test]
-        fn temporary() -> Result<(), crate::math::test::TestError> {
-            let rate = 0.1;
-            let function = |_| rate;
-            let (deformation_gradients, cauchy_stresses) =
-                $constitutive_model_constructed.solve_uniaxial(function, [0.0, 0.2, 0.5])?;
-            deformation_gradients
-                .iter()
-                .for_each(|deformation_gradient| {
-                    println!();
-                    deformation_gradient
-                        .iter()
-                        .for_each(|row| println!("{:?}", (row[0], row[1], row[2])))
-                });
-            println!();
-            cauchy_stresses.iter().for_each(|cauchy_stress| {
-                println!();
-                cauchy_stress
-                    .iter()
-                    .for_each(|row| println!("{:?}", (row[0], row[1], row[2])))
-            });
-            todo!()
-        }
-        #[test]
         fn solve_uniaxial_compression() -> Result<(), crate::math::test::TestError> {
             let (deformation_gradient_rate, cauchy_stress) = $constitutive_model_constructed
                 .solve_uniaxial_inner_inner(&DeformationGradient::identity(), &-4.4)?;
