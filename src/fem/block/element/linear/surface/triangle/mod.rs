@@ -93,6 +93,7 @@ where
 {
     fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N> {
         self.calculate_nodal_forces_linear_element(nodal_coordinates)
+            .unwrap()
     }
     fn calculate_nodal_stiffnesses(
         &self,
@@ -103,7 +104,7 @@ where
             .calculate_first_piola_kirchoff_tangent_stiffness(
                 &self.calculate_deformation_gradient(nodal_coordinates),
             )
-            .expect(CONSTITUTIVE_MODEL_ERROR);
+            .unwrap();
         let gradient_vectors = self.get_gradient_vectors();
         let normal_gradients = Self::calculate_normal_gradients(nodal_coordinates);
         let reference_normal = self.get_reference_normal();
@@ -151,6 +152,7 @@ where
         nodal_velocities: &NodalVelocities<N>,
     ) -> NodalForces<N> {
         self.calculate_nodal_forces_linear_element(nodal_coordinates, nodal_velocities)
+            .unwrap()
     }
     fn calculate_nodal_stiffnesses(
         &self,
@@ -163,7 +165,7 @@ where
                 &self.calculate_deformation_gradient(nodal_coordinates),
                 &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities),
             )
-            .expect(CONSTITUTIVE_MODEL_ERROR);
+            .unwrap();
         let gradient_vectors = self.get_gradient_vectors();
         let normal_gradients = Self::calculate_normal_gradients(nodal_coordinates);
         let reference_normal = self.get_reference_normal();
@@ -218,6 +220,7 @@ where
 {
     fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar {
         self.calculate_helmholtz_free_energy_linear_element(nodal_coordinates)
+            .unwrap()
     }
 }
 
@@ -235,6 +238,7 @@ where
         nodal_velocities: &NodalVelocities<N>,
     ) -> Scalar {
         self.calculate_viscous_dissipation_linear_element(nodal_coordinates, nodal_velocities)
+            .unwrap()
     }
     fn calculate_dissipation_potential(
         &self,
@@ -242,6 +246,7 @@ where
         nodal_velocities: &NodalVelocities<N>,
     ) -> Scalar {
         self.calculate_dissipation_potential_linear_element(nodal_coordinates, nodal_velocities)
+            .unwrap()
     }
 }
 
@@ -256,6 +261,7 @@ where
 {
     fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar {
         self.calculate_helmholtz_free_energy_linear_element(nodal_coordinates)
+            .unwrap()
     }
 }
 

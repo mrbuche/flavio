@@ -163,7 +163,7 @@ where
             .calculate_first_piola_kirchoff_stress(
                 &self.calculate_deformation_gradient(nodal_coordinates),
             )
-            .expect("\x1b[91mConstitutive model error.\x1b[0\n");
+            .unwrap();
         let normal_gradients =
             Self::calculate_normal_gradients(&Self::calculate_midplane(nodal_coordinates));
         let traction = (&first_piola_kirchoff_stress * self.get_reference_normal()) * 0.5;
@@ -184,11 +184,11 @@ where
         let first_piola_kirchoff_stress = self
             .get_constitutive_model()
             .calculate_first_piola_kirchoff_stress(&deformation_gradient)
-            .expect("\x1b[91mConstitutive model error.\x1b[0\n");
+            .unwrap();
         let first_piola_kirchoff_tangent_stiffness = self
             .get_constitutive_model()
             .calculate_first_piola_kirchoff_tangent_stiffness(&deformation_gradient)
-            .expect(CONSTITUTIVE_MODEL_ERROR);
+            .unwrap();
         let gradient_vectors = self.get_gradient_vectors();
         let midplane = Self::calculate_midplane(nodal_coordinates);
         let normal_gradients = Self::calculate_normal_gradients(&midplane);
@@ -271,7 +271,7 @@ where
                 &self.calculate_deformation_gradient(nodal_coordinates),
                 &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities),
             )
-            .expect("\x1b[91mConstitutive model error.\x1b[0\n");
+            .unwrap();
         let normal_gradients =
             Self::calculate_normal_gradients(&Self::calculate_midplane(nodal_coordinates));
         let traction = (&first_piola_kirchoff_stress * self.get_reference_normal()) * 0.5;
@@ -295,7 +295,7 @@ where
                 &self.calculate_deformation_gradient(nodal_coordinates),
                 &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities),
             )
-            .expect(CONSTITUTIVE_MODEL_ERROR);
+            .unwrap();
         let gradient_vectors = self.get_gradient_vectors();
         let normal_gradients =
             Self::calculate_normal_gradients(&Self::calculate_midplane(nodal_coordinates));
@@ -363,6 +363,7 @@ where
 {
     fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar {
         self.calculate_helmholtz_free_energy_linear_element(nodal_coordinates)
+            .unwrap()
     }
 }
 
@@ -380,6 +381,7 @@ where
         nodal_velocities: &NodalVelocities<N>,
     ) -> Scalar {
         self.calculate_viscous_dissipation_linear_element(nodal_coordinates, nodal_velocities)
+            .unwrap()
     }
     fn calculate_dissipation_potential(
         &self,
@@ -387,6 +389,7 @@ where
         nodal_velocities: &NodalVelocities<N>,
     ) -> Scalar {
         self.calculate_dissipation_potential_linear_element(nodal_coordinates, nodal_velocities)
+            .unwrap()
     }
 }
 
@@ -401,6 +404,7 @@ where
 {
     fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar {
         self.calculate_helmholtz_free_energy_linear_element(nodal_coordinates)
+            .unwrap()
     }
 }
 

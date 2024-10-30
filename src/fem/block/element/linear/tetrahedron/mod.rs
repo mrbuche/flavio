@@ -75,12 +75,14 @@ where
 {
     fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N> {
         self.calculate_nodal_forces_linear_element(nodal_coordinates)
+            .unwrap()
     }
     fn calculate_nodal_stiffnesses(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
     ) -> NodalStiffnesses<N> {
         self.calculate_nodal_stiffnesses_linear_element(nodal_coordinates)
+            .unwrap()
     }
 }
 impl<'a, C> ElasticLinearElement<'a, C, G, M, N, O> for Tetrahedron<C> where C: Elastic<'a> {}
@@ -90,6 +92,7 @@ where
 {
     fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar {
         self.calculate_helmholtz_free_energy_linear_element(nodal_coordinates)
+            .unwrap()
     }
 }
 impl<'a, C> HyperelasticLinearElement<'a, C, G, M, N, O> for Tetrahedron<C> where C: Hyperelastic<'a>
@@ -104,6 +107,7 @@ where
         nodal_velocities: &NodalVelocities<N>,
     ) -> NodalForces<N> {
         self.calculate_nodal_forces_linear_element(nodal_coordinates, nodal_velocities)
+            .unwrap()
     }
     fn calculate_nodal_stiffnesses(
         &self,
@@ -111,6 +115,7 @@ where
         nodal_velocities: &NodalVelocities<N>,
     ) -> NodalStiffnesses<N> {
         self.calculate_nodal_stiffnesses_linear_element(nodal_coordinates, nodal_velocities)
+            .unwrap()
     }
 }
 impl<'a, C> ViscoelasticLinearElement<'a, C, G, M, N, O> for Tetrahedron<C> where C: Viscoelastic<'a>
@@ -125,6 +130,7 @@ where
         nodal_velocities: &NodalVelocities<N>,
     ) -> Scalar {
         self.calculate_viscous_dissipation_linear_element(nodal_coordinates, nodal_velocities)
+            .unwrap()
     }
     fn calculate_dissipation_potential(
         &self,
@@ -132,6 +138,7 @@ where
         nodal_velocities: &NodalVelocities<N>,
     ) -> Scalar {
         self.calculate_dissipation_potential_linear_element(nodal_coordinates, nodal_velocities)
+            .unwrap()
     }
 }
 impl<'a, C> ElasticHyperviscousLinearElement<'a, C, G, M, N, O> for Tetrahedron<C> where
@@ -144,6 +151,7 @@ where
 {
     fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar {
         self.calculate_helmholtz_free_energy_linear_element(nodal_coordinates)
+            .unwrap()
     }
 }
 impl<'a, C> HyperviscoelasticLinearElement<'a, C, G, M, N, O> for Tetrahedron<C> where
