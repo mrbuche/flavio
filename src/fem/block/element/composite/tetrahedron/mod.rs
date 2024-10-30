@@ -539,9 +539,11 @@ impl<'a, C> ElasticFiniteElement<'a, C, G, N> for Tetrahedron<C>
 where
     C: Elastic<'a>,
 {
-    fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N> {
+    fn calculate_nodal_forces(
+        &self,
+        nodal_coordinates: &NodalCoordinates<N>,
+    ) -> Result<NodalForces<N>, ConstitutiveError> {
         self.calculate_nodal_forces_composite_element(nodal_coordinates)
-            .unwrap()
     }
     fn calculate_nodal_stiffnesses(
         &self,
@@ -579,9 +581,8 @@ where
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> NodalForces<N> {
+    ) -> Result<NodalForces<N>, ConstitutiveError> {
         self.calculate_nodal_forces_composite_element(nodal_coordinates, nodal_velocities)
-            .unwrap()
     }
     fn calculate_nodal_stiffnesses(
         &self,

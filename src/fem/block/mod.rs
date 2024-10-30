@@ -98,7 +98,7 @@ pub trait ElasticFiniteElementBlock<
     C: Elastic<'a>,
     F: ElasticFiniteElement<'a, C, G, N>,
 {
-    fn calculate_nodal_forces(&self) -> NodalForces<D>;
+    fn calculate_nodal_forces(&self) -> Result<NodalForces<D>, ConstitutiveError>;
     fn calculate_nodal_stiffnesses(&self) -> NodalStiffnesses<D>;
 }
 
@@ -130,7 +130,7 @@ pub trait ViscoelasticFiniteElementBlock<
     C: Viscoelastic<'a>,
     F: ViscoelasticFiniteElement<'a, C, G, N>,
 {
-    fn calculate_nodal_forces(&self) -> NodalForces<D>;
+    fn calculate_nodal_forces(&self) -> Result<NodalForces<D>, ConstitutiveError>;
     fn calculate_nodal_stiffnesses(&self) -> NodalStiffnesses<D>;
     fn calculate_nodal_velocities_element(
         &self,
@@ -268,21 +268,22 @@ where
     F: ElasticFiniteElement<'a, C, G, N>,
     Self: BasicFiniteElementBlock<'a, C, D, E, F, G, N>,
 {
-    fn calculate_nodal_forces(&self) -> NodalForces<D> {
+    fn calculate_nodal_forces(&self) -> Result<NodalForces<D>, ConstitutiveError> {
         let mut nodal_forces = NodalForces::zero();
         self.get_elements()
             .iter()
             .zip(self.get_connectivity().iter())
-            .for_each(|(element, element_connectivity)| {
+            .try_for_each(|(element, element_connectivity)| {
                 element
                     .calculate_nodal_forces(
                         &self.calculate_nodal_coordinates_element(element_connectivity),
-                    )
+                    )?
                     .iter()
                     .zip(element_connectivity.iter())
-                    .for_each(|(nodal_force, node)| nodal_forces[*node] += nodal_force)
-            });
-        nodal_forces
+                    .for_each(|(nodal_force, node)| nodal_forces[*node] += nodal_force);
+                Ok(())
+            })?;
+        Ok(nodal_forces)
     }
     fn calculate_nodal_stiffnesses(&self) -> NodalStiffnesses<D> {
         let mut nodal_stiffnesses = NodalStiffnesses::zero();
@@ -425,22 +426,23 @@ where
     F: ViscoelasticFiniteElement<'a, C, G, N>,
     Self: BasicFiniteElementBlock<'a, C, D, E, F, G, N>,
 {
-    fn calculate_nodal_forces(&self) -> NodalForces<D> {
+    fn calculate_nodal_forces(&self) -> Result<NodalForces<D>, ConstitutiveError> {
         let mut nodal_forces = NodalForces::zero();
         self.get_elements()
             .iter()
             .zip(self.get_connectivity().iter())
-            .for_each(|(element, element_connectivity)| {
+            .try_for_each(|(element, element_connectivity)| {
                 element
                     .calculate_nodal_forces(
                         &self.calculate_nodal_coordinates_element(element_connectivity),
                         &self.calculate_nodal_velocities_element(element_connectivity),
-                    )
+                    )?
                     .iter()
                     .zip(element_connectivity.iter())
-                    .for_each(|(nodal_force, node)| nodal_forces[*node] += nodal_force)
-            });
-        nodal_forces
+                    .for_each(|(nodal_force, node)| nodal_forces[*node] += nodal_force);
+                Ok(())
+            })?;
+        Ok(nodal_forces)
     }
     fn calculate_nodal_stiffnesses(&self) -> NodalStiffnesses<D> {
         let mut nodal_stiffnesses = NodalStiffnesses::zero();

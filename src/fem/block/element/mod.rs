@@ -32,7 +32,10 @@ where
     C: Cohesive<'a>,
     Self: FiniteElement<'a, C, G, N>,
 {
-    fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>;
+    fn calculate_nodal_forces(
+        &self,
+        nodal_coordinates: &NodalCoordinates<N>,
+    ) -> Result<NodalForces<N>, ConstitutiveError>;
     fn calculate_nodal_stiffnesses(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
@@ -43,7 +46,10 @@ pub trait ElasticFiniteElement<'a, C, const G: usize, const N: usize>
 where
     C: Elastic<'a>,
 {
-    fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>;
+    fn calculate_nodal_forces(
+        &self,
+        nodal_coordinates: &NodalCoordinates<N>,
+    ) -> Result<NodalForces<N>, ConstitutiveError>;
     fn calculate_nodal_stiffnesses(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
@@ -69,7 +75,7 @@ where
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> NodalForces<N>;
+    ) -> Result<NodalForces<N>, ConstitutiveError>;
     fn calculate_nodal_stiffnesses(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,

@@ -157,24 +157,27 @@ impl<'a, C> ElasticFiniteElement<'a, C, G, N> for Wedge<C>
 where
     C: Elastic<'a>,
 {
-    fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N> {
+    fn calculate_nodal_forces(
+        &self,
+        nodal_coordinates: &NodalCoordinates<N>,
+    ) -> Result<NodalForces<N>, ConstitutiveError> {
         let first_piola_kirchoff_stress = self
             .get_constitutive_model()
             .calculate_first_piola_kirchoff_stress(
                 &self.calculate_deformation_gradient(nodal_coordinates),
-            )
-            .unwrap();
+            )?;
         let normal_gradients =
             Self::calculate_normal_gradients(&Self::calculate_midplane(nodal_coordinates));
         let traction = (&first_piola_kirchoff_stress * self.get_reference_normal()) * 0.5;
-        self.get_gradient_vectors()
+        Ok(self
+            .get_gradient_vectors()
             .iter()
             .zip(normal_gradients.iter().chain(normal_gradients.iter()))
             .map(|(gradient_vector_a, normal_gradient_a)| {
                 (&first_piola_kirchoff_stress * gradient_vector_a + normal_gradient_a * &traction)
                     * self.get_integration_weight()
             })
-            .collect()
+            .collect())
     }
     fn calculate_nodal_stiffnesses(
         &self,
@@ -264,25 +267,25 @@ where
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> NodalForces<N> {
+    ) -> Result<NodalForces<N>, ConstitutiveError> {
         let first_piola_kirchoff_stress = self
             .get_constitutive_model()
             .calculate_first_piola_kirchoff_stress(
                 &self.calculate_deformation_gradient(nodal_coordinates),
                 &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities),
-            )
-            .unwrap();
+            )?;
         let normal_gradients =
             Self::calculate_normal_gradients(&Self::calculate_midplane(nodal_coordinates));
         let traction = (&first_piola_kirchoff_stress * self.get_reference_normal()) * 0.5;
-        self.get_gradient_vectors()
+        Ok(self
+            .get_gradient_vectors()
             .iter()
             .zip(normal_gradients.iter().chain(normal_gradients.iter()))
             .map(|(gradient_vector_a, normal_gradient_a)| {
                 (&first_piola_kirchoff_stress * gradient_vector_a + normal_gradient_a * &traction)
                     * self.get_integration_weight()
             })
-            .collect()
+            .collect())
     }
     fn calculate_nodal_stiffnesses(
         &self,

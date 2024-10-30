@@ -235,12 +235,15 @@ impl<'a, C> ElasticFiniteElement<'a, C, G, N> for Triangle<C>
 where
     C: Elastic<'a>,
 {
-    fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N> {
-        self.get_constitutive_models().iter()
+    fn calculate_nodal_forces(
+        &self,
+        nodal_coordinates: &NodalCoordinates<N>,
+    ) -> Result<NodalForces<N>, ConstitutiveError> {
+        Ok(self.get_constitutive_models().iter()
         .zip(self.calculate_deformation_gradients(nodal_coordinates).iter())
         .map(|(constitutive_model, deformation_gradient)|
-            constitutive_model.calculate_first_piola_kirchoff_stress(deformation_gradient).unwrap()
-        ).collect::<FirstPiolaKirchoffStresses<G>>().iter()
+            constitutive_model.calculate_first_piola_kirchoff_stress(deformation_gradient)
+        ).collect::<Result<FirstPiolaKirchoffStresses<G>, _>>()?.iter()
         .zip(self.get_projected_gradient_vectors().iter()
         .zip(self.get_integration_weights().iter()
         .zip(self.calculate_objects(&Self::calculate_normal_gradients(nodal_coordinates)).iter())))
@@ -266,7 +269,7 @@ where
                     ).sum::<Scalar>()
                 ).collect()
             ).collect()
-        ).sum()
+        ).sum())
     }
     fn calculate_nodal_stiffnesses(
         &self,
@@ -362,14 +365,14 @@ where
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> NodalForces<N> {
+    ) -> Result<NodalForces<N>, ConstitutiveError> {
         let normal_gradients = Self::calculate_normal_gradients(nodal_coordinates);
-        self.get_constitutive_models().iter()
+        Ok(self.get_constitutive_models().iter()
         .zip(self.calculate_deformation_gradients(nodal_coordinates).iter()
         .zip(self.calculate_deformation_gradient_rates(nodal_coordinates, nodal_velocities).iter()))
         .map(|(constitutive_model, (deformation_gradient, deformation_gradient_rate))|
-            constitutive_model.calculate_first_piola_kirchoff_stress(deformation_gradient, deformation_gradient_rate).unwrap()
-        ).collect::<FirstPiolaKirchoffStresses<G>>().iter()
+            constitutive_model.calculate_first_piola_kirchoff_stress(deformation_gradient, deformation_gradient_rate)
+        ).collect::<Result<FirstPiolaKirchoffStresses<G>, _>>()?.iter()
         .zip(self.get_projected_gradient_vectors().iter()
         .zip(self.get_integration_weights().iter()
         .zip(self.calculate_objects(&normal_gradients).iter())))
@@ -395,7 +398,7 @@ where
                     ).sum::<Scalar>()
                 ).collect()
             ).collect()
-        ).sum()
+        ).sum())
     }
     fn calculate_nodal_stiffnesses(
         &self,
