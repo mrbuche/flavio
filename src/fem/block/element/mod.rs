@@ -86,7 +86,7 @@ where
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> Scalar;
+    ) -> Result<Scalar, ConstitutiveError>;
     fn calculate_dissipation_potential(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,

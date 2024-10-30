@@ -153,7 +153,7 @@ pub trait ElasticHyperviscousFiniteElementBlock<
     F: ElasticHyperviscousFiniteElement<'a, C, G, N>,
     Self: ViscoelasticFiniteElementBlock<'a, C, D, E, F, G, N>,
 {
-    fn calculate_viscous_dissipation(&self) -> Scalar;
+    fn calculate_viscous_dissipation(&self) -> Result<Scalar, ConstitutiveError>;
     fn calculate_dissipation_potential(&self) -> Result<Scalar, ConstitutiveError>;
 }
 
@@ -490,7 +490,7 @@ where
     F: ElasticHyperviscousFiniteElement<'a, C, G, N>,
     Self: ViscoelasticFiniteElementBlock<'a, C, D, E, F, G, N>,
 {
-    fn calculate_viscous_dissipation(&self) -> Scalar {
+    fn calculate_viscous_dissipation(&self) -> Result<Scalar, ConstitutiveError> {
         self.get_elements()
             .iter()
             .zip(self.get_connectivity().iter())

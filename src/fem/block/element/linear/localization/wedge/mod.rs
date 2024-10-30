@@ -381,9 +381,8 @@ where
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> Scalar {
+    ) -> Result<Scalar, ConstitutiveError> {
         self.calculate_viscous_dissipation_linear_element(nodal_coordinates, nodal_velocities)
-            .unwrap()
     }
     fn calculate_dissipation_potential(
         &self,

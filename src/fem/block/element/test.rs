@@ -886,28 +886,31 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
             $constitutive_model,
             $constitutive_model_parameters
         );
-        fn get_viscous_dissipation(is_deformed: bool, is_rotated: bool) -> Scalar {
+        fn get_viscous_dissipation(
+            is_deformed: bool,
+            is_rotated: bool,
+        ) -> Result<Scalar, TestError> {
             if is_rotated {
                 if is_deformed {
-                    get_element_transformed().calculate_viscous_dissipation(
+                    Ok(get_element_transformed().calculate_viscous_dissipation(
                         &get_coordinates_transformed(),
                         &get_velocities_transformed(),
-                    )
+                    )?)
                 } else {
-                    get_element_transformed().calculate_viscous_dissipation(
+                    Ok(get_element_transformed().calculate_viscous_dissipation(
                         &get_reference_coordinates_transformed().into(),
                         &NodalVelocities::zero(),
-                    )
+                    )?)
                 }
             } else {
                 if is_deformed {
-                    get_element()
-                        .calculate_viscous_dissipation(&get_coordinates(), &get_velocities())
+                    Ok(get_element()
+                        .calculate_viscous_dissipation(&get_coordinates(), &get_velocities())?)
                 } else {
-                    get_element().calculate_viscous_dissipation(
+                    Ok(get_element().calculate_viscous_dissipation(
                         &get_reference_coordinates().into(),
                         &NodalVelocities::zero(),
-                    )
+                    )?)
                 }
             }
         }
@@ -939,7 +942,9 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                 }
             }
         }
-        fn get_finite_difference_of_viscous_dissipation(is_deformed: bool) -> NodalForces<N> {
+        fn get_finite_difference_of_viscous_dissipation(
+            is_deformed: bool,
+        ) -> Result<NodalForces<N>, TestError> {
             let element = get_element();
             let mut finite_difference = 0.0;
             (0..N)
@@ -960,13 +965,13 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                             finite_difference = element.calculate_viscous_dissipation(
                                 &nodal_coordinates,
                                 &nodal_velocities,
-                            );
+                            )?;
                             nodal_velocities[node][i] -= EPSILON;
                             finite_difference -= element.calculate_viscous_dissipation(
                                 &nodal_coordinates,
                                 &nodal_velocities,
-                            );
-                            finite_difference / EPSILON
+                            )?;
+                            Ok(finite_difference / EPSILON)
                         })
                         .collect()
                 })
@@ -1016,26 +1021,26 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                     assert_eq_from_fd(
                         &(get_nodal_forces(true, false, true)
                             - get_nodal_forces(true, false, false)),
-                        &get_finite_difference_of_viscous_dissipation(true),
+                        &get_finite_difference_of_viscous_dissipation(true)?,
                     )
                 }
                 #[test]
-                fn minimized() {
+                fn minimized() -> Result<(), TestError> {
                     let element = get_element();
                     let nodal_forces =
                         get_nodal_forces(true, false, true) - get_nodal_forces(true, false, false);
                     let minimum =
-                        get_viscous_dissipation(true, false) - nodal_forces.dot(&get_velocities());
+                        get_viscous_dissipation(true, false)? - nodal_forces.dot(&get_velocities());
                     let mut perturbed = 0.0;
                     let mut perturbed_velocities = get_velocities();
-                    (0..N).for_each(|node| {
-                        (0..3).for_each(|i| {
+                    (0..N).try_for_each(|node| {
+                        (0..3).try_for_each(|i| {
                             perturbed_velocities = get_velocities();
                             perturbed_velocities[node][i] += 0.5 * EPSILON;
                             perturbed = element.calculate_viscous_dissipation(
                                 &get_coordinates(),
                                 &perturbed_velocities,
-                            ) - nodal_forces.dot(&perturbed_velocities);
+                            )? - nodal_forces.dot(&perturbed_velocities);
                             if assert_eq_within_tols(&perturbed, &minimum).is_err() {
                                 assert!(perturbed > minimum)
                             }
@@ -1043,23 +1048,25 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                             perturbed = element.calculate_viscous_dissipation(
                                 &get_coordinates(),
                                 &perturbed_velocities,
-                            ) - nodal_forces.dot(&perturbed_velocities);
+                            )? - nodal_forces.dot(&perturbed_velocities);
                             if assert_eq_within_tols(&perturbed, &minimum).is_err() {
                                 assert!(perturbed > minimum)
                             }
+                            Ok(())
                         })
                     })
                 }
                 #[test]
                 fn objectivity() -> Result<(), TestError> {
                     assert_eq_within_tols(
-                        &get_viscous_dissipation(true, false),
-                        &get_viscous_dissipation(true, true),
+                        &get_viscous_dissipation(true, false)?,
+                        &get_viscous_dissipation(true, true)?,
                     )
                 }
                 #[test]
-                fn positive() {
-                    assert!(get_viscous_dissipation(true, false) > 0.0)
+                fn positive() -> Result<(), TestError> {
+                    assert!(get_viscous_dissipation(true, false)? > 0.0);
+                    Ok(())
                 }
             }
             mod undeformed {
@@ -1067,24 +1074,24 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                 #[test]
                 fn finite_difference() -> Result<(), TestError> {
                     assert_eq_from_fd(
-                        &get_finite_difference_of_viscous_dissipation(false),
+                        &get_finite_difference_of_viscous_dissipation(false)?,
                         &NodalForces::zero(),
                     )
                 }
                 #[test]
-                fn minimized() {
+                fn minimized() -> Result<(), TestError> {
                     let element = get_element();
-                    let minimum = get_viscous_dissipation(false, false);
+                    let minimum = get_viscous_dissipation(false, false)?;
                     let mut perturbed = 0.0;
                     let mut perturbed_velocities = NodalVelocities::zero();
-                    (0..N).for_each(|node| {
-                        (0..3).for_each(|i| {
+                    (0..N).try_for_each(|node| {
+                        (0..3).try_for_each(|i| {
                             perturbed_velocities = NodalVelocities::zero();
                             perturbed_velocities[node][i] += 0.5 * EPSILON;
                             perturbed = element.calculate_viscous_dissipation(
                                 &get_reference_coordinates().into(),
                                 &perturbed_velocities,
-                            );
+                            )?;
                             if assert_eq_within_tols(&perturbed, &minimum).is_err() {
                                 assert!(perturbed > minimum)
                             }
@@ -1092,20 +1099,21 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                             perturbed = element.calculate_viscous_dissipation(
                                 &get_reference_coordinates().into(),
                                 &perturbed_velocities,
-                            );
+                            )?;
                             if assert_eq_within_tols(&perturbed, &minimum).is_err() {
                                 assert!(perturbed > minimum)
                             }
+                            Ok(())
                         })
                     })
                 }
                 #[test]
                 fn objectivity() -> Result<(), TestError> {
-                    assert_eq_within_tols(&get_viscous_dissipation(false, true), &0.0)
+                    assert_eq_within_tols(&get_viscous_dissipation(false, true)?, &0.0)
                 }
                 #[test]
                 fn zero() -> Result<(), TestError> {
-                    assert_eq(&get_viscous_dissipation(false, false), &0.0)
+                    assert_eq(&get_viscous_dissipation(false, false)?, &0.0)
                 }
             }
         }
