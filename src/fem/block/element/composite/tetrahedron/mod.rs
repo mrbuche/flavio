@@ -541,12 +541,14 @@ where
 {
     fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N> {
         self.calculate_nodal_forces_composite_element(nodal_coordinates)
+            .unwrap()
     }
     fn calculate_nodal_stiffnesses(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
     ) -> NodalStiffnesses<N> {
         self.calculate_nodal_stiffnesses_composite_element(nodal_coordinates)
+            .unwrap()
     }
 }
 
@@ -558,6 +560,7 @@ where
 {
     fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar {
         self.calculate_helmholtz_free_energy_composite_element(nodal_coordinates)
+            .unwrap()
     }
 }
 
@@ -576,6 +579,7 @@ where
         nodal_velocities: &NodalVelocities<N>,
     ) -> NodalForces<N> {
         self.calculate_nodal_forces_composite_element(nodal_coordinates, nodal_velocities)
+            .unwrap()
     }
     fn calculate_nodal_stiffnesses(
         &self,
@@ -583,6 +587,7 @@ where
         nodal_velocities: &NodalVelocities<N>,
     ) -> NodalStiffnesses<N> {
         self.calculate_nodal_stiffnesses_composite_element(nodal_coordinates, nodal_velocities)
+            .unwrap()
     }
 }
 
@@ -601,6 +606,7 @@ where
         nodal_velocities: &NodalVelocities<N>,
     ) -> Scalar {
         self.calculate_viscous_dissipation_composite_element(nodal_coordinates, nodal_velocities)
+            .unwrap()
     }
     fn calculate_dissipation_potential(
         &self,
@@ -608,6 +614,7 @@ where
         nodal_velocities: &NodalVelocities<N>,
     ) -> Scalar {
         self.calculate_dissipation_potential_composite_element(nodal_coordinates, nodal_velocities)
+            .unwrap()
     }
 }
 
@@ -622,6 +629,7 @@ where
 {
     fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar {
         self.calculate_helmholtz_free_energy_composite_element(nodal_coordinates)
+            .unwrap()
     }
 }
 

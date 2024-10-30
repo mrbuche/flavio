@@ -123,19 +123,18 @@ pub trait ElasticCompositeElement<
     fn calculate_nodal_forces_composite_element(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
-    ) -> NodalForces<N> {
-        self.get_constitutive_models()
+    ) -> Result<NodalForces<N>, ConstitutiveError> {
+        Ok(self
+            .get_constitutive_models()
             .iter()
             .zip(
                 self.calculate_deformation_gradients(nodal_coordinates)
                     .iter(),
             )
             .map(|(constitutive_model, deformation_gradient)| {
-                constitutive_model
-                    .calculate_first_piola_kirchoff_stress(deformation_gradient)
-                    .expect(CONSTITUTIVE_MODEL_ERROR)
+                constitutive_model.calculate_first_piola_kirchoff_stress(deformation_gradient)
             })
-            .collect::<FirstPiolaKirchoffStresses<G>>()
+            .collect::<Result<FirstPiolaKirchoffStresses<G>, _>>()?
             .iter()
             .zip(
                 self.get_projected_gradient_vectors()
@@ -156,13 +155,14 @@ pub trait ElasticCompositeElement<
                         .collect()
                 },
             )
-            .sum()
+            .sum())
     }
     fn calculate_nodal_stiffnesses_composite_element(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
-    ) -> NodalStiffnesses<N> {
-        self.get_constitutive_models()
+    ) -> Result<NodalStiffnesses<N>, ConstitutiveError> {
+        Ok(self
+            .get_constitutive_models()
             .iter()
             .zip(
                 self.calculate_deformation_gradients(nodal_coordinates)
@@ -171,9 +171,8 @@ pub trait ElasticCompositeElement<
             .map(|(constitutive_model, deformation_gradient)| {
                 constitutive_model
                     .calculate_first_piola_kirchoff_tangent_stiffness(deformation_gradient)
-                    .expect(CONSTITUTIVE_MODEL_ERROR)
             })
-            .collect::<FirstPiolaKirchoffTangentStiffnesses<G>>()
+            .collect::<Result<FirstPiolaKirchoffTangentStiffnesses<G>, _>>()?
             .iter()
             .zip(
                 self.get_projected_gradient_vectors()
@@ -203,7 +202,7 @@ pub trait ElasticCompositeElement<
                         .collect()
                 },
             )
-            .sum()
+            .sum())
     }
 }
 
@@ -223,7 +222,7 @@ pub trait HyperelasticCompositeElement<
     fn calculate_helmholtz_free_energy_composite_element(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
-    ) -> Scalar {
+    ) -> Result<Scalar, ConstitutiveError> {
         self.get_constitutive_models()
             .iter()
             .zip(
@@ -233,10 +232,9 @@ pub trait HyperelasticCompositeElement<
             )
             .map(
                 |(constitutive_model, (deformation_gradient, scaled_composite_jacobian))| {
-                    constitutive_model
-                        .calculate_helmholtz_free_energy_density(deformation_gradient)
-                        .expect(CONSTITUTIVE_MODEL_ERROR)
-                        * scaled_composite_jacobian
+                    Ok(constitutive_model
+                        .calculate_helmholtz_free_energy_density(deformation_gradient)?
+                        * scaled_composite_jacobian)
                 },
             )
             .sum()
@@ -260,8 +258,9 @@ pub trait ViscoelasticCompositeElement<
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> NodalForces<N> {
-        self.get_constitutive_models()
+    ) -> Result<NodalForces<N>, ConstitutiveError> {
+        Ok(self
+            .get_constitutive_models()
             .iter()
             .zip(
                 self.calculate_deformation_gradients(nodal_coordinates)
@@ -276,15 +275,13 @@ pub trait ViscoelasticCompositeElement<
             )
             .map(
                 |(constitutive_model, (deformation_gradient, deformation_gradient_rate))| {
-                    constitutive_model
-                        .calculate_first_piola_kirchoff_stress(
-                            deformation_gradient,
-                            deformation_gradient_rate,
-                        )
-                        .expect(CONSTITUTIVE_MODEL_ERROR)
+                    constitutive_model.calculate_first_piola_kirchoff_stress(
+                        deformation_gradient,
+                        deformation_gradient_rate,
+                    )
                 },
             )
-            .collect::<FirstPiolaKirchoffStresses<G>>()
+            .collect::<Result<FirstPiolaKirchoffStresses<G>, _>>()?
             .iter()
             .zip(
                 self.get_projected_gradient_vectors()
@@ -305,14 +302,15 @@ pub trait ViscoelasticCompositeElement<
                         .collect()
                 },
             )
-            .sum()
+            .sum())
     }
     fn calculate_nodal_stiffnesses_composite_element(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> NodalStiffnesses<N> {
-        self.get_constitutive_models()
+    ) -> Result<NodalStiffnesses<N>, ConstitutiveError> {
+        Ok(self
+            .get_constitutive_models()
             .iter()
             .zip(
                 self.calculate_deformation_gradients(nodal_coordinates)
@@ -327,15 +325,13 @@ pub trait ViscoelasticCompositeElement<
             )
             .map(
                 |(constitutive_model, (deformation_gradient, deformation_gradient_rate))| {
-                    constitutive_model
-                        .calculate_first_piola_kirchoff_rate_tangent_stiffness(
-                            deformation_gradient,
-                            deformation_gradient_rate,
-                        )
-                        .expect(CONSTITUTIVE_MODEL_ERROR)
+                    constitutive_model.calculate_first_piola_kirchoff_rate_tangent_stiffness(
+                        deformation_gradient,
+                        deformation_gradient_rate,
+                    )
                 },
             )
-            .collect::<FirstPiolaKirchoffRateTangentStiffnesses<G>>()
+            .collect::<Result<FirstPiolaKirchoffRateTangentStiffnesses<G>, _>>()?
             .iter()
             .zip(
                 self.get_projected_gradient_vectors().iter().zip(
@@ -370,7 +366,7 @@ pub trait ViscoelasticCompositeElement<
                         .collect()
                 },
             )
-            .sum()
+            .sum())
     }
 }
 
@@ -391,7 +387,7 @@ pub trait ElasticHyperviscousCompositeElement<
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> Scalar {
+    ) -> Result<Scalar, ConstitutiveError> {
         self.get_constitutive_models()
             .iter()
             .zip(
@@ -411,13 +407,10 @@ pub trait ElasticHyperviscousCompositeElement<
                     constitutive_model,
                     (deformation_gradient, (deformation_gradient_rate, scaled_composite_jacobian)),
                 )| {
-                    constitutive_model
-                        .calculate_viscous_dissipation(
-                            deformation_gradient,
-                            deformation_gradient_rate,
-                        )
-                        .expect(CONSTITUTIVE_MODEL_ERROR)
-                        * scaled_composite_jacobian
+                    Ok(constitutive_model.calculate_viscous_dissipation(
+                        deformation_gradient,
+                        deformation_gradient_rate,
+                    )? * scaled_composite_jacobian)
                 },
             )
             .sum()
@@ -426,7 +419,7 @@ pub trait ElasticHyperviscousCompositeElement<
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> Scalar {
+    ) -> Result<Scalar, ConstitutiveError> {
         self.get_constitutive_models()
             .iter()
             .zip(
@@ -446,13 +439,10 @@ pub trait ElasticHyperviscousCompositeElement<
                     constitutive_model,
                     (deformation_gradient, (deformation_gradient_rate, scaled_composite_jacobian)),
                 )| {
-                    constitutive_model
-                        .calculate_dissipation_potential(
-                            deformation_gradient,
-                            deformation_gradient_rate,
-                        )
-                        .expect(CONSTITUTIVE_MODEL_ERROR)
-                        * scaled_composite_jacobian
+                    Ok(constitutive_model.calculate_dissipation_potential(
+                        deformation_gradient,
+                        deformation_gradient_rate,
+                    )? * scaled_composite_jacobian)
                 },
             )
             .sum()
@@ -475,7 +465,7 @@ pub trait HyperviscoelasticCompositeElement<
     fn calculate_helmholtz_free_energy_composite_element(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
-    ) -> Scalar {
+    ) -> Result<Scalar, ConstitutiveError> {
         self.get_constitutive_models()
             .iter()
             .zip(
@@ -485,10 +475,9 @@ pub trait HyperviscoelasticCompositeElement<
             )
             .map(
                 |(constitutive_model, (deformation_gradient, scaled_composite_jacobian))| {
-                    constitutive_model
-                        .calculate_helmholtz_free_energy_density(deformation_gradient)
-                        .expect(CONSTITUTIVE_MODEL_ERROR)
-                        * scaled_composite_jacobian
+                    Ok(constitutive_model
+                        .calculate_helmholtz_free_energy_density(deformation_gradient)?
+                        * scaled_composite_jacobian)
                 },
             )
             .sum()
