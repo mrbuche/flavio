@@ -55,7 +55,10 @@ where
     C: Hyperelastic<'a>,
     Self: ElasticFiniteElement<'a, C, G, N>,
 {
-    fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar;
+    fn calculate_helmholtz_free_energy(
+        &self,
+        nodal_coordinates: &NodalCoordinates<N>,
+    ) -> Result<Scalar, ConstitutiveError>;
 }
 
 pub trait ViscoelasticFiniteElement<'a, C, const G: usize, const N: usize>
@@ -88,7 +91,7 @@ where
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> Scalar;
+    ) -> Result<Scalar, ConstitutiveError>;
 }
 
 pub trait HyperviscoelasticFiniteElement<'a, C, const G: usize, const N: usize>
@@ -96,5 +99,8 @@ where
     C: Hyperviscoelastic<'a>,
     Self: ElasticHyperviscousFiniteElement<'a, C, G, N>,
 {
-    fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar;
+    fn calculate_helmholtz_free_energy(
+        &self,
+        nodal_coordinates: &NodalCoordinates<N>,
+    ) -> Result<Scalar, ConstitutiveError>;
 }

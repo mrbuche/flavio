@@ -115,7 +115,7 @@ pub trait HyperelasticFiniteElementBlock<
     F: HyperelasticFiniteElement<'a, C, G, N>,
     Self: ElasticFiniteElementBlock<'a, C, D, E, F, G, N>,
 {
-    fn calculate_helmholtz_free_energy(&self) -> Scalar;
+    fn calculate_helmholtz_free_energy(&self) -> Result<Scalar, ConstitutiveError>;
 }
 
 pub trait ViscoelasticFiniteElementBlock<
@@ -154,7 +154,7 @@ pub trait ElasticHyperviscousFiniteElementBlock<
     Self: ViscoelasticFiniteElementBlock<'a, C, D, E, F, G, N>,
 {
     fn calculate_viscous_dissipation(&self) -> Scalar;
-    fn calculate_dissipation_potential(&self) -> Scalar;
+    fn calculate_dissipation_potential(&self) -> Result<Scalar, ConstitutiveError>;
 }
 
 pub trait HyperviscoelasticFiniteElementBlock<
@@ -170,7 +170,7 @@ pub trait HyperviscoelasticFiniteElementBlock<
     F: HyperviscoelasticFiniteElement<'a, C, G, N>,
     Self: ElasticHyperviscousFiniteElementBlock<'a, C, D, E, F, G, N>,
 {
-    fn calculate_helmholtz_free_energy(&self) -> Scalar;
+    fn calculate_helmholtz_free_energy(&self) -> Result<Scalar, ConstitutiveError>;
 }
 
 impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
@@ -315,7 +315,7 @@ where
     F: HyperelasticFiniteElement<'a, C, G, N>,
     Self: ElasticFiniteElementBlock<'a, C, D, E, F, G, N>,
 {
-    fn calculate_helmholtz_free_energy(&self) -> Scalar {
+    fn calculate_helmholtz_free_energy(&self) -> Result<Scalar, ConstitutiveError> {
         self.get_elements()
             .iter()
             .zip(self.get_connectivity().iter())
@@ -502,7 +502,7 @@ where
             })
             .sum()
     }
-    fn calculate_dissipation_potential(&self) -> Scalar {
+    fn calculate_dissipation_potential(&self) -> Result<Scalar, ConstitutiveError> {
         self.get_elements()
             .iter()
             .zip(self.get_connectivity().iter())
@@ -523,7 +523,7 @@ where
     F: HyperviscoelasticFiniteElement<'a, C, G, N>,
     Self: ElasticHyperviscousFiniteElementBlock<'a, C, D, E, F, G, N>,
 {
-    fn calculate_helmholtz_free_energy(&self) -> Scalar {
+    fn calculate_helmholtz_free_energy(&self) -> Result<Scalar, ConstitutiveError> {
         self.get_elements()
             .iter()
             .zip(self.get_connectivity().iter())

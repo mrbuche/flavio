@@ -90,9 +90,11 @@ impl<'a, C> HyperelasticFiniteElement<'a, C, G, N> for Tetrahedron<C>
 where
     C: Hyperelastic<'a>,
 {
-    fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar {
+    fn calculate_helmholtz_free_energy(
+        &self,
+        nodal_coordinates: &NodalCoordinates<N>,
+    ) -> Result<Scalar, ConstitutiveError> {
         self.calculate_helmholtz_free_energy_linear_element(nodal_coordinates)
-            .unwrap()
     }
 }
 impl<'a, C> HyperelasticLinearElement<'a, C, G, M, N, O> for Tetrahedron<C> where C: Hyperelastic<'a>
@@ -136,9 +138,8 @@ where
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> Scalar {
+    ) -> Result<Scalar, ConstitutiveError> {
         self.calculate_dissipation_potential_linear_element(nodal_coordinates, nodal_velocities)
-            .unwrap()
     }
 }
 impl<'a, C> ElasticHyperviscousLinearElement<'a, C, G, M, N, O> for Tetrahedron<C> where
@@ -149,9 +150,11 @@ impl<'a, C> HyperviscoelasticFiniteElement<'a, C, G, N> for Tetrahedron<C>
 where
     C: Hyperviscoelastic<'a>,
 {
-    fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar {
+    fn calculate_helmholtz_free_energy(
+        &self,
+        nodal_coordinates: &NodalCoordinates<N>,
+    ) -> Result<Scalar, ConstitutiveError> {
         self.calculate_helmholtz_free_energy_linear_element(nodal_coordinates)
-            .unwrap()
     }
 }
 impl<'a, C> HyperviscoelasticLinearElement<'a, C, G, M, N, O> for Tetrahedron<C> where

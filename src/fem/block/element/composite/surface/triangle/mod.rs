@@ -474,9 +474,11 @@ impl<'a, C> HyperelasticFiniteElement<'a, C, G, N> for Triangle<C>
 where
     C: Hyperelastic<'a>,
 {
-    fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar {
+    fn calculate_helmholtz_free_energy(
+        &self,
+        nodal_coordinates: &NodalCoordinates<N>,
+    ) -> Result<Scalar, ConstitutiveError> {
         self.calculate_helmholtz_free_energy_composite_element(nodal_coordinates)
-            .unwrap()
     }
 }
 
@@ -506,9 +508,8 @@ where
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> Scalar {
+    ) -> Result<Scalar, ConstitutiveError> {
         self.calculate_dissipation_potential_composite_element(nodal_coordinates, nodal_velocities)
-            .unwrap()
     }
 }
 
@@ -521,9 +522,11 @@ impl<'a, C> HyperviscoelasticFiniteElement<'a, C, G, N> for Triangle<C>
 where
     C: Hyperviscoelastic<'a>,
 {
-    fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar {
+    fn calculate_helmholtz_free_energy(
+        &self,
+        nodal_coordinates: &NodalCoordinates<N>,
+    ) -> Result<Scalar, ConstitutiveError> {
         self.calculate_helmholtz_free_energy_composite_element(nodal_coordinates)
-            .unwrap()
     }
 }
 
