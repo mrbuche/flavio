@@ -1,5 +1,6 @@
 use crate::{
     constitutive::cohesive::{test::SMITHFERRANTEPARAMETERS, SmithFerrante},
+    math::test::TestError,
     EPSILON,
 };
 
@@ -39,52 +40,53 @@ fn get_velocities() -> NodalVelocities<N> {
 }
 
 #[test]
-fn zero() {
+fn zero() -> Result<(), TestError> {
     let element = Wedge::<SmithFerrante>::new(SMITHFERRANTEPARAMETERS, get_reference_coordinates());
     element
-        .calculate_nodal_forces(&get_reference_coordinates().into())
+        .calculate_nodal_forces(&get_reference_coordinates().into())?
         .iter()
         .for_each(|nodal_force| {
             nodal_force
                 .iter()
                 .for_each(|nodal_force_i| assert_eq!(nodal_force_i, &0.0))
-        })
+        });
+    Ok(())
 }
 
 #[test]
-fn finite_difference() {
+fn finite_difference() -> Result<(), TestError> {
     let element = Wedge::<SmithFerrante>::new(SMITHFERRANTEPARAMETERS, get_reference_coordinates());
     let mut finite_difference = 0.0;
     element
         .calculate_nodal_stiffnesses(&get_coordinates())
         .iter()
         .enumerate()
-        .for_each(|(a, nodal_stiffness_a)| {
+        .try_for_each(|(a, nodal_stiffness_a)| {
             nodal_stiffness_a
                 .iter()
                 .enumerate()
-                .for_each(|(b, nodal_stiffness_ab)| {
-                    nodal_stiffness_ab
-                        .iter()
-                        .enumerate()
-                        .for_each(|(i, nodal_stiffness_ab_i)| {
-                            nodal_stiffness_ab_i.iter().enumerate().for_each(
+                .try_for_each(|(b, nodal_stiffness_ab)| {
+                    nodal_stiffness_ab.iter().enumerate().try_for_each(
+                        |(i, nodal_stiffness_ab_i)| {
+                            nodal_stiffness_ab_i.iter().enumerate().try_for_each(
                                 |(j, nodal_stiffness_ab_ij)| {
                                     let mut nodal_coordinates = get_coordinates();
                                     nodal_coordinates[b][j] += 0.5 * EPSILON;
                                     finite_difference =
-                                        element.calculate_nodal_forces(&nodal_coordinates)[a][i];
+                                        element.calculate_nodal_forces(&nodal_coordinates)?[a][i];
                                     nodal_coordinates[b][j] -= EPSILON;
                                     finite_difference -=
-                                        element.calculate_nodal_forces(&nodal_coordinates)[a][i];
+                                        element.calculate_nodal_forces(&nodal_coordinates)?[a][i];
                                     finite_difference /= EPSILON;
                                     assert!(
                                         (nodal_stiffness_ab_ij / finite_difference - 1.0).abs()
                                             < EPSILON
-                                    )
+                                    );
+                                    Ok(())
                                 },
                             )
-                        })
+                        },
+                    )
                 })
         })
 }
