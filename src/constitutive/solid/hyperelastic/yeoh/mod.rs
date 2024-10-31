@@ -71,7 +71,7 @@ impl<'a> Elastic<'a> for Yeoh<'a> {
                     .iter()
                     .enumerate()
                     .map(|(n, modulus)| {
-                        ((n as Scalar) + 1.0) * modulus * scalar_term.powi(n.try_into().unwrap())
+                        ((n as Scalar) + 1.0) * modulus * scalar_term.powi(n as i32)
                     })
                     .sum::<Scalar>()
                 / jacobian.powf(FIVE_THIRDS)
@@ -104,9 +104,7 @@ impl<'a> Elastic<'a> for Yeoh<'a> {
                 .get_moduli()
                 .iter()
                 .enumerate()
-                .map(|(n, modulus)| {
-                    ((n as Scalar) + 1.0) * modulus * scalar_term.powi(n.try_into().unwrap())
-                })
+                .map(|(n, modulus)| ((n as Scalar) + 1.0) * modulus * scalar_term.powi(n as i32))
                 .sum::<Scalar>()
                 / jacobian.powf(FIVE_THIRDS);
             let deviatoric_left_cauchy_green_deformation =
@@ -124,7 +122,7 @@ impl<'a> Elastic<'a> for Yeoh<'a> {
                                 ((n as Scalar) + 2.0)
                                     * ((n as Scalar) + 1.0)
                                     * modulus
-                                    * scalar_term.powi(n.try_into().unwrap())
+                                    * scalar_term.powi(n as i32)
                             })
                             .sum::<Scalar>()
                         / jacobian.powf(SEVEN_THIRDS))),
@@ -175,10 +173,7 @@ impl<'a> Hyperelastic<'a> for Yeoh<'a> {
                     .get_moduli()
                     .iter()
                     .enumerate()
-                    .map(|(n, modulus)| {
-                        modulus
-                            * scalar_term.powi(<usize as TryInto<i32>>::try_into(n).unwrap() + 1)
-                    })
+                    .map(|(n, modulus)| modulus * scalar_term.powi((n + 1) as i32))
                     .sum::<Scalar>()
                     + self.get_bulk_modulus() * (0.5 * (jacobian.powi(2) - 1.0) - jacobian.ln())))
         } else {

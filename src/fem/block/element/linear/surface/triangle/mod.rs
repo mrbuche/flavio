@@ -91,23 +91,25 @@ impl<'a, C> ElasticFiniteElement<'a, C, G, N> for Triangle<C>
 where
     C: Elastic<'a>,
 {
-    fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N> {
+    fn calculate_nodal_forces(
+        &self,
+        nodal_coordinates: &NodalCoordinates<N>,
+    ) -> Result<NodalForces<N>, ConstitutiveError> {
         self.calculate_nodal_forces_linear_element(nodal_coordinates)
     }
     fn calculate_nodal_stiffnesses(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
-    ) -> NodalStiffnesses<N> {
+    ) -> Result<NodalStiffnesses<N>, ConstitutiveError> {
         let first_piola_kirchoff_tangent_stiffness = self
             .get_constitutive_model()
             .calculate_first_piola_kirchoff_tangent_stiffness(
                 &self.calculate_deformation_gradient(nodal_coordinates),
-            )
-            .expect(CONSTITUTIVE_MODEL_ERROR);
+            )?;
         let gradient_vectors = self.get_gradient_vectors();
         let normal_gradients = Self::calculate_normal_gradients(nodal_coordinates);
         let reference_normal = self.get_reference_normal();
-        gradient_vectors.iter()
+        Ok(gradient_vectors.iter()
         .map(|gradient_vector_a|
             gradient_vectors.iter()
             .zip(normal_gradients.iter())
@@ -137,7 +139,7 @@ where
                     ).collect()
                 ).collect()
             ).collect()
-        ).collect()
+        ).collect())
     }
 }
 
@@ -149,25 +151,24 @@ where
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> NodalForces<N> {
+    ) -> Result<NodalForces<N>, ConstitutiveError> {
         self.calculate_nodal_forces_linear_element(nodal_coordinates, nodal_velocities)
     }
     fn calculate_nodal_stiffnesses(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> NodalStiffnesses<N> {
+    ) -> Result<NodalStiffnesses<N>, ConstitutiveError> {
         let first_piola_kirchoff_rate_tangent_stiffness = self
             .get_constitutive_model()
             .calculate_first_piola_kirchoff_rate_tangent_stiffness(
                 &self.calculate_deformation_gradient(nodal_coordinates),
                 &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities),
-            )
-            .expect(CONSTITUTIVE_MODEL_ERROR);
+            )?;
         let gradient_vectors = self.get_gradient_vectors();
         let normal_gradients = Self::calculate_normal_gradients(nodal_coordinates);
         let reference_normal = self.get_reference_normal();
-        gradient_vectors.iter()
+        Ok(gradient_vectors.iter()
         .map(|gradient_vector_a|
             gradient_vectors.iter()
             .zip(normal_gradients.iter())
@@ -197,7 +198,7 @@ where
                     ).collect()
                 ).collect()
             ).collect()
-        ).collect()
+        ).collect())
     }
 }
 
@@ -216,7 +217,10 @@ impl<'a, C> HyperelasticFiniteElement<'a, C, G, N> for Triangle<C>
 where
     C: Hyperelastic<'a>,
 {
-    fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar {
+    fn calculate_helmholtz_free_energy(
+        &self,
+        nodal_coordinates: &NodalCoordinates<N>,
+    ) -> Result<Scalar, ConstitutiveError> {
         self.calculate_helmholtz_free_energy_linear_element(nodal_coordinates)
     }
 }
@@ -233,14 +237,14 @@ where
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> Scalar {
+    ) -> Result<Scalar, ConstitutiveError> {
         self.calculate_viscous_dissipation_linear_element(nodal_coordinates, nodal_velocities)
     }
     fn calculate_dissipation_potential(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> Scalar {
+    ) -> Result<Scalar, ConstitutiveError> {
         self.calculate_dissipation_potential_linear_element(nodal_coordinates, nodal_velocities)
     }
 }
@@ -254,7 +258,10 @@ impl<'a, C> HyperviscoelasticFiniteElement<'a, C, G, N> for Triangle<C>
 where
     C: Hyperviscoelastic<'a>,
 {
-    fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar {
+    fn calculate_helmholtz_free_energy(
+        &self,
+        nodal_coordinates: &NodalCoordinates<N>,
+    ) -> Result<Scalar, ConstitutiveError> {
         self.calculate_helmholtz_free_energy_linear_element(nodal_coordinates)
     }
 }

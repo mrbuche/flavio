@@ -101,19 +101,22 @@ impl<'a, C> CohesiveElement<'a, C, G, N> for Wedge<C>
 where
     C: Cohesive<'a>,
 {
-    fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N> {
+    fn calculate_nodal_forces(
+        &self,
+        nodal_coordinates: &NodalCoordinates<N>,
+    ) -> Result<NodalForces<N>, ConstitutiveError> {
         let scaled_traction = self.get_constitutive_model().calculate_traction(
             &Self::calculate_displacement(nodal_coordinates),
             &Self::calculate_normal(&Self::calculate_midplane(nodal_coordinates)),
         ) * (self.get_integration_weight() / 3.0);
-        (0..N)
+        Ok((0..N)
             .map(|node| &scaled_traction * (1.0 - 2.0 * (((node >= O) as u8) as Scalar)))
-            .collect()
+            .collect())
     }
     fn calculate_nodal_stiffnesses(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
-    ) -> NodalStiffnesses<N> {
+    ) -> Result<NodalStiffnesses<N>, ConstitutiveError> {
         let midplane = Self::calculate_midplane(nodal_coordinates);
         let (stiffness_opening, stiffness_normal) =
             self.get_constitutive_model().calculate_stiffnesses(
@@ -134,7 +137,7 @@ where
                     .collect()
             })
             .collect::<NormalGradients<O>>();
-        (0..N)
+        Ok((0..N)
             .map(|node_a| {
                 (0..N)
                     .zip(objects.iter().chain(objects.iter()))
@@ -149,7 +152,7 @@ where
                     })
                     .collect()
             })
-            .collect()
+            .collect())
     }
 }
 

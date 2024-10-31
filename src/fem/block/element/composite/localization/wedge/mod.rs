@@ -401,12 +401,15 @@ impl<'a, C> ElasticFiniteElement<'a, C, G, N> for Wedge<C>
 where
     C: Elastic<'a>,
 {
-    fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N> {
-        self.get_constitutive_models().iter()
+    fn calculate_nodal_forces(
+        &self,
+        nodal_coordinates: &NodalCoordinates<N>,
+    ) -> Result<NodalForces<N>, ConstitutiveError> {
+        Ok(self.get_constitutive_models().iter()
         .zip(self.calculate_deformation_gradients(nodal_coordinates).iter())
         .map(|(constitutive_model, deformation_gradient)|
-            constitutive_model.calculate_first_piola_kirchoff_stress(deformation_gradient).expect(CONSTITUTIVE_MODEL_ERROR)
-        ).collect::<FirstPiolaKirchoffStresses<G>>().iter()
+            constitutive_model.calculate_first_piola_kirchoff_stress(deformation_gradient)
+        ).collect::<Result<FirstPiolaKirchoffStresses<G>, _>>()?.iter()
         .zip(self.get_projected_gradient_vectors().iter()
         .zip(self.get_integration_weights().iter()
         .zip(self.calculate_objects(&Self::calculate_normal_gradients(&Self::calculate_midplane(nodal_coordinates))).iter())))
@@ -435,27 +438,27 @@ where
                     ).sum::<Scalar>()
                 ).collect()
             ).collect()
-        ).sum()
+        ).sum())
     }
     fn calculate_nodal_stiffnesses(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
-    ) -> NodalStiffnesses<N> {
+    ) -> Result<NodalStiffnesses<N>, ConstitutiveError> {
         let deformation_gradients = self.calculate_deformation_gradients(nodal_coordinates);
         let midplane = Self::calculate_midplane(nodal_coordinates);
         let normal_tangentss = Self::calculate_normal_tangents(&midplane);
         let objectss = self.calculate_objects(&Self::calculate_normal_gradients(&midplane));
         let mut scaled_traction = ZERO_VECTOR;
-        self.get_constitutive_models().iter()
+        Ok(self.get_constitutive_models().iter()
         .zip(deformation_gradients.iter())
         .map(|(constitutive_model, deformation_gradient)|
-            constitutive_model.calculate_first_piola_kirchoff_stress(deformation_gradient).expect(CONSTITUTIVE_MODEL_ERROR)
-        ).collect::<FirstPiolaKirchoffStresses<G>>().iter()
+            constitutive_model.calculate_first_piola_kirchoff_stress(deformation_gradient)
+        ).collect::<Result<FirstPiolaKirchoffStresses<G>, _>>()?.iter()
         .zip(self.get_constitutive_models().iter()
         .zip(deformation_gradients.iter())
         .map(|(constitutive_model, deformation_gradient)|
-            constitutive_model.calculate_first_piola_kirchoff_tangent_stiffness(deformation_gradient).expect(CONSTITUTIVE_MODEL_ERROR)
-        ).collect::<FirstPiolaKirchoffTangentStiffnesses<G>>().iter()
+            constitutive_model.calculate_first_piola_kirchoff_tangent_stiffness(deformation_gradient)
+        ).collect::<Result<FirstPiolaKirchoffTangentStiffnesses<G>, _>>()?.iter()
         .zip(self.get_projected_gradient_vectors().iter()
         .zip(self.get_integration_weights().iter()
         .zip(self.get_scaled_reference_normals().iter()
@@ -532,7 +535,7 @@ where
                     ).collect()
                 ).collect::<NodalStiffnesses<N>>()
             }).sum::<NodalStiffnesses<N>>()
-        ).sum()
+        ).sum())
     }
 }
 impl<'a, C> ViscoelasticFiniteElement<'a, C, G, N> for Wedge<C>
@@ -543,13 +546,13 @@ where
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> NodalForces<N> {
-        self.get_constitutive_models().iter()
+    ) -> Result<NodalForces<N>, ConstitutiveError> {
+        Ok(self.get_constitutive_models().iter()
         .zip(self.calculate_deformation_gradients(nodal_coordinates).iter()
         .zip(self.calculate_deformation_gradient_rates(nodal_coordinates, nodal_velocities).iter()))
         .map(|(constitutive_model, (deformation_gradient, deformation_gradient_rate))|
-            constitutive_model.calculate_first_piola_kirchoff_stress(deformation_gradient, deformation_gradient_rate).expect(CONSTITUTIVE_MODEL_ERROR)
-        ).collect::<FirstPiolaKirchoffStresses<G>>().iter()
+            constitutive_model.calculate_first_piola_kirchoff_stress(deformation_gradient, deformation_gradient_rate)
+        ).collect::<Result<FirstPiolaKirchoffStresses<G>, _>>()?.iter()
         .zip(self.get_projected_gradient_vectors().iter()
         .zip(self.get_integration_weights().iter()
         .zip(self.calculate_objects(&Self::calculate_normal_gradients(&Self::calculate_midplane(nodal_coordinates))).iter())))
@@ -578,21 +581,21 @@ where
                     ).sum::<Scalar>()
                 ).collect()
             ).collect()
-        ).sum()
+        ).sum())
     }
     fn calculate_nodal_stiffnesses(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> NodalStiffnesses<N> {
+    ) -> Result<NodalStiffnesses<N>, ConstitutiveError> {
         let midplane = Self::calculate_midplane(nodal_coordinates);
         let objectss = self.calculate_objects(&Self::calculate_normal_gradients(&midplane));
-        self.get_constitutive_models().iter()
+        Ok(self.get_constitutive_models().iter()
         .zip(self.calculate_deformation_gradients(nodal_coordinates).iter()
         .zip(self.calculate_deformation_gradient_rates(nodal_coordinates, nodal_velocities).iter()))
         .map(|(constitutive_model, (deformation_gradient, deformation_gradient_rate))|
-            constitutive_model.calculate_first_piola_kirchoff_rate_tangent_stiffness(deformation_gradient, deformation_gradient_rate).expect(CONSTITUTIVE_MODEL_ERROR)
-        ).collect::<FirstPiolaKirchoffRateTangentStiffnesses<G>>().iter()
+            constitutive_model.calculate_first_piola_kirchoff_rate_tangent_stiffness(deformation_gradient, deformation_gradient_rate)
+        ).collect::<Result<FirstPiolaKirchoffRateTangentStiffnesses<G>, _>>()?.iter()
         .zip(self.get_projected_gradient_vectors().iter()
         .zip(self.get_integration_weights().iter()
         .zip(objectss.iter())))
@@ -644,7 +647,7 @@ where
                     ).collect()
                 ).collect()
             ).collect()
-        ).sum()
+        ).sum())
     }
 }
 
@@ -663,7 +666,10 @@ impl<'a, C> HyperelasticFiniteElement<'a, C, G, N> for Wedge<C>
 where
     C: Hyperelastic<'a>,
 {
-    fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar {
+    fn calculate_helmholtz_free_energy(
+        &self,
+        nodal_coordinates: &NodalCoordinates<N>,
+    ) -> Result<Scalar, ConstitutiveError> {
         self.calculate_helmholtz_free_energy_composite_element(nodal_coordinates)
     }
 }
@@ -686,14 +692,14 @@ where
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> Scalar {
+    ) -> Result<Scalar, ConstitutiveError> {
         self.calculate_viscous_dissipation_composite_element(nodal_coordinates, nodal_velocities)
     }
     fn calculate_dissipation_potential(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> Scalar {
+    ) -> Result<Scalar, ConstitutiveError> {
         self.calculate_dissipation_potential_composite_element(nodal_coordinates, nodal_velocities)
     }
 }
@@ -707,7 +713,10 @@ impl<'a, C> HyperviscoelasticFiniteElement<'a, C, G, N> for Wedge<C>
 where
     C: Hyperviscoelastic<'a>,
 {
-    fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar {
+    fn calculate_helmholtz_free_energy(
+        &self,
+        nodal_coordinates: &NodalCoordinates<N>,
+    ) -> Result<Scalar, ConstitutiveError> {
         self.calculate_helmholtz_free_energy_composite_element(nodal_coordinates)
     }
 }

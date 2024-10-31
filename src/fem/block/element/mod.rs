@@ -32,22 +32,28 @@ where
     C: Cohesive<'a>,
     Self: FiniteElement<'a, C, G, N>,
 {
-    fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>;
+    fn calculate_nodal_forces(
+        &self,
+        nodal_coordinates: &NodalCoordinates<N>,
+    ) -> Result<NodalForces<N>, ConstitutiveError>;
     fn calculate_nodal_stiffnesses(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
-    ) -> NodalStiffnesses<N>;
+    ) -> Result<NodalStiffnesses<N>, ConstitutiveError>;
 }
 
 pub trait ElasticFiniteElement<'a, C, const G: usize, const N: usize>
 where
     C: Elastic<'a>,
 {
-    fn calculate_nodal_forces(&self, nodal_coordinates: &NodalCoordinates<N>) -> NodalForces<N>;
+    fn calculate_nodal_forces(
+        &self,
+        nodal_coordinates: &NodalCoordinates<N>,
+    ) -> Result<NodalForces<N>, ConstitutiveError>;
     fn calculate_nodal_stiffnesses(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
-    ) -> NodalStiffnesses<N>;
+    ) -> Result<NodalStiffnesses<N>, ConstitutiveError>;
 }
 
 pub trait HyperelasticFiniteElement<'a, C, const G: usize, const N: usize>
@@ -55,7 +61,10 @@ where
     C: Hyperelastic<'a>,
     Self: ElasticFiniteElement<'a, C, G, N>,
 {
-    fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar;
+    fn calculate_helmholtz_free_energy(
+        &self,
+        nodal_coordinates: &NodalCoordinates<N>,
+    ) -> Result<Scalar, ConstitutiveError>;
 }
 
 pub trait ViscoelasticFiniteElement<'a, C, const G: usize, const N: usize>
@@ -66,12 +75,12 @@ where
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> NodalForces<N>;
+    ) -> Result<NodalForces<N>, ConstitutiveError>;
     fn calculate_nodal_stiffnesses(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> NodalStiffnesses<N>;
+    ) -> Result<NodalStiffnesses<N>, ConstitutiveError>;
 }
 
 pub trait ElasticHyperviscousFiniteElement<'a, C, const G: usize, const N: usize>
@@ -83,12 +92,12 @@ where
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> Scalar;
+    ) -> Result<Scalar, ConstitutiveError>;
     fn calculate_dissipation_potential(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> Scalar;
+    ) -> Result<Scalar, ConstitutiveError>;
 }
 
 pub trait HyperviscoelasticFiniteElement<'a, C, const G: usize, const N: usize>
@@ -96,5 +105,8 @@ where
     C: Hyperviscoelastic<'a>,
     Self: ElasticHyperviscousFiniteElement<'a, C, G, N>,
 {
-    fn calculate_helmholtz_free_energy(&self, nodal_coordinates: &NodalCoordinates<N>) -> Scalar;
+    fn calculate_helmholtz_free_energy(
+        &self,
+        nodal_coordinates: &NodalCoordinates<N>,
+    ) -> Result<Scalar, ConstitutiveError>;
 }

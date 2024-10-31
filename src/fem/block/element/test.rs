@@ -291,15 +291,15 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses {
                 #[test]
                 fn finite_difference() -> Result<(), TestError> {
                     assert_eq_from_fd(
-                        &get_nodal_stiffnesses(true, false),
-                        &get_finite_difference_of_nodal_forces(true),
+                        &get_nodal_stiffnesses(true, false)?,
+                        &get_finite_difference_of_nodal_forces(true)?,
                     )
                 }
                 #[test]
                 fn objectivity() -> Result<(), TestError> {
                     assert_eq_within_tols(
-                        &get_nodal_forces(true, false, true),
-                        &get_nodal_forces(true, true, true),
+                        &get_nodal_forces(true, false, true)?,
+                        &get_nodal_forces(true, true, true)?,
                     )
                 }
             }
@@ -308,21 +308,21 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses {
                 #[test]
                 fn finite_difference() -> Result<(), TestError> {
                     assert_eq_from_fd(
-                        &get_nodal_stiffnesses(false, false),
-                        &get_finite_difference_of_nodal_forces(false),
+                        &get_nodal_stiffnesses(false, false)?,
+                        &get_finite_difference_of_nodal_forces(false)?,
                     )
                 }
                 #[test]
                 fn objectivity() -> Result<(), TestError> {
                     assert_eq_within_tols(
-                        &get_nodal_forces(false, true, true),
+                        &get_nodal_forces(false, true, true)?,
                         &NodalForces::zero(),
                     )
                 }
                 #[test]
                 fn zero() -> Result<(), TestError> {
                     assert_eq_within_tols(
-                        &get_nodal_forces(false, false, false),
+                        &get_nodal_forces(false, false, false)?,
                         &NodalForces::zero(),
                     )
                 }
@@ -335,8 +335,8 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses {
                 #[test]
                 fn objectivity() -> Result<(), TestError> {
                     assert_eq_within_tols(
-                        &get_nodal_stiffnesses(true, false),
-                        &get_nodal_stiffnesses(true, true),
+                        &get_nodal_stiffnesses(true, false)?,
+                        &get_nodal_stiffnesses(true, true)?,
                     )
                 }
             }
@@ -345,8 +345,8 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses {
                 #[test]
                 fn objectivity() -> Result<(), TestError> {
                     assert_eq_within_tols(
-                        &get_nodal_stiffnesses(false, false),
-                        &get_nodal_stiffnesses(false, true),
+                        &get_nodal_stiffnesses(false, false)?,
+                        &get_nodal_stiffnesses(false, true)?,
                     )
                 }
             }
@@ -357,26 +357,31 @@ pub(crate) use test_nodal_forces_and_nodal_stiffnesses;
 
 macro_rules! test_helmholtz_free_energy {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) => {
-        fn get_helmholtz_free_energy(is_deformed: bool, is_rotated: bool) -> Scalar {
+        fn get_helmholtz_free_energy(
+            is_deformed: bool,
+            is_rotated: bool,
+        ) -> Result<Scalar, TestError> {
             if is_rotated {
                 if is_deformed {
-                    get_element_transformed()
-                        .calculate_helmholtz_free_energy(&get_coordinates_transformed())
+                    Ok(get_element_transformed()
+                        .calculate_helmholtz_free_energy(&get_coordinates_transformed())?)
                 } else {
-                    get_element_transformed().calculate_helmholtz_free_energy(
+                    Ok(get_element_transformed().calculate_helmholtz_free_energy(
                         &get_reference_coordinates_transformed().into(),
-                    )
+                    )?)
                 }
             } else {
                 if is_deformed {
-                    get_element().calculate_helmholtz_free_energy(&get_coordinates())
+                    Ok(get_element().calculate_helmholtz_free_energy(&get_coordinates())?)
                 } else {
-                    get_element()
-                        .calculate_helmholtz_free_energy(&get_reference_coordinates().into())
+                    Ok(get_element()
+                        .calculate_helmholtz_free_energy(&get_reference_coordinates().into())?)
                 }
             }
         }
-        fn get_finite_difference_of_helmholtz_free_energy(is_deformed: bool) -> NodalForces<N> {
+        fn get_finite_difference_of_helmholtz_free_energy(
+            is_deformed: bool,
+        ) -> Result<NodalForces<N>, TestError> {
             let element = get_element();
             let mut finite_difference = 0.0;
             (0..N)
@@ -390,11 +395,11 @@ macro_rules! test_helmholtz_free_energy {
                             };
                             nodal_coordinates[node][i] += 0.5 * EPSILON;
                             finite_difference =
-                                element.calculate_helmholtz_free_energy(&nodal_coordinates);
+                                element.calculate_helmholtz_free_energy(&nodal_coordinates)?;
                             nodal_coordinates[node][i] -= EPSILON;
                             finite_difference -=
-                                element.calculate_helmholtz_free_energy(&nodal_coordinates);
-                            finite_difference / EPSILON
+                                element.calculate_helmholtz_free_energy(&nodal_coordinates)?;
+                            Ok(finite_difference / EPSILON)
                         })
                         .collect()
                 })
@@ -407,8 +412,8 @@ macro_rules! test_helmholtz_free_energy {
                 #[test]
                 fn finite_difference() -> Result<(), TestError> {
                     assert_eq_from_fd(
-                        &get_nodal_forces(true, false, false),
-                        &get_finite_difference_of_helmholtz_free_energy(true),
+                        &get_nodal_forces(true, false, false)?,
+                        &get_finite_difference_of_helmholtz_free_energy(true)?,
                     )
                 }
                 #[test]
@@ -416,48 +421,52 @@ macro_rules! test_helmholtz_free_energy {
                 fn invalid_jacobian() {
                     let mut deformation_gradient = DeformationGradient::identity();
                     deformation_gradient[0][0] = 0.0;
-                    let _ = get_element().calculate_helmholtz_free_energy(
-                        &(deformation_gradient * get_reference_coordinates()),
-                    );
+                    get_element()
+                        .calculate_helmholtz_free_energy(
+                            &(deformation_gradient * get_reference_coordinates()),
+                        )
+                        .unwrap();
                 }
                 #[test]
-                fn minimized() {
+                fn minimized() -> Result<(), TestError> {
                     let element = get_element();
-                    let nodal_forces = get_nodal_forces(true, false, false);
-                    let minimum = get_helmholtz_free_energy(true, false)
+                    let nodal_forces = get_nodal_forces(true, false, false)?;
+                    let minimum = get_helmholtz_free_energy(true, false)?
                         - nodal_forces.dot(&get_coordinates());
                     let mut perturbed = 0.0;
                     let mut perturbed_coordinates = get_coordinates();
-                    (0..N).for_each(|node| {
-                        (0..3).for_each(|i| {
+                    (0..N).try_for_each(|node| {
+                        (0..3).try_for_each(|i| {
                             perturbed_coordinates = get_coordinates();
                             perturbed_coordinates[node][i] += 0.5 * EPSILON;
                             perturbed = element
-                                .calculate_helmholtz_free_energy(&perturbed_coordinates)
+                                .calculate_helmholtz_free_energy(&perturbed_coordinates)?
                                 - nodal_forces.dot(&perturbed_coordinates);
                             if assert_eq_within_tols(&perturbed, &minimum).is_err() {
                                 assert!(perturbed > minimum)
                             }
                             perturbed_coordinates[node][i] -= EPSILON;
                             perturbed = element
-                                .calculate_helmholtz_free_energy(&perturbed_coordinates)
+                                .calculate_helmholtz_free_energy(&perturbed_coordinates)?
                                 - nodal_forces.dot(&perturbed_coordinates);
                             if assert_eq_within_tols(&perturbed, &minimum).is_err() {
                                 assert!(perturbed > minimum)
                             }
+                            Ok(())
                         })
                     })
                 }
                 #[test]
                 fn objectivity() -> Result<(), TestError> {
                     assert_eq_within_tols(
-                        &get_helmholtz_free_energy(true, false),
-                        &get_helmholtz_free_energy(true, true),
+                        &get_helmholtz_free_energy(true, false)?,
+                        &get_helmholtz_free_energy(true, true)?,
                     )
                 }
                 #[test]
-                fn positive() {
-                    assert!(get_helmholtz_free_energy(true, false) > 0.0)
+                fn positive() -> Result<(), TestError> {
+                    assert!(get_helmholtz_free_energy(true, false)? > 0.0);
+                    Ok(())
                 }
             }
             mod undeformed {
@@ -465,47 +474,50 @@ macro_rules! test_helmholtz_free_energy {
                 #[test]
                 fn finite_difference() -> Result<(), TestError> {
                     assert_eq_from_fd(
-                        &get_finite_difference_of_helmholtz_free_energy(false),
+                        &get_finite_difference_of_helmholtz_free_energy(false)?,
                         &NodalForces::zero(),
                     )
                 }
                 #[test]
-                fn minimized() {
+                fn minimized() -> Result<(), TestError> {
                     let element = get_element();
-                    let minimum = get_helmholtz_free_energy(false, false);
+                    let minimum = get_helmholtz_free_energy(false, false)?;
                     let mut perturbed = 0.0;
                     let mut perturbed_coordinates = get_reference_coordinates();
-                    (0..N).for_each(|node| {
-                        (0..3).for_each(|i| {
+                    (0..N).try_for_each(|node| {
+                        (0..3).try_for_each(|i| {
                             perturbed_coordinates = get_reference_coordinates();
                             perturbed_coordinates[node][i] += 0.5 * EPSILON;
-                            perturbed = element
-                                .calculate_helmholtz_free_energy(&perturbed_coordinates.convert());
+                            perturbed = element.calculate_helmholtz_free_energy(
+                                &perturbed_coordinates.convert(),
+                            )?;
                             if assert_eq_within_tols(&perturbed, &minimum).is_err() {
                                 assert!(perturbed > minimum)
                             }
                             perturbed_coordinates[node][i] -= EPSILON;
-                            perturbed = element
-                                .calculate_helmholtz_free_energy(&perturbed_coordinates.convert());
+                            perturbed = element.calculate_helmholtz_free_energy(
+                                &perturbed_coordinates.convert(),
+                            )?;
                             if assert_eq_within_tols(&perturbed, &minimum).is_err() {
                                 assert!(perturbed > minimum)
                             }
+                            Ok(())
                         })
                     })
                 }
                 #[test]
                 fn objectivity() -> Result<(), TestError> {
-                    assert_eq_within_tols(&get_helmholtz_free_energy(false, true), &0.0)
+                    assert_eq_within_tols(&get_helmholtz_free_energy(false, true)?, &0.0)
                 }
                 #[test]
                 fn zero() -> Result<(), TestError> {
-                    assert_eq_within_tols(&get_helmholtz_free_energy(false, false), &0.0)
+                    assert_eq_within_tols(&get_helmholtz_free_energy(false, false)?, &0.0)
                 }
             }
         }
         #[test]
         fn nodal_stiffnesses_deformed_symmetry() -> Result<(), TestError> {
-            let nodal_stiffness = get_nodal_stiffnesses(true, false);
+            let nodal_stiffness = get_nodal_stiffnesses(true, false)?;
             let result =
                 nodal_stiffness
                     .iter()
@@ -552,7 +564,7 @@ macro_rules! test_helmholtz_free_energy {
         }
         #[test]
         fn nodal_stiffnesses_undeformed_symmetry() -> Result<(), TestError> {
-            let nodal_stiffness = get_nodal_stiffnesses(false, false);
+            let nodal_stiffness = get_nodal_stiffnesses(false, false)?;
             let result =
                 nodal_stiffness
                     .iter()
@@ -623,60 +635,75 @@ macro_rules! test_finite_element_with_elastic_constitutive_model {
         fn nodal_forces_invalid_jacobian() {
             let mut deformation_gradient = DeformationGradient::identity();
             deformation_gradient[0][0] = 0.0;
-            let _ = get_element()
-                .calculate_nodal_forces(&(deformation_gradient * get_reference_coordinates()));
+            get_element()
+                .calculate_nodal_forces(&(deformation_gradient * get_reference_coordinates()))
+                .unwrap();
         }
         #[test]
         #[should_panic(expected = "Invalid Jacobian")]
         fn nodal_stiffnesses_invalid_jacobian() {
             let mut deformation_gradient = DeformationGradient::identity();
             deformation_gradient[0][0] = 0.0;
-            let _ = get_element()
-                .calculate_nodal_stiffnesses(&(deformation_gradient * get_reference_coordinates()));
+            get_element()
+                .calculate_nodal_stiffnesses(&(deformation_gradient * get_reference_coordinates()))
+                .unwrap();
         }
-        fn get_nodal_forces(is_deformed: bool, is_rotated: bool, _: bool) -> NodalForces<N> {
+        fn get_nodal_forces(
+            is_deformed: bool,
+            is_rotated: bool,
+            _: bool,
+        ) -> Result<NodalForces<N>, TestError> {
             if is_rotated {
                 if is_deformed {
-                    get_rotation_current_configuration().transpose()
+                    Ok(get_rotation_current_configuration().transpose()
                         * get_element_transformed()
-                            .calculate_nodal_forces(&get_coordinates_transformed())
+                            .calculate_nodal_forces(&get_coordinates_transformed())?)
                 } else {
-                    get_element()
-                        .calculate_nodal_forces(&get_reference_coordinates_transformed().into())
+                    Ok(get_element()
+                        .calculate_nodal_forces(&get_reference_coordinates_transformed().into())?)
                 }
             } else {
                 if is_deformed {
-                    get_element().calculate_nodal_forces(&get_coordinates())
+                    Ok(get_element().calculate_nodal_forces(&get_coordinates())?)
                 } else {
-                    get_element().calculate_nodal_forces(&get_reference_coordinates().into())
+                    Ok(
+                        get_element()
+                            .calculate_nodal_forces(&get_reference_coordinates().into())?,
+                    )
                 }
             }
         }
-        fn get_nodal_stiffnesses(is_deformed: bool, is_rotated: bool) -> NodalStiffnesses<N> {
+        fn get_nodal_stiffnesses(
+            is_deformed: bool,
+            is_rotated: bool,
+        ) -> Result<NodalStiffnesses<N>, TestError> {
             if is_rotated {
                 if is_deformed {
-                    get_rotation_current_configuration().transpose()
+                    Ok(get_rotation_current_configuration().transpose()
                         * get_element_transformed()
-                            .calculate_nodal_stiffnesses(&get_coordinates_transformed())
-                        * get_rotation_current_configuration()
+                            .calculate_nodal_stiffnesses(&get_coordinates_transformed())?
+                        * get_rotation_current_configuration())
                 } else {
                     let converted: TensorRank2<3, 1, 1> =
                         get_rotation_reference_configuration().into();
-                    converted.transpose()
+                    Ok(converted.transpose()
                         * get_element_transformed().calculate_nodal_stiffnesses(
                             &get_reference_coordinates_transformed().into(),
-                        )
-                        * converted
+                        )?
+                        * converted)
                 }
             } else {
                 if is_deformed {
-                    get_element().calculate_nodal_stiffnesses(&get_coordinates())
+                    Ok(get_element().calculate_nodal_stiffnesses(&get_coordinates())?)
                 } else {
-                    get_element().calculate_nodal_stiffnesses(&get_reference_coordinates().into())
+                    Ok(get_element()
+                        .calculate_nodal_stiffnesses(&get_reference_coordinates().into())?)
                 }
             }
         }
-        fn get_finite_difference_of_nodal_forces(is_deformed: bool) -> NodalStiffnesses<N> {
+        fn get_finite_difference_of_nodal_forces(
+            is_deformed: bool,
+        ) -> Result<NodalStiffnesses<N>, TestError> {
             let element = get_element();
             let mut finite_difference = 0.0;
             (0..N)
@@ -694,11 +721,11 @@ macro_rules! test_finite_element_with_elastic_constitutive_model {
                                             };
                                             nodal_coordinates[b][j] += 0.5 * EPSILON;
                                             finite_difference = element
-                                                .calculate_nodal_forces(&nodal_coordinates)[a][i];
+                                                .calculate_nodal_forces(&nodal_coordinates)?[a][i];
                                             nodal_coordinates[b][j] -= EPSILON;
                                             finite_difference -= element
-                                                .calculate_nodal_forces(&nodal_coordinates)[a][i];
-                                            finite_difference / EPSILON
+                                                .calculate_nodal_forces(&nodal_coordinates)?[a][i];
+                                            Ok(finite_difference / EPSILON)
                                         })
                                         .collect()
                                 })
@@ -735,89 +762,100 @@ pub(crate) use test_finite_element_with_hyperelastic_constitutive_model;
 
 macro_rules! test_finite_element_with_viscoelastic_constitutive_model {
     ($element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) => {
-        fn get_nodal_forces(is_deformed: bool, is_rotated: bool, is_xtra: bool) -> NodalForces<N> {
+        fn get_nodal_forces(
+            is_deformed: bool,
+            is_rotated: bool,
+            is_xtra: bool,
+        ) -> Result<NodalForces<N>, TestError> {
             if is_xtra {
                 if is_rotated {
                     if is_deformed {
-                        get_rotation_current_configuration().transpose()
+                        Ok(get_rotation_current_configuration().transpose()
                             * get_element_transformed().calculate_nodal_forces(
                                 &get_coordinates_transformed(),
                                 &get_velocities_transformed(),
-                            )
+                            )?)
                     } else {
-                        get_element().calculate_nodal_forces(
+                        Ok(get_element().calculate_nodal_forces(
                             &get_reference_coordinates_transformed().into(),
                             &NodalVelocities::zero(),
-                        )
+                        )?)
                     }
                 } else {
                     if is_deformed {
-                        get_element().calculate_nodal_forces(&get_coordinates(), &get_velocities())
+                        Ok(get_element()
+                            .calculate_nodal_forces(&get_coordinates(), &get_velocities())?)
                     } else {
-                        get_element().calculate_nodal_forces(
+                        Ok(get_element().calculate_nodal_forces(
                             &get_reference_coordinates().into(),
                             &NodalVelocities::zero(),
-                        )
+                        )?)
                     }
                 }
             } else {
                 if is_rotated {
                     if is_deformed {
-                        get_rotation_current_configuration().transpose()
+                        Ok(get_rotation_current_configuration().transpose()
                             * get_element_transformed().calculate_nodal_forces(
                                 &get_coordinates_transformed(),
                                 &NodalVelocities::zero(),
-                            )
+                            )?)
                     } else {
-                        get_element().calculate_nodal_forces(
+                        Ok(get_element().calculate_nodal_forces(
                             &get_reference_coordinates_transformed().into(),
                             &NodalVelocities::zero(),
-                        )
+                        )?)
                     }
                 } else {
                     if is_deformed {
-                        get_element()
-                            .calculate_nodal_forces(&get_coordinates(), &NodalVelocities::zero())
+                        Ok(get_element()
+                            .calculate_nodal_forces(&get_coordinates(), &NodalVelocities::zero())?)
                     } else {
-                        get_element().calculate_nodal_forces(
+                        Ok(get_element().calculate_nodal_forces(
                             &get_reference_coordinates().into(),
                             &NodalVelocities::zero(),
-                        )
+                        )?)
                     }
                 }
             }
         }
-        fn get_nodal_stiffnesses(is_deformed: bool, is_rotated: bool) -> NodalStiffnesses<N> {
+        fn get_nodal_stiffnesses(
+            is_deformed: bool,
+            is_rotated: bool,
+        ) -> Result<NodalStiffnesses<N>, TestError> {
             if is_rotated {
                 if is_deformed {
-                    get_rotation_current_configuration().transpose()
+                    Ok(get_rotation_current_configuration().transpose()
                         * get_element_transformed().calculate_nodal_stiffnesses(
                             &get_coordinates_transformed(),
                             &get_velocities_transformed(),
-                        )
-                        * get_rotation_current_configuration()
+                        )?
+                        * get_rotation_current_configuration())
                 } else {
                     let converted: TensorRank2<3, 1, 1> =
                         get_rotation_reference_configuration().into();
-                    converted.transpose()
+                    Ok(converted.transpose()
                         * get_element_transformed().calculate_nodal_stiffnesses(
                             &get_reference_coordinates_transformed().into(),
                             &NodalVelocities::zero(),
-                        )
-                        * converted
+                        )?
+                        * converted)
                 }
             } else {
                 if is_deformed {
-                    get_element().calculate_nodal_stiffnesses(&get_coordinates(), &get_velocities())
+                    Ok(get_element()
+                        .calculate_nodal_stiffnesses(&get_coordinates(), &get_velocities())?)
                 } else {
-                    get_element().calculate_nodal_stiffnesses(
+                    Ok(get_element().calculate_nodal_stiffnesses(
                         &get_reference_coordinates().into(),
                         &NodalVelocities::zero(),
-                    )
+                    )?)
                 }
             }
         }
-        fn get_finite_difference_of_nodal_forces(is_deformed: bool) -> NodalStiffnesses<N> {
+        fn get_finite_difference_of_nodal_forces(
+            is_deformed: bool,
+        ) -> Result<NodalStiffnesses<N>, TestError> {
             let element = get_element();
             let mut finite_difference = 0.0;
             (0..N)
@@ -842,13 +880,13 @@ macro_rules! test_finite_element_with_viscoelastic_constitutive_model {
                                             finite_difference = element.calculate_nodal_forces(
                                                 &nodal_coordinates,
                                                 &nodal_velocities,
-                                            )[a][i];
+                                            )?[a][i];
                                             nodal_velocities[b][j] -= EPSILON;
                                             finite_difference -= element.calculate_nodal_forces(
                                                 &nodal_coordinates,
                                                 &nodal_velocities,
-                                            )[a][i];
-                                            finite_difference / EPSILON
+                                            )?[a][i];
+                                            Ok(finite_difference / EPSILON)
                                         })
                                         .collect()
                                 })
@@ -874,57 +912,65 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
             $constitutive_model,
             $constitutive_model_parameters
         );
-        fn get_viscous_dissipation(is_deformed: bool, is_rotated: bool) -> Scalar {
+        fn get_viscous_dissipation(
+            is_deformed: bool,
+            is_rotated: bool,
+        ) -> Result<Scalar, TestError> {
             if is_rotated {
                 if is_deformed {
-                    get_element_transformed().calculate_viscous_dissipation(
+                    Ok(get_element_transformed().calculate_viscous_dissipation(
                         &get_coordinates_transformed(),
                         &get_velocities_transformed(),
-                    )
+                    )?)
                 } else {
-                    get_element_transformed().calculate_viscous_dissipation(
+                    Ok(get_element_transformed().calculate_viscous_dissipation(
                         &get_reference_coordinates_transformed().into(),
                         &NodalVelocities::zero(),
-                    )
+                    )?)
                 }
             } else {
                 if is_deformed {
-                    get_element()
-                        .calculate_viscous_dissipation(&get_coordinates(), &get_velocities())
+                    Ok(get_element()
+                        .calculate_viscous_dissipation(&get_coordinates(), &get_velocities())?)
                 } else {
-                    get_element().calculate_viscous_dissipation(
+                    Ok(get_element().calculate_viscous_dissipation(
                         &get_reference_coordinates().into(),
                         &NodalVelocities::zero(),
-                    )
+                    )?)
                 }
             }
         }
-        fn get_dissipation_potential(is_deformed: bool, is_rotated: bool) -> Scalar {
+        fn get_dissipation_potential(
+            is_deformed: bool,
+            is_rotated: bool,
+        ) -> Result<Scalar, TestError> {
             if is_rotated {
                 if is_deformed {
-                    get_element_transformed().calculate_dissipation_potential(
+                    Ok(get_element_transformed().calculate_dissipation_potential(
                         &get_coordinates_transformed(),
                         &get_velocities_transformed(),
-                    )
+                    )?)
                 } else {
-                    get_element_transformed().calculate_dissipation_potential(
+                    Ok(get_element_transformed().calculate_dissipation_potential(
                         &get_reference_coordinates_transformed().into(),
                         &NodalVelocities::zero(),
-                    )
+                    )?)
                 }
             } else {
                 if is_deformed {
-                    get_element()
-                        .calculate_dissipation_potential(&get_coordinates(), &get_velocities())
+                    Ok(get_element()
+                        .calculate_dissipation_potential(&get_coordinates(), &get_velocities())?)
                 } else {
-                    get_element().calculate_dissipation_potential(
+                    Ok(get_element().calculate_dissipation_potential(
                         &get_reference_coordinates().into(),
                         &NodalVelocities::zero(),
-                    )
+                    )?)
                 }
             }
         }
-        fn get_finite_difference_of_viscous_dissipation(is_deformed: bool) -> NodalForces<N> {
+        fn get_finite_difference_of_viscous_dissipation(
+            is_deformed: bool,
+        ) -> Result<NodalForces<N>, TestError> {
             let element = get_element();
             let mut finite_difference = 0.0;
             (0..N)
@@ -945,19 +991,21 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                             finite_difference = element.calculate_viscous_dissipation(
                                 &nodal_coordinates,
                                 &nodal_velocities,
-                            );
+                            )?;
                             nodal_velocities[node][i] -= EPSILON;
                             finite_difference -= element.calculate_viscous_dissipation(
                                 &nodal_coordinates,
                                 &nodal_velocities,
-                            );
-                            finite_difference / EPSILON
+                            )?;
+                            Ok(finite_difference / EPSILON)
                         })
                         .collect()
                 })
                 .collect()
         }
-        fn get_finite_difference_of_dissipation_potential(is_deformed: bool) -> NodalForces<N> {
+        fn get_finite_difference_of_dissipation_potential(
+            is_deformed: bool,
+        ) -> Result<NodalForces<N>, TestError> {
             let element = get_element();
             let mut finite_difference = 0.0;
             (0..N)
@@ -978,13 +1026,13 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                             finite_difference = element.calculate_dissipation_potential(
                                 &nodal_coordinates,
                                 &nodal_velocities,
-                            );
+                            )?;
                             nodal_velocities[node][i] -= EPSILON;
                             finite_difference -= element.calculate_dissipation_potential(
                                 &nodal_coordinates,
                                 &nodal_velocities,
-                            );
-                            finite_difference / EPSILON
+                            )?;
+                            Ok(finite_difference / EPSILON)
                         })
                         .collect()
                 })
@@ -997,28 +1045,28 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                 #[test]
                 fn finite_difference() -> Result<(), TestError> {
                     assert_eq_from_fd(
-                        &(get_nodal_forces(true, false, true)
-                            - get_nodal_forces(true, false, false)),
-                        &get_finite_difference_of_viscous_dissipation(true),
+                        &(get_nodal_forces(true, false, true)?
+                            - get_nodal_forces(true, false, false)?),
+                        &get_finite_difference_of_viscous_dissipation(true)?,
                     )
                 }
                 #[test]
-                fn minimized() {
+                fn minimized() -> Result<(), TestError> {
                     let element = get_element();
-                    let nodal_forces =
-                        get_nodal_forces(true, false, true) - get_nodal_forces(true, false, false);
+                    let nodal_forces = get_nodal_forces(true, false, true)?
+                        - get_nodal_forces(true, false, false)?;
                     let minimum =
-                        get_viscous_dissipation(true, false) - nodal_forces.dot(&get_velocities());
+                        get_viscous_dissipation(true, false)? - nodal_forces.dot(&get_velocities());
                     let mut perturbed = 0.0;
                     let mut perturbed_velocities = get_velocities();
-                    (0..N).for_each(|node| {
-                        (0..3).for_each(|i| {
+                    (0..N).try_for_each(|node| {
+                        (0..3).try_for_each(|i| {
                             perturbed_velocities = get_velocities();
                             perturbed_velocities[node][i] += 0.5 * EPSILON;
                             perturbed = element.calculate_viscous_dissipation(
                                 &get_coordinates(),
                                 &perturbed_velocities,
-                            ) - nodal_forces.dot(&perturbed_velocities);
+                            )? - nodal_forces.dot(&perturbed_velocities);
                             if assert_eq_within_tols(&perturbed, &minimum).is_err() {
                                 assert!(perturbed > minimum)
                             }
@@ -1026,23 +1074,25 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                             perturbed = element.calculate_viscous_dissipation(
                                 &get_coordinates(),
                                 &perturbed_velocities,
-                            ) - nodal_forces.dot(&perturbed_velocities);
+                            )? - nodal_forces.dot(&perturbed_velocities);
                             if assert_eq_within_tols(&perturbed, &minimum).is_err() {
                                 assert!(perturbed > minimum)
                             }
+                            Ok(())
                         })
                     })
                 }
                 #[test]
                 fn objectivity() -> Result<(), TestError> {
                     assert_eq_within_tols(
-                        &get_viscous_dissipation(true, false),
-                        &get_viscous_dissipation(true, true),
+                        &get_viscous_dissipation(true, false)?,
+                        &get_viscous_dissipation(true, true)?,
                     )
                 }
                 #[test]
-                fn positive() {
-                    assert!(get_viscous_dissipation(true, false) > 0.0)
+                fn positive() -> Result<(), TestError> {
+                    assert!(get_viscous_dissipation(true, false)? > 0.0);
+                    Ok(())
                 }
             }
             mod undeformed {
@@ -1050,24 +1100,24 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                 #[test]
                 fn finite_difference() -> Result<(), TestError> {
                     assert_eq_from_fd(
-                        &get_finite_difference_of_viscous_dissipation(false),
+                        &get_finite_difference_of_viscous_dissipation(false)?,
                         &NodalForces::zero(),
                     )
                 }
                 #[test]
-                fn minimized() {
+                fn minimized() -> Result<(), TestError> {
                     let element = get_element();
-                    let minimum = get_viscous_dissipation(false, false);
+                    let minimum = get_viscous_dissipation(false, false)?;
                     let mut perturbed = 0.0;
                     let mut perturbed_velocities = NodalVelocities::zero();
-                    (0..N).for_each(|node| {
-                        (0..3).for_each(|i| {
+                    (0..N).try_for_each(|node| {
+                        (0..3).try_for_each(|i| {
                             perturbed_velocities = NodalVelocities::zero();
                             perturbed_velocities[node][i] += 0.5 * EPSILON;
                             perturbed = element.calculate_viscous_dissipation(
                                 &get_reference_coordinates().into(),
                                 &perturbed_velocities,
-                            );
+                            )?;
                             if assert_eq_within_tols(&perturbed, &minimum).is_err() {
                                 assert!(perturbed > minimum)
                             }
@@ -1075,20 +1125,21 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                             perturbed = element.calculate_viscous_dissipation(
                                 &get_reference_coordinates().into(),
                                 &perturbed_velocities,
-                            );
+                            )?;
                             if assert_eq_within_tols(&perturbed, &minimum).is_err() {
                                 assert!(perturbed > minimum)
                             }
+                            Ok(())
                         })
                     })
                 }
                 #[test]
                 fn objectivity() -> Result<(), TestError> {
-                    assert_eq_within_tols(&get_viscous_dissipation(false, true), &0.0)
+                    assert_eq_within_tols(&get_viscous_dissipation(false, true)?, &0.0)
                 }
                 #[test]
                 fn zero() -> Result<(), TestError> {
-                    assert_eq(&get_viscous_dissipation(false, false), &0.0)
+                    assert_eq(&get_viscous_dissipation(false, false)?, &0.0)
                 }
             }
         }
@@ -1099,26 +1150,26 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                 #[test]
                 fn finite_difference() -> Result<(), TestError> {
                     assert_eq_from_fd(
-                        &get_nodal_forces(true, false, true),
-                        &get_finite_difference_of_dissipation_potential(true),
+                        &get_nodal_forces(true, false, true)?,
+                        &get_finite_difference_of_dissipation_potential(true)?,
                     )
                 }
                 #[test]
-                fn minimized() {
+                fn minimized() -> Result<(), TestError> {
                     let element = get_element();
-                    let nodal_forces = get_nodal_forces(true, false, true);
-                    let minimum = get_dissipation_potential(true, false)
+                    let nodal_forces = get_nodal_forces(true, false, true)?;
+                    let minimum = get_dissipation_potential(true, false)?
                         - nodal_forces.dot(&get_velocities());
                     let mut perturbed = 0.0;
                     let mut perturbed_velocities = get_velocities();
-                    (0..N).for_each(|node| {
-                        (0..3).for_each(|i| {
+                    (0..N).try_for_each(|node| {
+                        (0..3).try_for_each(|i| {
                             perturbed_velocities = get_velocities();
                             perturbed_velocities[node][i] += 0.5 * EPSILON;
                             perturbed = element.calculate_dissipation_potential(
                                 &get_coordinates(),
                                 &perturbed_velocities,
-                            ) - nodal_forces.dot(&perturbed_velocities);
+                            )? - nodal_forces.dot(&perturbed_velocities);
                             if assert_eq_within_tols(&perturbed, &minimum).is_err() {
                                 assert!(perturbed > minimum)
                             }
@@ -1126,18 +1177,19 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                             perturbed = element.calculate_dissipation_potential(
                                 &get_coordinates(),
                                 &perturbed_velocities,
-                            ) - nodal_forces.dot(&perturbed_velocities);
+                            )? - nodal_forces.dot(&perturbed_velocities);
                             if assert_eq_within_tols(&perturbed, &minimum).is_err() {
                                 assert!(perturbed > minimum)
                             }
+                            Ok(())
                         })
                     })
                 }
                 #[test]
                 fn objectivity() -> Result<(), TestError> {
                     assert_eq_within_tols(
-                        &get_dissipation_potential(true, false),
-                        &get_dissipation_potential(true, true),
+                        &get_dissipation_potential(true, false)?,
+                        &get_dissipation_potential(true, true)?,
                     )
                 }
             }
@@ -1146,24 +1198,24 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                 #[test]
                 fn finite_difference() -> Result<(), TestError> {
                     assert_eq_from_fd(
-                        &get_finite_difference_of_dissipation_potential(false),
+                        &get_finite_difference_of_dissipation_potential(false)?,
                         &NodalForces::zero(),
                     )
                 }
                 #[test]
-                fn minimized() {
+                fn minimized() -> Result<(), TestError> {
                     let element = get_element();
-                    let minimum = get_dissipation_potential(false, false);
+                    let minimum = get_dissipation_potential(false, false)?;
                     let mut perturbed = 0.0;
                     let mut perturbed_velocities = NodalVelocities::zero();
-                    (0..N).for_each(|node| {
-                        (0..3).for_each(|i| {
+                    (0..N).try_for_each(|node| {
+                        (0..3).try_for_each(|i| {
                             perturbed_velocities = NodalVelocities::zero();
                             perturbed_velocities[node][i] += 0.5 * EPSILON;
                             perturbed = element.calculate_dissipation_potential(
                                 &get_reference_coordinates().into(),
                                 &perturbed_velocities,
-                            );
+                            )?;
                             if assert_eq_within_tols(&perturbed, &minimum).is_err() {
                                 assert!(perturbed > minimum)
                             }
@@ -1171,20 +1223,21 @@ macro_rules! test_finite_element_with_elastic_hyperviscous_constitutive_model {
                             perturbed = element.calculate_dissipation_potential(
                                 &get_reference_coordinates().into(),
                                 &perturbed_velocities,
-                            );
+                            )?;
                             if assert_eq_within_tols(&perturbed, &minimum).is_err() {
                                 assert!(perturbed > minimum)
                             }
+                            Ok(())
                         })
                     })
                 }
                 #[test]
                 fn objectivity() -> Result<(), TestError> {
-                    assert_eq_within_tols(&get_dissipation_potential(false, true), &0.0)
+                    assert_eq_within_tols(&get_dissipation_potential(false, true)?, &0.0)
                 }
                 #[test]
                 fn zero() -> Result<(), TestError> {
-                    assert_eq(&get_dissipation_potential(false, false), &0.0)
+                    assert_eq(&get_dissipation_potential(false, false)?, &0.0)
                 }
             }
         }
@@ -1203,11 +1256,12 @@ macro_rules! test_finite_element_with_hyperviscoelastic_constitutive_model
             $element, $constitutive_model, $constitutive_model_parameters
         );
         #[test]
-        fn dissipation_potential_deformed_positive()
+        fn dissipation_potential_deformed_positive() -> Result<(), TestError>
         {
             assert!(
-                get_dissipation_potential(true, false) > 0.0
-            )
+                get_dissipation_potential(true, false)? > 0.0
+            );
+            Ok(())
         }
     }
 }
