@@ -58,7 +58,7 @@ fn finite_difference() -> Result<(), TestError> {
     let element = Wedge::<SmithFerrante>::new(SMITHFERRANTEPARAMETERS, get_reference_coordinates());
     let mut finite_difference = 0.0;
     element
-        .calculate_nodal_stiffnesses(&get_coordinates())
+        .calculate_nodal_stiffnesses(&get_coordinates())?
         .iter()
         .enumerate()
         .try_for_each(|(a, nodal_stiffness_a)| {

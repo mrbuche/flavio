@@ -291,7 +291,7 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses {
                 #[test]
                 fn finite_difference() -> Result<(), TestError> {
                     assert_eq_from_fd(
-                        &get_nodal_stiffnesses(true, false),
+                        &get_nodal_stiffnesses(true, false)?,
                         &get_finite_difference_of_nodal_forces(true)?,
                     )
                 }
@@ -308,7 +308,7 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses {
                 #[test]
                 fn finite_difference() -> Result<(), TestError> {
                     assert_eq_from_fd(
-                        &get_nodal_stiffnesses(false, false),
+                        &get_nodal_stiffnesses(false, false)?,
                         &get_finite_difference_of_nodal_forces(false)?,
                     )
                 }
@@ -335,8 +335,8 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses {
                 #[test]
                 fn objectivity() -> Result<(), TestError> {
                     assert_eq_within_tols(
-                        &get_nodal_stiffnesses(true, false),
-                        &get_nodal_stiffnesses(true, true),
+                        &get_nodal_stiffnesses(true, false)?,
+                        &get_nodal_stiffnesses(true, true)?,
                     )
                 }
             }
@@ -345,8 +345,8 @@ macro_rules! test_nodal_forces_and_nodal_stiffnesses {
                 #[test]
                 fn objectivity() -> Result<(), TestError> {
                     assert_eq_within_tols(
-                        &get_nodal_stiffnesses(false, false),
-                        &get_nodal_stiffnesses(false, true),
+                        &get_nodal_stiffnesses(false, false)?,
+                        &get_nodal_stiffnesses(false, true)?,
                     )
                 }
             }
@@ -517,7 +517,7 @@ macro_rules! test_helmholtz_free_energy {
         }
         #[test]
         fn nodal_stiffnesses_deformed_symmetry() -> Result<(), TestError> {
-            let nodal_stiffness = get_nodal_stiffnesses(true, false);
+            let nodal_stiffness = get_nodal_stiffnesses(true, false)?;
             let result =
                 nodal_stiffness
                     .iter()
@@ -564,7 +564,7 @@ macro_rules! test_helmholtz_free_energy {
         }
         #[test]
         fn nodal_stiffnesses_undeformed_symmetry() -> Result<(), TestError> {
-            let nodal_stiffness = get_nodal_stiffnesses(false, false);
+            let nodal_stiffness = get_nodal_stiffnesses(false, false)?;
             let result =
                 nodal_stiffness
                     .iter()
@@ -672,27 +672,31 @@ macro_rules! test_finite_element_with_elastic_constitutive_model {
                 }
             }
         }
-        fn get_nodal_stiffnesses(is_deformed: bool, is_rotated: bool) -> NodalStiffnesses<N> {
+        fn get_nodal_stiffnesses(
+            is_deformed: bool,
+            is_rotated: bool,
+        ) -> Result<NodalStiffnesses<N>, TestError> {
             if is_rotated {
                 if is_deformed {
-                    get_rotation_current_configuration().transpose()
+                    Ok(get_rotation_current_configuration().transpose()
                         * get_element_transformed()
-                            .calculate_nodal_stiffnesses(&get_coordinates_transformed())
-                        * get_rotation_current_configuration()
+                            .calculate_nodal_stiffnesses(&get_coordinates_transformed())?
+                        * get_rotation_current_configuration())
                 } else {
                     let converted: TensorRank2<3, 1, 1> =
                         get_rotation_reference_configuration().into();
-                    converted.transpose()
+                    Ok(converted.transpose()
                         * get_element_transformed().calculate_nodal_stiffnesses(
                             &get_reference_coordinates_transformed().into(),
-                        )
-                        * converted
+                        )?
+                        * converted)
                 }
             } else {
                 if is_deformed {
-                    get_element().calculate_nodal_stiffnesses(&get_coordinates())
+                    Ok(get_element().calculate_nodal_stiffnesses(&get_coordinates())?)
                 } else {
-                    get_element().calculate_nodal_stiffnesses(&get_reference_coordinates().into())
+                    Ok(get_element()
+                        .calculate_nodal_stiffnesses(&get_reference_coordinates().into())?)
                 }
             }
         }
@@ -814,33 +818,37 @@ macro_rules! test_finite_element_with_viscoelastic_constitutive_model {
                 }
             }
         }
-        fn get_nodal_stiffnesses(is_deformed: bool, is_rotated: bool) -> NodalStiffnesses<N> {
+        fn get_nodal_stiffnesses(
+            is_deformed: bool,
+            is_rotated: bool,
+        ) -> Result<NodalStiffnesses<N>, TestError> {
             if is_rotated {
                 if is_deformed {
-                    get_rotation_current_configuration().transpose()
+                    Ok(get_rotation_current_configuration().transpose()
                         * get_element_transformed().calculate_nodal_stiffnesses(
                             &get_coordinates_transformed(),
                             &get_velocities_transformed(),
-                        )
-                        * get_rotation_current_configuration()
+                        )?
+                        * get_rotation_current_configuration())
                 } else {
                     let converted: TensorRank2<3, 1, 1> =
                         get_rotation_reference_configuration().into();
-                    converted.transpose()
+                    Ok(converted.transpose()
                         * get_element_transformed().calculate_nodal_stiffnesses(
                             &get_reference_coordinates_transformed().into(),
                             &NodalVelocities::zero(),
-                        )
-                        * converted
+                        )?
+                        * converted)
                 }
             } else {
                 if is_deformed {
-                    get_element().calculate_nodal_stiffnesses(&get_coordinates(), &get_velocities())
+                    Ok(get_element()
+                        .calculate_nodal_stiffnesses(&get_coordinates(), &get_velocities())?)
                 } else {
-                    get_element().calculate_nodal_stiffnesses(
+                    Ok(get_element().calculate_nodal_stiffnesses(
                         &get_reference_coordinates().into(),
                         &NodalVelocities::zero(),
-                    )
+                    )?)
                 }
             }
         }
