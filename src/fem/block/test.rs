@@ -92,6 +92,9 @@ macro_rules! test_finite_element_block {
                     );
                     #[test]
                     fn solve() -> Result<(), TestError> {
+                        //
+                        // only apply these tests to blocks of the 2 tets?
+                        //
                         let mut block = get_block();
                         let mut coords = get_coordinates_block().copy();
                         let coords_0 = get_reference_coordinates_block().copy();
