@@ -82,9 +82,8 @@ where
     fn calculate_nodal_stiffnesses(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
-    ) -> NodalStiffnesses<N> {
+    ) -> Result<NodalStiffnesses<N>, ConstitutiveError> {
         self.calculate_nodal_stiffnesses_linear_element(nodal_coordinates)
-            .unwrap()
     }
 }
 impl<'a, C> ElasticLinearElement<'a, C, G, M, N, O> for Tetrahedron<C> where C: Elastic<'a> {}
@@ -116,9 +115,8 @@ where
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> NodalStiffnesses<N> {
+    ) -> Result<NodalStiffnesses<N>, ConstitutiveError> {
         self.calculate_nodal_stiffnesses_linear_element(nodal_coordinates, nodal_velocities)
-            .unwrap()
     }
 }
 impl<'a, C> ViscoelasticLinearElement<'a, C, G, M, N, O> for Tetrahedron<C> where C: Viscoelastic<'a>

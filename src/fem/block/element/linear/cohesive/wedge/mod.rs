@@ -116,7 +116,7 @@ where
     fn calculate_nodal_stiffnesses(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
-    ) -> NodalStiffnesses<N> {
+    ) -> Result<NodalStiffnesses<N>, ConstitutiveError> {
         let midplane = Self::calculate_midplane(nodal_coordinates);
         let (stiffness_opening, stiffness_normal) =
             self.get_constitutive_model().calculate_stiffnesses(
@@ -137,7 +137,7 @@ where
                     .collect()
             })
             .collect::<NormalGradients<O>>();
-        (0..N)
+        Ok((0..N)
             .map(|node_a| {
                 (0..N)
                     .zip(objects.iter().chain(objects.iter()))
@@ -152,7 +152,7 @@ where
                     })
                     .collect()
             })
-            .collect()
+            .collect())
     }
 }
 

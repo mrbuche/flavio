@@ -100,17 +100,16 @@ where
     fn calculate_nodal_stiffnesses(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
-    ) -> NodalStiffnesses<N> {
+    ) -> Result<NodalStiffnesses<N>, ConstitutiveError> {
         let first_piola_kirchoff_tangent_stiffness = self
             .get_constitutive_model()
             .calculate_first_piola_kirchoff_tangent_stiffness(
                 &self.calculate_deformation_gradient(nodal_coordinates),
-            )
-            .unwrap();
+            )?;
         let gradient_vectors = self.get_gradient_vectors();
         let normal_gradients = Self::calculate_normal_gradients(nodal_coordinates);
         let reference_normal = self.get_reference_normal();
-        gradient_vectors.iter()
+        Ok(gradient_vectors.iter()
         .map(|gradient_vector_a|
             gradient_vectors.iter()
             .zip(normal_gradients.iter())
@@ -140,7 +139,7 @@ where
                     ).collect()
                 ).collect()
             ).collect()
-        ).collect()
+        ).collect())
     }
 }
 
@@ -159,18 +158,17 @@ where
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> NodalStiffnesses<N> {
+    ) -> Result<NodalStiffnesses<N>, ConstitutiveError> {
         let first_piola_kirchoff_rate_tangent_stiffness = self
             .get_constitutive_model()
             .calculate_first_piola_kirchoff_rate_tangent_stiffness(
                 &self.calculate_deformation_gradient(nodal_coordinates),
                 &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities),
-            )
-            .unwrap();
+            )?;
         let gradient_vectors = self.get_gradient_vectors();
         let normal_gradients = Self::calculate_normal_gradients(nodal_coordinates);
         let reference_normal = self.get_reference_normal();
-        gradient_vectors.iter()
+        Ok(gradient_vectors.iter()
         .map(|gradient_vector_a|
             gradient_vectors.iter()
             .zip(normal_gradients.iter())
@@ -200,7 +198,7 @@ where
                     ).collect()
                 ).collect()
             ).collect()
-        ).collect()
+        ).collect())
     }
 }
 

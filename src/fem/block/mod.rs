@@ -99,7 +99,7 @@ pub trait ElasticFiniteElementBlock<
     F: ElasticFiniteElement<'a, C, G, N>,
 {
     fn calculate_nodal_forces(&self) -> Result<NodalForces<D>, ConstitutiveError>;
-    fn calculate_nodal_stiffnesses(&self) -> NodalStiffnesses<D>;
+    fn calculate_nodal_stiffnesses(&self) -> Result<NodalStiffnesses<D>, ConstitutiveError>;
 }
 
 pub trait HyperelasticFiniteElementBlock<
@@ -131,7 +131,7 @@ pub trait ViscoelasticFiniteElementBlock<
     F: ViscoelasticFiniteElement<'a, C, G, N>,
 {
     fn calculate_nodal_forces(&self) -> Result<NodalForces<D>, ConstitutiveError>;
-    fn calculate_nodal_stiffnesses(&self) -> NodalStiffnesses<D>;
+    fn calculate_nodal_stiffnesses(&self) -> Result<NodalStiffnesses<D>, ConstitutiveError>;
     fn calculate_nodal_velocities_element(
         &self,
         element_connectivity: &[usize; N],
@@ -285,16 +285,16 @@ where
             })?;
         Ok(nodal_forces)
     }
-    fn calculate_nodal_stiffnesses(&self) -> NodalStiffnesses<D> {
+    fn calculate_nodal_stiffnesses(&self) -> Result<NodalStiffnesses<D>, ConstitutiveError> {
         let mut nodal_stiffnesses = NodalStiffnesses::zero();
         self.get_elements()
             .iter()
             .zip(self.get_connectivity().iter())
-            .for_each(|(element, element_connectivity)| {
+            .try_for_each(|(element, element_connectivity)| {
                 element
                     .calculate_nodal_stiffnesses(
                         &self.calculate_nodal_coordinates_element(element_connectivity),
-                    )
+                    )?
                     .iter()
                     .zip(element_connectivity.iter())
                     .for_each(|(object, node_a)| {
@@ -303,9 +303,10 @@ where
                                 nodal_stiffnesses[*node_a][*node_b] += nodal_stiffness
                             },
                         )
-                    })
-            });
-        nodal_stiffnesses
+                    });
+                Ok(())
+            })?;
+        Ok(nodal_stiffnesses)
     }
 }
 
@@ -444,17 +445,17 @@ where
             })?;
         Ok(nodal_forces)
     }
-    fn calculate_nodal_stiffnesses(&self) -> NodalStiffnesses<D> {
+    fn calculate_nodal_stiffnesses(&self) -> Result<NodalStiffnesses<D>, ConstitutiveError> {
         let mut nodal_stiffnesses = NodalStiffnesses::zero();
         self.get_elements()
             .iter()
             .zip(self.get_connectivity().iter())
-            .for_each(|(element, element_connectivity)| {
+            .try_for_each(|(element, element_connectivity)| {
                 element
                     .calculate_nodal_stiffnesses(
                         &self.calculate_nodal_coordinates_element(element_connectivity),
                         &self.calculate_nodal_velocities_element(element_connectivity),
-                    )
+                    )?
                     .iter()
                     .zip(element_connectivity.iter())
                     .for_each(|(object, node_a)| {
@@ -463,9 +464,10 @@ where
                                 nodal_stiffnesses[*node_a][*node_b] += nodal_stiffness
                             },
                         )
-                    })
-            });
-        nodal_stiffnesses
+                    });
+                Ok(())
+            })?;
+        Ok(nodal_stiffnesses)
     }
     fn calculate_nodal_velocities_element(
         &self,

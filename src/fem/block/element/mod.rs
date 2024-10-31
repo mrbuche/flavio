@@ -39,7 +39,7 @@ where
     fn calculate_nodal_stiffnesses(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
-    ) -> NodalStiffnesses<N>;
+    ) -> Result<NodalStiffnesses<N>, ConstitutiveError>;
 }
 
 pub trait ElasticFiniteElement<'a, C, const G: usize, const N: usize>
@@ -53,7 +53,7 @@ where
     fn calculate_nodal_stiffnesses(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
-    ) -> NodalStiffnesses<N>;
+    ) -> Result<NodalStiffnesses<N>, ConstitutiveError>;
 }
 
 pub trait HyperelasticFiniteElement<'a, C, const G: usize, const N: usize>
@@ -80,7 +80,7 @@ where
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> NodalStiffnesses<N>;
+    ) -> Result<NodalStiffnesses<N>, ConstitutiveError>;
 }
 
 pub trait ElasticHyperviscousFiniteElement<'a, C, const G: usize, const N: usize>

@@ -182,23 +182,21 @@ where
     fn calculate_nodal_stiffnesses(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
-    ) -> NodalStiffnesses<N> {
+    ) -> Result<NodalStiffnesses<N>, ConstitutiveError> {
         let deformation_gradient = self.calculate_deformation_gradient(nodal_coordinates);
         let first_piola_kirchoff_stress = self
             .get_constitutive_model()
-            .calculate_first_piola_kirchoff_stress(&deformation_gradient)
-            .unwrap();
+            .calculate_first_piola_kirchoff_stress(&deformation_gradient)?;
         let first_piola_kirchoff_tangent_stiffness = self
             .get_constitutive_model()
-            .calculate_first_piola_kirchoff_tangent_stiffness(&deformation_gradient)
-            .unwrap();
+            .calculate_first_piola_kirchoff_tangent_stiffness(&deformation_gradient)?;
         let gradient_vectors = self.get_gradient_vectors();
         let midplane = Self::calculate_midplane(nodal_coordinates);
         let normal_gradients = Self::calculate_normal_gradients(&midplane);
         let normal_tangents = Self::calculate_normal_tangents(&midplane);
         let reference_normal = self.get_reference_normal() * 0.5;
         let traction = (first_piola_kirchoff_stress * &reference_normal) * 0.5;
-        gradient_vectors.iter()
+        Ok(gradient_vectors.iter()
         .zip(normal_gradients.iter()
         .chain(normal_gradients.iter()))
         .map(|(gradient_vector_a, normal_gradient_a)|
@@ -255,7 +253,7 @@ where
                     ).collect()
                 ).collect()
             ).collect()
-        ).collect::<NodalStiffnesses<N>>()
+        ).collect::<NodalStiffnesses<N>>())
     }
 }
 
@@ -291,19 +289,18 @@ where
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> NodalStiffnesses<N> {
+    ) -> Result<NodalStiffnesses<N>, ConstitutiveError> {
         let first_piola_kirchoff_tangent_stiffness = self
             .get_constitutive_model()
             .calculate_first_piola_kirchoff_rate_tangent_stiffness(
                 &self.calculate_deformation_gradient(nodal_coordinates),
                 &self.calculate_deformation_gradient_rate(nodal_coordinates, nodal_velocities),
-            )
-            .unwrap();
+            )?;
         let gradient_vectors = self.get_gradient_vectors();
         let normal_gradients =
             Self::calculate_normal_gradients(&Self::calculate_midplane(nodal_coordinates));
         let reference_normal = self.get_reference_normal() * 0.5;
-        gradient_vectors.iter()
+        Ok(gradient_vectors.iter()
         .zip(normal_gradients.iter()
         .chain(normal_gradients.iter()))
         .map(|(gradient_vector_a, normal_gradient_a)|
@@ -345,7 +342,7 @@ where
                     ).collect()
                 ).collect()
             ).collect()
-        ).collect()
+        ).collect())
     }
 }
 

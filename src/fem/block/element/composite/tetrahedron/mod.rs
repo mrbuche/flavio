@@ -548,9 +548,8 @@ where
     fn calculate_nodal_stiffnesses(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
-    ) -> NodalStiffnesses<N> {
+    ) -> Result<NodalStiffnesses<N>, ConstitutiveError> {
         self.calculate_nodal_stiffnesses_composite_element(nodal_coordinates)
-            .unwrap()
     }
 }
 
@@ -588,9 +587,8 @@ where
         &self,
         nodal_coordinates: &NodalCoordinates<N>,
         nodal_velocities: &NodalVelocities<N>,
-    ) -> NodalStiffnesses<N> {
+    ) -> Result<NodalStiffnesses<N>, ConstitutiveError> {
         self.calculate_nodal_stiffnesses_composite_element(nodal_coordinates, nodal_velocities)
-            .unwrap()
     }
 }
 
