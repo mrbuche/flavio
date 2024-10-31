@@ -100,6 +100,7 @@ pub trait ElasticFiniteElementBlock<
 {
     fn calculate_nodal_forces(&self) -> Result<NodalForces<D>, ConstitutiveError>;
     fn calculate_nodal_stiffnesses(&self) -> Result<NodalStiffnesses<D>, ConstitutiveError>;
+    fn solve<const Z: usize>(&mut self, fixed_nodes: [usize; Z]) -> Result<(), ConstitutiveError>;
 }
 
 pub trait HyperelasticFiniteElementBlock<
@@ -307,6 +308,46 @@ where
                 Ok(())
             })?;
         Ok(nodal_stiffnesses)
+    }
+    fn solve<const Z: usize>(&mut self, fixed_nodes: [usize; Z]) -> Result<(), ConstitutiveError> {
+        let mut guess = self.get_nodal_coordinates().copy();
+        let mut guess_0 = NodalCoordinates::zero();
+        let mut residual;
+        let mut residual_0 = NodalForces::zero();
+        let mut residual_difference;
+        let mut residual_norm: Scalar;
+        let mut step_size: Scalar;
+        for step in 0..1000 {
+            residual = self.calculate_nodal_forces()?;
+            fixed_nodes
+                .iter()
+                .for_each(|node| residual[*node].iter_mut().for_each(|entry| *entry = 0.0));
+            residual_norm = residual
+                .iter()
+                .map(|entry| entry.norm_squared())
+                .sum::<Scalar>()
+                .sqrt();
+            // if residual_norm < 1e-6 {
+            if residual.iter().filter(|entry| entry.norm() >= 1e-7).count() == 0 {
+                return Ok(());
+            } else {
+                residual_difference = residual_0 - &residual;
+                //
+                // how to choose short (below, dx*dg/dg*dg) or long (dx*dx/dx*dg) steps?
+                //
+                step_size = residual_difference.dot(&(guess_0 - &guess))
+                    / residual_difference
+                        .iter()
+                        .map(|entry| entry.norm_squared())
+                        .sum::<Scalar>();
+                guess_0 = guess.copy();
+                residual_0 = residual.copy();
+                println!("{:?}", (step, step_size, residual_norm));
+                guess = self.get_nodal_coordinates() - residual * step_size;
+                self.set_nodal_coordinates(guess.copy());
+            }
+        }
+        panic!("Maximum steps reached.")
     }
 }
 

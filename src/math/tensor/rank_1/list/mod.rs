@@ -426,6 +426,20 @@ impl<const D: usize, const I: usize, const W: usize> Sub<&Self> for TensorRank1L
     }
 }
 
+impl<const D: usize, const I: usize, const W: usize> Sub<TensorRank1List<D, I, W>>
+    for &TensorRank1List<D, I, W>
+{
+    type Output = TensorRank1List<D, I, W>;
+    fn sub(self, mut tensor_rank_1_list: TensorRank1List<D, I, W>) -> Self::Output {
+        tensor_rank_1_list.iter_mut().zip(self.iter()).for_each(
+            |(tensor_rank_1_list_a, self_a)| {
+                *tensor_rank_1_list_a = self_a - tensor_rank_1_list_a.copy()
+            },
+        );
+        tensor_rank_1_list
+    }
+}
+
 impl<const D: usize, const I: usize, const W: usize> SubAssign for TensorRank1List<D, I, W> {
     fn sub_assign(&mut self, tensor_rank_1_list: Self) {
         self.iter_mut().zip(tensor_rank_1_list.iter()).for_each(

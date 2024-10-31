@@ -90,6 +90,20 @@ macro_rules! test_finite_element_block {
                         NeoHookean,
                         NEOHOOKEANPARAMETERS
                     );
+                    #[test]
+                    fn solve() -> Result<(), TestError> {
+                        let mut block = get_block();
+                        let mut coords = get_coordinates_block().copy();
+                        let coords_0 = get_reference_coordinates_block().copy();
+                        let fixed_nodes = [0, 1, 6];
+                        fixed_nodes
+                            .iter()
+                            .for_each(|node| coords[*node] = coords_0[*node].convert());
+                        block.set_nodal_coordinates(coords);
+                        block.solve(fixed_nodes)?;
+                        println!("{}", coords_0.convert() - block.get_nodal_coordinates());
+                        Ok(())
+                    }
                 }
                 mod saint_venant_kirchoff {
                     use super::*;

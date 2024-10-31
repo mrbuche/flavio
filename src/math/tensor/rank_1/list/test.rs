@@ -515,6 +515,23 @@ fn sub_tensor_rank_1_list_ref_to_self() {
 }
 
 #[test]
+fn sub_tensor_rank_1_list_to_self_ref() {
+    (&get_tensor_rank_1_list() - get_other_tensor_rank_1_list())
+        .iter()
+        .zip(get_tensor_rank_1_list_sub_other_tensor_rank_1_list().iter())
+        .for_each(|(tensor_rank_1_list_entry, add_tensor_rank_1_list_entry)| {
+            tensor_rank_1_list_entry
+                .iter()
+                .zip(add_tensor_rank_1_list_entry.iter())
+                .for_each(
+                    |(tensor_rank_1_list_entry_i, add_tensor_rank_1_list_entry_i)| {
+                        assert_eq!(tensor_rank_1_list_entry_i, add_tensor_rank_1_list_entry_i)
+                    },
+                )
+        });
+}
+
+#[test]
 fn sub_assign_tensor_rank_1_list() {
     let mut tensor_rank_1_list = get_tensor_rank_1_list();
     tensor_rank_1_list -= get_other_tensor_rank_1_list();
