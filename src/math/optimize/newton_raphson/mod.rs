@@ -3,14 +3,14 @@ mod test;
 
 use super::{
     super::{Tensor, TensorRank0},
-    Optimize, OptimizeError,
+    OptimizeError, SecondOrder,
 };
 use crate::ABS_TOL;
 use std::ops::Div;
 
-/// Newton's method.
+/// The Newton-Raphson method.
 #[derive(Debug)]
-pub struct Newton {
+pub struct NewtonRaphson {
     /// Absolute error tolerance.
     pub abs_tol: TensorRank0,
     /// Whether to check if solution is minimum.
@@ -19,7 +19,7 @@ pub struct Newton {
     pub max_steps: usize,
 }
 
-impl Default for Newton {
+impl Default for NewtonRaphson {
     fn default() -> Self {
         Self {
             abs_tol: ABS_TOL,
@@ -29,7 +29,7 @@ impl Default for Newton {
     }
 }
 
-impl<H, J, X> Optimize<H, J, X> for Newton
+impl<H, J, X> SecondOrder<H, J, X> for NewtonRaphson
 where
     H: Tensor,
     J: Tensor + Div<H, Output = X>,

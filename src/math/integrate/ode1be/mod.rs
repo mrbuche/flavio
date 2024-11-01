@@ -3,7 +3,7 @@ mod test;
 
 use super::{
     super::{
-        optimize::{Newton, Optimization, Optimize},
+        optimize::{FirstOrder, NewtonRaphson, Optimization, SecondOrder},
         Tensor, TensorRank0, TensorRank0List, Tensors,
     },
     Implicit, IntegrationError, OdeSolver,
@@ -32,7 +32,7 @@ impl Default for Ode1be {
             abs_tol: ABS_TOL,
             dec_fac: 0.5,
             inc_fac: 1.1,
-            optimization: Optimization::Newton(Newton {
+            optimization: Optimization::NewtonRaphson(NewtonRaphson {
                 check_minimum: false,
                 ..Default::default()
             }),
@@ -63,7 +63,6 @@ where
         let mut t_trial;
         let mut y_trial;
         let identity = J::identity();
-        let Optimization::Newton(optimization) = &self.optimization;
         {
             let (mut eval_times, mut dt, mut t, mut y, mut y_sol) = self.setup(
                 initial_time,
@@ -73,18 +72,20 @@ where
             )?;
             while eval_times.peek().is_some() {
                 t_trial = t + dt;
-                y_trial = match optimization.minimize(
-                    |y_trial: &Y| y_trial - &y - &(&function(&t_trial, y_trial) * dt),
-                    |y_trial: &Y| jacobian(&t_trial, y_trial) * -dt + &identity,
-                    y.copy(),
-                ) {
-                    Err(error) => {
-                        return Err(IntegrationError::OptimizeError(
-                            error,
-                            format!("{:?}", &self),
-                        ))
-                    }
-                    Ok(solution_y_trial) => solution_y_trial,
+                y_trial = match &self.optimization {
+                    Optimization::GradientDescent(gradient_descent) => gradient_descent
+                        .minimize(
+                            |y_trial: &Y| y_trial - &y - &(&function(&t_trial, y_trial) * dt),
+                            y.copy(),
+                        )
+                        .unwrap(),
+                    Optimization::NewtonRaphson(newton_raphson) => newton_raphson
+                        .minimize(
+                            |y_trial: &Y| y_trial - &y - &(&function(&t_trial, y_trial) * dt),
+                            |y_trial: &Y| jacobian(&t_trial, y_trial) * -dt + &identity,
+                            y.copy(),
+                        )
+                        .unwrap(),
                 };
                 k_2 = function(&t_trial, &y_trial);
                 e = ((&k_2 - &k_1) * (dt / 2.0)).norm();

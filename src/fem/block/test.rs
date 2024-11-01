@@ -94,6 +94,10 @@ macro_rules! test_finite_element_block {
                     fn solve() -> Result<(), TestError> {
                         //
                         // only apply these tests to blocks of the 2 tets?
+                        // or figure out a way to have BCs applied differently for each?
+                        //
+                        // need some sort of homogeneous/etc. deformation tests
+                        // that you can confirm the expected spatially-varying fields at every integration point
                         //
                         let mut block = get_block();
                         let mut coords = get_coordinates_block().copy();

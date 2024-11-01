@@ -139,6 +139,12 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize> Tensor
             .map(|entry_rank_2| entry_rank_2.copy())
             .collect()
     }
+    fn full_contraction(&self, tensor_rank_3: &Self) -> TensorRank0 {
+        self.iter()
+            .zip(tensor_rank_3.iter())
+            .map(|(self_i, tensor_rank_3_i)| self_i.full_contraction(tensor_rank_3_i))
+            .sum()
+    }
     fn identity() -> Self {
         panic!()
     }
@@ -168,7 +174,7 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize> Tensor
         array.iter().map(|entry| TensorRank2::new(*entry)).collect()
     }
     fn norm_squared(&self) -> TensorRank0 {
-        panic!()
+        self.iter().map(|self_i| self_i.norm_squared()).sum()
     }
     fn normalized(&self) -> Self {
         panic!()

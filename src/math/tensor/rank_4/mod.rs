@@ -209,6 +209,12 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
             .map(|entry_rank_3| entry_rank_3.copy())
             .collect()
     }
+    fn full_contraction(&self, tensor_rank_4: &Self) -> TensorRank0 {
+        self.iter()
+            .zip(tensor_rank_4.iter())
+            .map(|(self_i, tensor_rank_4_i)| self_i.full_contraction(tensor_rank_4_i))
+            .sum()
+    }
     fn identity() -> Self {
         Self::dyad_ij_kl(&TensorRank2::identity(), &TensorRank2::identity())
     }
@@ -243,7 +249,7 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
         array.iter().map(|entry| TensorRank3::new(*entry)).collect()
     }
     fn norm_squared(&self) -> TensorRank0 {
-        panic!()
+        self.iter().map(|self_i| self_i.norm_squared()).sum()
     }
     fn normalized(&self) -> Self {
         panic!()

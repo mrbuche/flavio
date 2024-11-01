@@ -32,6 +32,7 @@ where
         + Sub<Self, Output = Self>
         + Sub<&'a Self, Output = Self>
         + SubAssign
+        + SubAssign<&'a Self>
         + Sized
         + fmt::Debug
         + fmt::Display,
@@ -60,6 +61,8 @@ where
     ///
     /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
     fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item>;
+    /// Returns the full contraction with another tensor.
+    fn full_contraction(&self, tensor: &Self) -> TensorRank0;
     /// Returns a tensor given an array.
     fn new(array: Self::Array) -> Self;
     /// Returns the tensor norm.

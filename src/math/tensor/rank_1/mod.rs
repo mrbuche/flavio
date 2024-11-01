@@ -100,6 +100,9 @@ impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
     }
+    fn full_contraction(&self, tensor_rank_1: &Self) -> TensorRank0 {
+        self * tensor_rank_1
+    }
     fn identity() -> Self {
         panic!()
     }

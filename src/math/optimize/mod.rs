@@ -1,16 +1,26 @@
 #[cfg(test)]
 mod test;
 
-mod newton;
+mod gradient_descent;
+mod newton_raphson;
 
 use super::Tensor;
 use crate::get_defeat_message;
 use std::{fmt, ops::Div};
 
-pub use newton::Newton;
+pub use gradient_descent::GradientDescent;
+pub use newton_raphson::NewtonRaphson;
 
-/// Base trait for optimization algorithms.
-pub trait Optimize<H, J, X>
+/// First-order optimization algorithms.
+pub trait FirstOrder<X>
+where
+    X: Tensor,
+{
+    fn minimize(&self, jacobian: impl Fn(&X) -> X, initial_guess: X) -> Result<X, OptimizeError>;
+}
+
+/// Second-order optimization algorithms.
+pub trait SecondOrder<H, J, X>
 where
     H: Tensor,
     J: Tensor + Div<H, Output = X>,
@@ -27,7 +37,8 @@ where
 /// Possible optimization algorithms.
 #[derive(Debug)]
 pub enum Optimization {
-    Newton(Newton),
+    GradientDescent(GradientDescent),
+    NewtonRaphson(NewtonRaphson),
 }
 
 /// Possible errors encountered when optimizing.

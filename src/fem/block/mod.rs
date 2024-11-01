@@ -100,7 +100,7 @@ pub trait ElasticFiniteElementBlock<
 {
     fn calculate_nodal_forces(&self) -> Result<NodalForces<D>, ConstitutiveError>;
     fn calculate_nodal_stiffnesses(&self) -> Result<NodalStiffnesses<D>, ConstitutiveError>;
-    fn solve<const Z: usize>(&mut self, fixed_nodes: [usize; Z]) -> Result<(), ConstitutiveError>;
+    fn solve(&mut self, fixed_nodes: &[usize]) -> Result<(), ConstitutiveError>;
 }
 
 pub trait HyperelasticFiniteElementBlock<
@@ -309,7 +309,16 @@ where
             })?;
         Ok(nodal_stiffnesses)
     }
-    fn solve<const Z: usize>(&mut self, fixed_nodes: [usize; Z]) -> Result<(), ConstitutiveError> {
+    //
+    // What about constrained optimization instead?
+    // Would that work nicely, and be more robust to large step deformations?
+    //
+    fn solve(&mut self, fixed_nodes: &[usize]) -> Result<(), ConstitutiveError> {
+        //
+        // prescribed BCs
+        // &[usize] for node ids
+        // &[Option<f64>; 3] for values (None = free DOF)
+        //
         let mut guess = self.get_nodal_coordinates().copy();
         let mut guess_0 = NodalCoordinates::zero();
         let mut residual;
@@ -328,7 +337,12 @@ where
                 .sum::<Scalar>()
                 .sqrt();
             // if residual_norm < 1e-6 {
-            if residual.iter().filter(|entry| entry.norm() >= 1e-7).count() == 0 {
+            if residual
+                .iter()
+                .filter(|entry| entry.norm() >= crate::ABS_TOL)
+                .count()
+                == 0
+            {
                 return Ok(());
             } else {
                 residual_difference = residual_0 - &residual;

@@ -43,6 +43,9 @@ impl Tensor for TensorRank0 {
     fn copy(&self) -> TensorRank0 {
         *self
     }
+    fn full_contraction(&self, tensor_rank_0: &Self) -> TensorRank0 {
+        self * tensor_rank_0
+    }
     fn identity() -> Self {
         1.0
     }

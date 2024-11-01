@@ -1,11 +1,11 @@
-use super::{Newton, Optimize, TensorRank0};
+use super::{NewtonRaphson, SecondOrder, TensorRank0};
 
 const TOLERANCE: TensorRank0 = 1e-6;
 
 #[test]
 fn linear() {
     assert!(
-        Newton {
+        NewtonRaphson {
             ..Default::default()
         }
         .minimize(|x: &TensorRank0| *x, |_: &TensorRank0| 1.0, 1.0,)
@@ -18,7 +18,7 @@ fn linear() {
 #[test]
 fn quadratic() {
     assert!(
-        Newton {
+        NewtonRaphson {
             ..Default::default()
         }
         .minimize(|x: &TensorRank0| x.powi(2) / 2.0, |x: &TensorRank0| *x, 1.0,)
@@ -31,7 +31,7 @@ fn quadratic() {
 #[test]
 fn sin() {
     assert!(
-        Newton {
+        NewtonRaphson {
             ..Default::default()
         }
         .minimize(|x: &TensorRank0| x.sin(), |x: &TensorRank0| x.cos(), 1.0,)
@@ -44,7 +44,7 @@ fn sin() {
 #[test]
 #[should_panic(expected = "The obtained solution is not a minimum.")]
 fn sin_max() {
-    Newton {
+    NewtonRaphson {
         ..Default::default()
     }
     .minimize(|x: &TensorRank0| x.sin(), |x: &TensorRank0| x.cos(), 3.0)
