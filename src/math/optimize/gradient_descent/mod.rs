@@ -32,7 +32,11 @@ where
     fn minimize(&self, jacobian: impl Fn(&X) -> X, initial_guess: X) -> Result<X, OptimizeError> {
         //
         // How to choose short (below, dx*dg/dg*dg) or long (dx*dx/dx*dg) steps?
+        //
         // Or even allow different options for calculating step size?
+        // Like using backtracking line search with: (1), checked decrease, (2) Armijo condition (sufficient decrease), (3) trust region, etc. (see slides).
+        // Those methods might also be abstracted to be used in multiple places, like if you make a nonlinear conjugate gradient solver.
+        // And then within the NLCG, different formulas for beta?
         //
         let mut residual;
         let mut residual_change = X::zero();
