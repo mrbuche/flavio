@@ -315,6 +315,10 @@ where
     //
     fn solve(&mut self, fixed_nodes: &[usize]) -> Result<(), ConstitutiveError> {
         //
+        // can you just make the calculate() methods take a reference rather than reference self?
+        // as these solvers show, you in many cases want to compute states that are not the current one
+        // and then you can use the templated solvers
+        //
         // prescribed BCs
         // &[usize] for node ids
         // &[Option<f64>; 3] for values (None = free DOF)
