@@ -367,7 +367,6 @@ where
                 .map(|entry| entry.norm_squared())
                 .sum::<Scalar>()
                 .sqrt();
-            // if residual_norm < 1e-6 {
             if residual
                 .iter()
                 .filter(|entry| entry.norm() >= crate::ABS_TOL)
@@ -377,9 +376,6 @@ where
                 return Ok(());
             } else {
                 residual_difference = residual_0 - &residual;
-                //
-                // how to choose short (below, dx*dg/dg*dg) or long (dx*dx/dx*dg) steps?
-                //
                 step_size = residual_difference.dot(&(guess_0 - &guess))
                     / residual_difference
                         .iter()
