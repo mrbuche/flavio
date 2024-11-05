@@ -9,6 +9,7 @@ use self::element::{
     ViscoelasticFiniteElement,
 };
 use super::*;
+use crate::math::optimize::{FirstOrder, GradientDescent, OptimizeError};
 use std::array::from_fn;
 
 pub struct ElasticBlock<const D: usize, const E: usize, F, const G: usize, const N: usize> {
@@ -103,10 +104,10 @@ pub trait ElasticFiniteElementBlock<
         nodal_coordinates: &NodalCoordinates<D>,
     ) -> Result<NodalStiffnesses<D>, ConstitutiveError>;
     fn solve(
-        &mut self,
+        &self,
         fixed_nodes: &[usize],
-        initial_coordinates: &ReferenceNodalCoordinates<D>,
-    ) -> Result<(), ConstitutiveError>;
+        initial_coordinates: NodalCoordinates<D>,
+    ) -> Result<NodalCoordinates<D>, OptimizeError>;
 }
 
 pub trait HyperelasticFiniteElementBlock<
@@ -341,53 +342,24 @@ where
     // Would that work nicely, and be more robust to large step deformations?
     //
     fn solve(
-        &mut self,
+        &self,
         fixed_nodes: &[usize],
-        initial_coordinates: &ReferenceNodalCoordinates<D>,
-    ) -> Result<(), ConstitutiveError> {
+        initial_coordinates: NodalCoordinates<D>,
+    ) -> Result<NodalCoordinates<D>, OptimizeError> {
         //
         // prescribed BCs
         // &[usize] for node ids
         // &[Option<f64>; 3] for values (None = free DOF)
         //
-        let mut guess = initial_coordinates.copy().into();
-        let mut guess_0 = NodalCoordinates::zero();
-        let mut residual;
-        let mut residual_0 = NodalForces::zero();
-        let mut residual_difference;
-        let mut residual_norm: Scalar;
-        let mut step_size: Scalar;
-        for step in 0..1000 {
-            residual = self.calculate_nodal_forces(&guess)?;
-            fixed_nodes
-                .iter()
-                .for_each(|node| residual[*node].iter_mut().for_each(|entry| *entry = 0.0));
-            residual_norm = residual
-                .iter()
-                .map(|entry| entry.norm_squared())
-                .sum::<Scalar>()
-                .sqrt();
-            if residual
-                .iter()
-                .filter(|entry| entry.norm() >= crate::ABS_TOL)
-                .count()
-                == 0
-            {
-                return Ok(());
-            } else {
-                residual_difference = residual_0 - &residual;
-                step_size = residual_difference.dot(&(guess_0 - &guess))
-                    / residual_difference
-                        .iter()
-                        .map(|entry| entry.norm_squared())
-                        .sum::<Scalar>();
-                guess_0 = guess.copy();
-                residual_0 = residual.copy();
-                println!("{:?}", (step, step_size, residual_norm));
-                guess -= residual * step_size;
-            }
+        GradientDescent {
+            ..Default::default()
         }
-        panic!("Maximum steps reached.")
+        .minimize(
+            |nodal_coordinates: &NodalCoordinates<D>| {
+                self.calculate_nodal_forces(nodal_coordinates).unwrap()
+            },
+            initial_coordinates,
+        )
     }
 }
 

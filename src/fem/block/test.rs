@@ -99,14 +99,14 @@ macro_rules! test_finite_element_block {
                         // need some sort of homogeneous/etc. deformation tests
                         // that you can confirm the expected spatially-varying fields at every integration point
                         //
-                        let mut block = get_block();
+                        let block = get_block();
                         let mut coords = get_coordinates_block().copy();
                         let coords_0 = get_reference_coordinates_block().copy();
                         let fixed_nodes = [0, 1, 6];
                         fixed_nodes
                             .iter()
                             .for_each(|node| coords[*node] = coords_0[*node].convert());
-                        block.solve(&fixed_nodes, &coords.convert())?;
+                        block.solve(&fixed_nodes, coords.convert())?;
                         // println!("{}", coords_0.convert() - block.get_nodal_coordinates());
                         Ok(())
                     }
