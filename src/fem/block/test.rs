@@ -106,8 +106,7 @@ macro_rules! test_finite_element_block {
                         fixed_nodes
                             .iter()
                             .for_each(|node| coords[*node] = coords_0[*node].convert());
-                        block.set_nodal_coordinates(coords);
-                        block.solve(fixed_nodes)?;
+                        block.solve(fixed_nodes, &coords)?;
                         println!("{}", coords_0.convert() - block.get_nodal_coordinates());
                         Ok(())
                     }
