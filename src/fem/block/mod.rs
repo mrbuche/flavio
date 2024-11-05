@@ -337,19 +337,20 @@ where
             })?;
         Ok(nodal_stiffnesses)
     }
-    //
-    // What about constrained optimization instead?
-    // Would that work nicely, and be more robust to large step deformations?
-    //
     fn solve(
         &self,
         fixed_nodes: &[usize],
         initial_coordinates: NodalCoordinates<D>,
     ) -> Result<NodalCoordinates<D>, OptimizeError> {
         //
+        // What about constrained optimization instead?
+        // Would that work nicely, and be more robust to large step deformations?
+        //
         // prescribed BCs
         // &[usize] for node ids
         // &[Option<f64>; 3] for values (None = free DOF)
+        //
+        // Need to create a separate trait for Tensor & Tensors to specify instead.
         //
         GradientDescent {
             ..Default::default()
