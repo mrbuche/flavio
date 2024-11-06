@@ -15,6 +15,7 @@ use super::{super::Tensors, Tensor, TensorRank0, TensorRank2};
 /// A list of *d*-dimensional tensors of rank 2.
 ///
 /// `D` is the dimension, `I`, `J` are the configurations `W` is the list length.
+#[derive(Debug)]
 pub struct TensorRank2List<const D: usize, const I: usize, const J: usize, const W: usize>(
     pub [TensorRank2<D, I, J>; W],
 );
@@ -93,13 +94,6 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorError
     }
 }
 
-impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorRank2List<D, I, J, W> {
-    /// Returns a list of rank-2 identity tensors.
-    pub fn identity() -> Self {
-        Self(from_fn(|_| TensorRank2::identity()))
-    }
-}
-
 impl<const D: usize, const I: usize, const J: usize, const W: usize> Tensors
     for TensorRank2List<D, I, J, W>
 {
@@ -115,6 +109,15 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> Tensors
     }
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
+    }
+    fn full_contraction(&self, tensor_rank_2_list: &Self) -> TensorRank0 {
+        self.iter()
+            .zip(tensor_rank_2_list.iter())
+            .map(|(self_entry, tensor_rank_2)| self_entry.full_contraction(tensor_rank_2))
+            .sum()
+    }
+    fn identity() -> Self {
+        Self(from_fn(|_| Self::Item::identity()))
     }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()

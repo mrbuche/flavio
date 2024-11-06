@@ -1,13 +1,18 @@
 #[cfg(test)]
 pub mod test;
 
-use std::{array::from_fn, ops::AddAssign};
+use std::{
+    array::from_fn,
+    fmt::{Display, Formatter, Result},
+    ops::AddAssign,
+};
 
 use super::{super::Tensors, Tensor, TensorRank0, TensorRank3};
 
 /// A list of *d*-dimensional tensors of rank 3.
 ///
 /// `D` is the dimension, `I`, `J`, `K` are the configurations `W` is the list length.
+#[derive(Debug)]
 pub struct TensorRank3List<
     const D: usize,
     const I: usize,
@@ -15,6 +20,14 @@ pub struct TensorRank3List<
     const K: usize,
     const W: usize,
 >([TensorRank3<D, I, J, K>; W]);
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize> Display
+    for TensorRank3List<D, I, J, K, W>
+{
+    fn fmt(&self, _f: &mut Formatter) -> Result {
+        Ok(())
+    }
+}
 
 impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize> Tensors
     for TensorRank3List<D, I, J, K, W>
@@ -31,6 +44,15 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: us
     }
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
+    }
+    fn full_contraction(&self, tensor_rank_3_list: &Self) -> TensorRank0 {
+        self.iter()
+            .zip(tensor_rank_3_list.iter())
+            .map(|(self_entry, tensor_rank_3)| self_entry.full_contraction(tensor_rank_3))
+            .sum()
+    }
+    fn identity() -> Self {
+        Self(from_fn(|_| Self::Item::identity()))
     }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()

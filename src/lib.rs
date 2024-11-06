@@ -35,6 +35,7 @@ fn get_defeat_message<'a>() -> &'a str {
         7 => "You cannot give up just yet.",
         8 => "You have died of dysentery.",
         9.. => "You've met with a terrible fate, haven't you?",
+        // Now let's all agree to never be creative again.
     }
 }
 

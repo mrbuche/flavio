@@ -6,7 +6,7 @@ use super::{
     Tensor, TensorRank0,
 };
 use std::{
-    fmt,
+    fmt::{Display, Formatter, Result},
     ops::{Index, IndexMut, Mul, MulAssign},
 };
 
@@ -17,8 +17,8 @@ use std::{
 pub struct TensorRank0List<const W: usize>(pub [TensorRank0; W]);
 
 /// Display implementation for rank-0 lists.
-impl<const W: usize> fmt::Display for TensorRank0List<W> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+impl<const W: usize> Display for TensorRank0List<W> {
+    fn fmt(&self, f: &mut Formatter) -> Result {
         write!(f, "\x1B[s")?;
         write!(f, "[")?;
         self.0.chunks(5).enumerate().try_for_each(|(i, chunk)| {
@@ -45,6 +45,15 @@ impl<const W: usize> Tensors for TensorRank0List<W> {
     }
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
+    }
+    fn full_contraction(&self, tensor_rank_0_list: &Self) -> TensorRank0 {
+        self.iter()
+            .zip(tensor_rank_0_list.iter())
+            .map(|(self_entry, tensor_rank_0)| self_entry * tensor_rank_0)
+            .sum()
+    }
+    fn identity() -> Self {
+        Self([1.0; W])
     }
     fn iter(&self) -> impl Iterator<Item = &TensorRank0> {
         self.0.iter()

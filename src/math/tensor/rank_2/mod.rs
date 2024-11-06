@@ -574,6 +574,7 @@ impl<const D: usize, const I: usize, const J: usize> Tensor for TensorRank2<D, I
             .map(|i| (0..D).map(|j| ((i == j) as u8) as TensorRank0).collect())
             .collect()
     }
+    #[cfg(test)]
     fn is_zero(&self) -> bool {
         self.iter()
             .map(|self_i| {
@@ -596,9 +597,6 @@ impl<const D: usize, const I: usize, const J: usize> Tensor for TensorRank2<D, I
             .iter()
             .map(|array_i| TensorRank1::new(*array_i))
             .collect()
-    }
-    fn norm_squared(&self) -> TensorRank0 {
-        self.iter().map(|self_i| self_i.norm_squared()).sum()
     }
     fn normalized(&self) -> Self {
         self / self.norm()

@@ -3,13 +3,23 @@ mod test;
 
 use super::{super::Tensors, list::TensorRank1List, TensorRank0};
 use std::array::from_fn;
+use std::fmt::{Display, Formatter, Result};
 
 /// A 2D list of *d*-dimensional tensors of rank 1.
 ///
 /// `D` is the dimension, `I` is the configuration, `W` and `X` are the list lengths.
+#[derive(Debug)]
 pub struct TensorRank1List2D<const D: usize, const I: usize, const W: usize, const X: usize>(
     pub [TensorRank1List<D, I, W>; X],
 );
+
+impl<const D: usize, const I: usize, const W: usize, const X: usize> Display
+    for TensorRank1List2D<D, I, W, X>
+{
+    fn fmt(&self, _f: &mut Formatter) -> Result {
+        Ok(())
+    }
+}
 
 impl<const D: usize, const I: usize, const W: usize, const X: usize> Tensors
     for TensorRank1List2D<D, I, W, X>
@@ -26,6 +36,15 @@ impl<const D: usize, const I: usize, const W: usize, const X: usize> Tensors
     }
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
+    }
+    fn full_contraction(&self, tensor_rank_1_list_2d: &Self) -> TensorRank0 {
+        self.iter()
+            .zip(tensor_rank_1_list_2d.iter())
+            .map(|(self_entry, tensor_rank_1_list)| self_entry.full_contraction(tensor_rank_1_list))
+            .sum()
+    }
+    fn identity() -> Self {
+        Self(from_fn(|_| Self::Item::identity()))
     }
     fn iter(&self) -> impl Iterator<Item = &TensorRank1List<D, I, W>> {
         self.0.iter()

@@ -15,6 +15,7 @@ use super::{super::Tensors, list::TensorRank2List, TensorRank0, TensorRank2};
 /// A 2D list of *d*-dimensional tensors of rank 2.
 ///
 /// `D` is the dimension, `I`, `J` are the configurations, `W` and `X` are the list lengths.
+#[derive(Debug)]
 pub struct TensorRank2List2D<
     const D: usize,
     const I: usize,
@@ -156,6 +157,15 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: us
     }
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
+    }
+    fn full_contraction(&self, tensor_rank_2_list_2d: &Self) -> TensorRank0 {
+        self.iter()
+            .zip(tensor_rank_2_list_2d.iter())
+            .map(|(self_entry, tensor_rank_2_list)| self_entry.full_contraction(tensor_rank_2_list))
+            .sum()
+    }
+    fn identity() -> Self {
+        Self(from_fn(|_| Self::Item::identity()))
     }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()

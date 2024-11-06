@@ -9,7 +9,7 @@ pub mod rank_4;
 
 use rank_0::TensorRank0;
 use std::{
-    fmt,
+    fmt::{Debug, Display},
     ops::{Add, AddAssign, Div, Mul, Sub, SubAssign},
 };
 
@@ -24,18 +24,19 @@ pub trait Convert<T> {
 /// Common methods for tensors.
 pub trait Tensor
 where
-    for<'a> Self: Add<Self, Output = Self>
+    for<'a> Self: Sized
+        + Debug
+        + Display
+        + Add<Self, Output = Self>
         + Add<&'a Self, Output = Self>
         + AddAssign
+        + AddAssign<&'a Self>
         + Div<TensorRank0, Output = Self>
         + Mul<TensorRank0, Output = Self>
         + Sub<Self, Output = Self>
         + Sub<&'a Self, Output = Self>
         + SubAssign
-        + SubAssign<&'a Self>
-        + Sized
-        + fmt::Debug
-        + fmt::Display,
+        + SubAssign<&'a Self>,
 {
     type Array;
     type Item;
@@ -47,11 +48,13 @@ where
     fn copy(&self) -> Self;
     /// Returns the identity tensor.
     fn identity() -> Self;
+    /// Returns the full contraction with another tensor.
+    fn full_contraction(&self, tensor: &Self) -> TensorRank0;
     /// Checks whether the tensor is positive-definite.
     fn is_positive_definite(&self) -> bool {
         panic!("Need to implement is_positive_definite() for {:?}.", self)
     }
-    /// Checks whether the tensor is the zero tensor.
+    #[cfg(test)]
     fn is_zero(&self) -> bool;
     /// Returns an iterator.
     ///
@@ -61,8 +64,6 @@ where
     ///
     /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
     fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item>;
-    /// Returns the full contraction with another tensor.
-    fn full_contraction(&self, tensor: &Self) -> TensorRank0;
     /// Returns a tensor given an array.
     fn new(array: Self::Array) -> Self;
     /// Returns the tensor norm.
@@ -70,7 +71,9 @@ where
         self.norm_squared().sqrt()
     }
     /// Returns the tensor norm squared.
-    fn norm_squared(&self) -> TensorRank0;
+    fn norm_squared(&self) -> TensorRank0 {
+        self.full_contraction(self)
+    }
     /// Returns the tensor normalized.
     fn normalized(&self) -> Self;
     /// Returns the zero tensor.
@@ -78,7 +81,10 @@ where
 }
 
 /// Common methods for lists of tensors.
-pub trait Tensors {
+pub trait Tensors
+where
+    for<'a> Self: Sized + Debug + Display,
+{
     type Array;
     type Item;
     /// Returns the list of tensors as an array.
@@ -87,6 +93,10 @@ pub trait Tensors {
     ///
     /// This method was implemented instead of the Copy trait to avoid unintended copy creations.
     fn copy(&self) -> Self;
+    /// Returns the full contraction with another tensor.
+    fn full_contraction(&self, tensor: &Self) -> TensorRank0;
+    /// Returns the identity tensor.
+    fn identity() -> Self;
     /// Returns an iterator.
     ///
     /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
@@ -97,6 +107,18 @@ pub trait Tensors {
     fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item>;
     /// Returns a list of tensors given an array.
     fn new(array: Self::Array) -> Self;
+    /// Returns the tensor norm.
+    fn norm(&self) -> TensorRank0 {
+        self.norm_squared().sqrt()
+    }
+    /// Returns the tensor norm squared.
+    fn norm_squared(&self) -> TensorRank0 {
+        self.full_contraction(self)
+    }
+    /// Returns the tensor normalized.
+    fn normalized(&self) -> Self {
+        panic!("Need to implement normalized() for {:?}.", self)
+    }
     /// Returns a list of zero tensors.
     fn zero() -> Self;
 }

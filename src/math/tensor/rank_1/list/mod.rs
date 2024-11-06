@@ -20,6 +20,7 @@ use super::{
 /// A list of *d*-dimensional tensors of rank 1.
 ///
 /// `D` is the dimension, `I` is the configuration, `W` is the list length.
+#[derive(Debug)]
 pub struct TensorRank1List<const D: usize, const I: usize, const W: usize>(
     pub [TensorRank1<D, I>; W],
 );
@@ -134,6 +135,15 @@ impl<const D: usize, const I: usize, const W: usize> Tensors for TensorRank1List
     }
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
+    }
+    fn full_contraction(&self, tensor_rank_1_list: &Self) -> TensorRank0 {
+        self.iter()
+            .zip(tensor_rank_1_list.iter())
+            .map(|(self_entry, tensor_rank_1)| self_entry.full_contraction(tensor_rank_1))
+            .sum()
+    }
+    fn identity() -> Self {
+        Self(from_fn(|_| Self::Item::identity()))
     }
     fn iter(&self) -> impl Iterator<Item = &TensorRank1<D, I>> {
         self.0.iter()

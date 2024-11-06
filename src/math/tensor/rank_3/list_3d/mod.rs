@@ -15,6 +15,7 @@ type MakeClippyHappy<const D: usize> = [[[TensorRank0; D]; D]; D];
 /// A 3D list of *d*-dimensional tensors of rank 3.
 ///
 /// `D` is the dimension, `I`, `J`, `K` are the configurations `W`, `X`, and `Y` are the list lengths.
+#[derive(Debug)]
 pub struct TensorRank3List3D<
     const D: usize,
     const I: usize,
@@ -186,6 +187,17 @@ impl<
     }
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
+    }
+    fn full_contraction(&self, tensor_rank_3_list_3d: &Self) -> TensorRank0 {
+        self.iter()
+            .zip(tensor_rank_3_list_3d.iter())
+            .map(|(self_entry, tensor_rank_3_list_2d)| {
+                self_entry.full_contraction(tensor_rank_3_list_2d)
+            })
+            .sum()
+    }
+    fn identity() -> Self {
+        Self(from_fn(|_| Self::Item::identity()))
     }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()
