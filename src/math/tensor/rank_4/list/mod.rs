@@ -4,7 +4,7 @@ mod test;
 use std::{
     array::from_fn,
     fmt::{Display, Formatter, Result},
-    ops::{Index, IndexMut},
+    ops::{Add, AddAssign, Index, IndexMut},
 };
 
 use super::{super::Tensors, Tensor, TensorRank0, TensorRank4};
@@ -129,5 +129,69 @@ impl<
 {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         &mut self.0[index]
+    }
+}
+
+impl<
+        const D: usize,
+        const I: usize,
+        const J: usize,
+        const K: usize,
+        const L: usize,
+        const W: usize,
+    > Add for TensorRank4List<D, I, J, K, L, W>
+{
+    type Output = Self;
+    fn add(mut self, tensor_rank_4: Self) -> Self::Output {
+        self += tensor_rank_4;
+        self
+    }
+}
+
+impl<
+        const D: usize,
+        const I: usize,
+        const J: usize,
+        const K: usize,
+        const L: usize,
+        const W: usize,
+    > Add<&Self> for TensorRank4List<D, I, J, K, L, W>
+{
+    type Output = Self;
+    fn add(mut self, tensor_rank_4_list: &Self) -> Self::Output {
+        self += tensor_rank_4_list;
+        self
+    }
+}
+
+impl<
+        const D: usize,
+        const I: usize,
+        const J: usize,
+        const K: usize,
+        const L: usize,
+        const W: usize,
+    > AddAssign for TensorRank4List<D, I, J, K, L, W>
+{
+    fn add_assign(&mut self, tensor_rank_4_list: Self) {
+        self.iter_mut()
+            .zip(tensor_rank_4_list.iter())
+            .for_each(|(self_entry, tensor_rank_4)| *self_entry += tensor_rank_4);
+    }
+}
+
+impl<
+        const D: usize,
+        const I: usize,
+        const J: usize,
+        const K: usize,
+        const L: usize,
+        const W: usize,
+    > AddAssign<&Self> for TensorRank4List<D, I, J, K, L, W>
+{
+    fn add_assign(&mut self, tensor_rank_4_list: &Self) {
+        self.iter_mut()
+            .zip(tensor_rank_4_list.iter())
+            .for_each(|(self_entry, tensor_rank_4)| *self_entry += tensor_rank_4);
     }
 }

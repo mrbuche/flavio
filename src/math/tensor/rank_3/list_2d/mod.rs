@@ -8,6 +8,7 @@ use super::{super::Tensors, list::TensorRank3List, TensorRank0};
 use std::{
     array::from_fn,
     fmt::{Display, Formatter, Result},
+    ops::{Add, AddAssign},
 };
 
 /// A 2D list of *d*-dimensional tensors of rank 3.
@@ -204,5 +205,69 @@ impl<
             .zip(into_iterator)
             .for_each(|(tensor_rank_3_list, entry)| *tensor_rank_3_list = entry);
         tensor_rank_3_list_2d
+    }
+}
+
+impl<
+        const D: usize,
+        const I: usize,
+        const J: usize,
+        const K: usize,
+        const W: usize,
+        const X: usize,
+    > Add for TensorRank3List2D<D, I, J, K, W, X>
+{
+    type Output = Self;
+    fn add(mut self, tensor_rank_3_list_2d: Self) -> Self::Output {
+        self += tensor_rank_3_list_2d;
+        self
+    }
+}
+
+impl<
+        const D: usize,
+        const I: usize,
+        const J: usize,
+        const K: usize,
+        const W: usize,
+        const X: usize,
+    > Add<&Self> for TensorRank3List2D<D, I, J, K, W, X>
+{
+    type Output = Self;
+    fn add(mut self, tensor_rank_3_list_2d: &Self) -> Self::Output {
+        self += tensor_rank_3_list_2d;
+        self
+    }
+}
+
+impl<
+        const D: usize,
+        const I: usize,
+        const J: usize,
+        const K: usize,
+        const W: usize,
+        const X: usize,
+    > AddAssign for TensorRank3List2D<D, I, J, K, W, X>
+{
+    fn add_assign(&mut self, tensor_rank_3_list_2d: Self) {
+        self.iter_mut()
+            .zip(tensor_rank_3_list_2d.iter())
+            .for_each(|(self_entry, tensor_rank_3_list_2d)| *self_entry += tensor_rank_3_list_2d);
+    }
+}
+
+impl<
+        const D: usize,
+        const I: usize,
+        const J: usize,
+        const K: usize,
+        const W: usize,
+        const X: usize,
+    > AddAssign<&Self> for TensorRank3List2D<D, I, J, K, W, X>
+{
+    fn add_assign(&mut self, tensor_rank_3_list_2d: &Self) {
+        self.iter_mut()
+            .zip(tensor_rank_3_list_2d.iter())
+            .for_each(|(self_entry, tensor_rank_3_list_2d)| *self_entry += tensor_rank_3_list_2d);
     }
 }

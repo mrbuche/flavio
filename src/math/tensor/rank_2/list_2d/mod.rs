@@ -291,16 +291,6 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: us
     }
 }
 
-impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize>
-    Add<TensorRank2List2D<D, I, J, W, X>> for &TensorRank2List2D<D, I, J, W, X>
-{
-    type Output = TensorRank2List2D<D, I, J, W, X>;
-    fn add(self, mut tensor_rank_2_list_2d: TensorRank2List2D<D, I, J, W, X>) -> Self::Output {
-        tensor_rank_2_list_2d += self;
-        tensor_rank_2_list_2d
-    }
-}
-
 impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize> AddAssign
     for TensorRank2List2D<D, I, J, W, X>
 {

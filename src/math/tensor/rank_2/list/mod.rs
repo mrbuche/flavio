@@ -186,16 +186,6 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> Add<&Self>
     }
 }
 
-impl<const D: usize, const I: usize, const J: usize, const W: usize>
-    Add<TensorRank2List<D, I, J, W>> for &TensorRank2List<D, I, J, W>
-{
-    type Output = TensorRank2List<D, I, J, W>;
-    fn add(self, mut tensor_rank_2_list: TensorRank2List<D, I, J, W>) -> Self::Output {
-        tensor_rank_2_list += self;
-        tensor_rank_2_list
-    }
-}
-
 impl<const D: usize, const I: usize, const J: usize, const W: usize> AddAssign
     for TensorRank2List<D, I, J, W>
 {

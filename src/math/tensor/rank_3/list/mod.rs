@@ -4,7 +4,7 @@ pub mod test;
 use std::{
     array::from_fn,
     fmt::{Display, Formatter, Result},
-    ops::AddAssign,
+    ops::{Add, AddAssign},
 };
 
 use super::{super::Tensors, Tensor, TensorRank0, TensorRank3};
@@ -94,6 +94,26 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: us
         let mut output = Self::zero();
         iter.for_each(|item| output += item);
         output
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize> Add
+    for TensorRank3List<D, I, J, K, W>
+{
+    type Output = Self;
+    fn add(mut self, tensor_rank_3_list: Self) -> Self::Output {
+        self += tensor_rank_3_list;
+        self
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize> Add<&Self>
+    for TensorRank3List<D, I, J, K, W>
+{
+    type Output = Self;
+    fn add(mut self, tensor_rank_3_list: &Self) -> Self::Output {
+        self += tensor_rank_3_list;
+        self
     }
 }
 

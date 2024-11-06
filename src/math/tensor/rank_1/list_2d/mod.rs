@@ -3,7 +3,10 @@ mod test;
 
 use super::{super::Tensors, list::TensorRank1List, TensorRank0};
 use std::array::from_fn;
-use std::fmt::{Display, Formatter, Result};
+use std::{
+    fmt::{Display, Formatter, Result},
+    ops::{Add, AddAssign},
+};
 
 /// A 2D list of *d*-dimensional tensors of rank 1.
 ///
@@ -73,5 +76,45 @@ impl<const D: usize, const I: usize, const W: usize, const X: usize>
             .zip(into_iterator)
             .for_each(|(tensor_rank_1_list, entry)| *tensor_rank_1_list = entry);
         tensor_rank_1_list_2d
+    }
+}
+
+impl<const D: usize, const I: usize, const W: usize, const X: usize> Add
+    for TensorRank1List2D<D, I, W, X>
+{
+    type Output = Self;
+    fn add(mut self, tensor_rank_1_list_2d: Self) -> Self::Output {
+        self += tensor_rank_1_list_2d;
+        self
+    }
+}
+
+impl<const D: usize, const I: usize, const W: usize, const X: usize> Add<&Self>
+    for TensorRank1List2D<D, I, W, X>
+{
+    type Output = Self;
+    fn add(mut self, tensor_rank_1_list_2d: &Self) -> Self::Output {
+        self += tensor_rank_1_list_2d;
+        self
+    }
+}
+
+impl<const D: usize, const I: usize, const W: usize, const X: usize> AddAssign
+    for TensorRank1List2D<D, I, W, X>
+{
+    fn add_assign(&mut self, tensor_rank_1_list_2d: Self) {
+        self.iter_mut()
+            .zip(tensor_rank_1_list_2d.iter())
+            .for_each(|(self_entry, tensor_rank_1_list)| *self_entry += tensor_rank_1_list);
+    }
+}
+
+impl<const D: usize, const I: usize, const W: usize, const X: usize> AddAssign<&Self>
+    for TensorRank1List2D<D, I, W, X>
+{
+    fn add_assign(&mut self, tensor_rank_1_list_2d: &Self) {
+        self.iter_mut()
+            .zip(tensor_rank_1_list_2d.iter())
+            .for_each(|(self_entry, tensor_rank_1_list)| *self_entry += tensor_rank_1_list);
     }
 }

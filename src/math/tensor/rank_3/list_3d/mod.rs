@@ -8,6 +8,7 @@ use super::{super::Tensors, list_2d::TensorRank3List2D, TensorRank0};
 use std::{
     array::from_fn,
     fmt::{Display, Formatter, Result},
+    ops::{Add, AddAssign},
 };
 
 type MakeClippyHappy<const D: usize> = [[[TensorRank0; D]; D]; D];
@@ -235,5 +236,73 @@ impl<
             .zip(into_iterator)
             .for_each(|(tensor_rank_3_list_2d, entry)| *tensor_rank_3_list_2d = entry);
         tensor_rank_3_list_3d
+    }
+}
+
+impl<
+        const D: usize,
+        const I: usize,
+        const J: usize,
+        const K: usize,
+        const W: usize,
+        const X: usize,
+        const Y: usize,
+    > Add for TensorRank3List3D<D, I, J, K, W, X, Y>
+{
+    type Output = Self;
+    fn add(mut self, tensor_rank_3_list_3d: Self) -> Self::Output {
+        self += tensor_rank_3_list_3d;
+        self
+    }
+}
+
+impl<
+        const D: usize,
+        const I: usize,
+        const J: usize,
+        const K: usize,
+        const W: usize,
+        const X: usize,
+        const Y: usize,
+    > Add<&Self> for TensorRank3List3D<D, I, J, K, W, X, Y>
+{
+    type Output = Self;
+    fn add(mut self, tensor_rank_3_list_3d: &Self) -> Self::Output {
+        self += tensor_rank_3_list_3d;
+        self
+    }
+}
+
+impl<
+        const D: usize,
+        const I: usize,
+        const J: usize,
+        const K: usize,
+        const W: usize,
+        const X: usize,
+        const Y: usize,
+    > AddAssign for TensorRank3List3D<D, I, J, K, W, X, Y>
+{
+    fn add_assign(&mut self, tensor_rank_3_list_3d: Self) {
+        self.iter_mut()
+            .zip(tensor_rank_3_list_3d.iter())
+            .for_each(|(self_entry, tensor_rank_3_list_2d)| *self_entry += tensor_rank_3_list_2d);
+    }
+}
+
+impl<
+        const D: usize,
+        const I: usize,
+        const J: usize,
+        const K: usize,
+        const W: usize,
+        const X: usize,
+        const Y: usize,
+    > AddAssign<&Self> for TensorRank3List3D<D, I, J, K, W, X, Y>
+{
+    fn add_assign(&mut self, tensor_rank_3_list_3d: &Self) {
+        self.iter_mut()
+            .zip(tensor_rank_3_list_3d.iter())
+            .for_each(|(self_entry, tensor_rank_3_list_2d)| *self_entry += tensor_rank_3_list_2d);
     }
 }

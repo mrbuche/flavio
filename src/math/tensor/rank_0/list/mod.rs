@@ -7,7 +7,7 @@ use super::{
 };
 use std::{
     fmt::{Display, Formatter, Result},
-    ops::{Index, IndexMut, Mul, MulAssign},
+    ops::{Add, AddAssign, Index, IndexMut, Mul, MulAssign},
 };
 
 /// A list of tensors of rank 0 (a list of scalars).
@@ -90,6 +90,38 @@ impl<const W: usize> Index<usize> for TensorRank0List<W> {
 impl<const W: usize> IndexMut<usize> for TensorRank0List<W> {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         &mut self.0[index]
+    }
+}
+
+impl<const W: usize> Add for TensorRank0List<W> {
+    type Output = Self;
+    fn add(mut self, tensor_rank_0_list: Self) -> Self::Output {
+        self += tensor_rank_0_list;
+        self
+    }
+}
+
+impl<const W: usize> Add<&Self> for TensorRank0List<W> {
+    type Output = Self;
+    fn add(mut self, tensor_rank_0_list: &Self) -> Self::Output {
+        self += tensor_rank_0_list;
+        self
+    }
+}
+
+impl<const W: usize> AddAssign for TensorRank0List<W> {
+    fn add_assign(&mut self, tensor_rank_0_list: Self) {
+        self.iter_mut()
+            .zip(tensor_rank_0_list.iter())
+            .for_each(|(self_entry, tensor_rank_0)| *self_entry += tensor_rank_0);
+    }
+}
+
+impl<const W: usize> AddAssign<&Self> for TensorRank0List<W> {
+    fn add_assign(&mut self, tensor_rank_0_list: &Self) {
+        self.iter_mut()
+            .zip(tensor_rank_0_list.iter())
+            .for_each(|(self_entry, tensor_rank_0)| *self_entry += tensor_rank_0);
     }
 }
 

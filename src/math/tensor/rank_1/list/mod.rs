@@ -338,29 +338,19 @@ impl<const D: usize, const I: usize, const W: usize> Add<&Self> for TensorRank1L
     }
 }
 
-impl<const D: usize, const I: usize, const W: usize> Add<TensorRank1List<D, I, W>>
-    for &TensorRank1List<D, I, W>
-{
-    type Output = TensorRank1List<D, I, W>;
-    fn add(self, mut tensor_rank_1_list: TensorRank1List<D, I, W>) -> Self::Output {
-        tensor_rank_1_list += self;
-        tensor_rank_1_list
-    }
-}
-
 impl<const D: usize, const I: usize, const W: usize> AddAssign for TensorRank1List<D, I, W> {
     fn add_assign(&mut self, tensor_rank_1_list: Self) {
-        self.iter_mut().zip(tensor_rank_1_list.iter()).for_each(
-            |(self_entry, tensor_rank_1_list_entry)| *self_entry += tensor_rank_1_list_entry,
-        );
+        self.iter_mut()
+            .zip(tensor_rank_1_list.iter())
+            .for_each(|(self_entry, tensor_rank_1)| *self_entry += tensor_rank_1);
     }
 }
 
 impl<const D: usize, const I: usize, const W: usize> AddAssign<&Self> for TensorRank1List<D, I, W> {
     fn add_assign(&mut self, tensor_rank_1_list: &Self) {
-        self.iter_mut().zip(tensor_rank_1_list.iter()).for_each(
-            |(self_entry, tensor_rank_1_list_entry)| *self_entry += tensor_rank_1_list_entry,
-        );
+        self.iter_mut()
+            .zip(tensor_rank_1_list.iter())
+            .for_each(|(self_entry, tensor_rank_1)| *self_entry += tensor_rank_1);
     }
 }
 
