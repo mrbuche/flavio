@@ -83,7 +83,13 @@ where
 /// Common methods for lists of tensors.
 pub trait Tensors
 where
-    for<'a> Self: Sized + Debug + Display + Add<Self, Output = Self> + Add<&'a Self, Output = Self>,
+    for<'a> Self: Sized
+        + Debug
+        + Display
+        + Add<Self, Output = Self>
+        + Add<&'a Self, Output = Self>
+        + AddAssign
+        + AddAssign<&'a Self>,
 {
     type Array;
     type Item;
