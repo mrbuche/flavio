@@ -19,7 +19,7 @@ use super::{
     rank_0::TensorRank0,
     rank_1::{list::TensorRank1List, TensorRank1},
     rank_4::TensorRank4,
-    Convert, Tensor, Tensors,
+    Convert, Tensor,
 };
 use list_2d::TensorRank2List2D;
 

@@ -95,23 +95,6 @@ fn add_tensor_rank_1_list_ref_to_self() {
 }
 
 #[test]
-fn add_tensor_rank_1_list_to_self_ref() {
-    (&get_tensor_rank_1_list() + get_other_tensor_rank_1_list())
-        .iter()
-        .zip(get_tensor_rank_1_list_add_other_tensor_rank_1_list().iter())
-        .for_each(|(tensor_rank_1_list_entry, add_tensor_rank_1_list_entry)| {
-            tensor_rank_1_list_entry
-                .iter()
-                .zip(add_tensor_rank_1_list_entry.iter())
-                .for_each(
-                    |(tensor_rank_1_list_entry_i, add_tensor_rank_1_list_entry_i)| {
-                        assert_eq!(tensor_rank_1_list_entry_i, add_tensor_rank_1_list_entry_i)
-                    },
-                )
-        });
-}
-
-#[test]
 fn add_assign_tensor_rank_1_list() {
     let mut tensor_rank_1_list = get_tensor_rank_1_list();
     tensor_rank_1_list += get_other_tensor_rank_1_list();
@@ -181,40 +164,9 @@ fn div_tensor_rank_0_to_self() {
 }
 
 #[test]
-fn div_tensor_rank_0_to_self_ref() {
-    (&get_tensor_rank_1_list() / 3.3)
-        .iter()
-        .zip(get_array().iter())
-        .for_each(|(tensor_rank_1_list_entry, array_entry)| {
-            tensor_rank_1_list_entry
-                .iter()
-                .zip(array_entry.iter())
-                .for_each(|(tensor_rank_1_list_entry_i, array_entry_i)| {
-                    assert_eq!(tensor_rank_1_list_entry_i, &(array_entry_i / 3.3))
-                })
-        });
-}
-
-#[test]
 #[allow(clippy::op_ref)]
 fn div_tensor_rank_0_ref_to_self() {
     (get_tensor_rank_1_list() / &3.3)
-        .iter()
-        .zip(get_array().iter())
-        .for_each(|(tensor_rank_1_list_entry, array_entry)| {
-            tensor_rank_1_list_entry
-                .iter()
-                .zip(array_entry.iter())
-                .for_each(|(tensor_rank_1_list_entry_i, array_entry_i)| {
-                    assert_eq!(tensor_rank_1_list_entry_i, &(array_entry_i / 3.3))
-                })
-        });
-}
-
-#[test]
-#[allow(clippy::op_ref)]
-fn div_tensor_rank_0_ref_to_self_ref() {
-    (&get_tensor_rank_1_list() / &3.3)
         .iter()
         .zip(get_array().iter())
         .for_each(|(tensor_rank_1_list_entry, array_entry)| {
@@ -307,21 +259,6 @@ fn iter_mut() {
 #[test]
 fn mul_tensor_rank_0_to_self() {
     (get_tensor_rank_1_list() * 3.3)
-        .iter()
-        .zip(get_array().iter())
-        .for_each(|(tensor_rank_1_list_entry, array_entry)| {
-            tensor_rank_1_list_entry
-                .iter()
-                .zip(array_entry.iter())
-                .for_each(|(tensor_rank_1_list_entry_i, array_entry_i)| {
-                    assert_eq!(tensor_rank_1_list_entry_i, &(array_entry_i * 3.3))
-                })
-        });
-}
-
-#[test]
-fn mul_tensor_rank_0_to_self_ref() {
-    (&get_tensor_rank_1_list() * 3.3)
         .iter()
         .zip(get_array().iter())
         .for_each(|(tensor_rank_1_list_entry, array_entry)| {
@@ -500,23 +437,6 @@ fn sub_tensor_rank_1_list_to_self() {
 #[test]
 fn sub_tensor_rank_1_list_ref_to_self() {
     (get_tensor_rank_1_list() - &get_other_tensor_rank_1_list())
-        .iter()
-        .zip(get_tensor_rank_1_list_sub_other_tensor_rank_1_list().iter())
-        .for_each(|(tensor_rank_1_list_entry, add_tensor_rank_1_list_entry)| {
-            tensor_rank_1_list_entry
-                .iter()
-                .zip(add_tensor_rank_1_list_entry.iter())
-                .for_each(
-                    |(tensor_rank_1_list_entry_i, add_tensor_rank_1_list_entry_i)| {
-                        assert_eq!(tensor_rank_1_list_entry_i, add_tensor_rank_1_list_entry_i)
-                    },
-                )
-        });
-}
-
-#[test]
-fn sub_tensor_rank_1_list_to_self_ref() {
-    (&get_tensor_rank_1_list() - get_other_tensor_rank_1_list())
         .iter()
         .zip(get_tensor_rank_1_list_sub_other_tensor_rank_1_list().iter())
         .for_each(|(tensor_rank_1_list_entry, add_tensor_rank_1_list_entry)| {

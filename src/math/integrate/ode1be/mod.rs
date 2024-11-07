@@ -4,7 +4,7 @@ mod test;
 use super::{
     super::{
         optimize::{FirstOrder, NewtonRaphson, Optimization, SecondOrder},
-        Tensor, TensorRank0, TensorRank0List, Tensors,
+        Tensor, TensorRank0, TensorRank0List,
     },
     Implicit, IntegrationError, OdeSolver,
 };
@@ -46,7 +46,7 @@ where
     Y: Tensor + Div<J, Output = Y>,
     for<'a> &'a Y: Mul<TensorRank0, Output = Y> + Sub<&'a Y, Output = Y>,
     J: Tensor,
-    U: Tensors<Item = Y>,
+    U: Tensor<Item = Y>,
 {
     fn integrate(
         &self,

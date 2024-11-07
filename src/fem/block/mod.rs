@@ -339,7 +339,7 @@ where
     }
     fn solve(
         &self,
-        fixed_nodes: &[usize],
+        _fixed_nodes: &[usize],
         initial_coordinates: NodalCoordinates<D>,
     ) -> Result<NodalCoordinates<D>, OptimizeError> {
         //

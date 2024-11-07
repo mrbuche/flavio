@@ -1,11 +1,11 @@
 #[cfg(test)]
 mod test;
 
-use super::{super::Tensors, list::TensorRank1List, TensorRank0};
+use super::{super::Tensor, list::TensorRank1List, TensorRank0};
 use std::array::from_fn;
 use std::{
     fmt::{Display, Formatter, Result},
-    ops::{Add, AddAssign},
+    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign},
 };
 
 /// A 2D list of *d*-dimensional tensors of rank 1.
@@ -24,7 +24,7 @@ impl<const D: usize, const I: usize, const W: usize, const X: usize> Display
     }
 }
 
-impl<const D: usize, const I: usize, const W: usize, const X: usize> Tensors
+impl<const D: usize, const I: usize, const W: usize, const X: usize> Tensor
     for TensorRank1List2D<D, I, W, X>
 {
     type Array = [[[TensorRank0; D]; W]; X];
@@ -116,5 +116,117 @@ impl<const D: usize, const I: usize, const W: usize, const X: usize> AddAssign<&
         self.iter_mut()
             .zip(tensor_rank_1_list_2d.iter())
             .for_each(|(self_entry, tensor_rank_1_list)| *self_entry += tensor_rank_1_list);
+    }
+}
+
+impl<const D: usize, const I: usize, const W: usize, const X: usize> Div<TensorRank0>
+    for TensorRank1List2D<D, I, W, X>
+{
+    type Output = Self;
+    fn div(mut self, tensor_rank_0: TensorRank0) -> Self::Output {
+        self /= &tensor_rank_0;
+        self
+    }
+}
+
+impl<const D: usize, const I: usize, const W: usize, const X: usize> Div<&TensorRank0>
+    for TensorRank1List2D<D, I, W, X>
+{
+    type Output = Self;
+    fn div(mut self, tensor_rank_0: &TensorRank0) -> Self::Output {
+        self /= tensor_rank_0;
+        self
+    }
+}
+
+impl<const D: usize, const I: usize, const W: usize, const X: usize> DivAssign<TensorRank0>
+    for TensorRank1List2D<D, I, W, X>
+{
+    fn div_assign(&mut self, tensor_rank_0: TensorRank0) {
+        self.iter_mut().for_each(|entry| *entry /= &tensor_rank_0);
+    }
+}
+
+impl<const D: usize, const I: usize, const W: usize, const X: usize> DivAssign<&TensorRank0>
+    for TensorRank1List2D<D, I, W, X>
+{
+    fn div_assign(&mut self, tensor_rank_0: &TensorRank0) {
+        self.iter_mut().for_each(|entry| *entry /= tensor_rank_0);
+    }
+}
+
+impl<const D: usize, const I: usize, const W: usize, const X: usize> Mul<TensorRank0>
+    for TensorRank1List2D<D, I, W, X>
+{
+    type Output = Self;
+    fn mul(mut self, tensor_rank_0: TensorRank0) -> Self::Output {
+        self *= &tensor_rank_0;
+        self
+    }
+}
+
+impl<const D: usize, const I: usize, const W: usize, const X: usize> Mul<&TensorRank0>
+    for TensorRank1List2D<D, I, W, X>
+{
+    type Output = Self;
+    fn mul(mut self, tensor_rank_0: &TensorRank0) -> Self::Output {
+        self *= tensor_rank_0;
+        self
+    }
+}
+
+impl<const D: usize, const I: usize, const W: usize, const X: usize> MulAssign<TensorRank0>
+    for TensorRank1List2D<D, I, W, X>
+{
+    fn mul_assign(&mut self, tensor_rank_0: TensorRank0) {
+        self.iter_mut().for_each(|entry| *entry *= &tensor_rank_0);
+    }
+}
+
+impl<const D: usize, const I: usize, const W: usize, const X: usize> MulAssign<&TensorRank0>
+    for TensorRank1List2D<D, I, W, X>
+{
+    fn mul_assign(&mut self, tensor_rank_0: &TensorRank0) {
+        self.iter_mut().for_each(|entry| *entry *= tensor_rank_0);
+    }
+}
+
+impl<const D: usize, const I: usize, const W: usize, const X: usize> Sub
+    for TensorRank1List2D<D, I, W, X>
+{
+    type Output = Self;
+    fn sub(mut self, tensor_rank_1_list_2d: Self) -> Self::Output {
+        self -= tensor_rank_1_list_2d;
+        self
+    }
+}
+
+impl<const D: usize, const I: usize, const W: usize, const X: usize> Sub<&Self>
+    for TensorRank1List2D<D, I, W, X>
+{
+    type Output = Self;
+    fn sub(mut self, tensor_rank_1_list_2d: &Self) -> Self::Output {
+        self -= tensor_rank_1_list_2d;
+        self
+    }
+}
+
+impl<const D: usize, const I: usize, const W: usize, const X: usize> SubAssign
+    for TensorRank1List2D<D, I, W, X>
+{
+    fn sub_assign(&mut self, tensor_rank_1_list_2d: Self) {
+        self.iter_mut()
+            .zip(tensor_rank_1_list_2d.iter())
+            .for_each(|(self_entry, tensor_rank_1_list)| *self_entry -= tensor_rank_1_list);
+    }
+}
+
+impl<const D: usize, const I: usize, const W: usize, const X: usize> SubAssign<&Self>
+    for TensorRank1List2D<D, I, W, X>
+{
+    fn sub_assign(&mut self, tensor_rank_1_list_2d: &Self) {
+        self.iter_mut()
+            .zip(tensor_rank_1_list_2d.iter())
+            .for_each(|(self_entry, tensor_rank_1_list)| *self_entry -= tensor_rank_1_list);
     }
 }

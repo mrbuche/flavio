@@ -13,7 +13,7 @@ use crate::{
     constitutive::ConstitutiveError,
     math::{
         ContractFirstSecondIndicesWithSecondIndicesOf, ContractSecondIndexWithFirstIndexOf, Tensor,
-        TensorRank4, Tensors, FIVE_THIRDS, SEVEN_THIRDS, TWO_THIRDS,
+        TensorRank4, FIVE_THIRDS, SEVEN_THIRDS, TWO_THIRDS,
     },
     mechanics::{
         CauchyRateTangentStiffness, CauchyStress, CauchyStresses, CauchyTangentStiffness,
