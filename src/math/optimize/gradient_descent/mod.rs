@@ -42,7 +42,6 @@ where
         // for SecondOrder, if the equality constraint is assumedly linear, it wont affect Hessian
         // and if its a nonlinear constraint, the positive definiteness and symmetry aspects come into question
         // so maybe only consider linear constraint equations for now
-
         //
         // How to choose short (below, dx*dg/dg*dg) or long (dx*dx/dx*dg) steps?
         //
