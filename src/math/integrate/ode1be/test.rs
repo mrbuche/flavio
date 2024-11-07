@@ -4,7 +4,6 @@ use super::{
             optimize::{GradientDescent, NewtonRaphson, Optimization},
             test::TestError,
             Tensor, TensorRank0, TensorRank0List, TensorRank1, TensorRank1List, TensorRank2,
-            Tensors,
         },
         test::zero_to_tau,
     },

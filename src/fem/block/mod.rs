@@ -350,21 +350,6 @@ where
         // &[usize] for node ids
         // &[Option<f64>; 3] for values (None = free DOF)
         //
-        // Need to create a separate trait for Tensor & Tensors to specify instead.
-        // Should you just make one trait for both?
-        // You can use associated types for things like normalized(), maybe not?
-        //
-        // Can think about another norm function with arg abstol and outputs bool, so you can count for Tensors and return norm for Tensor?
-        //
-        // Or make Tensors have to be implemented for all Tensor and require Tensors in Optimize instead!
-        //
-        // Well, if you make the separate trait and are able to keep it object safe (big if), that would be great.
-        // Big fail, you need Sized for any Add, AddAssign, etc.
-        //
-        // Seems simplest to go with one trait Tensor and not add any additional associated types.
-        // norm() for Tensor still glosses over the entries, meaning they would still need individual entry checks.
-        // So it would probably be fine for now.
-        //
         GradientDescent {
             ..Default::default()
         }

@@ -55,7 +55,9 @@ where
         panic!("Need to implement is_positive_definite() for {:?}.", self)
     }
     #[cfg(test)]
-    fn is_zero(&self) -> bool;
+    fn is_zero(&self) -> bool {
+        panic!("Need to implement is_zero() for {:?}.", self)
+    }
     /// Returns an iterator.
     ///
     /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
