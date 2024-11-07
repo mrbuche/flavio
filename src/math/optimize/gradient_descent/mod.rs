@@ -30,6 +30,19 @@ where
     X: Tensor,
 {
     fn minimize(&self, jacobian: impl Fn(&X) -> X, initial_guess: X) -> Result<X, OptimizeError> {
+        // user shouldnt have to know how to set up the constrained minimization problem!
+        // maybe make this take an Option for an equality constraint
+        //
+        // for Dirichlet boundary conditions x=y on some boundary
+        // - update x_a using (f_a - lambda_a)
+        // - update lambda_a using +/- (x_a - y_a)
+        // only apply BCs in this fashion on the Dirichlet boundary
+        // figure out the sign based on the lambda_a being the resulting nodal forces
+        //
+        // for SecondOrder, if the equality constraint is assumedly linear, it wont affect Hessian
+        // and if its a nonlinear constraint, the positive definiteness and symmetry aspects come into question
+        // so maybe only consider linear constraint equations for now
+
         //
         // How to choose short (below, dx*dg/dg*dg) or long (dx*dx/dx*dg) steps?
         //
