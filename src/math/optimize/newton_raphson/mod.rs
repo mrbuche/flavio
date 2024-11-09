@@ -3,7 +3,7 @@ mod test;
 
 use super::{
     super::{Tensor, TensorRank0},
-    OptimizeError, SecondOrder,
+    Dirichlet, OptimizeError, SecondOrder,
 };
 use crate::ABS_TOL;
 use std::ops::Div;
@@ -29,23 +29,33 @@ impl Default for NewtonRaphson {
     }
 }
 
-impl<H, J, X> SecondOrder<H, J, X> for NewtonRaphson
+impl<H: Tensor, J: Tensor, X: Tensor> SecondOrder<H, J, X> for NewtonRaphson
 where
-    H: Tensor,
-    J: Tensor + Div<H, Output = X>,
-    X: Tensor,
+    J: Div<H, Output = X>,
 {
     fn minimize(
         &self,
         jacobian: impl Fn(&X) -> J,
         hessian: impl Fn(&X) -> H,
         initial_guess: X,
+        dirichlet: Option<Dirichlet>,
     ) -> Result<X, OptimizeError> {
         let mut residual;
         let mut solution = initial_guess;
+        if let Some(ref bc) = dirichlet {
+            bc.places
+                .iter()
+                .zip(bc.values.iter())
+                .for_each(|(place, value)| *solution.get_at_mut(place) = *value)
+        }
         let mut tangent;
         for _ in 0..self.max_steps {
             residual = jacobian(&solution);
+            if let Some(ref bc) = dirichlet {
+                bc.places
+                    .iter()
+                    .for_each(|place| *residual.get_at_mut(place) = 0.0)
+            }
             tangent = hessian(&solution);
             if residual.norm() < self.abs_tol {
                 if self.check_minimum && !tangent.is_positive_definite() {

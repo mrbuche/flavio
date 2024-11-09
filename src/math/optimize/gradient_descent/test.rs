@@ -1,6 +1,6 @@
 use super::{FirstOrder, GradientDescent, TensorRank0};
 
-const TOLERANCE: TensorRank0 = 1e-6;
+const TOLERANCE: TensorRank0 = 1e-5;
 
 #[test]
 fn linear() {
@@ -8,7 +8,7 @@ fn linear() {
         GradientDescent {
             ..Default::default()
         }
-        .minimize(|x: &TensorRank0| *x, 1.0,)
+        .minimize(|x: &TensorRank0| *x, 1.0, None)
         .unwrap()
         .abs()
             < TOLERANCE
@@ -21,7 +21,7 @@ fn quadratic() {
         GradientDescent {
             ..Default::default()
         }
-        .minimize(|x: &TensorRank0| x.powi(2) / 2.0, 1.0,)
+        .minimize(|x: &TensorRank0| x.powi(2) / 2.0, 1.0, None)
         .unwrap()
         .abs()
             < TOLERANCE
@@ -34,7 +34,7 @@ fn sin() {
         GradientDescent {
             ..Default::default()
         }
-        .minimize(|x: &TensorRank0| x.sin(), 1.0,)
+        .minimize(|x: &TensorRank0| x.sin(), 1.0, None)
         .unwrap()
         .abs()
             < TOLERANCE

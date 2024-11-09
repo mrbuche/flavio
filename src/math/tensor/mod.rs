@@ -37,6 +37,7 @@ where
         + Sub<&'a Self, Output = Self>
         + SubAssign
         + SubAssign<&'a Self>,
+    Self::Item: Tensor,
 {
     type Array;
     type Item;
@@ -46,10 +47,18 @@ where
     ///
     /// This method was implemented instead of the Copy trait to avoid unintended copy creations.
     fn copy(&self) -> Self;
-    /// Returns the identity tensor.
-    fn identity() -> Self;
     /// Returns the full contraction with another tensor.
     fn full_contraction(&self, tensor: &Self) -> TensorRank0;
+    /// Returns a reference to the entry at the specified indices.
+    fn get_at(&self, _indices: &[usize]) -> &TensorRank0 {
+        panic!("Need to implement get_at() for {:?}.", self)
+    }
+    /// Returns a mutable reference to the entry at the specified indices.
+    fn get_at_mut(&mut self, _indices: &[usize]) -> &mut TensorRank0 {
+        panic!("Need to implement get_at_mut() for {:?}.", self)
+    }
+    /// Returns the identity tensor.
+    fn identity() -> Self;
     /// Checks whether the tensor is positive-definite.
     fn is_positive_definite(&self) -> bool {
         panic!("Need to implement is_positive_definite() for {:?}.", self)

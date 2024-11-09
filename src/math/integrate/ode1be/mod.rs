@@ -77,6 +77,7 @@ where
                         .minimize(
                             |y_trial: &Y| y_trial - &y - &(&function(&t_trial, y_trial) * dt),
                             y.copy(),
+                            None,
                         )
                         .unwrap(),
                     Optimization::NewtonRaphson(newton_raphson) => newton_raphson
@@ -84,6 +85,7 @@ where
                             |y_trial: &Y| y_trial - &y - &(&function(&t_trial, y_trial) * dt),
                             |y_trial: &Y| jacobian(&t_trial, y_trial) * -dt + &identity,
                             y.copy(),
+                            None,
                         )
                         .unwrap(),
                 };

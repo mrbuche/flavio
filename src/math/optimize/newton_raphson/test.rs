@@ -8,7 +8,7 @@ fn linear() {
         NewtonRaphson {
             ..Default::default()
         }
-        .minimize(|x: &TensorRank0| *x, |_: &TensorRank0| 1.0, 1.0,)
+        .minimize(|x: &TensorRank0| *x, |_: &TensorRank0| 1.0, 1.0, None)
         .unwrap()
         .abs()
             < TOLERANCE
@@ -21,7 +21,12 @@ fn quadratic() {
         NewtonRaphson {
             ..Default::default()
         }
-        .minimize(|x: &TensorRank0| x.powi(2) / 2.0, |x: &TensorRank0| *x, 1.0,)
+        .minimize(
+            |x: &TensorRank0| x.powi(2) / 2.0,
+            |x: &TensorRank0| *x,
+            1.0,
+            None
+        )
         .unwrap()
         .abs()
             < TOLERANCE
@@ -34,7 +39,12 @@ fn sin() {
         NewtonRaphson {
             ..Default::default()
         }
-        .minimize(|x: &TensorRank0| x.sin(), |x: &TensorRank0| x.cos(), 1.0,)
+        .minimize(
+            |x: &TensorRank0| x.sin(),
+            |x: &TensorRank0| x.cos(),
+            1.0,
+            None
+        )
         .unwrap()
         .abs()
             < TOLERANCE
@@ -47,6 +57,11 @@ fn sin_max() {
     NewtonRaphson {
         ..Default::default()
     }
-    .minimize(|x: &TensorRank0| x.sin(), |x: &TensorRank0| x.cos(), 3.0)
+    .minimize(
+        |x: &TensorRank0| x.sin(),
+        |x: &TensorRank0| x.cos(),
+        3.0,
+        None,
+    )
     .unwrap();
 }

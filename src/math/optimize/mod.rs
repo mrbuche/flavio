@@ -4,33 +4,40 @@ mod test;
 mod gradient_descent;
 mod newton_raphson;
 
-use super::Tensor;
+use super::{Tensor, TensorRank0};
 use crate::get_defeat_message;
 use std::{fmt, ops::Div};
 
 pub use gradient_descent::GradientDescent;
 pub use newton_raphson::NewtonRaphson;
 
+/// A Dirichlet boundary condition.
+pub struct Dirichlet<'a> {
+    pub places: &'a [&'a [usize]],
+    pub values: &'a [TensorRank0],
+}
+
 /// First-order optimization algorithms.
-pub trait FirstOrder<X>
-where
-    X: Tensor,
-{
-    fn minimize(&self, jacobian: impl Fn(&X) -> X, initial_guess: X) -> Result<X, OptimizeError>;
+pub trait FirstOrder<X: Tensor> {
+    fn minimize(
+        &self,
+        jacobian: impl Fn(&X) -> X,
+        initial_guess: X,
+        dirichlet: Option<Dirichlet>,
+    ) -> Result<X, OptimizeError>;
 }
 
 /// Second-order optimization algorithms.
-pub trait SecondOrder<H, J, X>
+pub trait SecondOrder<H: Tensor, J: Tensor, X: Tensor>
 where
-    H: Tensor,
-    J: Tensor + Div<H, Output = X>,
-    X: Tensor,
+    J: Div<H, Output = X>,
 {
     fn minimize(
         &self,
         jacobian: impl Fn(&X) -> J,
         hessian: impl Fn(&X) -> H,
         initial_guess: X,
+        dirichlet: Option<Dirichlet>,
     ) -> Result<X, OptimizeError>;
 }
 

@@ -100,14 +100,37 @@ macro_rules! test_finite_element_block {
                         // that you can confirm the expected spatially-varying fields at every integration point
                         //
                         let block = get_block();
-                        let mut coords = get_coordinates_block().copy();
-                        let coords_0 = get_reference_coordinates_block().copy();
-                        let fixed_nodes = [0, 1, 6];
-                        fixed_nodes
-                            .iter()
-                            .for_each(|node| coords[*node] = coords_0[*node].convert());
-                        block.solve(&fixed_nodes, coords.convert())?;
-                        // println!("{}", coords_0.convert() - block.get_nodal_coordinates());
+                        let z = 5e-1;
+                        let places: [&[usize]; 10] = [
+                            &[0, 2],
+                            &[1, 2],
+                            &[2, 2],
+                            &[3, 2],
+                            &[4, 2],
+                            &[5, 2],
+                            &[6, 2],
+                            &[7, 2],
+                            &[8, 2],
+                            &[9, 2],
+                        ];
+                        let values = [
+                            0.5 + z,
+                            0.5 + z,
+                            0.5 + z,
+                            0.5 + z,
+                            -0.5,
+                            -0.5,
+                            -0.5,
+                            -0.5,
+                            0.5 + z,
+                            -0.5,
+                        ];
+                        let solution = block.solve(
+                            get_reference_coordinates_block().convert(),
+                            &places,
+                            &values,
+                        )?;
+                        println!("{}", solution);
                         Ok(())
                     }
                 }

@@ -9,7 +9,7 @@ use self::element::{
     ViscoelasticFiniteElement,
 };
 use super::*;
-use crate::math::optimize::{FirstOrder, GradientDescent, OptimizeError};
+use crate::math::optimize::{Dirichlet, FirstOrder, GradientDescent, OptimizeError};
 use std::array::from_fn;
 
 pub struct ElasticBlock<const D: usize, const E: usize, F, const G: usize, const N: usize> {
@@ -105,8 +105,9 @@ pub trait ElasticFiniteElementBlock<
     ) -> Result<NodalStiffnesses<D>, ConstitutiveError>;
     fn solve(
         &self,
-        fixed_nodes: &[usize],
         initial_coordinates: NodalCoordinates<D>,
+        places: &[&[usize]],
+        values: &[Scalar],
     ) -> Result<NodalCoordinates<D>, OptimizeError>;
 }
 
@@ -339,16 +340,18 @@ where
     }
     fn solve(
         &self,
-        _fixed_nodes: &[usize],
         initial_coordinates: NodalCoordinates<D>,
+        places: &[&[usize]],
+        values: &[Scalar],
     ) -> Result<NodalCoordinates<D>, OptimizeError> {
         //
-        // What about constrained optimization instead?
-        // Would that work nicely, and be more robust to large step deformations?
+        // how are you going to handle errors like InvalidJacobian without panicking if you send to a template math solver?
+        // i.e. for trust region etc. you could avoid halting at those points, or even just cut back in CG etc.
+        // you will need to convert Error type here using From to a type in math (dont want math to depend on anything else)
+        // and hopefully that all works out in a good way
         //
-        // prescribed BCs
-        // &[usize] for node ids
-        // &[Option<f64>; 3] for values (None = free DOF)
+        // make the argument "displacements" somehow?
+        // and pass full indices to .get() so you can prescribe components?
         //
         GradientDescent {
             ..Default::default()
@@ -358,6 +361,7 @@ where
                 self.calculate_nodal_forces(nodal_coordinates).unwrap()
             },
             initial_coordinates,
+            Some(Dirichlet { places, values }),
         )
     }
 }

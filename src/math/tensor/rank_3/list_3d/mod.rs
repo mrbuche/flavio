@@ -8,7 +8,7 @@ use super::{super::Tensor, list_2d::TensorRank3List2D, TensorRank0};
 use std::{
     array::from_fn,
     fmt::{Display, Formatter, Result},
-    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign},
+    ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
 };
 
 type MakeClippyHappy<const D: usize> = [[[TensorRank0; D]; D]; D];
@@ -236,6 +236,37 @@ impl<
             .zip(into_iterator)
             .for_each(|(tensor_rank_3_list_2d, entry)| *tensor_rank_3_list_2d = entry);
         tensor_rank_3_list_3d
+    }
+}
+
+impl<
+        const D: usize,
+        const I: usize,
+        const J: usize,
+        const K: usize,
+        const W: usize,
+        const X: usize,
+        const Y: usize,
+    > Index<usize> for TensorRank3List3D<D, I, J, K, W, X, Y>
+{
+    type Output = TensorRank3List2D<D, I, J, K, W, X>;
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.0[index]
+    }
+}
+
+impl<
+        const D: usize,
+        const I: usize,
+        const J: usize,
+        const K: usize,
+        const W: usize,
+        const X: usize,
+        const Y: usize,
+    > IndexMut<usize> for TensorRank3List3D<D, I, J, K, W, X, Y>
+{
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.0[index]
     }
 }
 

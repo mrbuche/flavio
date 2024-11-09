@@ -5,7 +5,7 @@ use super::{super::Tensor, list::TensorRank1List, TensorRank0};
 use std::array::from_fn;
 use std::{
     fmt::{Display, Formatter, Result},
-    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign},
+    ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
 };
 
 /// A 2D list of *d*-dimensional tensors of rank 1.
@@ -76,6 +76,23 @@ impl<const D: usize, const I: usize, const W: usize, const X: usize>
             .zip(into_iterator)
             .for_each(|(tensor_rank_1_list, entry)| *tensor_rank_1_list = entry);
         tensor_rank_1_list_2d
+    }
+}
+
+impl<const D: usize, const I: usize, const W: usize, const X: usize> Index<usize>
+    for TensorRank1List2D<D, I, W, X>
+{
+    type Output = TensorRank1List<D, I, W>;
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.0[index]
+    }
+}
+
+impl<const D: usize, const I: usize, const W: usize, const X: usize> IndexMut<usize>
+    for TensorRank1List2D<D, I, W, X>
+{
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.0[index]
     }
 }
 

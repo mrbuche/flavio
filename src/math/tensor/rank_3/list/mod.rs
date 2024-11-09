@@ -4,7 +4,7 @@ pub mod test;
 use std::{
     array::from_fn,
     fmt::{Display, Formatter, Result},
-    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign},
+    ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
 };
 
 use super::{Tensor, TensorRank0, TensorRank3};
@@ -81,6 +81,23 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: us
             .zip(into_iterator)
             .for_each(|(tensor_rank_3_list_entry, entry)| *tensor_rank_3_list_entry = entry);
         tensor_rank_3_list
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize> Index<usize>
+    for TensorRank3List<D, I, J, K, W>
+{
+    type Output = TensorRank3<D, I, J, K>;
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.0[index]
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize> IndexMut<usize>
+    for TensorRank3List<D, I, J, K, W>
+{
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.0[index]
     }
 }
 

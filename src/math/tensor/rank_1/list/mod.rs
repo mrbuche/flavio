@@ -142,6 +142,12 @@ impl<const D: usize, const I: usize, const W: usize> Tensor for TensorRank1List<
             .map(|(self_entry, tensor_rank_1)| self_entry.full_contraction(tensor_rank_1))
             .sum()
     }
+    fn get_at(&self, indices: &[usize]) -> &TensorRank0 {
+        &self[indices[0]][indices[1]]
+    }
+    fn get_at_mut(&mut self, indices: &[usize]) -> &mut TensorRank0 {
+        &mut self[indices[0]][indices[1]]
+    }
     fn identity() -> Self {
         Self(from_fn(|_| Self::Item::identity()))
     }
