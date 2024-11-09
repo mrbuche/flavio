@@ -100,38 +100,62 @@ macro_rules! test_finite_element_block {
                         // that you can confirm the expected spatially-varying fields at every integration point
                         //
                         let block = get_block();
-                        let z = 5e-1;
-                        let places: [&[usize]; 10] = [
-                            &[0, 2],
-                            &[1, 2],
-                            &[2, 2],
-                            &[3, 2],
-                            &[4, 2],
-                            &[5, 2],
-                            &[6, 2],
-                            &[7, 2],
-                            &[8, 2],
-                            &[9, 2],
+                        // let places_d: [&[usize]; 5] = [
+                        //     &[4, 2],
+                        //     &[5, 2],
+                        //     &[6, 2],
+                        //     &[7, 2],
+                        //     &[9, 2],
+                        // ];
+                        let places_d: [&[usize]; 10] = [
+                            &[0, 0],
+                            &[1, 0],
+                            &[2, 0],
+                            &[3, 0],
+                            &[4, 0],
+                            &[5, 0],
+                            &[6, 0],
+                            &[7, 0],
+                            &[11, 0],
+                            &[13, 0],
                         ];
-                        let values = [
-                            0.5 + z,
-                            0.5 + z,
-                            0.5 + z,
-                            0.5 + z,
+                        let x = 1e-1;
+                        let values_d = [
+                            0.5 + x,
+                            0.5 + x,
+                            -0.5,
+                            -0.5,
+                            0.5 + x,
+                            0.5 + x,
                             -0.5,
                             -0.5,
                             -0.5,
-                            -0.5,
-                            0.5 + z,
-                            -0.5,
+                            0.5 + x,
                         ];
+                        // let values_d = [-0.5; 5];
+                        let places_n: [&[usize]; 5] = [&[0, 2], &[1, 2], &[2, 2], &[3, 2], &[8, 2]];
+                        let values_n = [5e-1; 5];
                         let solution = block.solve(
                             get_reference_coordinates_block().convert(),
-                            &places,
-                            &values,
+                            &places_d,
+                            &values_d,
+                            &places_n,
+                            &values_n,
                         )?;
-                        println!("{}", solution);
-                        Ok(())
+                        // you can test that solve_uniaxial gives the same other 8 components of deformation gradient everywhere
+                        let deformation_gradient = NeoHookean::new(NEOHOOKEANPARAMETERS)
+                            .solve_uniaxial(&(1.0 + x))?
+                            .0;
+                        block
+                            .calculate_deformation_gradients(&solution)
+                            .iter()
+                            .try_for_each(|deformation_gradients| {
+                                assert_eq_within_tols(
+                                    &deformation_gradients[0],
+                                    &deformation_gradient,
+                                )
+                            })
+                        // other elements fail because node num/coords different
                     }
                 }
                 mod saint_venant_kirchoff {

@@ -3,7 +3,7 @@ mod test;
 
 use super::{
     super::{Tensor, TensorRank0},
-    Dirichlet, OptimizeError, SecondOrder,
+    Dirichlet, Neumann, OptimizeError, SecondOrder,
 };
 use crate::ABS_TOL;
 use std::ops::Div;
@@ -39,6 +39,7 @@ where
         hessian: impl Fn(&X) -> H,
         initial_guess: X,
         dirichlet: Option<Dirichlet>,
+        neumann: Option<Neumann>,
     ) -> Result<X, OptimizeError> {
         let mut residual;
         let mut solution = initial_guess;
@@ -51,6 +52,12 @@ where
         let mut tangent;
         for _ in 0..self.max_steps {
             residual = jacobian(&solution);
+            if let Some(ref bc) = neumann {
+                bc.places
+                    .iter()
+                    .zip(bc.values.iter())
+                    .for_each(|(place, value)| *residual.get_at_mut(place) -= value)
+            }
             if let Some(ref bc) = dirichlet {
                 bc.places
                     .iter()

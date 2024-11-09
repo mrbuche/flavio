@@ -11,8 +11,14 @@ use std::{fmt, ops::Div};
 pub use gradient_descent::GradientDescent;
 pub use newton_raphson::NewtonRaphson;
 
-/// A Dirichlet boundary condition.
+/// Dirichlet boundary conditions.
 pub struct Dirichlet<'a> {
+    pub places: &'a [&'a [usize]],
+    pub values: &'a [TensorRank0],
+}
+
+/// Neumann boundary conditions.
+pub struct Neumann<'a> {
     pub places: &'a [&'a [usize]],
     pub values: &'a [TensorRank0],
 }
@@ -24,6 +30,7 @@ pub trait FirstOrder<X: Tensor> {
         jacobian: impl Fn(&X) -> X,
         initial_guess: X,
         dirichlet: Option<Dirichlet>,
+        neumann: Option<Neumann>,
     ) -> Result<X, OptimizeError>;
 }
 
@@ -38,6 +45,7 @@ where
         hessian: impl Fn(&X) -> H,
         initial_guess: X,
         dirichlet: Option<Dirichlet>,
+        neumann: Option<Neumann>,
     ) -> Result<X, OptimizeError>;
 }
 

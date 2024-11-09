@@ -46,6 +46,12 @@ pub trait ElasticFiniteElement<'a, C, const G: usize, const N: usize>
 where
     C: Elastic<'a>,
 {
+    fn calculate_deformations(
+        &self,
+        _nodal_coordinates: &NodalCoordinates<N>,
+    ) -> DeformationGradients<G> {
+        todo!()
+    }
     fn calculate_nodal_forces(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,

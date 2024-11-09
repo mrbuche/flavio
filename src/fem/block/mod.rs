@@ -95,6 +95,10 @@ pub trait ElasticFiniteElementBlock<
     C: Elastic<'a>,
     F: ElasticFiniteElement<'a, C, G, N>,
 {
+    fn calculate_deformation_gradients(
+        &self,
+        nodal_coordinates: &NodalCoordinates<D>,
+    ) -> DeformationGradientss<G, E>;
     fn calculate_nodal_forces(
         &self,
         nodal_coordinates: &NodalCoordinates<D>,
@@ -106,8 +110,10 @@ pub trait ElasticFiniteElementBlock<
     fn solve(
         &self,
         initial_coordinates: NodalCoordinates<D>,
-        places: &[&[usize]],
-        values: &[Scalar],
+        places_d: &[&[usize]],
+        values_d: &[Scalar],
+        places_n: &[&[usize]],
+        values_n: &[Scalar],
     ) -> Result<NodalCoordinates<D>, OptimizeError>;
 }
 
@@ -290,6 +296,23 @@ where
     F: ElasticFiniteElement<'a, C, G, N>,
     Self: BasicFiniteElementBlock<'a, C, D, E, F, G, N>,
 {
+    fn calculate_deformation_gradients(
+        &self,
+        nodal_coordinates: &NodalCoordinates<D>,
+    ) -> DeformationGradientss<G, E> {
+        self.get_elements()
+            .iter()
+            .zip(self.get_connectivity().iter())
+            .map(|(element, element_connectivity)| {
+                element.calculate_deformations(
+                    &self.calculate_nodal_coordinates_element(
+                        element_connectivity,
+                        nodal_coordinates,
+                    ),
+                )
+            })
+            .collect()
+    }
     fn calculate_nodal_forces(
         &self,
         nodal_coordinates: &NodalCoordinates<D>,
@@ -341,8 +364,10 @@ where
     fn solve(
         &self,
         initial_coordinates: NodalCoordinates<D>,
-        places: &[&[usize]],
-        values: &[Scalar],
+        places_d: &[&[usize]],
+        values_d: &[Scalar],
+        _places_n: &[&[usize]],
+        _values_n: &[Scalar],
     ) -> Result<NodalCoordinates<D>, OptimizeError> {
         //
         // how are you going to handle errors like InvalidJacobian without panicking if you send to a template math solver?
@@ -361,7 +386,12 @@ where
                 self.calculate_nodal_forces(nodal_coordinates).unwrap()
             },
             initial_coordinates,
-            Some(Dirichlet { places, values }),
+            Some(Dirichlet {
+                places: places_d,
+                values: values_d,
+            }),
+            // Some(Neumann { places: places_n, values: values_n }),
+            None, // middle node might not be able to apply affine?
         )
     }
 }

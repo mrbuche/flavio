@@ -3,7 +3,7 @@ mod test;
 
 use super::{
     super::{Tensor, TensorRank0},
-    Dirichlet, FirstOrder, OptimizeError,
+    Dirichlet, FirstOrder, Neumann, OptimizeError,
 };
 use crate::ABS_TOL;
 
@@ -31,6 +31,7 @@ impl<X: Tensor> FirstOrder<X> for GradientDescent {
         jacobian: impl Fn(&X) -> X,
         initial_guess: X,
         dirichlet: Option<Dirichlet>,
+        neumann: Option<Neumann>,
     ) -> Result<X, OptimizeError> {
         //
         // How to choose short (below, dx*dg/dg*dg) or long (dx*dx/dx*dg) steps?
@@ -53,6 +54,12 @@ impl<X: Tensor> FirstOrder<X> for GradientDescent {
         }
         for _ in 0..self.max_steps {
             residual = jacobian(&solution);
+            if let Some(ref bc) = neumann {
+                bc.places
+                    .iter()
+                    .zip(bc.values.iter())
+                    .for_each(|(place, value)| *residual.get_at_mut(place) -= value)
+            }
             if let Some(ref bc) = dirichlet {
                 bc.places
                     .iter()
