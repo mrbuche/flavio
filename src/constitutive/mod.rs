@@ -12,6 +12,7 @@ pub mod thermal;
 
 use crate::{
     get_defeat_message,
+    math::optimize::OptimizeError,
     mechanics::{DeformationGradient, Scalar},
 };
 use std::fmt;
@@ -31,6 +32,12 @@ pub enum ConstitutiveError {
     InvalidJacobian(Scalar, DeformationGradient, String),
     MaximumStepsReached(usize, String),
     NotMinimum(String, String),
+}
+
+impl From<OptimizeError> for ConstitutiveError {
+    fn from(_error: OptimizeError) -> ConstitutiveError {
+        todo!()
+    }
 }
 
 impl fmt::Debug for ConstitutiveError {

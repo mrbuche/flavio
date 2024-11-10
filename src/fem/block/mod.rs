@@ -330,7 +330,7 @@ where
                     .iter()
                     .zip(element_connectivity.iter())
                     .for_each(|(nodal_force, node)| nodal_forces[*node] += nodal_force);
-                Ok(())
+                Ok::<(), ConstitutiveError>(())
             })?;
         Ok(nodal_forces)
     }
@@ -357,7 +357,7 @@ where
                             },
                         )
                     });
-                Ok(())
+                Ok::<(), ConstitutiveError>(())
             })?;
         Ok(nodal_stiffnesses)
     }
@@ -533,7 +533,7 @@ where
                     .iter()
                     .zip(element_connectivity.iter())
                     .for_each(|(nodal_force, node)| nodal_forces[*node] += nodal_force);
-                Ok(())
+                Ok::<(), ConstitutiveError>(())
             })?;
         Ok(nodal_forces)
     }
@@ -567,7 +567,7 @@ where
                             },
                         )
                     });
-                Ok(())
+                Ok::<(), ConstitutiveError>(())
             })?;
         Ok(nodal_stiffnesses)
     }
