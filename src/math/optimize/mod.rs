@@ -27,7 +27,7 @@ pub struct Neumann<'a> {
 pub trait FirstOrder<X: Tensor> {
     fn minimize(
         &self,
-        jacobian: impl Fn(&X) -> X,
+        jacobian: impl Fn(&X) -> Result<X, OptimizeError>,
         initial_guess: X,
         dirichlet: Option<Dirichlet>,
         neumann: Option<Neumann>,
@@ -41,8 +41,8 @@ where
 {
     fn minimize(
         &self,
-        jacobian: impl Fn(&X) -> J,
-        hessian: impl Fn(&X) -> H,
+        jacobian: impl Fn(&X) -> Result<J, OptimizeError>,
+        hessian: impl Fn(&X) -> Result<H, OptimizeError>,
         initial_guess: X,
         dirichlet: Option<Dirichlet>,
         neumann: Option<Neumann>,

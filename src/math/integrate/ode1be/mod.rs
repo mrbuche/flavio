@@ -75,7 +75,7 @@ where
                 y_trial = match &self.optimization {
                     Optimization::GradientDescent(gradient_descent) => gradient_descent
                         .minimize(
-                            |y_trial: &Y| y_trial - &y - &(&function(&t_trial, y_trial) * dt),
+                            |y_trial: &Y| Ok(y_trial - &y - &(&function(&t_trial, y_trial) * dt)),
                             y.copy(),
                             None,
                             None,
@@ -83,8 +83,8 @@ where
                         .unwrap(),
                     Optimization::NewtonRaphson(newton_raphson) => newton_raphson
                         .minimize(
-                            |y_trial: &Y| y_trial - &y - &(&function(&t_trial, y_trial) * dt),
-                            |y_trial: &Y| jacobian(&t_trial, y_trial) * -dt + &identity,
+                            |y_trial: &Y| Ok(y_trial - &y - &(&function(&t_trial, y_trial) * dt)),
+                            |y_trial: &Y| Ok(jacobian(&t_trial, y_trial) * -dt + &identity),
                             y.copy(),
                             None,
                             None,

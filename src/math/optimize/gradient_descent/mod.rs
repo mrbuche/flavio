@@ -28,7 +28,7 @@ impl Default for GradientDescent {
 impl<X: Tensor> FirstOrder<X> for GradientDescent {
     fn minimize(
         &self,
-        jacobian: impl Fn(&X) -> X,
+        jacobian: impl Fn(&X) -> Result<X, OptimizeError>,
         initial_guess: X,
         dirichlet: Option<Dirichlet>,
         neumann: Option<Neumann>,
@@ -53,7 +53,7 @@ impl<X: Tensor> FirstOrder<X> for GradientDescent {
                 .for_each(|(place, value)| *solution.get_at_mut(place) = *value)
         }
         for _ in 0..self.max_steps {
-            residual = jacobian(&solution);
+            residual = jacobian(&solution)?;
             if let Some(ref bc) = neumann {
                 bc.places
                     .iter()

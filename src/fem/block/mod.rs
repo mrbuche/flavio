@@ -383,7 +383,7 @@ where
         }
         .minimize(
             |nodal_coordinates: &NodalCoordinates<D>| {
-                self.calculate_nodal_forces(nodal_coordinates).unwrap()
+                Ok(self.calculate_nodal_forces(nodal_coordinates)?)
             },
             initial_coordinates,
             Some(Dirichlet {

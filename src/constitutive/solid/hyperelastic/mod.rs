@@ -81,19 +81,20 @@ where
             AppliedLoad::UniaxialStress(deformation_gradient_11) => {
                 let deformation_gradient_33 = optimization.minimize(
                     |deformation_gradient_33: &Scalar| {
-                        let mut deformation_gradient = IDENTITY_10;
-                        deformation_gradient[0][0] = deformation_gradient_11;
-                        deformation_gradient[1][1] = *deformation_gradient_33;
-                        deformation_gradient[2][2] = *deformation_gradient_33;
-                        self.calculate_cauchy_stress(&deformation_gradient).unwrap()[2][2]
+                        Ok(self.calculate_cauchy_stress(&DeformationGradient::new([
+                            [deformation_gradient_11, 0.0, 0.0],
+                            [0.0, *deformation_gradient_33, 0.0],
+                            [0.0, 0.0, *deformation_gradient_33],
+                        ]))?[2][2])
                     },
                     |deformation_gradient_33: &Scalar| {
-                        let mut deformation_gradient = IDENTITY_10;
-                        deformation_gradient[0][0] = deformation_gradient_11;
-                        deformation_gradient[1][1] = *deformation_gradient_33;
-                        deformation_gradient[2][2] = *deformation_gradient_33;
-                        self.calculate_cauchy_tangent_stiffness(&deformation_gradient)
-                            .unwrap()[2][2][2][2]
+                        Ok(
+                            self.calculate_cauchy_tangent_stiffness(&DeformationGradient::new([
+                                [deformation_gradient_11, 0.0, 0.0],
+                                [0.0, *deformation_gradient_33, 0.0],
+                                [0.0, 0.0, *deformation_gradient_33],
+                            ]))?[2][2][2][2],
+                        )
                     },
                     1.0 / deformation_gradient_11.sqrt(),
                     None,
@@ -105,27 +106,23 @@ where
                     [0.0, 0.0, deformation_gradient_33],
                 ])
             }
-            //
-            // get rid of unwrap()
-            //
-            // can you optionally pass a function for a relative scale?
-            //
             AppliedLoad::BiaxialStress(deformation_gradient_11, deformation_gradient_22) => {
                 let deformation_gradient_33 = optimization.minimize(
                     |deformation_gradient_33: &Scalar| {
-                        let mut deformation_gradient = IDENTITY_10;
-                        deformation_gradient[0][0] = deformation_gradient_11;
-                        deformation_gradient[1][1] = deformation_gradient_22;
-                        deformation_gradient[2][2] = *deformation_gradient_33;
-                        self.calculate_cauchy_stress(&deformation_gradient).unwrap()[2][2]
+                        Ok(self.calculate_cauchy_stress(&DeformationGradient::new([
+                            [deformation_gradient_11, 0.0, 0.0],
+                            [0.0, deformation_gradient_22, 0.0],
+                            [0.0, 0.0, *deformation_gradient_33],
+                        ]))?[2][2])
                     },
                     |deformation_gradient_33: &Scalar| {
-                        let mut deformation_gradient = IDENTITY_10;
-                        deformation_gradient[0][0] = deformation_gradient_11;
-                        deformation_gradient[1][1] = deformation_gradient_22;
-                        deformation_gradient[2][2] = *deformation_gradient_33;
-                        self.calculate_cauchy_tangent_stiffness(&deformation_gradient)
-                            .unwrap()[2][2][2][2]
+                        Ok(
+                            self.calculate_cauchy_tangent_stiffness(&DeformationGradient::new([
+                                [deformation_gradient_11, 0.0, 0.0],
+                                [0.0, deformation_gradient_22, 0.0],
+                                [0.0, 0.0, *deformation_gradient_33],
+                            ]))?[2][2][2][2],
+                        )
                     },
                     1.0 / deformation_gradient_11 / deformation_gradient_22,
                     None,

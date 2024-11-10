@@ -35,8 +35,8 @@ where
 {
     fn minimize(
         &self,
-        jacobian: impl Fn(&X) -> J,
-        hessian: impl Fn(&X) -> H,
+        jacobian: impl Fn(&X) -> Result<J, OptimizeError>,
+        hessian: impl Fn(&X) -> Result<H, OptimizeError>,
         initial_guess: X,
         dirichlet: Option<Dirichlet>,
         neumann: Option<Neumann>,
@@ -51,7 +51,7 @@ where
         }
         let mut tangent;
         for _ in 0..self.max_steps {
-            residual = jacobian(&solution);
+            residual = jacobian(&solution)?;
             if let Some(ref bc) = neumann {
                 bc.places
                     .iter()
@@ -63,7 +63,7 @@ where
                     .iter()
                     .for_each(|place| *residual.get_at_mut(place) = 0.0)
             }
-            tangent = hessian(&solution);
+            tangent = hessian(&solution)?;
             if residual.norm() < self.abs_tol {
                 if self.check_minimum && !tangent.is_positive_definite() {
                     return Err(OptimizeError::NotMinimum(

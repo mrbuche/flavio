@@ -34,6 +34,12 @@ pub enum ConstitutiveError {
     NotMinimum(String, String),
 }
 
+impl From<ConstitutiveError> for OptimizeError {
+    fn from(_error: ConstitutiveError) -> OptimizeError {
+        todo!()
+    }
+}
+
 impl From<OptimizeError> for ConstitutiveError {
     fn from(_error: OptimizeError) -> ConstitutiveError {
         todo!()
