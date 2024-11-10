@@ -369,15 +369,6 @@ where
         _places_n: &[&[usize]],
         _values_n: &[Scalar],
     ) -> Result<NodalCoordinates<D>, OptimizeError> {
-        //
-        // how are you going to handle errors like InvalidJacobian without panicking if you send to a template math solver?
-        // i.e. for trust region etc. you could avoid halting at those points, or even just cut back in CG etc.
-        // you will need to convert Error type here using From to a type in math (dont want math to depend on anything else)
-        // and hopefully that all works out in a good way
-        //
-        // make the argument "displacements" somehow?
-        // and pass full indices to .get() so you can prescribe components?
-        //
         GradientDescent {
             ..Default::default()
         }
@@ -390,8 +381,7 @@ where
                 places: places_d,
                 values: values_d,
             }),
-            // Some(Neumann { places: places_n, values: values_n }),
-            None, // middle node might not be able to apply affine?
+            None,
         )
     }
 }

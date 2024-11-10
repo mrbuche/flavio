@@ -50,7 +50,7 @@ where
         &self,
         _nodal_coordinates: &NodalCoordinates<N>,
     ) -> DeformationGradients<G> {
-        todo!()
+        todo!() // should just get rid of linear elements assuming G=1
     }
     fn calculate_nodal_forces(
         &self,
