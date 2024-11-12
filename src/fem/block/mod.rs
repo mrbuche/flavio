@@ -110,10 +110,10 @@ pub trait ElasticFiniteElementBlock<
     fn solve(
         &self,
         initial_coordinates: NodalCoordinates<D>,
-        places_d: &[&[usize]],
-        values_d: &[Scalar],
-        places_n: &[&[usize]],
-        values_n: &[Scalar],
+        places_d: Option<&[&[usize]]>,
+        values_d: Option<&[Scalar]>,
+        places_n: Option<&[&[usize]]>,
+        values_n: Option<&[Scalar]>,
     ) -> Result<NodalCoordinates<D>, OptimizeError>;
 }
 
@@ -364,12 +364,13 @@ where
     fn solve(
         &self,
         initial_coordinates: NodalCoordinates<D>,
-        places_d: &[&[usize]],
-        values_d: &[Scalar],
-        _places_n: &[&[usize]],
-        _values_n: &[Scalar],
+        places_d: Option<&[&[usize]]>,
+        values_d: Option<&[Scalar]>,
+        _places_n: Option<&[&[usize]]>,
+        _values_n: Option<&[Scalar]>,
     ) -> Result<NodalCoordinates<D>, OptimizeError> {
         GradientDescent {
+            max_steps: 1000,
             ..Default::default()
         }
         .minimize(
@@ -378,8 +379,8 @@ where
             },
             initial_coordinates,
             Some(Dirichlet {
-                places: places_d,
-                values: values_d,
+                places: places_d.unwrap(),
+                values: values_d.unwrap(),
             }),
             None,
         )

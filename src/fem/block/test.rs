@@ -90,73 +90,6 @@ macro_rules! test_finite_element_block {
                         NeoHookean,
                         NEOHOOKEANPARAMETERS
                     );
-                    #[test]
-                    fn solve() -> Result<(), TestError> {
-                        //
-                        // only apply these tests to blocks of the 2 tets?
-                        // or figure out a way to have BCs applied differently for each?
-                        //
-                        // need some sort of homogeneous/etc. deformation tests
-                        // that you can confirm the expected spatially-varying fields at every integration point
-                        //
-                        let block = get_block();
-                        // let places_d: [&[usize]; 5] = [
-                        //     &[4, 2],
-                        //     &[5, 2],
-                        //     &[6, 2],
-                        //     &[7, 2],
-                        //     &[9, 2],
-                        // ];
-                        let places_d: [&[usize]; 10] = [
-                            &[0, 0],
-                            &[1, 0],
-                            &[2, 0],
-                            &[3, 0],
-                            &[4, 0],
-                            &[5, 0],
-                            &[6, 0],
-                            &[7, 0],
-                            &[11, 0],
-                            &[13, 0],
-                        ];
-                        let x = 1e-1;
-                        let values_d = [
-                            0.5 + x,
-                            0.5 + x,
-                            -0.5,
-                            -0.5,
-                            0.5 + x,
-                            0.5 + x,
-                            -0.5,
-                            -0.5,
-                            -0.5,
-                            0.5 + x,
-                        ];
-                        // let values_d = [-0.5; 5];
-                        let places_n: [&[usize]; 5] = [&[0, 2], &[1, 2], &[2, 2], &[3, 2], &[8, 2]];
-                        let values_n = [5e-1; 5];
-                        let solution = block.solve(
-                            get_reference_coordinates_block().convert(),
-                            &places_d,
-                            &values_d,
-                            &places_n,
-                            &values_n,
-                        )?;
-                        // you can test that solve_uniaxial gives the same other 8 components of deformation gradient everywhere
-                        let deformation_gradient = NeoHookean::new(NEOHOOKEANPARAMETERS)
-                            .solve_uniaxial(&(1.0 + x))?
-                            .0;
-                        block
-                            .calculate_deformation_gradients(&solution)
-                            .iter()
-                            .try_for_each(|deformation_gradients| {
-                                assert_eq_within_tols(
-                                    &deformation_gradients[0],
-                                    &deformation_gradient,
-                                )
-                            })
-                        // other elements fail because node num/coords different
-                    }
                 }
                 mod saint_venant_kirchoff {
                     use super::*;
@@ -720,6 +653,31 @@ macro_rules! test_finite_element_block_with_hyperelastic_constitutive_model {
             $constitutive_model,
             $constitutive_model_parameters
         );
+        use crate::constitutive::solid::hyperelastic::AppliedLoad;
+        #[test]
+        fn solve() -> Result<(), TestError> {
+            let block = get_block();
+            let solution = block.solve(
+                get_reference_coordinates_block().convert(),
+                Some(&get_dirichlet_places()),
+                Some(&get_dirichlet_values(0.1)),
+                None,
+                None,
+            )?;
+            let (deformation_gradient, _) =
+                $constitutive_model::new($constitutive_model_parameters)
+                    .solve(AppliedLoad::UniaxialStress(1.1))?;
+            block
+                .calculate_deformation_gradients(&solution)
+                .iter()
+                .try_for_each(|deformation_gradients| {
+                    deformation_gradients
+                        .iter()
+                        .try_for_each(|deformation_gradient_g| {
+                            assert_eq_within_tols(deformation_gradient_g, &deformation_gradient)
+                        })
+                })
+        }
     };
 }
 pub(crate) use test_finite_element_block_with_hyperelastic_constitutive_model;

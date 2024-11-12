@@ -167,5 +167,51 @@ fn get_velocities_block() -> NodalVelocities<D> {
     ])
 }
 
+fn get_dirichlet_places<'a>() -> [&'a [usize]; 18] {
+    [
+        &[0, 0],
+        &[1, 0],
+        &[2, 0],
+        &[3, 0],
+        &[4, 0],
+        &[5, 0],
+        &[6, 0],
+        &[7, 0],
+        &[8, 0],
+        &[11, 0],
+        &[12, 0],
+        &[13, 0],
+        &[14, 0],
+        &[17, 0],
+        &[18, 0],
+        &[19, 0],
+        &[22, 0],
+        &[24, 0],
+    ]
+}
+
+fn get_dirichlet_values(x: Scalar) -> [Scalar; 18] {
+    [
+        0.5 + x,
+        0.5 + x,
+        -0.5,
+        -0.5,
+        0.5 + x,
+        0.5 + x,
+        -0.5,
+        -0.5,
+        0.5 + x,
+        0.5 + x,
+        0.5 + x,
+        0.5 + x,
+        -0.5,
+        -0.5,
+        -0.5,
+        -0.5,
+        0.5 + x,
+        -0.5,
+    ]
+}
+
 test_composite_element!(Tetrahedron);
 test_finite_element_block!(Tetrahedron);

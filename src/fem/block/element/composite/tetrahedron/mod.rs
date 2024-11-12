@@ -539,6 +539,12 @@ impl<'a, C> ElasticFiniteElement<'a, C, G, N> for Tetrahedron<C>
 where
     C: Elastic<'a>,
 {
+    fn calculate_deformations(
+        &self,
+        nodal_coordinates: &NodalCoordinates<N>,
+    ) -> DeformationGradients<G> {
+        self.calculate_deformation_gradients(nodal_coordinates)
+    }
     fn calculate_nodal_forces(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,

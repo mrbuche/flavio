@@ -148,5 +148,13 @@ fn get_velocities_block() -> NodalVelocities<D> {
     ])
 }
 
+fn get_dirichlet_places<'a>() -> [&'a [usize]; 10] {
+    panic!()
+}
+
+fn get_dirichlet_values(_x: Scalar) -> [Scalar; 10] {
+    panic!()
+}
+
 test_composite_localization_element!(Wedge);
 test_finite_element_block!(Wedge);
