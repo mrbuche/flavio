@@ -167,15 +167,24 @@ fn get_velocities_block() -> NodalVelocities<D> {
     ])
 }
 
-fn get_dirichlet_places<'a>() -> [&'a [usize]; 18] {
+// could be a rigid-body modes issue?
+// apply to tet4 to be fair?
+// try to get rid of 1000 steps if fix here?
+
+// do you need a tighter norm now?
+
+fn get_dirichlet_places<'a>() -> [&'a [usize]; 21] {
     [
         &[0, 0],
+        &[0, 1],
         &[1, 0],
         &[2, 0],
         &[3, 0],
         &[4, 0],
         &[5, 0],
         &[6, 0],
+        &[6, 1],
+        &[6, 2],
         &[7, 0],
         &[8, 0],
         &[11, 0],
@@ -190,14 +199,17 @@ fn get_dirichlet_places<'a>() -> [&'a [usize]; 18] {
     ]
 }
 
-fn get_dirichlet_values(x: Scalar) -> [Scalar; 18] {
+fn get_dirichlet_values(x: Scalar) -> [Scalar; 21] {
     [
         0.5 + x,
+        -0.5,
         0.5 + x,
         -0.5,
         -0.5,
         0.5 + x,
         0.5 + x,
+        -0.5,
+        -0.5,
         -0.5,
         -0.5,
         0.5 + x,

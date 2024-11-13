@@ -671,6 +671,20 @@ macro_rules! test_finite_element_block_with_hyperelastic_constitutive_model {
             let (deformation_gradient, _) =
                 $constitutive_model::new($constitutive_model_parameters)
                     .solve(AppliedLoad::UniaxialStress(1.1))?;
+
+            // println!("{}\n", &deformation_gradient);
+
+            // block
+            //     .calculate_deformation_gradients(&solution)
+            //     .iter()
+            //     .for_each(|deformation_gradients| {
+            //         deformation_gradients
+            //             .iter()
+            //             .for_each(|deformation_gradient_g| {
+            //                 println!("{}", deformation_gradient_g)
+            //             })
+            //     });
+            // Ok(())
             block
                 .calculate_deformation_gradients(&solution)
                 .iter()
