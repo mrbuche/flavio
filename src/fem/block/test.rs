@@ -267,7 +267,7 @@ pub(crate) use test_nodal_forces_and_nodal_stiffnesses;
 macro_rules! test_helmholtz_free_energy {
     ($block: ident, $element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) => {
         #[test]
-        fn test_block_helmholtz_free_energy() {
+        fn test_helmholtz_free_energy_block() {
             todo!("Turn me on, baby!")
         }
         // fn get_finite_difference_of_helmholtz_free_energy(
