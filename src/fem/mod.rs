@@ -43,12 +43,12 @@ use crate::{
     math::{
         tensor_rank_1_zero, ContractSecondFourthIndicesWithFirstIndicesOf, Tensor, TensorRank1,
         TensorRank1List, TensorRank1List2D, TensorRank2, TensorRank2List, TensorRank2List2D,
-        TensorRank3, TensorRank3List, TensorRank3List2D, TensorRank3List3D, Tensors, ONE_SIXTH,
+        TensorRank3, TensorRank3List, TensorRank3List2D, TensorRank3List3D, ONE_SIXTH,
         ONE_TWENTY_FOURTH,
     },
     mechanics::{
         Coordinates, CurrentCoordinates, DeformationGradient, DeformationGradientRate,
-        DeformationGradientRates, DeformationGradients, Displacement,
+        DeformationGradientRates, DeformationGradients, DeformationGradientss, Displacement,
         FirstPiolaKirchoffRateTangentStiffnesses, FirstPiolaKirchoffStresses,
         FirstPiolaKirchoffTangentStiffnesses, Forces, ReferenceCoordinates, Scalar, Scalars,
         Stiffnesses, Vector, Vectors, Vectors2D, IDENTITY, LEVI_CIVITA, ZERO_VECTOR,

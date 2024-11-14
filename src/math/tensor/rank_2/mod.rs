@@ -19,7 +19,7 @@ use super::{
     rank_0::TensorRank0,
     rank_1::{list::TensorRank1List, TensorRank1},
     rank_4::TensorRank4,
-    Convert, Tensor, Tensors,
+    Convert, Tensor,
 };
 use list_2d::TensorRank2List2D;
 
@@ -167,19 +167,6 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2<D, I, J> {
                     .collect()
             })
             .collect()
-    }
-    /// Returns the full contraction with another rank-2 tensor.
-    pub fn full_contraction(&self, tensor_rank_2: &Self) -> TensorRank0 {
-        self.iter()
-            .zip(tensor_rank_2.iter())
-            .map(|(self_i, tensor_rank_2_i)| {
-                self_i
-                    .iter()
-                    .zip(tensor_rank_2_i.iter())
-                    .map(|(self_ij, tensor_rank_2_ij)| self_ij * tensor_rank_2_ij)
-                    .sum::<TensorRank0>()
-            })
-            .sum()
     }
     /// Returns the inverse of the rank-2 tensor.
     pub fn inverse(&self) -> TensorRank2<D, J, I> {
@@ -576,11 +563,18 @@ impl<const D: usize, const I: usize, const J: usize> Tensor for TensorRank2<D, I
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
     }
+    fn full_contraction(&self, tensor_rank_2: &Self) -> TensorRank0 {
+        self.iter()
+            .zip(tensor_rank_2.iter())
+            .map(|(self_i, tensor_rank_2_i)| self_i * tensor_rank_2_i)
+            .sum()
+    }
     fn identity() -> Self {
         (0..D)
             .map(|i| (0..D).map(|j| ((i == j) as u8) as TensorRank0).collect())
             .collect()
     }
+    #[cfg(test)]
     fn is_zero(&self) -> bool {
         self.iter()
             .map(|self_i| {
@@ -603,16 +597,6 @@ impl<const D: usize, const I: usize, const J: usize> Tensor for TensorRank2<D, I
             .iter()
             .map(|array_i| TensorRank1::new(*array_i))
             .collect()
-    }
-    fn norm_squared(&self) -> TensorRank0 {
-        self.iter()
-            .map(|self_i| {
-                self_i
-                    .iter()
-                    .map(|self_ij| self_ij.powi(2))
-                    .sum::<TensorRank0>()
-            })
-            .sum()
     }
     fn normalized(&self) -> Self {
         self / self.norm()

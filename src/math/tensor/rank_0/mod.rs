@@ -43,12 +43,16 @@ impl Tensor for TensorRank0 {
     fn copy(&self) -> TensorRank0 {
         *self
     }
+    fn full_contraction(&self, tensor_rank_0: &Self) -> TensorRank0 {
+        self * tensor_rank_0
+    }
     fn identity() -> Self {
         1.0
     }
     fn is_positive_definite(&self) -> bool {
         self > &0.0
     }
+    #[cfg(test)]
     fn is_zero(&self) -> bool {
         self == &0.0
     }
@@ -60,9 +64,6 @@ impl Tensor for TensorRank0 {
     }
     fn new(array: Self::Array) -> Self {
         array[0]
-    }
-    fn norm_squared(&self) -> TensorRank0 {
-        self.powi(2)
     }
     fn normalized(&self) -> Self {
         1.0

@@ -91,6 +91,12 @@ impl<'a, C> ElasticFiniteElement<'a, C, G, N> for Triangle<C>
 where
     C: Elastic<'a>,
 {
+    fn calculate_deformations(
+        &self,
+        nodal_coordinates: &NodalCoordinates<N>,
+    ) -> DeformationGradients<G> {
+        TensorRank2List([self.calculate_deformation_gradient(nodal_coordinates)])
+    }
     fn calculate_nodal_forces(
         &self,
         nodal_coordinates: &NodalCoordinates<N>,

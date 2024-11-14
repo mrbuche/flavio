@@ -1,8 +1,9 @@
 use super::{
     super::{
         super::{
-            test::TestError, Tensor, TensorRank0, TensorRank0List, TensorRank1, TensorRank1List,
-            TensorRank2, Tensors,
+            optimize::{GradientDescent, NewtonRaphson, Optimization},
+            test::TestError,
+            Tensor, TensorRank0, TensorRank0List, TensorRank1, TensorRank1List, TensorRank2,
         },
         test::zero_to_tau,
     },
@@ -62,28 +63,6 @@ fn evaluation_times_no_final_time() {
         &TensorRank0List::new([0.0]),
     )
     .unwrap();
-}
-
-#[test]
-fn first_order_tensor_rank_0() -> Result<(), TestError> {
-    let evaluation_times = zero_to_tau::<LENGTH>();
-    let solution: TensorRank0List<LENGTH> = Ode1be {
-        ..Default::default()
-    }
-    .integrate(
-        |_: &TensorRank0, y: &TensorRank0| -y,
-        |_: &TensorRank0, _: &TensorRank0| -1.0,
-        0.0,
-        1.0,
-        &evaluation_times,
-    )?;
-    evaluation_times
-        .iter()
-        .zip(solution.iter())
-        .for_each(|(t, y)| {
-            assert!(((-t).exp() - y).abs() < TOLERANCE || ((-t).exp() / y - 1.0).abs() < TOLERANCE)
-        });
-    Ok(())
 }
 
 #[test]
@@ -159,77 +138,133 @@ fn first_order_tensor_rank_0_nearby_evaluation_times() -> Result<(), TestError> 
     Ok(())
 }
 
-#[test]
-fn second_order_tensor_rank_0() -> Result<(), TestError> {
-    let evaluation_times = zero_to_tau::<LENGTH>();
-    let solution: TensorRank1List<2, 1, LENGTH> = Ode1be {
-        ..Default::default()
-    }
-    .integrate(
-        |_: &TensorRank0, y: &TensorRank1<2, 1>| TensorRank1::new([y[1], -y[0]]),
-        |_: &TensorRank0, _: &TensorRank1<2, 1>| TensorRank2::new([[0.0, -1.0], [1.0, 0.0]]),
-        0.0,
-        TensorRank1::new([0.0, 1.0]),
-        &evaluation_times,
-    )?;
-    evaluation_times
-        .iter()
-        .zip(solution.iter())
-        .for_each(|(t, y)| {
-            assert!((t.sin() - y[0]).abs() < TOLERANCE || (t.sin() / y[0] - 1.0).abs() < TOLERANCE)
-        });
-    Ok(())
+macro_rules! test_ode1be {
+    ($optimization: expr) => {
+        #[test]
+        fn first_order_tensor_rank_0() -> Result<(), TestError> {
+            let evaluation_times = zero_to_tau::<LENGTH>();
+            let solution: TensorRank0List<LENGTH> = Ode1be {
+                optimization: $optimization,
+                ..Default::default()
+            }
+            .integrate(
+                |_: &TensorRank0, y: &TensorRank0| -y,
+                |_: &TensorRank0, _: &TensorRank0| -1.0,
+                0.0,
+                1.0,
+                &evaluation_times,
+            )?;
+            evaluation_times
+                .iter()
+                .zip(solution.iter())
+                .for_each(|(t, y)| {
+                    assert!(
+                        ((-t).exp() - y).abs() < TOLERANCE
+                            || ((-t).exp() / y - 1.0).abs() < TOLERANCE
+                    )
+                });
+            Ok(())
+        }
+        #[test]
+        fn second_order_tensor_rank_0() -> Result<(), TestError> {
+            let evaluation_times = zero_to_tau::<LENGTH>();
+            let solution: TensorRank1List<2, 1, LENGTH> = Ode1be {
+                optimization: $optimization,
+                ..Default::default()
+            }
+            .integrate(
+                |_: &TensorRank0, y: &TensorRank1<2, 1>| TensorRank1::new([y[1], -y[0]]),
+                |_: &TensorRank0, _: &TensorRank1<2, 1>| {
+                    TensorRank2::new([[0.0, -1.0], [1.0, 0.0]])
+                },
+                0.0,
+                TensorRank1::new([0.0, 1.0]),
+                &evaluation_times,
+            )?;
+            evaluation_times
+                .iter()
+                .zip(solution.iter())
+                .for_each(|(t, y)| {
+                    assert!(
+                        (t.sin() - y[0]).abs() < TOLERANCE
+                            || (t.sin() / y[0] - 1.0).abs() < TOLERANCE
+                    )
+                });
+            Ok(())
+        }
+        #[test]
+        fn third_order_tensor_rank_0() -> Result<(), TestError> {
+            let evaluation_times = zero_to_tau::<LENGTH>();
+            let solution: TensorRank1List<3, 1, LENGTH> = Ode1be {
+                optimization: $optimization,
+                ..Default::default()
+            }
+            .integrate(
+                |_: &TensorRank0, y: &TensorRank1<3, 1>| TensorRank1::new([y[1], y[2], -y[1]]),
+                |_: &TensorRank0, _: &TensorRank1<3, 1>| {
+                    TensorRank2::new([[0.0, 0.0, 0.0], [1.0, 0.0, -1.0], [0.0, 1.0, 0.0]])
+                },
+                0.0,
+                TensorRank1::new([0.0, 1.0, 0.0]),
+                &evaluation_times,
+            )?;
+            evaluation_times
+                .iter()
+                .zip(solution.iter())
+                .for_each(|(t, y)| {
+                    assert!(
+                        (t.sin() - y[0]).abs() < TOLERANCE
+                            || (t.sin() / y[0] - 1.0).abs() < TOLERANCE
+                    )
+                });
+            Ok(())
+        }
+        #[test]
+        fn fourth_order_tensor_rank_0() -> Result<(), TestError> {
+            let evaluation_times = zero_to_tau::<LENGTH>();
+            let solution: TensorRank1List<4, 1, LENGTH> = Ode1be {
+                optimization: $optimization,
+                ..Default::default()
+            }
+            .integrate(
+                |_: &TensorRank0, y: &TensorRank1<4, 1>| TensorRank1::new([y[1], y[2], y[3], y[0]]),
+                |_: &TensorRank0, _: &TensorRank1<4, 1>| {
+                    TensorRank2::new([
+                        [0.0, 0.0, 0.0, 1.0],
+                        [1.0, 0.0, 0.0, 0.0],
+                        [0.0, 1.0, 0.0, 0.0],
+                        [0.0, 0.0, 1.0, 0.0],
+                    ])
+                },
+                0.0,
+                TensorRank1::new([0.0, 1.0, 0.0, -1.0]),
+                &evaluation_times,
+            )?;
+            evaluation_times
+                .iter()
+                .zip(solution.iter())
+                .for_each(|(t, y)| {
+                    assert!(
+                        (t.sin() - y[0]).abs() < TOLERANCE
+                            || (t.sin() / y[0] - 1.0).abs() < TOLERANCE
+                    )
+                });
+            Ok(())
+        }
+    };
 }
 
-#[test]
-fn third_order_tensor_rank_0() -> Result<(), TestError> {
-    let evaluation_times = zero_to_tau::<LENGTH>();
-    let solution: TensorRank1List<3, 1, LENGTH> = Ode1be {
+mod gradient_descent {
+    use super::*;
+    test_ode1be!(Optimization::GradientDescent(GradientDescent {
         ..Default::default()
-    }
-    .integrate(
-        |_: &TensorRank0, y: &TensorRank1<3, 1>| TensorRank1::new([y[1], y[2], -y[1]]),
-        |_: &TensorRank0, _: &TensorRank1<3, 1>| {
-            TensorRank2::new([[0.0, 0.0, 0.0], [1.0, 0.0, -1.0], [0.0, 1.0, 0.0]])
-        },
-        0.0,
-        TensorRank1::new([0.0, 1.0, 0.0]),
-        &evaluation_times,
-    )?;
-    evaluation_times
-        .iter()
-        .zip(solution.iter())
-        .for_each(|(t, y)| {
-            assert!((t.sin() - y[0]).abs() < TOLERANCE || (t.sin() / y[0] - 1.0).abs() < TOLERANCE)
-        });
-    Ok(())
+    }));
 }
 
-#[test]
-fn fourth_order_tensor_rank_0() -> Result<(), TestError> {
-    let evaluation_times = zero_to_tau::<LENGTH>();
-    let solution: TensorRank1List<4, 1, LENGTH> = Ode1be {
+mod newton_raphson {
+    use super::*;
+    test_ode1be!(Optimization::NewtonRaphson(NewtonRaphson {
+        check_minimum: false,
         ..Default::default()
-    }
-    .integrate(
-        |_: &TensorRank0, y: &TensorRank1<4, 1>| TensorRank1::new([y[1], y[2], y[3], y[0]]),
-        |_: &TensorRank0, _: &TensorRank1<4, 1>| {
-            TensorRank2::new([
-                [0.0, 0.0, 0.0, 1.0],
-                [1.0, 0.0, 0.0, 0.0],
-                [0.0, 1.0, 0.0, 0.0],
-                [0.0, 0.0, 1.0, 0.0],
-            ])
-        },
-        0.0,
-        TensorRank1::new([0.0, 1.0, 0.0, -1.0]),
-        &evaluation_times,
-    )?;
-    evaluation_times
-        .iter()
-        .zip(solution.iter())
-        .for_each(|(t, y)| {
-            assert!((t.sin() - y[0]).abs() < TOLERANCE || (t.sin() / y[0] - 1.0).abs() < TOLERANCE)
-        });
-    Ok(())
+    }));
 }

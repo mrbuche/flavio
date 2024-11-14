@@ -1,33 +1,59 @@
 #[cfg(test)]
 mod test;
 
-mod newton;
+mod gradient_descent;
+mod newton_raphson;
 
-use super::Tensor;
+use super::{Tensor, TensorRank0};
 use crate::get_defeat_message;
 use std::{fmt, ops::Div};
 
-pub use newton::Newton;
+pub use gradient_descent::GradientDescent;
+pub use newton_raphson::NewtonRaphson;
 
-/// Base trait for optimization algorithms.
-pub trait Optimize<H, J, X>
+/// Dirichlet boundary conditions.
+pub struct Dirichlet<'a> {
+    pub places: &'a [&'a [usize]],
+    pub values: &'a [TensorRank0],
+}
+
+/// Neumann boundary conditions.
+pub struct Neumann<'a> {
+    pub places: &'a [&'a [usize]],
+    pub values: &'a [TensorRank0],
+}
+
+/// First-order optimization algorithms.
+pub trait FirstOrder<X: Tensor> {
+    fn minimize(
+        &self,
+        jacobian: impl Fn(&X) -> Result<X, OptimizeError>,
+        initial_guess: X,
+        dirichlet: Option<Dirichlet>,
+        neumann: Option<Neumann>,
+    ) -> Result<X, OptimizeError>;
+}
+
+/// Second-order optimization algorithms.
+pub trait SecondOrder<H: Tensor, J: Tensor, X: Tensor>
 where
-    H: Tensor,
-    J: Tensor + Div<H, Output = X>,
-    X: Tensor,
+    J: Div<H, Output = X>,
 {
     fn minimize(
         &self,
-        jacobian: impl Fn(&X) -> J,
-        hessian: impl Fn(&X) -> H,
+        jacobian: impl Fn(&X) -> Result<J, OptimizeError>,
+        hessian: impl Fn(&X) -> Result<H, OptimizeError>,
         initial_guess: X,
+        dirichlet: Option<Dirichlet>,
+        neumann: Option<Neumann>,
     ) -> Result<X, OptimizeError>;
 }
 
 /// Possible optimization algorithms.
 #[derive(Debug)]
 pub enum Optimization {
-    Newton(Newton),
+    GradientDescent(GradientDescent),
+    NewtonRaphson(NewtonRaphson),
 }
 
 /// Possible errors encountered when optimizing.

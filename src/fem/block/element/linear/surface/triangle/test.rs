@@ -102,5 +102,15 @@ fn get_velocities_block() -> NodalVelocities<D> {
     ])
 }
 
+const TEST_SOLVE: bool = false;
+
+fn get_dirichlet_places<'a>() -> [&'a [usize]; 8] {
+    panic!()
+}
+
+fn get_dirichlet_values(_x: Scalar) -> [Scalar; 8] {
+    panic!()
+}
+
 test_linear_surface_element!(Triangle);
 test_finite_element_block!(Triangle);

@@ -209,9 +209,16 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
             .map(|entry_rank_3| entry_rank_3.copy())
             .collect()
     }
+    fn full_contraction(&self, tensor_rank_4: &Self) -> TensorRank0 {
+        self.iter()
+            .zip(tensor_rank_4.iter())
+            .map(|(self_i, tensor_rank_4_i)| self_i.full_contraction(tensor_rank_4_i))
+            .sum()
+    }
     fn identity() -> Self {
         Self::dyad_ij_kl(&TensorRank2::identity(), &TensorRank2::identity())
     }
+    #[cfg(test)]
     fn is_zero(&self) -> bool {
         self.iter()
             .map(|entry_rank_3| {
@@ -242,11 +249,8 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
     fn new(array: Self::Array) -> Self {
         array.iter().map(|entry| TensorRank3::new(*entry)).collect()
     }
-    fn norm_squared(&self) -> TensorRank0 {
-        panic!()
-    }
     fn normalized(&self) -> Self {
-        panic!()
+        self / self.norm()
     }
     fn zero() -> Self {
         Self(from_fn(|_| TensorRank3::zero()))
@@ -568,6 +572,15 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
     fn div(mut self, tensor_rank_0: TensorRank0) -> Self::Output {
         self /= &tensor_rank_0;
         self
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize>
+    Div<TensorRank0> for &TensorRank4<D, I, J, K, L>
+{
+    type Output = TensorRank4<D, I, J, K, L>;
+    fn div(self, tensor_rank_0: TensorRank0) -> Self::Output {
+        self.iter().map(|self_i| self_i / tensor_rank_0).collect()
     }
 }
 

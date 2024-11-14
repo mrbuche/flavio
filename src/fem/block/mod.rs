@@ -9,19 +9,17 @@ use self::element::{
     ViscoelasticFiniteElement,
 };
 use super::*;
+use crate::math::optimize::{Dirichlet, FirstOrder, GradientDescent, OptimizeError};
 use std::array::from_fn;
 
 pub struct ElasticBlock<const D: usize, const E: usize, F, const G: usize, const N: usize> {
     connectivity: Connectivity<E, N>,
     elements: [F; E],
-    nodal_coordinates: NodalCoordinates<D>,
 }
 
 pub struct ViscoelasticBlock<const D: usize, const E: usize, F, const G: usize, const N: usize> {
     connectivity: Connectivity<E, N>,
     elements: [F; E],
-    nodal_coordinates: NodalCoordinates<D>,
-    nodal_velocities: NodalVelocities<D>,
 }
 
 pub trait BasicFiniteElementBlock<
@@ -38,11 +36,10 @@ pub trait BasicFiniteElementBlock<
     fn calculate_nodal_coordinates_element(
         &self,
         element_connectivity: &[usize; N],
+        nodal_coordinates: &NodalCoordinates<D>,
     ) -> NodalCoordinates<N>;
-    fn get_nodal_coordinates(&self) -> &NodalCoordinates<D>;
     fn get_connectivity(&self) -> &Connectivity<E, N>;
     fn get_elements(&self) -> &[F; E];
-    fn set_nodal_coordinates(&mut self, nodal_coordinates: NodalCoordinates<D>);
 }
 
 pub trait FiniteElementBlock<
@@ -98,8 +95,27 @@ pub trait ElasticFiniteElementBlock<
     C: Elastic<'a>,
     F: ElasticFiniteElement<'a, C, G, N>,
 {
-    fn calculate_nodal_forces(&self) -> Result<NodalForces<D>, ConstitutiveError>;
-    fn calculate_nodal_stiffnesses(&self) -> Result<NodalStiffnesses<D>, ConstitutiveError>;
+    fn calculate_deformation_gradients(
+        &self,
+        nodal_coordinates: &NodalCoordinates<D>,
+    ) -> DeformationGradientss<G, E>;
+    fn calculate_nodal_forces(
+        &self,
+        nodal_coordinates: &NodalCoordinates<D>,
+    ) -> Result<NodalForces<D>, ConstitutiveError>;
+    fn calculate_nodal_stiffnesses(
+        &self,
+        nodal_coordinates: &NodalCoordinates<D>,
+    ) -> Result<NodalStiffnesses<D>, ConstitutiveError>;
+    fn solve(
+        &self,
+        initial_coordinates: NodalCoordinates<D>,
+        places_d: Option<&[&[usize]]>,
+        values_d: Option<&[Scalar]>,
+        places_n: Option<&[&[usize]]>,
+        values_n: Option<&[Scalar]>,
+        optimization: GradientDescent,
+    ) -> Result<NodalCoordinates<D>, OptimizeError>;
 }
 
 pub trait HyperelasticFiniteElementBlock<
@@ -115,7 +131,10 @@ pub trait HyperelasticFiniteElementBlock<
     F: HyperelasticFiniteElement<'a, C, G, N>,
     Self: ElasticFiniteElementBlock<'a, C, D, E, F, G, N>,
 {
-    fn calculate_helmholtz_free_energy(&self) -> Result<Scalar, ConstitutiveError>;
+    fn calculate_helmholtz_free_energy(
+        &self,
+        nodal_coordinates: &NodalCoordinates<D>,
+    ) -> Result<Scalar, ConstitutiveError>;
 }
 
 pub trait ViscoelasticFiniteElementBlock<
@@ -130,14 +149,21 @@ pub trait ViscoelasticFiniteElementBlock<
     C: Viscoelastic<'a>,
     F: ViscoelasticFiniteElement<'a, C, G, N>,
 {
-    fn calculate_nodal_forces(&self) -> Result<NodalForces<D>, ConstitutiveError>;
-    fn calculate_nodal_stiffnesses(&self) -> Result<NodalStiffnesses<D>, ConstitutiveError>;
+    fn calculate_nodal_forces(
+        &self,
+        nodal_coordinates: &NodalCoordinates<D>,
+        nodal_velocities: &NodalVelocities<D>,
+    ) -> Result<NodalForces<D>, ConstitutiveError>;
+    fn calculate_nodal_stiffnesses(
+        &self,
+        nodal_coordinates: &NodalCoordinates<D>,
+        nodal_velocities: &NodalVelocities<D>,
+    ) -> Result<NodalStiffnesses<D>, ConstitutiveError>;
     fn calculate_nodal_velocities_element(
         &self,
         element_connectivity: &[usize; N],
+        nodal_velocities: &NodalVelocities<D>,
     ) -> NodalVelocities<N>;
-    fn get_nodal_velocities(&self) -> &NodalVelocities<D>;
-    fn set_nodal_velocities(&mut self, nodal_velocities: NodalVelocities<D>);
 }
 
 pub trait ElasticHyperviscousFiniteElementBlock<
@@ -153,8 +179,16 @@ pub trait ElasticHyperviscousFiniteElementBlock<
     F: ElasticHyperviscousFiniteElement<'a, C, G, N>,
     Self: ViscoelasticFiniteElementBlock<'a, C, D, E, F, G, N>,
 {
-    fn calculate_viscous_dissipation(&self) -> Result<Scalar, ConstitutiveError>;
-    fn calculate_dissipation_potential(&self) -> Result<Scalar, ConstitutiveError>;
+    fn calculate_viscous_dissipation(
+        &self,
+        nodal_coordinates: &NodalCoordinates<D>,
+        nodal_velocities: &NodalVelocities<D>,
+    ) -> Result<Scalar, ConstitutiveError>;
+    fn calculate_dissipation_potential(
+        &self,
+        nodal_coordinates: &NodalCoordinates<D>,
+        nodal_velocities: &NodalVelocities<D>,
+    ) -> Result<Scalar, ConstitutiveError>;
 }
 
 pub trait HyperviscoelasticFiniteElementBlock<
@@ -170,7 +204,10 @@ pub trait HyperviscoelasticFiniteElementBlock<
     F: HyperviscoelasticFiniteElement<'a, C, G, N>,
     Self: ElasticHyperviscousFiniteElementBlock<'a, C, D, E, F, G, N>,
 {
-    fn calculate_helmholtz_free_energy(&self) -> Result<Scalar, ConstitutiveError>;
+    fn calculate_helmholtz_free_energy(
+        &self,
+        nodal_coordinates: &NodalCoordinates<D>,
+    ) -> Result<Scalar, ConstitutiveError>;
 }
 
 impl<'a, C, const D: usize, const E: usize, F, const G: usize, const N: usize>
@@ -182,24 +219,18 @@ where
     fn calculate_nodal_coordinates_element(
         &self,
         element_connectivity: &[usize; N],
+        nodal_coordinates: &NodalCoordinates<D>,
     ) -> NodalCoordinates<N> {
-        let nodal_coordinates = self.get_nodal_coordinates();
         element_connectivity
             .iter()
             .map(|node| nodal_coordinates[*node].copy())
             .collect()
-    }
-    fn get_nodal_coordinates(&self) -> &NodalCoordinates<D> {
-        &self.nodal_coordinates
     }
     fn get_connectivity(&self) -> &Connectivity<E, N> {
         &self.connectivity
     }
     fn get_elements(&self) -> &[F; E] {
         &self.elements
-    }
-    fn set_nodal_coordinates(&mut self, nodal_coordinates: NodalCoordinates<D>) {
-        self.nodal_coordinates = nodal_coordinates;
     }
 }
 
@@ -226,7 +257,6 @@ where
         Self {
             connectivity,
             elements,
-            nodal_coordinates: reference_nodal_coordinates.into(),
         }
     }
 }
@@ -256,7 +286,6 @@ where
         Self {
             connectivity,
             elements,
-            nodal_coordinates: reference_nodal_coordinates.into(),
         }
     }
 }
@@ -268,33 +297,58 @@ where
     F: ElasticFiniteElement<'a, C, G, N>,
     Self: BasicFiniteElementBlock<'a, C, D, E, F, G, N>,
 {
-    fn calculate_nodal_forces(&self) -> Result<NodalForces<D>, ConstitutiveError> {
+    fn calculate_deformation_gradients(
+        &self,
+        nodal_coordinates: &NodalCoordinates<D>,
+    ) -> DeformationGradientss<G, E> {
+        self.get_elements()
+            .iter()
+            .zip(self.get_connectivity().iter())
+            .map(|(element, element_connectivity)| {
+                element.calculate_deformations(
+                    &self.calculate_nodal_coordinates_element(
+                        element_connectivity,
+                        nodal_coordinates,
+                    ),
+                )
+            })
+            .collect()
+    }
+    fn calculate_nodal_forces(
+        &self,
+        nodal_coordinates: &NodalCoordinates<D>,
+    ) -> Result<NodalForces<D>, ConstitutiveError> {
         let mut nodal_forces = NodalForces::zero();
         self.get_elements()
             .iter()
             .zip(self.get_connectivity().iter())
             .try_for_each(|(element, element_connectivity)| {
                 element
-                    .calculate_nodal_forces(
-                        &self.calculate_nodal_coordinates_element(element_connectivity),
-                    )?
+                    .calculate_nodal_forces(&self.calculate_nodal_coordinates_element(
+                        element_connectivity,
+                        nodal_coordinates,
+                    ))?
                     .iter()
                     .zip(element_connectivity.iter())
                     .for_each(|(nodal_force, node)| nodal_forces[*node] += nodal_force);
-                Ok(())
+                Ok::<(), ConstitutiveError>(())
             })?;
         Ok(nodal_forces)
     }
-    fn calculate_nodal_stiffnesses(&self) -> Result<NodalStiffnesses<D>, ConstitutiveError> {
+    fn calculate_nodal_stiffnesses(
+        &self,
+        nodal_coordinates: &NodalCoordinates<D>,
+    ) -> Result<NodalStiffnesses<D>, ConstitutiveError> {
         let mut nodal_stiffnesses = NodalStiffnesses::zero();
         self.get_elements()
             .iter()
             .zip(self.get_connectivity().iter())
             .try_for_each(|(element, element_connectivity)| {
                 element
-                    .calculate_nodal_stiffnesses(
-                        &self.calculate_nodal_coordinates_element(element_connectivity),
-                    )?
+                    .calculate_nodal_stiffnesses(&self.calculate_nodal_coordinates_element(
+                        element_connectivity,
+                        nodal_coordinates,
+                    ))?
                     .iter()
                     .zip(element_connectivity.iter())
                     .for_each(|(object, node_a)| {
@@ -304,9 +358,30 @@ where
                             },
                         )
                     });
-                Ok(())
+                Ok::<(), ConstitutiveError>(())
             })?;
         Ok(nodal_stiffnesses)
+    }
+    fn solve(
+        &self,
+        initial_coordinates: NodalCoordinates<D>,
+        places_d: Option<&[&[usize]]>,
+        values_d: Option<&[Scalar]>,
+        _places_n: Option<&[&[usize]]>,
+        _values_n: Option<&[Scalar]>,
+        optimization: GradientDescent,
+    ) -> Result<NodalCoordinates<D>, OptimizeError> {
+        optimization.minimize(
+            |nodal_coordinates: &NodalCoordinates<D>| {
+                Ok(self.calculate_nodal_forces(nodal_coordinates)?)
+            },
+            initial_coordinates,
+            Some(Dirichlet {
+                places: places_d.unwrap(),
+                values: values_d.unwrap(),
+            }),
+            None,
+        )
     }
 }
 
@@ -317,13 +392,19 @@ where
     F: HyperelasticFiniteElement<'a, C, G, N>,
     Self: ElasticFiniteElementBlock<'a, C, D, E, F, G, N>,
 {
-    fn calculate_helmholtz_free_energy(&self) -> Result<Scalar, ConstitutiveError> {
+    fn calculate_helmholtz_free_energy(
+        &self,
+        nodal_coordinates: &NodalCoordinates<D>,
+    ) -> Result<Scalar, ConstitutiveError> {
         self.get_elements()
             .iter()
             .zip(self.get_connectivity().iter())
             .map(|(element, element_connectivity)| {
                 element.calculate_helmholtz_free_energy(
-                    &self.calculate_nodal_coordinates_element(element_connectivity),
+                    &self.calculate_nodal_coordinates_element(
+                        element_connectivity,
+                        nodal_coordinates,
+                    ),
                 )
             })
             .sum()
@@ -339,24 +420,18 @@ where
     fn calculate_nodal_coordinates_element(
         &self,
         element_connectivity: &[usize; N],
+        nodal_coordinates: &NodalCoordinates<D>,
     ) -> NodalCoordinates<N> {
-        let nodal_coordinates = self.get_nodal_coordinates();
         element_connectivity
             .iter()
             .map(|node| nodal_coordinates[*node].copy())
             .collect()
-    }
-    fn get_nodal_coordinates(&self) -> &NodalCoordinates<D> {
-        &self.nodal_coordinates
     }
     fn get_connectivity(&self) -> &Connectivity<E, N> {
         &self.connectivity
     }
     fn get_elements(&self) -> &[F; E] {
         &self.elements
-    }
-    fn set_nodal_coordinates(&mut self, nodal_coordinates: NodalCoordinates<D>) {
-        self.nodal_coordinates = nodal_coordinates;
     }
 }
 
@@ -383,8 +458,6 @@ where
         Self {
             connectivity,
             elements,
-            nodal_coordinates: reference_nodal_coordinates.into(),
-            nodal_velocities: NodalVelocities::zero(),
         }
     }
 }
@@ -414,8 +487,6 @@ where
         Self {
             connectivity,
             elements,
-            nodal_coordinates: reference_nodal_coordinates.into(),
-            nodal_velocities: NodalVelocities::zero(),
         }
     }
 }
@@ -427,7 +498,11 @@ where
     F: ViscoelasticFiniteElement<'a, C, G, N>,
     Self: BasicFiniteElementBlock<'a, C, D, E, F, G, N>,
 {
-    fn calculate_nodal_forces(&self) -> Result<NodalForces<D>, ConstitutiveError> {
+    fn calculate_nodal_forces(
+        &self,
+        nodal_coordinates: &NodalCoordinates<D>,
+        nodal_velocities: &NodalVelocities<D>,
+    ) -> Result<NodalForces<D>, ConstitutiveError> {
         let mut nodal_forces = NodalForces::zero();
         self.get_elements()
             .iter()
@@ -435,17 +510,27 @@ where
             .try_for_each(|(element, element_connectivity)| {
                 element
                     .calculate_nodal_forces(
-                        &self.calculate_nodal_coordinates_element(element_connectivity),
-                        &self.calculate_nodal_velocities_element(element_connectivity),
+                        &self.calculate_nodal_coordinates_element(
+                            element_connectivity,
+                            nodal_coordinates,
+                        ),
+                        &self.calculate_nodal_velocities_element(
+                            element_connectivity,
+                            nodal_velocities,
+                        ),
                     )?
                     .iter()
                     .zip(element_connectivity.iter())
                     .for_each(|(nodal_force, node)| nodal_forces[*node] += nodal_force);
-                Ok(())
+                Ok::<(), ConstitutiveError>(())
             })?;
         Ok(nodal_forces)
     }
-    fn calculate_nodal_stiffnesses(&self) -> Result<NodalStiffnesses<D>, ConstitutiveError> {
+    fn calculate_nodal_stiffnesses(
+        &self,
+        nodal_coordinates: &NodalCoordinates<D>,
+        nodal_velocities: &NodalVelocities<D>,
+    ) -> Result<NodalStiffnesses<D>, ConstitutiveError> {
         let mut nodal_stiffnesses = NodalStiffnesses::zero();
         self.get_elements()
             .iter()
@@ -453,8 +538,14 @@ where
             .try_for_each(|(element, element_connectivity)| {
                 element
                     .calculate_nodal_stiffnesses(
-                        &self.calculate_nodal_coordinates_element(element_connectivity),
-                        &self.calculate_nodal_velocities_element(element_connectivity),
+                        &self.calculate_nodal_coordinates_element(
+                            element_connectivity,
+                            nodal_coordinates,
+                        ),
+                        &self.calculate_nodal_velocities_element(
+                            element_connectivity,
+                            nodal_velocities,
+                        ),
                     )?
                     .iter()
                     .zip(element_connectivity.iter())
@@ -465,25 +556,19 @@ where
                             },
                         )
                     });
-                Ok(())
+                Ok::<(), ConstitutiveError>(())
             })?;
         Ok(nodal_stiffnesses)
     }
     fn calculate_nodal_velocities_element(
         &self,
         element_connectivity: &[usize; N],
+        nodal_velocities: &NodalVelocities<D>,
     ) -> NodalVelocities<N> {
-        let nodal_velocities = self.get_nodal_velocities();
         element_connectivity
             .iter()
             .map(|node| nodal_velocities[*node].copy())
             .collect()
-    }
-    fn get_nodal_velocities(&self) -> &NodalVelocities<D> {
-        &self.nodal_velocities
-    }
-    fn set_nodal_velocities(&mut self, nodal_velocities: NodalVelocities<D>) {
-        self.nodal_velocities = nodal_velocities;
     }
 }
 
@@ -494,26 +579,42 @@ where
     F: ElasticHyperviscousFiniteElement<'a, C, G, N>,
     Self: ViscoelasticFiniteElementBlock<'a, C, D, E, F, G, N>,
 {
-    fn calculate_viscous_dissipation(&self) -> Result<Scalar, ConstitutiveError> {
+    fn calculate_viscous_dissipation(
+        &self,
+        nodal_coordinates: &NodalCoordinates<D>,
+        nodal_velocities: &NodalVelocities<D>,
+    ) -> Result<Scalar, ConstitutiveError> {
         self.get_elements()
             .iter()
             .zip(self.get_connectivity().iter())
             .map(|(element, element_connectivity)| {
                 element.calculate_viscous_dissipation(
-                    &self.calculate_nodal_coordinates_element(element_connectivity),
-                    &self.calculate_nodal_velocities_element(element_connectivity),
+                    &self.calculate_nodal_coordinates_element(
+                        element_connectivity,
+                        nodal_coordinates,
+                    ),
+                    &self
+                        .calculate_nodal_velocities_element(element_connectivity, nodal_velocities),
                 )
             })
             .sum()
     }
-    fn calculate_dissipation_potential(&self) -> Result<Scalar, ConstitutiveError> {
+    fn calculate_dissipation_potential(
+        &self,
+        nodal_coordinates: &NodalCoordinates<D>,
+        nodal_velocities: &NodalVelocities<D>,
+    ) -> Result<Scalar, ConstitutiveError> {
         self.get_elements()
             .iter()
             .zip(self.get_connectivity().iter())
             .map(|(element, element_connectivity)| {
                 element.calculate_dissipation_potential(
-                    &self.calculate_nodal_coordinates_element(element_connectivity),
-                    &self.calculate_nodal_velocities_element(element_connectivity),
+                    &self.calculate_nodal_coordinates_element(
+                        element_connectivity,
+                        nodal_coordinates,
+                    ),
+                    &self
+                        .calculate_nodal_velocities_element(element_connectivity, nodal_velocities),
                 )
             })
             .sum()
@@ -527,13 +628,19 @@ where
     F: HyperviscoelasticFiniteElement<'a, C, G, N>,
     Self: ElasticHyperviscousFiniteElementBlock<'a, C, D, E, F, G, N>,
 {
-    fn calculate_helmholtz_free_energy(&self) -> Result<Scalar, ConstitutiveError> {
+    fn calculate_helmholtz_free_energy(
+        &self,
+        nodal_coordinates: &NodalCoordinates<D>,
+    ) -> Result<Scalar, ConstitutiveError> {
         self.get_elements()
             .iter()
             .zip(self.get_connectivity().iter())
             .map(|(element, element_connectivity)| {
                 element.calculate_helmholtz_free_energy(
-                    &self.calculate_nodal_coordinates_element(element_connectivity),
+                    &self.calculate_nodal_coordinates_element(
+                        element_connectivity,
+                        nodal_coordinates,
+                    ),
                 )
             })
             .sum()

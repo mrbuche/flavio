@@ -10,7 +10,7 @@ mod ode23;
 pub use ode1be::Ode1be;
 pub use ode23::Ode23;
 
-use super::{optimize::OptimizeError, Tensor, TensorRank0, TensorRank0List, Tensors};
+use super::{Tensor, TensorRank0, TensorRank0List};
 use crate::get_defeat_message;
 use std::{
     fmt,
@@ -25,7 +25,7 @@ pub trait OdeSolver<Y, U, const W: usize>
 where
     Self: fmt::Debug,
     Y: Tensor,
-    U: Tensors<Item = Y>,
+    U: Tensor<Item = Y>,
 {
     /// Setup for ordinary differential equation solvers.
     fn setup<'a>(
@@ -40,7 +40,7 @@ where
             TensorRank0,
             TensorRank0,
             Y,
-            impl Iterator<Item = &'a mut <U as Tensors>::Item>,
+            impl Iterator<Item = &'a mut <U as Tensor>::Item>,
         ),
         IntegrationError<W>,
     >
@@ -87,7 +87,7 @@ impl<A, Y, U, const W: usize> OdeSolver<Y, U, W> for A
 where
     A: std::fmt::Debug,
     Y: Tensor,
-    U: Tensors<Item = Y>,
+    U: Tensor<Item = Y>,
 {
 }
 
@@ -96,7 +96,7 @@ pub trait Explicit<Y, U, const W: usize>: OdeSolver<Y, U, W>
 where
     Y: Tensor,
     for<'a> &'a Y: Mul<TensorRank0, Output = Y> + Sub<&'a Y, Output = Y>,
-    U: Tensors<Item = Y>,
+    U: Tensor<Item = Y>,
 {
     /// Solves an initial value problem by explicitly integrating a system of ordinary differential equations.
     ///
@@ -118,7 +118,7 @@ where
     Y: Tensor + Div<J, Output = Y>,
     for<'a> &'a Y: Mul<TensorRank0, Output = Y> + Sub<&'a Y, Output = Y>,
     J: Tensor,
-    U: Tensors<Item = Y>,
+    U: Tensor<Item = Y>,
 {
     /// Solves an initial value problem by implicitly integrating a system of ordinary differential equations.
     ///
@@ -140,7 +140,6 @@ pub enum IntegrationError<const W: usize> {
     EvaluationTimesNoFinalTime(TensorRank0List<W>, String),
     EvaluationTimesNotStrictlyIncreasing(TensorRank0List<W>, String),
     EvaluationTimesPrecedeInitialTime(TensorRank0List<W>, TensorRank0, String),
-    OptimizeError(OptimizeError, String),
 }
 
 impl<const W: usize> From<&str> for IntegrationError<W> {
@@ -175,13 +174,6 @@ impl<const W: usize> fmt::Debug for IntegrationError<W> {
                      With initial time: {}.\n\
                      In integrator: {}.",
                     evaluation_times, initial_time, integrator
-                )
-            }
-            Self::OptimizeError(error, integrator) => {
-                format!(
-                    "{}\x1b[0;91m\n\
-                     In integrator: {}.",
-                    error, integrator
                 )
             }
         };
@@ -220,13 +212,6 @@ impl<const W: usize> fmt::Display for IntegrationError<W> {
                      With initial time: {}.\n\
                      In integrator: {}.",
                     evaluation_times, initial_time, integrator
-                )
-            }
-            Self::OptimizeError(error, integrator) => {
-                format!(
-                    "{}\x1b[0;91m\n\
-                     In integrator: {}.",
-                    error, integrator
                 )
             }
         };

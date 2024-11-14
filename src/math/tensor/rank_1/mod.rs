@@ -100,9 +100,13 @@ impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
     }
+    fn full_contraction(&self, tensor_rank_1: &Self) -> TensorRank0 {
+        self * tensor_rank_1
+    }
     fn identity() -> Self {
         panic!()
     }
+    #[cfg(test)]
     fn is_zero(&self) -> bool {
         self.iter().map(|entry| (entry == &0.0) as u8).sum::<u8>() == (D as u8)
     }
@@ -114,9 +118,6 @@ impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
     }
     fn new(array: Self::Array) -> Self {
         array.into_iter().collect()
-    }
-    fn norm_squared(&self) -> TensorRank0 {
-        self * self
     }
     fn normalized(&self) -> Self {
         self / self.norm()
