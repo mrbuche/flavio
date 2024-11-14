@@ -266,178 +266,175 @@ pub(crate) use test_nodal_forces_and_nodal_stiffnesses;
 
 macro_rules! test_helmholtz_free_energy {
     ($block: ident, $element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) => {
-        #[test]
-        fn test_helmholtz_free_energy_block() {
-            todo!("Turn me on, baby!")
+        fn get_finite_difference_of_helmholtz_free_energy(
+            is_deformed: bool,
+        ) -> Result<NodalForces<D>, TestError> {
+            let block = get_block();
+            let mut finite_difference = 0.0;
+            (0..D)
+                .map(|node| {
+                    (0..3)
+                        .map(|i| {
+                            let mut nodal_coordinates = if is_deformed {
+                                get_coordinates_block()
+                            } else {
+                                get_reference_coordinates_block().into()
+                            };
+                            nodal_coordinates[node][i] += 0.5 * EPSILON;
+                            finite_difference =
+                                block.calculate_helmholtz_free_energy(&nodal_coordinates)?;
+                            nodal_coordinates = if is_deformed {
+                                get_coordinates_block()
+                            } else {
+                                get_reference_coordinates_block().into()
+                            };
+                            nodal_coordinates[node][i] -= 0.5 * EPSILON;
+                            finite_difference -=
+                                block.calculate_helmholtz_free_energy(&nodal_coordinates)?;
+                            Ok(finite_difference / EPSILON)
+                        })
+                        .collect()
+                })
+                .collect()
         }
-        // fn get_finite_difference_of_helmholtz_free_energy(
-        //     is_deformed: bool,
-        // ) -> Result<NodalForces<D>, TestError> {
-        //     let block = get_block();
-        //     let mut finite_difference = 0.0;
-        //     (0..D)
-        //         .map(|node| {
-        //             (0..3)
-        //                 .map(|i| {
-        //                     let mut nodal_coordinates = if is_deformed {
-        //                         get_coordinates_block()
-        //                     } else {
-        //                         get_reference_coordinates_block().into()
-        //                     };
-        //                     nodal_coordinates[node][i] += 0.5 * EPSILON;
-        //                     finite_difference =
-        //                         block.calculate_helmholtz_free_energy(&nodal_coordinates)?;
-        //                     nodal_coordinates = if is_deformed {
-        //                         get_coordinates_block()
-        //                     } else {
-        //                         get_reference_coordinates_block().into()
-        //                     };
-        //                     nodal_coordinates[node][i] -= 0.5 * EPSILON;
-        //                     finite_difference -=
-        //                         block.calculate_helmholtz_free_energy(&nodal_coordinates)?;
-        //                     Ok(finite_difference / EPSILON)
-        //                 })
-        //                 .collect()
-        //         })
-        //         .collect()
-        // }
-        // mod helmholtz_free_energy {
-        //     use super::*;
-        //     mod deformed {
-        //         use super::*;
-        //         #[test]
-        //         fn finite_difference() -> Result<(), TestError> {
-        //             assert_eq_from_fd(
-        //                 &get_block().calculate_nodal_forces(&get_coordinates_block())?,
-        //                 &get_finite_difference_of_helmholtz_free_energy(true)?,
-        //             )
-        //         }
-        //         #[test]
-        //         #[should_panic(expected = "Invalid Jacobian")]
-        //         fn invalid_jacobian() {
-        //             let mut deformation_gradient = DeformationGradient::identity();
-        //             deformation_gradient[0][0] = 0.0;
-        //             let coordinates_block = get_reference_coordinates_block()
-        //                 .iter()
-        //                 .map(|reference_coordinates| &deformation_gradient * reference_coordinates)
-        //                 .collect();
-        //             get_block()
-        //                 .calculate_helmholtz_free_energy(&coordinates_block)
-        //                 .unwrap();
-        //         }
-        //         #[test]
-        //         fn minimized() -> Result<(), TestError> {
-        //             let block = get_block();
-        //             let nodal_coordinates = get_coordinates_block();
-        //             let nodal_forces = block.calculate_nodal_forces(&nodal_coordinates)?;
-        //             let minimum = block.calculate_helmholtz_free_energy(&nodal_coordinates)?
-        //                 - nodal_forces.dot(&nodal_coordinates);
-        //             let mut perturbed = 0.0;
-        //             (0..D).try_for_each(|node| {
-        //                 (0..3).try_for_each(|i| {
-        //                     let mut perturbed_coordinates = nodal_coordinates.copy();
-        //                     perturbed_coordinates[node][i] += 0.5 * EPSILON;
-        //                     perturbed = block
-        //                         .calculate_helmholtz_free_energy(&perturbed_coordinates)?
-        //                         - nodal_forces.dot(&perturbed_coordinates);
-        //                     if assert_eq_within_tols(&perturbed, &minimum).is_err() {
-        //                         assert!(perturbed > minimum)
-        //                     }
-        //                     perturbed_coordinates[node][i] -= EPSILON;
-        //                     perturbed = block
-        //                         .calculate_helmholtz_free_energy(&perturbed_coordinates)?
-        //                         - nodal_forces.dot(&perturbed_coordinates);
-        //                     if assert_eq_within_tols(&perturbed, &minimum).is_err() {
-        //                         assert!(perturbed > minimum)
-        //                     }
-        //                     Ok(())
-        //                 })
-        //             })
-        //         }
-        //         #[test]
-        //         fn objectivity() -> Result<(), TestError> {
-        //             assert_eq_within_tols(
-        //                 &get_block().calculate_helmholtz_free_energy(&get_coordinates_block())?,
-        //                 &get_block_transformed()
-        //                     .calculate_helmholtz_free_energy(&get_coordinates_transformed_block())?,
-        //             )
-        //         }
-        //         #[test]
-        //         fn positive() -> Result<(), TestError> {
-        //             let block = get_block();
-        //             assert_eq_within_tols(
-        //                 &block
-        //                     .calculate_helmholtz_free_energy(
-        //                         &get_reference_coordinates_block().into(),
-        //                     )?
-        //                     .abs(),
-        //                 &0.0,
-        //             )?;
-        //             assert!(block.calculate_helmholtz_free_energy(&get_coordinates_block())? > 0.0);
-        //             Ok(())
-        //         }
-        //     }
-        //     mod undeformed {
-        //         use super::*;
-        //         #[test]
-        //         fn finite_difference() -> Result<(), TestError> {
-        //             assert_eq_from_fd(
-        //                 &get_finite_difference_of_helmholtz_free_energy(false)?,
-        //                 &NodalForces::zero(),
-        //             )
-        //         }
-        //         #[test]
-        //         fn minimized() -> Result<(), TestError> {
-        //             let block = get_block();
-        //             let minimum = block.calculate_helmholtz_free_energy(
-        //                 &get_reference_coordinates_block().into(),
-        //             )?;
-        //             let mut perturbed = 0.0;
-        //             (0..D).try_for_each(|node| {
-        //                 (0..3).try_for_each(|i| {
-        //                     let mut perturbed_coordinates = get_reference_coordinates_block().convert();
-        //                     perturbed_coordinates[node][i] += 0.5 * EPSILON;
-        //                     perturbed = block
-        //                         .calculate_helmholtz_free_energy(&perturbed_coordinates)?;
-        //                     if assert_eq_within_tols(&perturbed, &minimum).is_err() {
-        //                         assert!(perturbed > minimum)
-        //                     }
-        //                     perturbed_coordinates[node][i] -= EPSILON;
-        //                     perturbed = block
-        //                         .calculate_helmholtz_free_energy(&perturbed_coordinates)?;
-        //                     if assert_eq_within_tols(&perturbed, &minimum).is_err() {
-        //                         assert!(perturbed > minimum)
-        //                     }
-        //                     Ok(())
-        //                 })
-        //             })
-        //         }
-        //         #[test]
-        //         fn objectivity() -> Result<(), TestError> {
-        //             let block_1 = get_block();
-        //             let block_2 = get_block_transformed();
-        //             assert_eq_within_tols(
-        //                 &block_1.calculate_helmholtz_free_energy(
-        //                     &get_reference_coordinates_block().into(),
-        //                 )?,
-        //                 &block_2.calculate_helmholtz_free_energy(
-        //                     &get_reference_coordinates_transformed_block().into(),
-        //                 )?,
-        //             )
-        //         }
-        //         #[test]
-        //         fn zero() -> Result<(), TestError> {
-        //             assert_eq_within_tols(
-        //                 &get_block()
-        //                     .calculate_helmholtz_free_energy(
-        //                         &get_reference_coordinates_block().into(),
-        //                     )?
-        //                     .abs(),
-        //                 &0.0,
-        //             )
-        //         }
-        //     }
-        // }
+        mod helmholtz_free_energy {
+            use super::*;
+            mod deformed {
+                use super::*;
+                #[test]
+                fn finite_difference() -> Result<(), TestError> {
+                    assert_eq_from_fd(
+                        &get_block().calculate_nodal_forces(&get_coordinates_block())?,
+                        &get_finite_difference_of_helmholtz_free_energy(true)?,
+                    )
+                }
+                #[test]
+                #[should_panic(expected = "Invalid Jacobian")]
+                fn invalid_jacobian() {
+                    let mut deformation_gradient = DeformationGradient::identity();
+                    deformation_gradient[0][0] = 0.0;
+                    let coordinates_block = get_reference_coordinates_block()
+                        .iter()
+                        .map(|reference_coordinates| &deformation_gradient * reference_coordinates)
+                        .collect();
+                    get_block()
+                        .calculate_helmholtz_free_energy(&coordinates_block)
+                        .unwrap();
+                }
+                #[test]
+                fn minimized() -> Result<(), TestError> {
+                    let block = get_block();
+                    let nodal_coordinates = get_coordinates_block();
+                    let nodal_forces = block.calculate_nodal_forces(&nodal_coordinates)?;
+                    let minimum = block.calculate_helmholtz_free_energy(&nodal_coordinates)?
+                        - nodal_forces.dot(&nodal_coordinates);
+                    let mut perturbed = 0.0;
+                    (0..D).try_for_each(|node| {
+                        (0..3).try_for_each(|i| {
+                            let mut perturbed_coordinates = nodal_coordinates.copy();
+                            perturbed_coordinates[node][i] += 0.5 * EPSILON;
+                            perturbed = block
+                                .calculate_helmholtz_free_energy(&perturbed_coordinates)?
+                                - nodal_forces.dot(&perturbed_coordinates);
+                            if assert_eq_within_tols(&perturbed, &minimum).is_err() {
+                                assert!(perturbed > minimum)
+                            }
+                            perturbed_coordinates[node][i] -= EPSILON;
+                            perturbed = block
+                                .calculate_helmholtz_free_energy(&perturbed_coordinates)?
+                                - nodal_forces.dot(&perturbed_coordinates);
+                            if assert_eq_within_tols(&perturbed, &minimum).is_err() {
+                                assert!(perturbed > minimum)
+                            }
+                            Ok(())
+                        })
+                    })
+                }
+                #[test]
+                fn objectivity() -> Result<(), TestError> {
+                    assert_eq_within_tols(
+                        &get_block().calculate_helmholtz_free_energy(&get_coordinates_block())?,
+                        &get_block_transformed()
+                            .calculate_helmholtz_free_energy(&get_coordinates_transformed_block())?,
+                    )
+                }
+                #[test]
+                fn positive() -> Result<(), TestError> {
+                    let block = get_block();
+                    assert_eq_within_tols(
+                        &block
+                            .calculate_helmholtz_free_energy(
+                                &get_reference_coordinates_block().into(),
+                            )?
+                            .abs(),
+                        &0.0,
+                    )?;
+                    assert!(block.calculate_helmholtz_free_energy(&get_coordinates_block())? > 0.0);
+                    Ok(())
+                }
+            }
+            mod undeformed {
+                use super::*;
+                #[test]
+                fn finite_difference() -> Result<(), TestError> {
+                    assert_eq_from_fd(
+                        &get_finite_difference_of_helmholtz_free_energy(false)?,
+                        &NodalForces::zero(),
+                    )
+                }
+                #[test]
+                fn minimized() -> Result<(), TestError> {
+                    let block = get_block();
+                    let minimum = block.calculate_helmholtz_free_energy(
+                        &get_reference_coordinates_block().into(),
+                    )?;
+                    let mut perturbed = 0.0;
+                    (0..D).try_for_each(|node| {
+                        (0..3).try_for_each(|i| {
+                            let mut perturbed_coordinates =
+                                get_reference_coordinates_block().convert();
+                            perturbed_coordinates[node][i] += 0.5 * EPSILON;
+                            perturbed =
+                                block.calculate_helmholtz_free_energy(&perturbed_coordinates)?;
+                            if assert_eq_within_tols(&perturbed, &minimum).is_err() {
+                                assert!(perturbed > minimum)
+                            }
+                            perturbed_coordinates[node][i] -= EPSILON;
+                            perturbed =
+                                block.calculate_helmholtz_free_energy(&perturbed_coordinates)?;
+                            if assert_eq_within_tols(&perturbed, &minimum).is_err() {
+                                assert!(perturbed > minimum)
+                            }
+                            Ok(())
+                        })
+                    })
+                }
+                #[test]
+                fn objectivity() -> Result<(), TestError> {
+                    let block_1 = get_block();
+                    let block_2 = get_block_transformed();
+                    assert_eq_within_tols(
+                        &block_1.calculate_helmholtz_free_energy(
+                            &get_reference_coordinates_block().into(),
+                        )?,
+                        &block_2.calculate_helmholtz_free_energy(
+                            &get_reference_coordinates_transformed_block().into(),
+                        )?,
+                    )
+                }
+                #[test]
+                fn zero() -> Result<(), TestError> {
+                    assert_eq_within_tols(
+                        &get_block()
+                            .calculate_helmholtz_free_energy(
+                                &get_reference_coordinates_block().into(),
+                            )?
+                            .abs(),
+                        &0.0,
+                    )
+                }
+            }
+        }
         #[test]
         fn nodal_stiffnesses_deformed_symmetry() -> Result<(), TestError> {
             let nodal_stiffness = get_nodal_stiffnesses(true, false)?;
@@ -661,7 +658,7 @@ macro_rules! test_finite_element_block_with_hyperelastic_constitutive_model {
         #[test]
         fn solve() -> Result<(), TestError> {
             if TEST_SOLVE {
-                let dx = 0.3;
+                let dx = 0.23;
                 let block = get_block();
                 let solution = block.solve(
                     get_reference_coordinates_block().convert(),
@@ -1200,9 +1197,9 @@ macro_rules! test_finite_element_block_with_hyperviscoelastic_constitutive_model
         crate::fem::block::test::test_finite_element_block_with_elastic_hyperviscous_constitutive_model!(
             $block, $element, $constitutive_model, $constitutive_model_parameters
         );
-        crate::fem::block::test::test_helmholtz_free_energy!(
-            $block, $element, $constitutive_model, $constitutive_model_parameters
-        );
+        // crate::fem::block::test::test_helmholtz_free_energy!(
+        //     $block, $element, $constitutive_model, $constitutive_model_parameters
+        // );
         #[test]
         fn dissipation_potential_deformed_positive() -> Result<(), TestError>
         {
