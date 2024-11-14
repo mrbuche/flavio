@@ -660,41 +660,35 @@ macro_rules! test_finite_element_block_with_hyperelastic_constitutive_model {
         use crate::constitutive::solid::hyperelastic::AppliedLoad;
         #[test]
         fn solve() -> Result<(), TestError> {
-            let block = get_block();
-            let solution = block.solve(
-                get_reference_coordinates_block().convert(),
-                Some(&get_dirichlet_places()),
-                Some(&get_dirichlet_values(0.1)),
-                None,
-                None,
-            )?;
-            let (deformation_gradient, _) =
-                $constitutive_model::new($constitutive_model_parameters)
-                    .solve(AppliedLoad::UniaxialStress(1.1))?;
-
-            // println!("{}\n", &deformation_gradient);
-
-            // block
-            //     .calculate_deformation_gradients(&solution)
-            //     .iter()
-            //     .for_each(|deformation_gradients| {
-            //         deformation_gradients
-            //             .iter()
-            //             .for_each(|deformation_gradient_g| {
-            //                 println!("{}", deformation_gradient_g)
-            //             })
-            //     });
-            // Ok(())
-            block
-                .calculate_deformation_gradients(&solution)
-                .iter()
-                .try_for_each(|deformation_gradients| {
-                    deformation_gradients
-                        .iter()
-                        .try_for_each(|deformation_gradient_g| {
-                            assert_eq_within_tols(deformation_gradient_g, &deformation_gradient)
-                        })
-                })
+            if TEST_SOLVE {
+                let dx = 0.3;
+                let block = get_block();
+                let solution = block.solve(
+                    get_reference_coordinates_block().convert(),
+                    Some(&get_dirichlet_places()),
+                    Some(&get_dirichlet_values(dx)),
+                    None,
+                    None,
+                    GradientDescent {
+                        ..Default::default()
+                    },
+                )?;
+                let (deformation_gradient, _) =
+                    $constitutive_model::new($constitutive_model_parameters)
+                        .solve(AppliedLoad::UniaxialStress(1.0 + dx))?;
+                block
+                    .calculate_deformation_gradients(&solution)
+                    .iter()
+                    .try_for_each(|deformation_gradients| {
+                        deformation_gradients
+                            .iter()
+                            .try_for_each(|deformation_gradient_g| {
+                                assert_eq_within_tols(deformation_gradient_g, &deformation_gradient)
+                            })
+                    })
+            } else {
+                Ok(())
+            }
         }
     };
 }

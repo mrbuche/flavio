@@ -102,11 +102,13 @@ fn get_velocities_block() -> NodalVelocities<D> {
     ])
 }
 
-fn get_dirichlet_places<'a>() -> [&'a [usize]; 10] {
+const TEST_SOLVE: bool = false;
+
+fn get_dirichlet_places<'a>() -> [&'a [usize]; 8] {
     panic!()
 }
 
-fn get_dirichlet_values(_x: Scalar) -> [Scalar; 10] {
+fn get_dirichlet_values(_x: Scalar) -> [Scalar; 8] {
     panic!()
 }
 

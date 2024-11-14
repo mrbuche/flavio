@@ -110,6 +110,8 @@ fn get_velocities_block() -> NodalVelocities<D> {
     ])
 }
 
+const TEST_SOLVE: bool = true;
+
 fn get_dirichlet_places<'a>() -> [&'a [usize]; 10] {
     [
         &[0, 0],

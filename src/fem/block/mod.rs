@@ -114,6 +114,7 @@ pub trait ElasticFiniteElementBlock<
         values_d: Option<&[Scalar]>,
         places_n: Option<&[&[usize]]>,
         values_n: Option<&[Scalar]>,
+        optimization: GradientDescent,
     ) -> Result<NodalCoordinates<D>, OptimizeError>;
 }
 
@@ -368,12 +369,9 @@ where
         values_d: Option<&[Scalar]>,
         _places_n: Option<&[&[usize]]>,
         _values_n: Option<&[Scalar]>,
+        optimization: GradientDescent,
     ) -> Result<NodalCoordinates<D>, OptimizeError> {
-        GradientDescent {
-            max_steps: 1000,
-            ..Default::default()
-        }
-        .minimize(
+        optimization.minimize(
             |nodal_coordinates: &NodalCoordinates<D>| {
                 Ok(self.calculate_nodal_forces(nodal_coordinates)?)
             },

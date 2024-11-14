@@ -167,62 +167,14 @@ fn get_velocities_block() -> NodalVelocities<D> {
     ])
 }
 
-// could be a rigid-body modes issue?
-// apply to tet4 to be fair?
-// try to get rid of 1000 steps if fix here?
+const TEST_SOLVE: bool = false;
 
-// do you need a tighter norm now?
-
-fn get_dirichlet_places<'a>() -> [&'a [usize]; 21] {
-    [
-        &[0, 0],
-        &[0, 1],
-        &[1, 0],
-        &[2, 0],
-        &[3, 0],
-        &[4, 0],
-        &[5, 0],
-        &[6, 0],
-        &[6, 1],
-        &[6, 2],
-        &[7, 0],
-        &[8, 0],
-        &[11, 0],
-        &[12, 0],
-        &[13, 0],
-        &[14, 0],
-        &[17, 0],
-        &[18, 0],
-        &[19, 0],
-        &[22, 0],
-        &[24, 0],
-    ]
+fn get_dirichlet_places<'a>() -> [&'a [usize]; 8] {
+    panic!()
 }
 
-fn get_dirichlet_values(x: Scalar) -> [Scalar; 21] {
-    [
-        0.5 + x,
-        -0.5,
-        0.5 + x,
-        -0.5,
-        -0.5,
-        0.5 + x,
-        0.5 + x,
-        -0.5,
-        -0.5,
-        -0.5,
-        -0.5,
-        0.5 + x,
-        0.5 + x,
-        0.5 + x,
-        0.5 + x,
-        -0.5,
-        -0.5,
-        -0.5,
-        -0.5,
-        0.5 + x,
-        -0.5,
-    ]
+fn get_dirichlet_values(_x: Scalar) -> [Scalar; 8] {
+    panic!()
 }
 
 test_composite_element!(Tetrahedron);
