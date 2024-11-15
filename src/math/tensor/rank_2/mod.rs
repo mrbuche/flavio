@@ -1072,19 +1072,21 @@ impl<
 }
 
 #[allow(clippy::suspicious_arithmetic_impl)]
-impl<const I: usize, const J: usize, const K: usize, const L: usize> Div<TensorRank4<3, I, J, K, L>>
-    for TensorRank2<3, I, J>
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> Div<TensorRank4<D, I, J, K, L>>
+    for TensorRank2<D, I, J>
+where
+    [(); D * D]:,
 {
-    type Output = TensorRank2<3, K, L>;
-    fn div(self, tensor_rank_4: TensorRank4<3, I, J, K, L>) -> Self::Output {
-        let mut tensor_rank_1 = TensorRank1::<9, 88>::zero();
+    type Output = TensorRank2<D, K, L>;
+    fn div(self, tensor_rank_4: TensorRank4<D, I, J, K, L>) -> Self::Output {
+        let mut tensor_rank_1 = TensorRank1::<{D * D}, 88>::zero();
         self.iter().enumerate().for_each(|(i, self_i)| {
             self_i
                 .iter()
                 .enumerate()
-                .for_each(|(j, self_ij)| tensor_rank_1[3 * i + j] = *self_ij)
+                .for_each(|(j, self_ij)| tensor_rank_1[D * i + j] = *self_ij)
         });
-        let mut tensor_rank_2 = TensorRank2::<9, 88, 99>::zero();
+        let mut tensor_rank_2 = TensorRank2::<{D * D}, 88, 99>::zero();
         tensor_rank_4
             .iter()
             .enumerate()
@@ -1099,7 +1101,7 @@ impl<const I: usize, const J: usize, const K: usize, const L: usize> Div<TensorR
                             .for_each(|(k, tensor_rank_4_ijk)| {
                                 tensor_rank_4_ijk.iter().enumerate().for_each(
                                     |(l, tensor_rank_4_ijkl)| {
-                                        tensor_rank_2[3 * i + j][3 * k + l] = *tensor_rank_4_ijkl
+                                        tensor_rank_2[D * i + j][D * k + l] = *tensor_rank_4_ijkl
                                     },
                                 )
                             })
@@ -1111,7 +1113,7 @@ impl<const I: usize, const J: usize, const K: usize, const L: usize> Div<TensorR
             output_i
                 .iter_mut()
                 .enumerate()
-                .for_each(|(j, output_ij)| *output_ij = output_tensor_rank_1[3 * i + j])
+                .for_each(|(j, output_ij)| *output_ij = output_tensor_rank_1[D * i + j])
         });
         output
     }
