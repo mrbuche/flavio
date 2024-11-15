@@ -1,4 +1,5 @@
 #![doc = include_str!("../README.md")]
+#![feature(generic_const_exprs)]
 
 #[cfg(feature = "constitutive")]
 pub mod constitutive;
