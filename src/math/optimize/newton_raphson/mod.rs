@@ -64,6 +64,11 @@ where
             // (4) enable using the code without re-compiling (Block params D, E, ...; Yeoh)
             // (5) avoid stack overflow since you managed to get literally everything on the stack,
             // (6) Julia API can finally use fem
+            //
+            // leave this branch, make a new one off main
+            // make some benchmarks! merge em in
+            // make new --Vec types for anything that you couldn't use with like Julia
+            // benchmark again! make sure nothing is lost!
 
         }
         for step in 0..max_steps {
