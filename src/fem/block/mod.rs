@@ -9,7 +9,7 @@ use self::element::{
     ViscoelasticFiniteElement,
 };
 use super::*;
-use crate::math::optimize::{Dirichlet, FirstOrder, GradientDescent, OptimizeError};
+use crate::math::optimize::{Dirichlet, FirstOrder, Optimization, OptimizeError, SecondOrder};
 use std::array::from_fn;
 
 pub struct ElasticBlock<const D: usize, const E: usize, F, const G: usize, const N: usize> {
@@ -114,8 +114,8 @@ pub trait ElasticFiniteElementBlock<
         values_d: Option<&[Scalar]>,
         places_n: Option<&[&[usize]]>,
         values_n: Option<&[Scalar]>,
-        optimization: GradientDescent,
-    ) -> Result<NodalCoordinates<D>, OptimizeError>;
+        optimization: Optimization,
+    ) -> Result<NodalCoordinates<D>, OptimizeError> where [(); 3 * D]:;
 }
 
 pub trait HyperelasticFiniteElementBlock<
@@ -369,19 +369,39 @@ where
         values_d: Option<&[Scalar]>,
         _places_n: Option<&[&[usize]]>,
         _values_n: Option<&[Scalar]>,
-        optimization: GradientDescent,
-    ) -> Result<NodalCoordinates<D>, OptimizeError> {
-        optimization.minimize(
-            |nodal_coordinates: &NodalCoordinates<D>| {
-                Ok(self.calculate_nodal_forces(nodal_coordinates)?)
-            },
-            initial_coordinates,
-            Some(Dirichlet {
-                places: places_d.unwrap(),
-                values: values_d.unwrap(),
-            }),
-            None,
-        )
+        optimization: Optimization,
+    ) -> Result<NodalCoordinates<D>, OptimizeError> where [(); 3 * D]: {
+        match optimization {
+            Optimization::GradientDescent(gradient_descent) => {
+                gradient_descent.minimize(
+                    |nodal_coordinates: &NodalCoordinates<D>| {
+                        Ok(self.calculate_nodal_forces(nodal_coordinates)?)
+                    },
+                    initial_coordinates,
+                    Some(Dirichlet {
+                        places: places_d.unwrap(),
+                        values: values_d.unwrap(),
+                    }),
+                    None,
+                )
+            }
+            Optimization::NewtonRaphson(newton_raphson) => {
+                newton_raphson.minimize(
+                    |nodal_coordinates: &NodalCoordinates<D>| {
+                        Ok(self.calculate_nodal_forces(nodal_coordinates)?)
+                    },
+                    |nodal_coordinates: &NodalCoordinates<D>| {
+                        Ok(self.calculate_nodal_stiffnesses(nodal_coordinates)?)
+                    },
+                    initial_coordinates,
+                    Some(Dirichlet {
+                        places: places_d.unwrap(),
+                        values: values_d.unwrap(),
+                    }),
+                    None,
+                )
+            }
+        }
     }
 }
 

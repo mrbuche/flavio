@@ -35,13 +35,15 @@ pub enum ConstitutiveError {
 }
 
 impl From<ConstitutiveError> for OptimizeError {
-    fn from(_error: ConstitutiveError) -> OptimizeError {
+    fn from(error: ConstitutiveError) -> OptimizeError {
+        println!("{}", error);
         todo!()
     }
 }
 
 impl From<OptimizeError> for ConstitutiveError {
-    fn from(_error: OptimizeError) -> ConstitutiveError {
+    fn from(error: OptimizeError) -> ConstitutiveError {
+        println!("{}", error);
         todo!()
     }
 }

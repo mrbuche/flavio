@@ -654,9 +654,12 @@ macro_rules! test_finite_element_block_with_hyperelastic_constitutive_model {
             $constitutive_model,
             $constitutive_model_parameters
         );
-        use crate::constitutive::solid::hyperelastic::AppliedLoad;
+        use crate::{
+            constitutive::solid::hyperelastic::AppliedLoad,
+            math::optimize::{GradientDescent, NewtonRaphson, Optimization}
+        };
         #[test]
-        fn solve() -> Result<(), TestError> {
+        fn solve_gradient_descent() -> Result<(), TestError> {
             if TEST_SOLVE {
                 let dx = 0.23;
                 let block = get_block();
@@ -666,9 +669,47 @@ macro_rules! test_finite_element_block_with_hyperelastic_constitutive_model {
                     Some(&get_dirichlet_values(dx)),
                     None,
                     None,
-                    GradientDescent {
-                        ..Default::default()
-                    },
+                    Optimization::GradientDescent(
+                        GradientDescent {
+                            ..Default::default()
+                        }
+                    )
+                )?;
+                let (deformation_gradient, _) =
+                    $constitutive_model::new($constitutive_model_parameters)
+                        .solve(AppliedLoad::UniaxialStress(1.0 + dx))?;
+                block
+                    .calculate_deformation_gradients(&solution)
+                    .iter()
+                    .try_for_each(|deformation_gradients| {
+                        deformation_gradients
+                            .iter()
+                            .try_for_each(|deformation_gradient_g| {
+                                assert_eq_within_tols(deformation_gradient_g, &deformation_gradient)
+                            })
+                    })
+            } else {
+                Ok(())
+            }
+        }
+        #[test]
+        fn solve_newton_raphson() -> Result<(), TestError> {
+            if TEST_SOLVE {
+                let dx = 0.23;
+                let dx = 0.01;
+                let block = get_block();
+                let solution = block.solve(
+                    get_reference_coordinates_block().convert(),
+                    Some(&get_dirichlet_places()),
+                    Some(&get_dirichlet_values(dx)),
+                    None,
+                    None,
+                    Optimization::NewtonRaphson(
+                        NewtonRaphson {
+                            check_minimum: false,
+                            ..Default::default()
+                        }
+                    )
                 )?;
                 let (deformation_gradient, _) =
                     $constitutive_model::new($constitutive_model_parameters)

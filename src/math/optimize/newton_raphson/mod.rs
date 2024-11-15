@@ -50,7 +50,7 @@ where
                 .for_each(|(place, value)| *solution.get_at_mut(place) = *value)
         }
         let mut tangent;
-        for _ in 0..self.max_steps {
+        for step in 0..self.max_steps {
             residual = jacobian(&solution)?;
             if let Some(ref bc) = neumann {
                 bc.places
@@ -64,6 +64,16 @@ where
                     .for_each(|place| *residual.get_at_mut(place) = 0.0)
             }
             tangent = hessian(&solution)?;
+
+            // how to get rid of the rigid body modes causing low-ass eigenvalues?
+            // you might have to remove rows/colums of the Dirichlet BCs
+            // but then you no longer know the size unless BC slices become sized
+            // and you will further need the generic_const_exprs to subtract
+            println!("{:?}", (step, residual.norm()));
+            println!("{}", residual);
+            // println!("{}", tangent);
+            println!("{}", residual.copy() / tangent.copy());
+
             if residual.norm() < self.abs_tol {
                 if self.check_minimum && !tangent.is_positive_definite() {
                     return Err(OptimizeError::NotMinimum(

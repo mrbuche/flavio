@@ -467,6 +467,10 @@ where
                     },
                 )
             });
+
+        println!("\n{}\n", tensor_rank_2.determinant());
+        println!("\n{}\n", tensor_rank_2);
+
         let output_tensor_rank_1 = tensor_rank_2.inverse() * tensor_rank_1;
         let mut output = TensorRank1List::zero();
         output.iter_mut().enumerate().for_each(|(b, output_b)| {
