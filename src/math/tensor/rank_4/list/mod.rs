@@ -46,6 +46,7 @@ impl<
     > Tensor for TensorRank4List<D, I, J, K, L, W>
 {
     type Array = [[[[[TensorRank0; D]; D]; D]; D]; W];
+    type Elim<const E: usize> = TensorRank4List::<E, I, J, K, L, W>;
     type Item = TensorRank4<D, I, J, K, L>;
     fn as_array(&self) -> Self::Array {
         let mut array = [[[[[0.0; D]; D]; D]; D]; W];

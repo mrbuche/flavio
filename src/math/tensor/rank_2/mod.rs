@@ -551,6 +551,7 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2<D, I, J> {
 
 impl<const D: usize, const I: usize, const J: usize> Tensor for TensorRank2<D, I, J> {
     type Array = [[TensorRank0; D]; D];
+    type Elim<const E: usize> = TensorRank2::<E, I, J>;
     type Item = TensorRank1<D, J>;
     fn as_array(&self) -> Self::Array {
         let mut array = [[0.0; D]; D];
@@ -562,6 +563,24 @@ impl<const D: usize, const I: usize, const J: usize> Tensor for TensorRank2<D, I
     }
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
+    }
+    fn eliminate<const E: usize>(&self, indices: &[usize]) -> Self::Elim<E> {
+        let mut index_1 = 0;
+        let mut index_2 = 0;
+        let mut output = Self::Elim::zero();
+        self.iter().enumerate().for_each(|(i, self_i)| {
+            if !indices.contains(&i) {
+                self_i.iter().enumerate().for_each(|(j, self_ij)|
+                    if !indices.contains(&j) {
+                        output[index_1][index_2] = *self_ij;
+                        index_2 += 1;
+                    }
+                );
+                index_1 += 1;
+                index_2 = 0;
+            }
+        });
+        output
     }
     fn full_contraction(&self, tensor_rank_2: &Self) -> TensorRank0 {
         self.iter()

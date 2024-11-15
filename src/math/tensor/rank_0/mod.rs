@@ -36,6 +36,7 @@ impl TensorError for TensorRank0 {
 
 impl Tensor for TensorRank0 {
     type Array = [Self; 1];
+    type Elim<const E: usize> = TensorRank0;
     type Item = TensorRank0;
     fn as_array(&self) -> Self::Array {
         [self.copy()]

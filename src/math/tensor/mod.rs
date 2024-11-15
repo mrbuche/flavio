@@ -40,6 +40,7 @@ where
     Self::Item: Tensor,
 {
     type Array;
+    type Elim<const E: usize>: Tensor;
     type Item;
     /// Returns the tensor as an array.
     fn as_array(&self) -> Self::Array;
@@ -47,6 +48,10 @@ where
     ///
     /// This method was implemented instead of the Copy trait to avoid unintended copy creations.
     fn copy(&self) -> Self;
+    /// Returns the tensor resized from eliminating the given indices.
+    fn eliminate<const E: usize>(&self, _indices: &[usize]) -> Self::Elim<E> {
+        panic!("Need to implement eliminate() for {:?}.", self)
+    }
     /// Returns the full contraction with another tensor.
     fn full_contraction(&self, tensor: &Self) -> TensorRank0;
     /// Returns a reference to the entry at the specified indices.

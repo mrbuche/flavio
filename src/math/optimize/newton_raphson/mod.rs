@@ -44,15 +44,31 @@ where
         let max_steps = self.max_steps * initial_guess.iter().count();
         let mut residual;
         let mut solution = initial_guess;
+        let mut tangent;
         if let Some(ref bc) = dirichlet {
             bc.places
                 .iter()
                 .zip(bc.values.iter())
-                .for_each(|(place, value)| *solution.get_at_mut(place) = *value)
+                .for_each(|(place, value)| *solution.get_at_mut(place) = *value);
+            
+            // need to translate [a][i] indices to [3*a + i] indices
+            // but that is specialized!
+            // this is getting out of hand?
+            let test = solution.copy().eliminate(bc.places);
+            // maybe it's finally time for Vec...
+            // make a separate set of Tensors as like TensorRank2Vec and TensorRank2Vec2D etc.
+            // ALWAYS USE LISTS WHEN POSSIBLE, and size used Vecs whenver possible, but can:
+            // (1) get back off nightly
+            // (2) do these eliminate-type-things without this giant mess
+            // (3) reduce overall templating, maybe compile times,
+            // (4) enable using the code without re-compiling (Block params D, E, ...; Yeoh)
+            // (5) avoid stack overflow since you managed to get literally everything on the stack,
+            // (6) Julia API can finally use fem
+
         }
-        let mut tangent;
         for step in 0..max_steps {
             residual = jacobian(&solution)?;
+            tangent = hessian(&solution)?;
             if let Some(ref bc) = neumann {
                 bc.places
                     .iter()
@@ -64,13 +80,9 @@ where
                     .iter()
                     .for_each(|place| *residual.get_at_mut(place) = 0.0)
             }
-            tangent = hessian(&solution)?;
-            // move this up
-            // and if dirichlet, remove corresponding rows/columns
-            // collect into tangent allocated at start
-            // handle residual similarly
-            //
-            // wont you need to pass in the size of X?
+            // need to pass in the types for reduced (J, H) as an Option
+            // then how are you going to fill them? by skipping Dirichlet places?
+            // or make a math method: fn eliminate(residual<D>, places<U>) -> residual<D - U>
 
             // how to get rid of the rigid body modes causing low-ass eigenvalues?
             // you might have to remove rows/colums of the Dirichlet BCs

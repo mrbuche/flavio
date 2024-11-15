@@ -176,6 +176,7 @@ impl<
     > Tensor for TensorRank3List3D<D, I, J, K, W, X, Y>
 {
     type Array = [[[MakeClippyHappy<D>; W]; X]; Y];
+    type Elim<const E: usize> = TensorRank3List3D<E, I, J, K, W, X, Y>;
     type Item = TensorRank3List2D<D, I, J, K, W, X>;
     fn as_array(&self) -> Self::Array {
         let mut array = [[[[[[0.0; D]; D]; D]; W]; X]; Y];

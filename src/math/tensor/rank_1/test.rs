@@ -154,6 +154,15 @@ fn div_assign_tensor_rank_0_ref() -> Result<(), TestError> {
 }
 
 #[test]
+fn eliminate() -> Result<(), TestError> {
+    let tensor_rank_1 = get_tensor_rank_1_a();
+    assert_eq(
+        &tensor_rank_1.eliminate(&[2, 1]),
+        &TensorRank1::new([tensor_rank_1[0], tensor_rank_1[3]])
+    )
+}
+
+#[test]
 fn error() {
     let b = get_tensor_rank_1_b();
     let c = get_tensor_rank_1_c();

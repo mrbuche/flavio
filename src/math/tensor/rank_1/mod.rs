@@ -93,12 +93,24 @@ impl<const D: usize, const I: usize> TensorError for TensorRank1<D, I> {
 
 impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
     type Array = [TensorRank0; D];
+    type Elim<const E: usize> = TensorRank1::<E, I>;
     type Item = TensorRank0;
     fn as_array(&self) -> Self::Array {
         self.0
     }
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
+    }
+    fn eliminate<const E: usize>(&self, indices: &[usize]) -> Self::Elim<E> {
+        let mut index = 0;
+        let mut output = Self::Elim::zero();
+        self.iter().enumerate().for_each(|(i, self_i)|
+            if !indices.contains(&i) {
+                output[index] = *self_i;
+                index += 1;
+            }
+        );
+        output
     }
     fn full_contraction(&self, tensor_rank_1: &Self) -> TensorRank0 {
         self * tensor_rank_1

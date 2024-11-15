@@ -33,6 +33,7 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: us
     for TensorRank3List<D, I, J, K, W>
 {
     type Array = [[[[TensorRank0; D]; D]; D]; W];
+    type Elim<const E: usize> = TensorRank3List<E, I, J, K, W>;
     type Item = TensorRank3<D, I, J, K>;
     fn as_array(&self) -> Self::Array {
         let mut array = [[[[0.0; D]; D]; D]; W];

@@ -147,6 +147,7 @@ impl<
     > Tensor for TensorRank3List2D<D, I, J, K, W, X>
 {
     type Array = [[[[[TensorRank0; D]; D]; D]; W]; X];
+    type Elim<const E: usize> = TensorRank3List2D<E, I, J, K, W, X>;
     type Item = TensorRank3List<D, I, J, K, W>;
     fn as_array(&self) -> Self::Array {
         let mut array = [[[[[0.0; D]; D]; D]; W]; X];

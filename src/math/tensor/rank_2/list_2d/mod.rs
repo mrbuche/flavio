@@ -144,6 +144,7 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: us
     for TensorRank2List2D<D, I, J, W, X>
 {
     type Array = [[[[TensorRank0; D]; D]; W]; X];
+    type Elim<const E: usize> = TensorRank2List2D<E, I, J, W, X>;
     type Item = TensorRank2List<D, I, J, W>;
     fn as_array(&self) -> Self::Array {
         let mut array = [[[[0.0; D]; D]; W]; X];

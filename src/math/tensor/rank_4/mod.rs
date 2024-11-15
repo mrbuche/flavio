@@ -195,6 +195,7 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
     for TensorRank4<D, I, J, K, L>
 {
     type Array = [[[[TensorRank0; D]; D]; D]; D];
+    type Elim<const E: usize> = TensorRank4<E, I, J, K, L>;
     type Item = TensorRank3<D, J, K, L>;
     fn as_array(&self) -> Self::Array {
         let mut array = [[[[0.0; D]; D]; D]; D];

@@ -635,6 +635,18 @@ fn dyad() {
 }
 
 #[test]
+fn eliminate() -> Result<(), TestError> {
+    let tensor_rank_2 = get_tensor_rank_2_dim_4();
+    assert_eq(
+        &tensor_rank_2.eliminate(&[2, 1]),
+        &TensorRank2::new([
+            [tensor_rank_2[0][0], tensor_rank_2[0][3]],
+            [tensor_rank_2[3][0], tensor_rank_2[3][3]],
+        ])
+    )
+}
+
+#[test]
 fn error() {
     let a = get_tensor_rank_1_a();
     let b = get_tensor_rank_1_b();
