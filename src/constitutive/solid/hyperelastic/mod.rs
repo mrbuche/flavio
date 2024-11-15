@@ -59,16 +59,6 @@ where
         &self,
         deformation_gradient: &DeformationGradient,
     ) -> Result<Scalar, ConstitutiveError>;
-    // /// ???
-    // fn calibrate(&mut self, _parameters: &[Option<Scalar>]) {
-    //     //
-    //     // None => calibrate it,
-    //     // Some(val) => leave it fixed at val
-    //     //
-    //     // alter parameters of self as you calibrate
-    //     //
-    //     todo!()
-    // }
     /// Solve for the unknown components of the Cauchy stress and deformation gradient under an applied load.
     fn solve(
         &self,
