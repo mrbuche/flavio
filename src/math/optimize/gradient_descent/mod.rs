@@ -12,25 +12,25 @@ use crate::ABS_TOL;
 pub struct GradientDescent {
     /// Absolute error tolerance.
     pub abs_tol: TensorRank0,
-    /// Maximum number of steps.
+    /// Maximum steps per degree of freedom.
     pub max_steps: usize,
 }
 
 impl Default for GradientDescent {
     fn default() -> Self {
         Self {
-            abs_tol: ABS_TOL,
+            abs_tol: 1e-1 * ABS_TOL,
             max_steps: 100,
         }
     }
 }
 
 impl<X: Tensor> FirstOrder<X> for GradientDescent {
-    fn minimize(
+    fn minimize<const U: usize>(
         &self,
         jacobian: impl Fn(&X) -> Result<X, OptimizeError>,
         initial_guess: X,
-        dirichlet: Option<Dirichlet>,
+        dirichlet: Option<Dirichlet<U>>,
         neumann: Option<Neumann>,
     ) -> Result<X, OptimizeError> {
         //
@@ -40,6 +40,7 @@ impl<X: Tensor> FirstOrder<X> for GradientDescent {
         // Those methods might also be abstracted to be used in multiple places, like if you make a nonlinear conjugate gradient solver.
         // And then within the NLCG, different formulas for beta?
         //
+        let max_steps = self.max_steps * initial_guess.iter().count();
         let mut residual;
         let mut residual_change = X::zero();
         let mut solution = initial_guess;
@@ -52,7 +53,7 @@ impl<X: Tensor> FirstOrder<X> for GradientDescent {
                 .zip(bc.values.iter())
                 .for_each(|(place, value)| *solution.get_at_mut(place) = *value)
         }
-        for _ in 0..self.max_steps {
+        for _ in 0..max_steps {
             residual = jacobian(&solution)?;
             if let Some(ref bc) = neumann {
                 bc.places
@@ -83,7 +84,7 @@ impl<X: Tensor> FirstOrder<X> for GradientDescent {
             }
         }
         Err(OptimizeError::MaximumStepsReached(
-            self.max_steps,
+            max_steps,
             format!("{:?}", &self),
         ))
     }

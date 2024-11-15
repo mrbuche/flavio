@@ -107,17 +107,18 @@ pub trait ElasticFiniteElementBlock<
         &self,
         nodal_coordinates: &NodalCoordinates<D>,
     ) -> Result<NodalStiffnesses<D>, ConstitutiveError>;
-    fn solve(
+    fn solve<const U: usize>(
         &self,
         initial_coordinates: NodalCoordinates<D>,
-        places_d: Option<&[&[usize]]>,
-        values_d: Option<&[Scalar]>,
+        places_d: Option<&[&[usize]; U]>,
+        values_d: Option<&Scalars<U>>,
         places_n: Option<&[&[usize]]>,
         values_n: Option<&[Scalar]>,
         optimization: Optimization,
     ) -> Result<NodalCoordinates<D>, OptimizeError>
     where
-        [(); 3 * D]:;
+        [(); 3 * D]:,
+        [(); D - U]:;
 }
 
 pub trait HyperelasticFiniteElementBlock<
@@ -364,20 +365,21 @@ where
             })?;
         Ok(nodal_stiffnesses)
     }
-    fn solve(
+    fn solve<const U: usize>(
         &self,
         initial_coordinates: NodalCoordinates<D>,
-        places_d: Option<&[&[usize]]>,
-        values_d: Option<&[Scalar]>,
+        places_d: Option<&[&[usize]; U]>,
+        values_d: Option<&Scalars<U>>,
         _places_n: Option<&[&[usize]]>,
         _values_n: Option<&[Scalar]>,
         optimization: Optimization,
     ) -> Result<NodalCoordinates<D>, OptimizeError>
     where
         [(); 3 * D]:,
+        [(); D - U]:,
     {
         match optimization {
-            Optimization::GradientDescent(gradient_descent) => gradient_descent.minimize(
+            Optimization::GradientDescent(gradient_descent) => gradient_descent.minimize::<U>(
                 |nodal_coordinates: &NodalCoordinates<D>| {
                     Ok(self.calculate_nodal_forces(nodal_coordinates)?)
                 },
@@ -388,7 +390,7 @@ where
                 }),
                 None,
             ),
-            Optimization::NewtonRaphson(newton_raphson) => newton_raphson.minimize(
+            Optimization::NewtonRaphson(newton_raphson) => newton_raphson.minimize::<D, U>(
                 |nodal_coordinates: &NodalCoordinates<D>| {
                     Ok(self.calculate_nodal_forces(nodal_coordinates)?)
                 },

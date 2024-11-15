@@ -15,14 +15,14 @@ pub struct NewtonRaphson {
     pub abs_tol: TensorRank0,
     /// Whether to check if solution is minimum.
     pub check_minimum: bool,
-    /// Maximum number of steps.
+    /// Maximum steps per degree of freedom.
     pub max_steps: usize,
 }
 
 impl Default for NewtonRaphson {
     fn default() -> Self {
         Self {
-            abs_tol: ABS_TOL,
+            abs_tol: 1e-1 * ABS_TOL,
             check_minimum: true,
             max_steps: 100,
         }
@@ -33,14 +33,15 @@ impl<H: Tensor, J: Tensor, X: Tensor> SecondOrder<H, J, X> for NewtonRaphson
 where
     J: Div<H, Output = X>,
 {
-    fn minimize(
+    fn minimize<const D: usize, const U: usize>(
         &self,
         jacobian: impl Fn(&X) -> Result<J, OptimizeError>,
         hessian: impl Fn(&X) -> Result<H, OptimizeError>,
         initial_guess: X,
-        dirichlet: Option<Dirichlet>,
+        dirichlet: Option<Dirichlet<U>>,
         neumann: Option<Neumann>,
-    ) -> Result<X, OptimizeError> {
+    ) -> Result<X, OptimizeError> where [(); D - U]: {
+        let max_steps = self.max_steps * initial_guess.iter().count();
         let mut residual;
         let mut solution = initial_guess;
         if let Some(ref bc) = dirichlet {
@@ -50,7 +51,7 @@ where
                 .for_each(|(place, value)| *solution.get_at_mut(place) = *value)
         }
         let mut tangent;
-        for step in 0..self.max_steps {
+        for step in 0..max_steps {
             residual = jacobian(&solution)?;
             if let Some(ref bc) = neumann {
                 bc.places
@@ -64,15 +65,23 @@ where
                     .for_each(|place| *residual.get_at_mut(place) = 0.0)
             }
             tangent = hessian(&solution)?;
+            // move this up
+            // and if dirichlet, remove corresponding rows/columns
+            // collect into tangent allocated at start
+            // handle residual similarly
+            //
+            // wont you need to pass in the size of X?
 
             // how to get rid of the rigid body modes causing low-ass eigenvalues?
             // you might have to remove rows/colums of the Dirichlet BCs
             // but then you no longer know the size unless BC slices become sized
             // and you will further need the generic_const_exprs to subtract
-            println!("{:?}", (step, residual.norm()));
-            println!("{}", residual);
-            // println!("{}", tangent);
-            println!("{}", residual.copy() / tangent.copy());
+            // at least you only need it for Dirichlet
+
+            // println!("{:?}", (step, residual.norm()));
+            // println!("{}", residual);
+            // // println!("{}", tangent);
+            // println!("{}", residual.copy() / tangent.copy());
 
             if residual.norm() < self.abs_tol {
                 if self.check_minimum && !tangent.is_positive_definite() {
@@ -88,7 +97,7 @@ where
             }
         }
         Err(OptimizeError::MaximumStepsReached(
-            self.max_steps,
+            max_steps,
             format!("{:?}", &self),
         ))
     }

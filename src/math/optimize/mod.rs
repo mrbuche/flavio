@@ -4,7 +4,7 @@ mod test;
 mod gradient_descent;
 mod newton_raphson;
 
-use super::{Tensor, TensorRank0};
+use super::{Tensor, TensorRank0, TensorRank0List};
 use crate::get_defeat_message;
 use std::{fmt, ops::Div};
 
@@ -12,9 +12,9 @@ pub use gradient_descent::GradientDescent;
 pub use newton_raphson::NewtonRaphson;
 
 /// Dirichlet boundary conditions.
-pub struct Dirichlet<'a> {
-    pub places: &'a [&'a [usize]],
-    pub values: &'a [TensorRank0],
+pub struct Dirichlet<'a, const U: usize> {
+    pub places: &'a [&'a [usize]; U],
+    pub values: &'a TensorRank0List<U>,
 }
 
 /// Neumann boundary conditions.
@@ -25,11 +25,11 @@ pub struct Neumann<'a> {
 
 /// First-order optimization algorithms.
 pub trait FirstOrder<X: Tensor> {
-    fn minimize(
+    fn minimize<const U: usize>(
         &self,
         jacobian: impl Fn(&X) -> Result<X, OptimizeError>,
         initial_guess: X,
-        dirichlet: Option<Dirichlet>,
+        dirichlet: Option<Dirichlet<U>>,
         neumann: Option<Neumann>,
     ) -> Result<X, OptimizeError>;
 }
@@ -39,14 +39,14 @@ pub trait SecondOrder<H: Tensor, J: Tensor, X: Tensor>
 where
     J: Div<H, Output = X>,
 {
-    fn minimize(
+    fn minimize<const D: usize, const U: usize>(
         &self,
         jacobian: impl Fn(&X) -> Result<J, OptimizeError>,
         hessian: impl Fn(&X) -> Result<H, OptimizeError>,
         initial_guess: X,
-        dirichlet: Option<Dirichlet>,
+        dirichlet: Option<Dirichlet<U>>,
         neumann: Option<Neumann>,
-    ) -> Result<X, OptimizeError>;
+    ) -> Result<X, OptimizeError> where [(); D - U]:;
 }
 
 /// Possible optimization algorithms.

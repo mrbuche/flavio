@@ -112,7 +112,7 @@ fn get_velocities_block() -> NodalVelocities<D> {
 
 const TEST_SOLVE: bool = true;
 
-fn get_dirichlet_places<'a>() -> [&'a [usize]; 10] {
+fn get_dirichlet_places<'a>() -> [&'a [usize]; 13] {
     [
         &[0, 0],
         &[1, 0],
@@ -120,26 +120,26 @@ fn get_dirichlet_places<'a>() -> [&'a [usize]; 10] {
         &[3, 0],
         &[4, 0],
         &[5, 0],
-        &[6, 0],
-        &[7, 0],
+        &[6, 0], &[6, 1], &[6, 2],
+        &[7, 0], &[7, 2],
         &[11, 0],
         &[13, 0],
     ]
 }
 
-fn get_dirichlet_values(x: Scalar) -> [Scalar; 10] {
-    [
+fn get_dirichlet_values(x: Scalar) -> crate::mechanics::Scalars<13> {
+    Scalars::new([
         0.5 + x,
         0.5 + x,
         -0.5,
         -0.5,
         0.5 + x,
         0.5 + x,
-        -0.5,
-        -0.5,
+        -0.5, -0.5, -0.5,
+        -0.5, -0.5,
         -0.5,
         0.5 + x,
-    ]
+    ])
 }
 
 test_linear_element!(Tetrahedron);

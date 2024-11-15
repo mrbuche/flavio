@@ -108,7 +108,7 @@ fn get_dirichlet_places<'a>() -> [&'a [usize]; 8] {
     panic!()
 }
 
-fn get_dirichlet_values(_x: Scalar) -> [Scalar; 8] {
+fn get_dirichlet_values(_x: Scalar) -> crate::mechanics::Scalars<8> {
     panic!()
 }
 

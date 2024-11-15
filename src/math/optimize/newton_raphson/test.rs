@@ -8,7 +8,7 @@ fn linear() {
         NewtonRaphson {
             ..Default::default()
         }
-        .minimize(
+        .minimize::<1, 0>(
             |x: &TensorRank0| Ok(*x),
             |_: &TensorRank0| Ok(1.0),
             1.0,
@@ -27,7 +27,7 @@ fn quadratic() {
         NewtonRaphson {
             ..Default::default()
         }
-        .minimize(
+        .minimize::<1, 0>(
             |x: &TensorRank0| Ok(x.powi(2) / 2.0),
             |x: &TensorRank0| Ok(*x),
             1.0,
@@ -46,7 +46,7 @@ fn sin() {
         NewtonRaphson {
             ..Default::default()
         }
-        .minimize(
+        .minimize::<1, 0>(
             |x: &TensorRank0| Ok(x.sin()),
             |x: &TensorRank0| Ok(x.cos()),
             1.0,
@@ -65,7 +65,7 @@ fn sin_max() {
     NewtonRaphson {
         ..Default::default()
     }
-    .minimize(
+    .minimize::<1, 0>(
         |x: &TensorRank0| Ok(x.sin()),
         |x: &TensorRank0| Ok(x.cos()),
         3.0,
