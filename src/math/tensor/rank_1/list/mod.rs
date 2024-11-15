@@ -10,7 +10,7 @@ use std::{
     ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
 };
 
-use crate::math::{Tensor, TensorRank2};
+use crate::math::{Tensor, TensorRank2, TensorRank2List2D};
 
 use super::{
     super::{super::write_tensor_rank_0, Convert},
@@ -41,6 +41,18 @@ impl<const D: usize, const I: usize, const W: usize> Display for TensorRank1List
             Ok(())
         })?;
         write!(f, "\x1B[2D]]")
+    }
+}
+
+impl<const D: usize, const I: usize, const W: usize> PartialEq for TensorRank1List<D, I, W> {
+    fn eq(&self, other: &Self) -> bool {
+        let mut result = true;
+        self.iter().zip(other.iter()).for_each(|(self_i, other_i)| {
+            if self_i != other_i {
+                result = false
+            }
+        });
+        result
     }
 }
 
@@ -417,5 +429,52 @@ impl<const D: usize, const I: usize, const W: usize> SubAssign<&Self> for Tensor
         self.iter_mut()
             .zip(tensor_rank_1_list.iter())
             .for_each(|(self_entry, tensor_rank_1)| *self_entry -= tensor_rank_1);
+    }
+}
+
+#[allow(clippy::suspicious_arithmetic_impl)]
+impl<const D: usize, const I: usize, const J: usize, const W: usize>
+    Div<TensorRank2List2D<D, I, J, W, W>> for TensorRank1List<D, I, W>
+where
+    [(); D * W]:,
+{
+    type Output = TensorRank1List<D, J, W>;
+    fn div(self, tensor_rank_2_list_2d: TensorRank2List2D<D, I, J, W, W>) -> Self::Output {
+        let mut tensor_rank_1 = TensorRank1::<{ D * W }, 88>::zero();
+        self.iter().enumerate().for_each(|(a, self_a)| {
+            self_a
+                .iter()
+                .enumerate()
+                .for_each(|(i, self_a_i)| tensor_rank_1[D * a + i] = *self_a_i)
+        });
+        let mut tensor_rank_2 = TensorRank2::<{ D * W }, 88, 99>::zero();
+        tensor_rank_2_list_2d
+            .iter()
+            .enumerate()
+            .for_each(|(a, tensor_rank_2_list_2d_a)| {
+                tensor_rank_2_list_2d_a.iter().enumerate().for_each(
+                    |(b, tensor_rank_2_list_2d_ab)| {
+                        tensor_rank_2_list_2d_ab.iter().enumerate().for_each(
+                            |(i, tensor_rank_2_list_2d_ab_i)| {
+                                tensor_rank_2_list_2d_ab_i.iter().enumerate().for_each(
+                                    |(j, tensor_rank_2_list_2d_ab_ij)| {
+                                        tensor_rank_2[D * a + i][D * b + j] =
+                                            *tensor_rank_2_list_2d_ab_ij
+                                    },
+                                )
+                            },
+                        )
+                    },
+                )
+            });
+        let output_tensor_rank_1 = tensor_rank_2.inverse() * tensor_rank_1;
+        let mut output = TensorRank1List::zero();
+        output.iter_mut().enumerate().for_each(|(b, output_b)| {
+            output_b
+                .iter_mut()
+                .enumerate()
+                .for_each(|(j, output_b_j)| *output_b_j = output_tensor_rank_1[D * b + j])
+        });
+        output
     }
 }
