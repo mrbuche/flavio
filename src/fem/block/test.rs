@@ -656,7 +656,7 @@ macro_rules! test_finite_element_block_with_hyperelastic_constitutive_model {
         );
         use crate::{
             constitutive::solid::hyperelastic::AppliedLoad,
-            math::optimize::{GradientDescent, NewtonRaphson, Optimization}
+            math::optimize::{GradientDescent, NewtonRaphson, Optimization},
         };
         #[test]
         fn solve_gradient_descent() -> Result<(), TestError> {
@@ -669,11 +669,9 @@ macro_rules! test_finite_element_block_with_hyperelastic_constitutive_model {
                     Some(&get_dirichlet_values(dx)),
                     None,
                     None,
-                    Optimization::GradientDescent(
-                        GradientDescent {
-                            ..Default::default()
-                        }
-                    )
+                    Optimization::GradientDescent(GradientDescent {
+                        ..Default::default()
+                    }),
                 )?;
                 let (deformation_gradient, _) =
                     $constitutive_model::new($constitutive_model_parameters)
@@ -704,12 +702,10 @@ macro_rules! test_finite_element_block_with_hyperelastic_constitutive_model {
                     Some(&get_dirichlet_values(dx)),
                     None,
                     None,
-                    Optimization::NewtonRaphson(
-                        NewtonRaphson {
-                            check_minimum: false,
-                            ..Default::default()
-                        }
-                    )
+                    Optimization::NewtonRaphson(NewtonRaphson {
+                        check_minimum: false,
+                        ..Default::default()
+                    }),
                 )?;
                 let (deformation_gradient, _) =
                     $constitutive_model::new($constitutive_model_parameters)
