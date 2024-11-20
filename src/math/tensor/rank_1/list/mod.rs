@@ -2,7 +2,7 @@
 mod test;
 
 #[cfg(test)]
-use super::super::test::TensorError;
+use super::super::test::ErrorTensor;
 
 use std::array::from_fn;
 use std::{
@@ -45,7 +45,7 @@ impl<const D: usize, const I: usize, const W: usize> Display for TensorRank1List
 }
 
 #[cfg(test)]
-impl<const D: usize, const I: usize, const W: usize> TensorError for TensorRank1List<D, I, W> {
+impl<const D: usize, const I: usize, const W: usize> ErrorTensor for TensorRank1List<D, I, W> {
     fn error(
         &self,
         comparator: &Self,

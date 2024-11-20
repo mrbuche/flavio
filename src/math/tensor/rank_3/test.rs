@@ -1,5 +1,5 @@
 use super::{
-    super::{test::TensorError, Tensor},
+    super::{test::ErrorTensor, Tensor},
     levi_civita, TensorRank0, TensorRank2, TensorRank3,
 };
 use crate::{ABS_TOL, REL_TOL};

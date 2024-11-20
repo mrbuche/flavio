@@ -21,6 +21,22 @@ pub trait Convert<T> {
     fn convert(&self) -> T;
 }
 
+/// Possible errors for tensors.
+#[derive(Debug)]
+pub enum TensorError {
+    NotPositiveDefinite,
+}
+
+impl PartialEq for TensorError {
+    fn eq(&self, other: &Self) -> bool {
+        match self {
+            Self::NotPositiveDefinite => match other {
+                Self::NotPositiveDefinite => true,
+            },
+        }
+    }
+}
+
 /// Common methods for tensors.
 pub trait Tensor
 where

@@ -2,7 +2,7 @@
 mod test;
 
 #[cfg(test)]
-use super::test::TensorError;
+use super::test::ErrorTensor;
 
 pub mod list;
 
@@ -12,7 +12,7 @@ use super::Tensor;
 pub type TensorRank0 = f64;
 
 #[cfg(test)]
-impl TensorError for TensorRank0 {
+impl ErrorTensor for TensorRank0 {
     fn error(
         &self,
         comparator: &Self,

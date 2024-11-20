@@ -1,5 +1,8 @@
 use super::{
-    super::test::{assert_eq, assert_eq_within_tols, TensorError, TestError},
+    super::{
+        test::{assert_eq, assert_eq_within_tols, ErrorTensor, TestError},
+        TensorError,
+    },
     Tensor, TensorRank0, TensorRank1, TensorRank1List, TensorRank2, TensorRank2List2D, TensorRank4,
 };
 use crate::{ABS_TOL, REL_TOL};
@@ -50,6 +53,22 @@ fn get_tensor_rank_2_dim_2() -> TensorRank2<2, 1, 1> {
 
 fn get_tensor_rank_2_dim_3() -> TensorRank2<3, 1, 1> {
     TensorRank2::new(get_array_dim_3())
+}
+
+fn get_tensor_rank_2_pos_def_dim_3() -> TensorRank2<3, 1, 1> {
+    TensorRank2::new([
+        [1.25408849, 0.87253221, 1.02098481],
+        [0.87253221, 0.73474241, 0.82412859],
+        [1.02098481, 0.82412859, 1.22438759],
+    ])
+}
+
+fn get_tensor_rank_2_pos_def_dim_3_cholesky_decomposition() -> TensorRank2<3, 1, 1> {
+    TensorRank2::new([
+        [1.1198609244008828, 0.0, 0.0],
+        [0.7791433659200121, 0.3573206198120032, 0.0],
+        [0.9117067912216147, 0.3184207281833315, 0.5401727100692741],
+    ])
 }
 
 fn get_tensor_rank_2_dim_4() -> TensorRank2<4, 1, 1> {
@@ -264,6 +283,25 @@ fn as_array_dim_4() {
 #[test]
 fn as_array_dim_9() {
     assert_eq!(get_tensor_rank_2_dim_9().as_array(), get_array_dim_9())
+}
+
+#[test]
+fn cholesky_decomposition_dim_3() -> Result<(), TestError> {
+    let tensor = get_tensor_rank_2_pos_def_dim_3();
+    let lower_diagonal = tensor.cholesky_decomposition()?;
+    assert_eq(
+        &lower_diagonal,
+        &get_tensor_rank_2_pos_def_dim_3_cholesky_decomposition(),
+    )?;
+    assert_eq_within_tols(&tensor, &(&lower_diagonal * lower_diagonal.transpose()))
+}
+
+#[test]
+fn cholesky_decomposition_fail_dim_3() {
+    assert_eq!(
+        get_tensor_rank_2_dim_3().cholesky_decomposition(),
+        Err(TensorError::NotPositiveDefinite),
+    )
 }
 
 #[test]

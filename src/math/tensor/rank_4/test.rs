@@ -1,5 +1,5 @@
 use super::{
-    super::{test::TensorError, Tensor},
+    super::{test::ErrorTensor, Tensor},
     ContractAllIndicesWithFirstIndicesOf, ContractFirstSecondIndicesWithSecondIndicesOf,
     ContractFirstThirdFourthIndicesWithFirstIndicesOf,
     ContractSecondFourthIndicesWithFirstIndicesOf, ContractSecondIndexWithFirstIndexOf,

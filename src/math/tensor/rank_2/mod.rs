@@ -2,7 +2,7 @@
 mod test;
 
 #[cfg(test)]
-use super::test::TensorError;
+use super::test::ErrorTensor;
 
 pub mod list;
 pub mod list_2d;
@@ -10,7 +10,7 @@ pub mod list_2d;
 use std::{
     array::from_fn,
     cmp::Ordering,
-    fmt::{Display, Formatter, Result},
+    fmt,
     ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
 };
 
@@ -19,7 +19,7 @@ use super::{
     rank_0::TensorRank0,
     rank_1::{list::TensorRank1List, TensorRank1},
     rank_4::TensorRank4,
-    Convert, Tensor,
+    Convert, Tensor, TensorError,
 };
 use list_2d::TensorRank2List2D;
 
@@ -29,8 +29,8 @@ use list_2d::TensorRank2List2D;
 #[derive(Debug)]
 pub struct TensorRank2<const D: usize, const I: usize, const J: usize>(pub [TensorRank1<D, J>; D]);
 
-impl<const D: usize, const I: usize, const J: usize> Display for TensorRank2<D, I, J> {
-    fn fmt(&self, f: &mut Formatter) -> Result {
+impl<const D: usize, const I: usize, const J: usize> fmt::Display for TensorRank2<D, I, J> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "\x1B[s")?;
         write!(f, "[[")?;
         self.iter().enumerate().try_for_each(|(i, row)| {
@@ -60,7 +60,7 @@ impl<const D: usize, const I: usize, const J: usize> PartialEq for TensorRank2<D
 }
 
 #[cfg(test)]
-impl<const D: usize, const I: usize, const J: usize> TensorError for TensorRank2<D, I, J> {
+impl<const D: usize, const I: usize, const J: usize> ErrorTensor for TensorRank2<D, I, J> {
     fn error(
         &self,
         comparator: &Self,
@@ -111,6 +111,35 @@ impl<const D: usize, const I: usize, const J: usize> TensorError for TensorRank2
 }
 
 impl<const D: usize, const I: usize, const J: usize> TensorRank2<D, I, J> {
+    /// Returns the Cholesky decomposition of the rank-2 tensor.
+    pub fn cholesky_decomposition(&self) -> Result<TensorRank2<D, I, J>, TensorError> {
+        let mut check = 0.0;
+        let mut tensor_l = TensorRank2::zero();
+        self.iter().enumerate().try_for_each(|(j, self_j)| {
+            check = self_j[j]
+                - tensor_l[j]
+                    .iter()
+                    .take(j)
+                    .map(|tensor_l_jk| tensor_l_jk.powi(2))
+                    .sum::<TensorRank0>();
+            if check < 0.0 {
+                Err(TensorError::NotPositiveDefinite)
+            } else {
+                tensor_l[j][j] = check.sqrt();
+                self.iter().enumerate().skip(j + 1).for_each(|(i, self_i)| {
+                    check = tensor_l[i]
+                        .iter()
+                        .zip(tensor_l[j].iter())
+                        .take(j)
+                        .map(|(tensor_l_ik, tensor_l_jk)| tensor_l_ik * tensor_l_jk)
+                        .sum();
+                    tensor_l[i][j] = (self_i[j] - check) / tensor_l[j][j];
+                });
+                Ok(())
+            }
+        })?;
+        Ok(tensor_l)
+    }
     /// Returns the determinant of the rank-2 tensor.
     pub fn determinant(&self) -> TensorRank0 {
         if D == 2 {
@@ -573,6 +602,9 @@ impl<const D: usize, const I: usize, const J: usize> Tensor for TensorRank2<D, I
         (0..D)
             .map(|i| (0..D).map(|j| ((i == j) as u8) as TensorRank0).collect())
             .collect()
+    }
+    fn is_positive_definite(&self) -> bool {
+        self.cholesky_decomposition().is_ok()
     }
     #[cfg(test)]
     fn is_zero(&self) -> bool {
