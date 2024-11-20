@@ -63,11 +63,39 @@ fn get_tensor_rank_2_pos_def_dim_3() -> TensorRank2<3, 1, 1> {
     ])
 }
 
+fn get_tensor_rank_2_pos_def_dim_4() -> TensorRank2<4, 1, 1> {
+    TensorRank2::new([
+        [1.45127677, 0.8346131, 1.0384431, 1.01387535],
+        [0.8346131, 1.05044889, 0.98065684, 1.10580611],
+        [1.0384431, 0.98065684, 1.167509, 0.98059065],
+        [1.01387535, 1.10580611, 0.98059065, 1.33644059],
+    ])
+}
+
 fn get_tensor_rank_2_pos_def_dim_3_cholesky_decomposition() -> TensorRank2<3, 1, 1> {
     TensorRank2::new([
         [1.1198609244008828, 0.0, 0.0],
         [0.7791433659200121, 0.3573206198120032, 0.0],
         [0.9117067912216147, 0.3184207281833315, 0.5401727100692741],
+    ])
+}
+
+fn get_tensor_rank_2_pos_def_dim_4_cholesky_decomposition() -> TensorRank2<4, 1, 1> {
+    TensorRank2::new([
+        [1.204689491113789, 0.0, 0.0, 0.0],
+        [0.6928035034391833, 0.7552960979790598, 0.0, 0.0],
+        [
+            0.8620006297555672,
+            0.5076946442124899,
+            0.40830143587667994,
+            0.0,
+        ],
+        [
+            0.8416072004269142,
+            0.6920963770675851,
+            -0.23573003235768966,
+            0.3058951893772402,
+        ],
     ])
 }
 
@@ -286,6 +314,14 @@ fn as_array_dim_9() {
 }
 
 #[test]
+fn cholesky_decomposition_fail_dim_2() {
+    assert_eq!(
+        get_tensor_rank_2_dim_2().cholesky_decomposition(),
+        Err(TensorError::NotPositiveDefinite),
+    )
+}
+
+#[test]
 fn cholesky_decomposition_dim_3() -> Result<(), TestError> {
     let tensor = get_tensor_rank_2_pos_def_dim_3();
     let lower_diagonal = tensor.cholesky_decomposition()?;
@@ -300,6 +336,33 @@ fn cholesky_decomposition_dim_3() -> Result<(), TestError> {
 fn cholesky_decomposition_fail_dim_3() {
     assert_eq!(
         get_tensor_rank_2_dim_3().cholesky_decomposition(),
+        Err(TensorError::NotPositiveDefinite),
+    )
+}
+
+#[test]
+fn cholesky_decomposition_dim_4() -> Result<(), TestError> {
+    let tensor = get_tensor_rank_2_pos_def_dim_4();
+    let lower_diagonal = tensor.cholesky_decomposition()?;
+    assert_eq(
+        &lower_diagonal,
+        &get_tensor_rank_2_pos_def_dim_4_cholesky_decomposition(),
+    )?;
+    assert_eq_within_tols(&tensor, &(&lower_diagonal * lower_diagonal.transpose()))
+}
+
+#[test]
+fn cholesky_decomposition_fail_dim_4() {
+    assert_eq!(
+        get_tensor_rank_2_dim_4().cholesky_decomposition(),
+        Err(TensorError::NotPositiveDefinite),
+    )
+}
+
+#[test]
+fn cholesky_decomposition_fail_dim_9() {
+    assert_eq!(
+        get_tensor_rank_2_dim_9().cholesky_decomposition(),
         Err(TensorError::NotPositiveDefinite),
     )
 }
