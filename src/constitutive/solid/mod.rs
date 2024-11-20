@@ -27,7 +27,13 @@ use crate::{
     ABS_TOL, REL_TOL,
 };
 
-const MAXIMUM_STEPS: usize = 1_000;
+/// Possible applied loads.
+pub enum AppliedLoad {
+    /// Uniaxial stress given $`F_{11}`$.
+    UniaxialStress(Scalar),
+    /// Biaxial stress given $`F_{11}`$ and $`F_{22}`$.
+    BiaxialStress(Scalar, Scalar),
+}
 
 /// Required methods for solid constitutive models.
 pub trait Solid<'a>

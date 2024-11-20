@@ -28,6 +28,8 @@ pub use almansi_hamel::AlmansiHamel;
 use super::{super::fluid::viscous::Viscous, viscoelastic::Viscoelastic, *};
 use std::fmt::Debug;
 
+const MAXIMUM_STEPS: usize = 1_000;
+
 /// Required methods for elastic-hyperviscous constitutive models.
 pub trait ElasticHyperviscous<'a>
 where
