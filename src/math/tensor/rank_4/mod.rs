@@ -2,7 +2,7 @@
 mod test;
 
 #[cfg(test)]
-use super::test::TensorError;
+use super::test::ErrorTensor;
 
 use std::{
     array::from_fn,
@@ -51,7 +51,7 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
 }
 
 #[cfg(test)]
-impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> TensorError
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> ErrorTensor
     for TensorRank4<D, I, J, K, L>
 {
     fn error(
@@ -131,6 +131,21 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
 impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize>
     TensorRank4<D, I, J, K, L>
 {
+    pub fn as_tensor_rank_2(&self) -> TensorRank2<9, 88, 99> {
+        assert_eq!(D, 3);
+        let mut tensor_rank_2 = TensorRank2::<9, 88, 99>::zero();
+        self.iter().enumerate().for_each(|(i, self_i)| {
+            self_i.iter().enumerate().for_each(|(j, self_ij)| {
+                self_ij.iter().enumerate().for_each(|(k, self_ijk)| {
+                    self_ijk
+                        .iter()
+                        .enumerate()
+                        .for_each(|(l, self_ijkl)| tensor_rank_2[D * i + j][D * k + l] = *self_ijkl)
+                })
+            })
+        });
+        tensor_rank_2
+    }
     pub fn dyad_ij_kl(
         tensor_rank_2_a: &TensorRank2<D, I, J>,
         tensor_rank_2_b: &TensorRank2<D, K, L>,
@@ -217,6 +232,9 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
     }
     fn identity() -> Self {
         Self::dyad_ij_kl(&TensorRank2::identity(), &TensorRank2::identity())
+    }
+    fn is_positive_definite(&self) -> bool {
+        self.as_tensor_rank_2().cholesky_decomposition().is_ok()
     }
     #[cfg(test)]
     fn is_zero(&self) -> bool {

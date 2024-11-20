@@ -1,9 +1,9 @@
-use super::TensorRank0;
+use super::{TensorError, TensorRank0};
 use crate::{get_defeat_message, ABS_TOL, EPSILON, REL_TOL};
 use std::{cmp::PartialEq, fmt};
 
 #[cfg(test)]
-pub trait TensorError {
+pub trait ErrorTensor {
     fn error(
         &self,
         comparator: &Self,
@@ -13,7 +13,7 @@ pub trait TensorError {
     fn error_fd(&self, comparator: &Self, epsilon: &TensorRank0) -> Option<(bool, usize)>;
 }
 
-pub fn assert_eq<'a, T: fmt::Display + PartialEq + TensorError>(
+pub fn assert_eq<'a, T: fmt::Display + PartialEq + ErrorTensor>(
     value_1: &'a T,
     value_2: &'a T,
 ) -> Result<(), TestError> {
@@ -29,7 +29,7 @@ pub fn assert_eq<'a, T: fmt::Display + PartialEq + TensorError>(
     }
 }
 
-pub fn assert_eq_from_fd<'a, T: fmt::Display + TensorError>(
+pub fn assert_eq_from_fd<'a, T: fmt::Display + ErrorTensor>(
     value: &'a T,
     value_fd: &'a T,
 ) -> Result<(), TestError> {
@@ -53,7 +53,7 @@ pub fn assert_eq_from_fd<'a, T: fmt::Display + TensorError>(
     }
 }
 
-pub fn assert_eq_within_tols<'a, T: fmt::Display + TensorError>(
+pub fn assert_eq_within_tols<'a, T: fmt::Display + ErrorTensor>(
     value_1: &'a T,
     value_2: &'a T,
 ) -> Result<(), TestError> {
@@ -81,5 +81,11 @@ impl fmt::Debug for TestError {
             self.message,
             get_defeat_message()
         )
+    }
+}
+
+impl From<TensorError> for TestError {
+    fn from(_error: TensorError) -> TestError {
+        todo!()
     }
 }

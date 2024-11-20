@@ -2,7 +2,7 @@
 pub mod test;
 
 #[cfg(test)]
-use super::super::test::TensorError;
+use super::super::test::ErrorTensor;
 
 use super::{super::Tensor, list_2d::TensorRank3List2D, TensorRank0};
 use std::{
@@ -51,7 +51,7 @@ impl<
         const W: usize,
         const X: usize,
         const Y: usize,
-    > TensorError for TensorRank3List3D<D, I, J, K, W, X, Y>
+    > ErrorTensor for TensorRank3List3D<D, I, J, K, W, X, Y>
 {
     fn error(
         &self,

@@ -24,7 +24,7 @@ impl Default for NewtonRaphson {
         Self {
             abs_tol: ABS_TOL,
             check_minimum: true,
-            max_steps: 100,
+            max_steps: 250,
         }
     }
 }

@@ -2,7 +2,7 @@
 mod test;
 
 #[cfg(test)]
-use super::test::TensorError;
+use super::test::ErrorTensor;
 
 pub mod list;
 pub mod list_2d;
@@ -56,7 +56,7 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize> PartialEq
 }
 
 #[cfg(test)]
-impl<const D: usize, const I: usize, const J: usize, const K: usize> TensorError
+impl<const D: usize, const I: usize, const J: usize, const K: usize> ErrorTensor
     for TensorRank3<D, I, J, K>
 {
     fn error(

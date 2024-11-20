@@ -27,11 +27,11 @@ pub const YEOHPARAMETERS: &[Scalar; 6] = &[
 
 macro_rules! test_solve {
     ($constitutive_model_constructed: expr) => {
-        use crate::constitutive::solid::hyperelastic::AppliedLoad;
+        use crate::constitutive::solid::AppliedLoad;
         #[test]
         fn solve_biaxial_compression() -> Result<(), crate::math::test::TestError> {
             let (deformation_gradient, cauchy_stress) =
-                $constitutive_model_constructed.solve(AppliedLoad::BiaxialStress(0.55, 0.88))?;
+                $constitutive_model_constructed.solve(AppliedLoad::BiaxialStress(0.77, 0.88))?;
             assert!(cauchy_stress[0][0] < 0.0);
             assert!(cauchy_stress[1][1] < 0.0);
             crate::math::test::assert_eq_within_tols(
@@ -75,7 +75,7 @@ macro_rules! test_solve {
         #[test]
         fn solve_uniaxial_compression() -> Result<(), crate::math::test::TestError> {
             let (deformation_gradient, cauchy_stress) =
-                $constitutive_model_constructed.solve(AppliedLoad::UniaxialStress(0.44))?;
+                $constitutive_model_constructed.solve(AppliedLoad::UniaxialStress(0.66))?;
             assert!(cauchy_stress[0][0] < 0.0);
             crate::math::test::assert_eq_within_tols(
                 &(cauchy_stress[1][1] / cauchy_stress[0][0]),
@@ -92,8 +92,9 @@ macro_rules! test_solve {
         }
         #[test]
         fn solve_uniaxial_tension() -> Result<(), crate::math::test::TestError> {
+            let model = $constitutive_model_constructed;
             let (deformation_gradient, cauchy_stress) =
-                $constitutive_model_constructed.solve(AppliedLoad::UniaxialStress(1.2))?;
+                model.solve(AppliedLoad::UniaxialStress(1.2))?;
             assert!(cauchy_stress[0][0] > 0.0);
             assert!(cauchy_stress.is_diagonal());
             crate::math::test::assert_eq_within_tols(&cauchy_stress[1][1], &0.0)?;

@@ -2,7 +2,7 @@
 mod test;
 
 #[cfg(test)]
-use super::test::TensorError;
+use super::test::ErrorTensor;
 
 pub mod list;
 pub mod list_2d;
@@ -53,7 +53,7 @@ impl<const D: usize, const I: usize> TensorRank1<D, I> {
 }
 
 #[cfg(test)]
-impl<const D: usize, const I: usize> TensorError for TensorRank1<D, I> {
+impl<const D: usize, const I: usize> ErrorTensor for TensorRank1<D, I> {
     fn error(
         &self,
         comparator: &Self,

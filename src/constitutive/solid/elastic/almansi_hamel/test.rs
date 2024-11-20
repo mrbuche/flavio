@@ -6,3 +6,7 @@ test_solid_elastic_constitutive_model!(
     ALMANSIHAMELPARAMETERS,
     AlmansiHamel::new(ALMANSIHAMELPARAMETERS)
 );
+
+crate::constitutive::solid::hyperelastic::test::test_solve!(AlmansiHamel::new(
+    ALMANSIHAMELPARAMETERS
+));

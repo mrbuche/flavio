@@ -1,6 +1,6 @@
 use super::{Tensor, TensorRank0, TensorRank1};
 use crate::{
-    math::test::{assert_eq, TensorError, TestError},
+    math::test::{assert_eq, ErrorTensor, TestError},
     ABS_TOL, REL_TOL,
 };
 
