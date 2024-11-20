@@ -20,7 +20,7 @@ impl Default for GradientDescent {
     fn default() -> Self {
         Self {
             abs_tol: ABS_TOL,
-            max_steps: 100,
+            max_steps: 250,
         }
     }
 }

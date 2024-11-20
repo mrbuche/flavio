@@ -1116,28 +1116,7 @@ impl<const I: usize, const J: usize, const K: usize, const L: usize> Div<TensorR
                 .enumerate()
                 .for_each(|(j, self_ij)| tensor_rank_1[3 * i + j] = *self_ij)
         });
-        let mut tensor_rank_2 = TensorRank2::<9, 88, 99>::zero();
-        tensor_rank_4
-            .iter()
-            .enumerate()
-            .for_each(|(i, tensor_rank_4_i)| {
-                tensor_rank_4_i
-                    .iter()
-                    .enumerate()
-                    .for_each(|(j, tensor_rank_4_ij)| {
-                        tensor_rank_4_ij
-                            .iter()
-                            .enumerate()
-                            .for_each(|(k, tensor_rank_4_ijk)| {
-                                tensor_rank_4_ijk.iter().enumerate().for_each(
-                                    |(l, tensor_rank_4_ijkl)| {
-                                        tensor_rank_2[3 * i + j][3 * k + l] = *tensor_rank_4_ijkl
-                                    },
-                                )
-                            })
-                    })
-            });
-        let output_tensor_rank_1 = tensor_rank_2.inverse() * tensor_rank_1;
+        let output_tensor_rank_1 = tensor_rank_4.as_tensor_rank_2().inverse() * tensor_rank_1;
         let mut output = TensorRank2::zero();
         output.iter_mut().enumerate().for_each(|(i, output_i)| {
             output_i

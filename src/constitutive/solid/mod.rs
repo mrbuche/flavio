@@ -24,7 +24,6 @@ use crate::{
         SecondPiolaKirchoffStress, SecondPiolaKirchoffTangentStiffness, IDENTITY, IDENTITY_00,
         IDENTITY_10, IDENTITY_1010, ZERO_10,
     },
-    ABS_TOL, REL_TOL,
 };
 
 /// Possible applied loads.

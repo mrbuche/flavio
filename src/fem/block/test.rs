@@ -654,7 +654,7 @@ macro_rules! test_finite_element_block_with_hyperelastic_constitutive_model {
             $constitutive_model,
             $constitutive_model_parameters
         );
-        use crate::constitutive::solid::hyperelastic::AppliedLoad;
+        use crate::constitutive::solid::AppliedLoad;
         #[test]
         fn solve() -> Result<(), TestError> {
             if TEST_SOLVE {
