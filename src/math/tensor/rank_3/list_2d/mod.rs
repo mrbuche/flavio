@@ -161,12 +161,6 @@ impl<
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
     }
-    fn full_contraction(&self, tensor_rank_3_list_2d: &Self) -> TensorRank0 {
-        self.iter()
-            .zip(tensor_rank_3_list_2d.iter())
-            .map(|(self_entry, tensor_rank_3_list)| self_entry.full_contraction(tensor_rank_3_list))
-            .sum()
-    }
     fn identity() -> Self {
         Self(from_fn(|_| Self::Item::identity()))
     }

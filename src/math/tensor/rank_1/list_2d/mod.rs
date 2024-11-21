@@ -40,12 +40,6 @@ impl<const D: usize, const I: usize, const W: usize, const X: usize> Tensor
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
     }
-    fn full_contraction(&self, tensor_rank_1_list_2d: &Self) -> TensorRank0 {
-        self.iter()
-            .zip(tensor_rank_1_list_2d.iter())
-            .map(|(self_entry, tensor_rank_1_list)| self_entry.full_contraction(tensor_rank_1_list))
-            .sum()
-    }
     fn identity() -> Self {
         Self(from_fn(|_| Self::Item::identity()))
     }

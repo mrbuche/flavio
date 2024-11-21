@@ -106,10 +106,6 @@ impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
     fn identity() -> Self {
         panic!()
     }
-    #[cfg(test)]
-    fn is_zero(&self) -> bool {
-        self.iter().map(|entry| (entry == &0.0) as u8).sum::<u8>() == (D as u8)
-    }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()
     }

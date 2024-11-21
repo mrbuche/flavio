@@ -52,7 +52,6 @@ impl Tensor for TensorRank0 {
     fn is_positive_definite(&self) -> bool {
         self > &0.0
     }
-    #[cfg(test)]
     fn is_zero(&self) -> bool {
         self == &0.0
     }
