@@ -111,6 +111,18 @@ impl<const D: usize, const I: usize, const J: usize> ErrorTensor for TensorRank2
 }
 
 impl<const D: usize, const I: usize, const J: usize> TensorRank2<D, I, J> {
+    /// Returns the rank-2 tensor reshaped as a rank-1 tensor.
+    pub fn as_tensor_rank_1(&self) -> TensorRank1<9, 88> {
+        assert_eq!(D, 3);
+        let mut tensor_rank_1 = TensorRank1::<9, 88>::zero();
+        self.iter().enumerate().for_each(|(i, self_i)| {
+            self_i
+                .iter()
+                .enumerate()
+                .for_each(|(j, self_ij)| tensor_rank_1[3 * i + j] = *self_ij)
+        });
+        tensor_rank_1
+    }
     /// Returns the Cholesky decomposition of the rank-2 tensor.
     pub fn cholesky_decomposition(&self) -> Result<TensorRank2<D, I, J>, TensorError> {
         let mut check = 0.0;
@@ -1109,14 +1121,8 @@ impl<const I: usize, const J: usize, const K: usize, const L: usize> Div<TensorR
 {
     type Output = TensorRank2<3, K, L>;
     fn div(self, tensor_rank_4: TensorRank4<3, I, J, K, L>) -> Self::Output {
-        let mut tensor_rank_1 = TensorRank1::<9, 88>::zero();
-        self.iter().enumerate().for_each(|(i, self_i)| {
-            self_i
-                .iter()
-                .enumerate()
-                .for_each(|(j, self_ij)| tensor_rank_1[3 * i + j] = *self_ij)
-        });
-        let output_tensor_rank_1 = tensor_rank_4.as_tensor_rank_2().inverse() * tensor_rank_1;
+        let output_tensor_rank_1 =
+            tensor_rank_4.as_tensor_rank_2().inverse() * self.as_tensor_rank_1();
         let mut output = TensorRank2::zero();
         output.iter_mut().enumerate().for_each(|(i, output_i)| {
             output_i
