@@ -47,11 +47,12 @@ use crate::{
         ONE_TWENTY_FOURTH,
     },
     mechanics::{
-        Coordinates, CurrentCoordinate, CurrentCoordinates, DeformationGradient, DeformationGradientRate,
-        DeformationGradientRates, DeformationGradients, DeformationGradientss, Displacement,
-        FirstPiolaKirchoffRateTangentStiffnesses, FirstPiolaKirchoffStresses,
-        FirstPiolaKirchoffTangentStiffnesses, Forces, ReferenceCoordinate, ReferenceCoordinates, Scalar, Scalars,
-        Stiffnesses, Vector, Vectors, Vectors2D, IDENTITY, LEVI_CIVITA, ZERO_VECTOR,
+        Coordinates, CurrentCoordinate, CurrentCoordinates, DeformationGradient,
+        DeformationGradientRate, DeformationGradientRates, DeformationGradients,
+        DeformationGradientss, Displacement, FirstPiolaKirchoffRateTangentStiffnesses,
+        FirstPiolaKirchoffStresses, FirstPiolaKirchoffTangentStiffnesses, Forces,
+        ReferenceCoordinate, ReferenceCoordinates, Scalar, Scalars, Stiffnesses, Vector, Vectors,
+        Vectors2D, IDENTITY, LEVI_CIVITA, ZERO_VECTOR,
     },
 };
 

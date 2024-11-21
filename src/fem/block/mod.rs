@@ -22,14 +22,8 @@ pub struct ViscoelasticBlock<const E: usize, F, const N: usize> {
     elements: [F; E],
 }
 
-pub trait BasicFiniteElementBlock<
-    'a,
-    C,
-    const E: usize,
-    F,
-    const G: usize,
-    const N: usize,
-> where
+pub trait BasicFiniteElementBlock<'a, C, const E: usize, F, const G: usize, const N: usize>
+where
     C: Constitutive<'a>,
 {
     fn calculate_nodal_coordinates_element(
@@ -41,14 +35,8 @@ pub trait BasicFiniteElementBlock<
     fn get_elements(&self) -> &[F; E];
 }
 
-pub trait FiniteElementBlock<
-    'a,
-    C,
-    const E: usize,
-    F,
-    const G: usize,
-    const N: usize,
-> where
+pub trait FiniteElementBlock<'a, C, const E: usize, F, const G: usize, const N: usize>
+where
     C: Constitutive<'a>,
     F: FiniteElement<'a, C, G, N>,
     Self: BasicFiniteElementBlock<'a, C, E, F, G, N>,
@@ -60,14 +48,8 @@ pub trait FiniteElementBlock<
     ) -> Self;
 }
 
-pub trait SurfaceElementBlock<
-    'a,
-    C,
-    const E: usize,
-    F,
-    const G: usize,
-    const N: usize,
-> where
+pub trait SurfaceElementBlock<'a, C, const E: usize, F, const G: usize, const N: usize>
+where
     C: Constitutive<'a>,
     F: SurfaceElement<'a, C, G, N>,
     Self: BasicFiniteElementBlock<'a, C, E, F, G, N>,
@@ -231,8 +213,8 @@ where
     }
 }
 
-impl<'a, C, const E: usize, F, const G: usize, const N: usize>
-    FiniteElementBlock<'a, C, E, F, G, N> for ElasticBlock<E, F, N>
+impl<'a, C, const E: usize, F, const G: usize, const N: usize> FiniteElementBlock<'a, C, E, F, G, N>
+    for ElasticBlock<E, F, N>
 where
     C: Elastic<'a>,
     F: FiniteElement<'a, C, G, N> + ElasticFiniteElement<'a, C, G, N>,
@@ -433,8 +415,8 @@ where
     }
 }
 
-impl<'a, C, const E: usize, F, const G: usize, const N: usize>
-    FiniteElementBlock<'a, C, E, F, G, N> for ViscoelasticBlock<E, F, N>
+impl<'a, C, const E: usize, F, const G: usize, const N: usize> FiniteElementBlock<'a, C, E, F, G, N>
+    for ViscoelasticBlock<E, F, N>
 where
     C: Viscoelastic<'a>,
     F: FiniteElement<'a, C, G, N> + ViscoelasticFiniteElement<'a, C, G, N>,
