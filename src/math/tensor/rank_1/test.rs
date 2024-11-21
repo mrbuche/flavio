@@ -172,6 +172,13 @@ fn from_iter() {
 }
 
 #[test]
+fn is_zero() {
+    assert!(
+        TensorRank1::<8, 1>::zero().is_zero()
+    )
+}
+
+#[test]
 fn iter() {
     get_tensor_rank_1()
         .iter()

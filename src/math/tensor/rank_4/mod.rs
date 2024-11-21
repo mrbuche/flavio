@@ -128,12 +128,12 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
     }
 }
 
-impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize>
-    TensorRank4<D, I, J, K, L>
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize, const M: usize, const N: usize> Into<TensorRank2<{D * D}, M, N>> for TensorRank4<D, I, J, K, L>
+where
+    [(); D * D]:
 {
-    pub fn as_tensor_rank_2(&self) -> TensorRank2<9, 88, 99> {
-        assert_eq!(D, 3);
-        let mut tensor_rank_2 = TensorRank2::<9, 88, 99>::zero();
+    fn into(self) -> TensorRank2<{D * D}, M, N> {
+        let mut tensor_rank_2 = TensorRank2::<{D * D}, M, N>::zero();
         self.iter().enumerate().for_each(|(i, self_i)| {
             self_i.iter().enumerate().for_each(|(j, self_ij)| {
                 self_ij.iter().enumerate().for_each(|(k, self_ijk)| {
@@ -146,6 +146,11 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
         });
         tensor_rank_2
     }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize>
+    TensorRank4<D, I, J, K, L>
+{
     pub fn dyad_ij_kl(
         tensor_rank_2_a: &TensorRank2<D, I, J>,
         tensor_rank_2_b: &TensorRank2<D, K, L>,
@@ -234,29 +239,19 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
         Self::dyad_ij_kl(&TensorRank2::identity(), &TensorRank2::identity())
     }
     fn is_positive_definite(&self) -> bool {
-        self.as_tensor_rank_2().cholesky_decomposition().is_ok()
-    }
-    #[cfg(test)]
-    fn is_zero(&self) -> bool {
-        self.iter()
-            .map(|entry_rank_3| {
-                entry_rank_3
-                    .iter()
-                    .map(|entry_rank_2| {
-                        entry_rank_2
-                            .iter()
-                            .map(|entry_rank_1| {
-                                entry_rank_1
-                                    .iter()
-                                    .map(|entry_rank_0| (entry_rank_0 == &0.0) as u8)
-                                    .sum::<u8>()
-                            })
-                            .sum::<u8>()
-                    })
-                    .sum::<u8>()
+        assert_eq!(D, 3);
+        let mut tensor_rank_2 = TensorRank2::<9, 8, 9>::zero();
+        self.iter().enumerate().for_each(|(i, self_i)| {
+            self_i.iter().enumerate().for_each(|(j, self_ij)| {
+                self_ij.iter().enumerate().for_each(|(k, self_ijk)| {
+                    self_ijk
+                        .iter()
+                        .enumerate()
+                        .for_each(|(l, self_ijkl)| tensor_rank_2[D * i + j][D * k + l] = *self_ijkl)
+                })
             })
-            .sum::<u8>()
-            == ((D * D * D * D) as u8)
+        });
+        tensor_rank_2.cholesky_decomposition().is_ok()
     }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()

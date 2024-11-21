@@ -79,9 +79,9 @@ where
     fn is_positive_definite(&self) -> bool {
         panic!("Need to implement is_positive_definite() for {:?}.", self)
     }
-    #[cfg(test)]
+    /// Checks whether the tensor is the zero tensor.
     fn is_zero(&self) -> bool {
-        panic!("Need to implement is_zero() for {:?}.", self)
+        self.iter().filter(|entry| !entry.is_zero()).count() == 0
     }
     /// Returns an iterator.
     ///

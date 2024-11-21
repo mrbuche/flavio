@@ -148,23 +148,6 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize> Tensor
     fn identity() -> Self {
         panic!()
     }
-    #[cfg(test)]
-    fn is_zero(&self) -> bool {
-        self.iter()
-            .map(|entry_rank_2| {
-                entry_rank_2
-                    .iter()
-                    .map(|entry_rank_1| {
-                        entry_rank_1
-                            .iter()
-                            .map(|entry_rank_0| (entry_rank_0 == &0.0) as u8)
-                            .sum::<u8>()
-                    })
-                    .sum::<u8>()
-            })
-            .sum::<u8>()
-            == ((D * D * D) as u8)
-    }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()
     }

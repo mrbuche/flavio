@@ -110,19 +110,24 @@ impl<const D: usize, const I: usize, const J: usize> ErrorTensor for TensorRank2
     }
 }
 
-impl<const D: usize, const I: usize, const J: usize> TensorRank2<D, I, J> {
-    /// Returns the rank-2 tensor reshaped as a rank-1 tensor.
-    pub fn as_tensor_rank_1(&self) -> TensorRank1<9, 88> {
-        assert_eq!(D, 3);
-        let mut tensor_rank_1 = TensorRank1::<9, 88>::zero();
+impl<const D: usize, const I: usize, const J: usize, const M: usize> Into<TensorRank1<{D * D}, M>> for TensorRank2<D, I, J>
+where
+    [(); D * D]:
+{
+    fn into(self) -> TensorRank1<{D * D}, M> {
+        let mut tensor_rank_1 = TensorRank1::<{D * D}, M>::zero();
         self.iter().enumerate().for_each(|(i, self_i)| {
             self_i
                 .iter()
                 .enumerate()
-                .for_each(|(j, self_ij)| tensor_rank_1[3 * i + j] = *self_ij)
+                .for_each(|(j, self_ij)| tensor_rank_1[D * i + j] = *self_ij)
         });
         tensor_rank_1
     }
+}
+
+impl<const D: usize, const I: usize, const J: usize> TensorRank2<D, I, J>
+{
     /// Returns the Cholesky decomposition of the rank-2 tensor.
     pub fn cholesky_decomposition(&self) -> Result<TensorRank2<D, I, J>, TensorError> {
         let mut check = 0.0;
@@ -618,18 +623,6 @@ impl<const D: usize, const I: usize, const J: usize> Tensor for TensorRank2<D, I
     fn is_positive_definite(&self) -> bool {
         self.cholesky_decomposition().is_ok()
     }
-    #[cfg(test)]
-    fn is_zero(&self) -> bool {
-        self.iter()
-            .map(|self_i| {
-                self_i
-                    .iter()
-                    .map(|self_ij| (self_ij == &0.0) as u8)
-                    .sum::<u8>()
-            })
-            .sum::<u8>()
-            == (D * D) as u8
-    }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()
     }
@@ -1116,13 +1109,16 @@ impl<
 }
 
 #[allow(clippy::suspicious_arithmetic_impl)]
-impl<const I: usize, const J: usize, const K: usize, const L: usize> Div<TensorRank4<3, I, J, K, L>>
-    for TensorRank2<3, I, J>
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> Div<TensorRank4<D, I, J, K, L>>
+    for TensorRank2<D, I, J>
+where
+    [(); D * D]:,
 {
-    type Output = TensorRank2<3, K, L>;
-    fn div(self, tensor_rank_4: TensorRank4<3, I, J, K, L>) -> Self::Output {
-        let output_tensor_rank_1 =
-            tensor_rank_4.as_tensor_rank_2().inverse() * self.as_tensor_rank_1();
+    type Output = TensorRank2<D, K, L>;
+    fn div(self, tensor_rank_4: TensorRank4<D, I, J, K, L>) -> Self::Output {
+        let tensor_rank_1: TensorRank1<{D * D}, 8> = self.into();
+        let tensor_rank_2: TensorRank2<{D * D}, 8, 9> = tensor_rank_4.into();
+        let output_tensor_rank_1 = tensor_rank_2.inverse() * tensor_rank_1;
         let mut output = TensorRank2::zero();
         output.iter_mut().enumerate().for_each(|(i, output_i)| {
             output_i
