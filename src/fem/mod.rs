@@ -47,13 +47,34 @@ use crate::{
         ONE_TWENTY_FOURTH,
     },
     mechanics::{
-        Coordinates, CurrentCoordinates, DeformationGradient, DeformationGradientRate,
+        Coordinates, CurrentCoordinate, CurrentCoordinates, DeformationGradient, DeformationGradientRate,
         DeformationGradientRates, DeformationGradients, DeformationGradientss, Displacement,
         FirstPiolaKirchoffRateTangentStiffnesses, FirstPiolaKirchoffStresses,
-        FirstPiolaKirchoffTangentStiffnesses, Forces, ReferenceCoordinates, Scalar, Scalars,
+        FirstPiolaKirchoffTangentStiffnesses, Forces, ReferenceCoordinate, ReferenceCoordinates, Scalar, Scalars,
         Stiffnesses, Vector, Vectors, Vectors2D, IDENTITY, LEVI_CIVITA, ZERO_VECTOR,
     },
 };
+
+type NodalCoordinate = CurrentCoordinate;
+type NodalCoordinatesBlock = Vec<CurrentCoordinate>;
+type ReferenceNodalCoordinatesBlock = Vec<ReferenceCoordinate>;
+
+// going to have to newtype it to impl anything like Add
+
+// impl std::ops::Add for NodalCoordinatesBlock{
+//     type Output = f64;
+//     fn add(&self, other: Self) -> Self::Output {
+//         todo!()
+//     }
+// }
+
+// impl Tensor for NodalCoordinatesBlock {
+//     type Array = bool;
+//     type Item = TensorRank1<3, 1>;
+//     fn as_array(&self) -> Self::Array {
+//         panic!()
+//     }
+// }
 
 type Basis<const I: usize> = Vectors<I, 2>;
 type Bases<const I: usize, const P: usize> = TensorRank1List2D<3, I, 2, P>;

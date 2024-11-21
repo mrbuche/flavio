@@ -147,15 +147,15 @@ pub(crate) use test_finite_element_block;
 
 macro_rules! setup_for_test_finite_element_block_with_elastic_constitutive_model {
     ($block: ident, $element: ident, $constitutive_model: ident, $constitutive_model_parameters: ident) => {
-        fn get_block<'a>() -> $block<D, E, $element<$constitutive_model<'a>>, G, N> {
-            $block::<D, E, $element<$constitutive_model<'a>>, G, N>::new(
+        fn get_block<'a>() -> $block<E, $element<$constitutive_model<'a>>, N> {
+            $block::<E, $element<$constitutive_model<'a>>, N>::new(
                 $constitutive_model_parameters,
                 get_connectivity(),
                 get_reference_coordinates_block(),
             )
         }
-        fn get_block_transformed<'a>() -> $block<D, E, $element<$constitutive_model<'a>>, G, N> {
-            $block::<D, E, $element<$constitutive_model<'a>>, G, N>::new(
+        fn get_block_transformed<'a>() -> $block<E, $element<$constitutive_model<'a>>, N> {
+            $block::<E, $element<$constitutive_model<'a>>, N>::new(
                 $constitutive_model_parameters,
                 get_connectivity(),
                 get_reference_coordinates_transformed_block(),
