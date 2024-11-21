@@ -139,31 +139,8 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize> Tensor
             .map(|entry_rank_2| entry_rank_2.copy())
             .collect()
     }
-    fn full_contraction(&self, tensor_rank_3: &Self) -> TensorRank0 {
-        self.iter()
-            .zip(tensor_rank_3.iter())
-            .map(|(self_i, tensor_rank_3_i)| self_i.full_contraction(tensor_rank_3_i))
-            .sum()
-    }
     fn identity() -> Self {
         panic!()
-    }
-    #[cfg(test)]
-    fn is_zero(&self) -> bool {
-        self.iter()
-            .map(|entry_rank_2| {
-                entry_rank_2
-                    .iter()
-                    .map(|entry_rank_1| {
-                        entry_rank_1
-                            .iter()
-                            .map(|entry_rank_0| (entry_rank_0 == &0.0) as u8)
-                            .sum::<u8>()
-                    })
-                    .sum::<u8>()
-            })
-            .sum::<u8>()
-            == ((D * D * D) as u8)
     }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()

@@ -64,7 +64,12 @@ where
     /// This method was implemented instead of the Copy trait to avoid unintended copy creations.
     fn copy(&self) -> Self;
     /// Returns the full contraction with another tensor.
-    fn full_contraction(&self, tensor: &Self) -> TensorRank0;
+    fn full_contraction(&self, tensor: &Self) -> TensorRank0 {
+        self.iter()
+            .zip(tensor.iter())
+            .map(|(self_entry, tensor_entry)| self_entry.full_contraction(tensor_entry))
+            .sum()
+    }
     /// Returns a reference to the entry at the specified indices.
     fn get_at(&self, _indices: &[usize]) -> &TensorRank0 {
         panic!("Need to implement get_at() for {:?}.", self)
@@ -79,9 +84,9 @@ where
     fn is_positive_definite(&self) -> bool {
         panic!("Need to implement is_positive_definite() for {:?}.", self)
     }
-    #[cfg(test)]
+    /// Checks whether the tensor is the zero tensor.
     fn is_zero(&self) -> bool {
-        panic!("Need to implement is_zero() for {:?}.", self)
+        self.iter().filter(|entry| !entry.is_zero()).count() == 0
     }
     /// Returns an iterator.
     ///

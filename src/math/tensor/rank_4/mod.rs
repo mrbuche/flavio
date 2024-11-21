@@ -224,39 +224,11 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
             .map(|entry_rank_3| entry_rank_3.copy())
             .collect()
     }
-    fn full_contraction(&self, tensor_rank_4: &Self) -> TensorRank0 {
-        self.iter()
-            .zip(tensor_rank_4.iter())
-            .map(|(self_i, tensor_rank_4_i)| self_i.full_contraction(tensor_rank_4_i))
-            .sum()
-    }
     fn identity() -> Self {
         Self::dyad_ij_kl(&TensorRank2::identity(), &TensorRank2::identity())
     }
     fn is_positive_definite(&self) -> bool {
         self.as_tensor_rank_2().cholesky_decomposition().is_ok()
-    }
-    #[cfg(test)]
-    fn is_zero(&self) -> bool {
-        self.iter()
-            .map(|entry_rank_3| {
-                entry_rank_3
-                    .iter()
-                    .map(|entry_rank_2| {
-                        entry_rank_2
-                            .iter()
-                            .map(|entry_rank_1| {
-                                entry_rank_1
-                                    .iter()
-                                    .map(|entry_rank_0| (entry_rank_0 == &0.0) as u8)
-                                    .sum::<u8>()
-                            })
-                            .sum::<u8>()
-                    })
-                    .sum::<u8>()
-            })
-            .sum::<u8>()
-            == ((D * D * D * D) as u8)
     }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()

@@ -604,12 +604,6 @@ impl<const D: usize, const I: usize, const J: usize> Tensor for TensorRank2<D, I
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
     }
-    fn full_contraction(&self, tensor_rank_2: &Self) -> TensorRank0 {
-        self.iter()
-            .zip(tensor_rank_2.iter())
-            .map(|(self_i, tensor_rank_2_i)| self_i * tensor_rank_2_i)
-            .sum()
-    }
     fn identity() -> Self {
         (0..D)
             .map(|i| (0..D).map(|j| ((i == j) as u8) as TensorRank0).collect())
@@ -617,18 +611,6 @@ impl<const D: usize, const I: usize, const J: usize> Tensor for TensorRank2<D, I
     }
     fn is_positive_definite(&self) -> bool {
         self.cholesky_decomposition().is_ok()
-    }
-    #[cfg(test)]
-    fn is_zero(&self) -> bool {
-        self.iter()
-            .map(|self_i| {
-                self_i
-                    .iter()
-                    .map(|self_ij| (self_ij == &0.0) as u8)
-                    .sum::<u8>()
-            })
-            .sum::<u8>()
-            == (D * D) as u8
     }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()

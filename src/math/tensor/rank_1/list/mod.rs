@@ -136,12 +136,6 @@ impl<const D: usize, const I: usize, const W: usize> Tensor for TensorRank1List<
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
     }
-    fn full_contraction(&self, tensor_rank_1_list: &Self) -> TensorRank0 {
-        self.iter()
-            .zip(tensor_rank_1_list.iter())
-            .map(|(self_entry, tensor_rank_1)| self_entry.full_contraction(tensor_rank_1))
-            .sum()
-    }
     fn get_at(&self, indices: &[usize]) -> &TensorRank0 {
         &self[indices[0]][indices[1]]
     }
