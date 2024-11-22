@@ -60,6 +60,10 @@ type NodalCoordinate = CurrentCoordinate;
 type NodalCoordinatesBlock = Vec<CurrentCoordinate>;
 type ReferenceNodalCoordinatesBlock = Vec<ReferenceCoordinate>;
 
+// do Vector, Matrix, and MatrixSym as the 1D and 2D Vec types
+// MatrixSym so you can do Cholesky and store ~1/2 the data
+// try to keep MatrixSym from impl less-efficient things that don't use things like Cholesky
+
 // going to have to newtype it to impl anything like Add
 
 // impl std::ops::Add for NodalCoordinatesBlock{
