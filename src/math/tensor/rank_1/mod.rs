@@ -6,6 +6,7 @@ use super::test::ErrorTensor;
 
 pub mod list;
 pub mod list_2d;
+pub mod vec;
 
 use std::{
     fmt::{Display, Formatter, Result},

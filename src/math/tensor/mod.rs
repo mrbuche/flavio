@@ -113,3 +113,9 @@ where
     /// Returns the zero tensor.
     fn zero() -> Self;
 }
+
+// can try to make as_tensor(), new(), zero() etc. take generic arguments to try to make compatible with vec?
+// and you can probably give the Array associated type a generic parameter?
+// but then you are back at needing to know those things at compile time!
+// so maybe you need separate traits for tensors, lists of tensors, and vecs of tensors
+// but then how will this affect the templated solvers you did this all for?

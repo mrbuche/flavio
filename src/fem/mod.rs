@@ -4,26 +4,35 @@ mod block;
 
 pub use block::{
     element::{
-        composite::{
-            localization::{
-                wedge::Wedge as CompositeWedgeLocalization, CompositeLocalizationElement,
-            },
-            surface::{triangle::Triangle as CompositeTriangle, CompositeSurfaceElement},
-            tetrahedron::Tetrahedron as CompositeTetrahedron,
-            CompositeElement, ElasticCompositeElement, ElasticHyperviscousCompositeElement,
-            HyperelasticCompositeElement, HyperviscoelasticCompositeElement,
-            ViscoelasticCompositeElement,
-        },
+        // composite::{
+        //     localization::{
+        //         wedge::Wedge as CompositeWedgeLocalization, CompositeLocalizationElement,
+        //     },
+        //     surface::{triangle::Triangle as CompositeTriangle, CompositeSurfaceElement},
+        //     tetrahedron::Tetrahedron as CompositeTetrahedron,
+        //     CompositeElement, ElasticCompositeElement, ElasticHyperviscousCompositeElement,
+        //     HyperelasticCompositeElement, HyperviscoelasticCompositeElement,
+        //     ViscoelasticCompositeElement,
+        // },
         linear::{
-            cohesive::{wedge::Wedge as LinearWedgeCohesive, LinearCohesiveElement},
-            localization::{wedge::Wedge as LinearWedgeLocalization, LinearLocalizationElement},
-            surface::{triangle::Triangle as LinearTriangle, LinearSurfaceElement},
+            // cohesive::{wedge::Wedge as LinearWedgeCohesive, LinearCohesiveElement},
+            // localization::{wedge::Wedge as LinearWedgeLocalization, LinearLocalizationElement},
+            // surface::{triangle::Triangle as LinearTriangle, LinearSurfaceElement},
             tetrahedron::Tetrahedron as LinearTetrahedron,
-            ElasticHyperviscousLinearElement, ElasticLinearElement, HyperelasticLinearElement,
-            HyperviscoelasticLinearElement, LinearElement, ViscoelasticLinearElement,
+            ElasticHyperviscousLinearElement,
+            ElasticLinearElement,
+            HyperelasticLinearElement,
+            HyperviscoelasticLinearElement,
+            LinearElement,
+            ViscoelasticLinearElement,
         },
-        CohesiveElement, ElasticFiniteElement, FiniteElement, HyperelasticFiniteElement,
-        HyperviscoelasticFiniteElement, SurfaceElement, ViscoelasticFiniteElement,
+        CohesiveElement,
+        ElasticFiniteElement,
+        FiniteElement,
+        HyperelasticFiniteElement,
+        HyperviscoelasticFiniteElement,
+        SurfaceElement,
+        ViscoelasticFiniteElement,
     },
     BasicFiniteElementBlock, ElasticBlock, ElasticFiniteElementBlock, FiniteElementBlock,
     HyperelasticFiniteElementBlock, HyperviscoelasticFiniteElementBlock, SurfaceElementBlock,
@@ -42,9 +51,9 @@ use crate::{
     },
     math::{
         tensor_rank_1_zero, ContractSecondFourthIndicesWithFirstIndicesOf, Tensor, TensorRank1,
-        TensorRank1List, TensorRank1List2D, TensorRank2, TensorRank2List, TensorRank2List2D,
-        TensorRank3, TensorRank3List, TensorRank3List2D, TensorRank3List3D, ONE_SIXTH,
-        ONE_TWENTY_FOURTH,
+        TensorRank1List, TensorRank1List2D, TensorRank1Vec, TensorRank2, TensorRank2List,
+        TensorRank2List2D, TensorRank2Vec2D, TensorRank3, TensorRank3List, TensorRank3List2D,
+        TensorRank3List3D, ONE_SIXTH, ONE_TWENTY_FOURTH,
     },
     mechanics::{
         Coordinates, CurrentCoordinate, CurrentCoordinates, DeformationGradient,
@@ -56,15 +65,21 @@ use crate::{
     },
 };
 
-type NodalCoordinate = CurrentCoordinate;
-type NodalCoordinatesBlock = Vec<CurrentCoordinate>;
-type ReferenceNodalCoordinatesBlock = Vec<ReferenceCoordinate>;
+type NodalCoordinatesBlock = TensorRank1Vec<3, 1>;
+type ReferenceNodalCoordinatesBlock = TensorRank1Vec<3, 0>;
+
+type NodalVelocitiesBlock = TensorRank1Vec<3, 1>;
+
+type NodalForcesBlock = TensorRank1Vec<3, 1>;
+type NodalStiffnessesBlock = TensorRank2Vec2D<3, 1, 1>;
 
 // do Vector, Matrix, and MatrixSym as the 1D and 2D Vec types
 // MatrixSym so you can do Cholesky and store ~1/2 the data
 // try to keep MatrixSym from impl less-efficient things that don't use things like Cholesky
 
 // going to have to newtype it to impl anything like Add
+
+// benchmark this stuff before merging!
 
 // impl std::ops::Add for NodalCoordinatesBlock{
 //     type Output = f64;
