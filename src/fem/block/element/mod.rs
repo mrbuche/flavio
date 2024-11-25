@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod test;
 
+// pub mod composite;
 pub mod linear;
 
 use super::*;

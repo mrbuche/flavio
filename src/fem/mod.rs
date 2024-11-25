@@ -77,24 +77,7 @@ type NodalStiffnessesBlock = TensorRank2Vec2D<3, 1, 1>;
 // MatrixSym so you can do Cholesky and store ~1/2 the data
 // try to keep MatrixSym from impl less-efficient things that don't use things like Cholesky
 
-// going to have to newtype it to impl anything like Add
-
 // benchmark this stuff before merging!
-
-// impl std::ops::Add for NodalCoordinatesBlock{
-//     type Output = f64;
-//     fn add(&self, other: Self) -> Self::Output {
-//         todo!()
-//     }
-// }
-
-// impl Tensor for NodalCoordinatesBlock {
-//     type Array = bool;
-//     type Item = TensorRank1<3, 1>;
-//     fn as_array(&self) -> Self::Array {
-//         panic!()
-//     }
-// }
 
 type Basis<const I: usize> = Vectors<I, 2>;
 type Bases<const I: usize, const P: usize> = TensorRank1List2D<3, I, 2, P>;
