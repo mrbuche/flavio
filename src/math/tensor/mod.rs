@@ -119,3 +119,9 @@ where
 // but then you are back at needing to know those things at compile time!
 // so maybe you need separate traits for tensors, lists of tensors, and vecs of tensors
 // but then how will this affect the templated solvers you did this all for?
+
+// do Vector, Matrix, and MatrixSym as the 1D and 2D Vec types
+// MatrixSym so you can do Cholesky and store ~1/2 the data
+// try to keep MatrixSym from impl less-efficient things that don't use things like Cholesky
+
+// benchmark this stuff before merging!

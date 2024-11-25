@@ -67,17 +67,9 @@ use crate::{
 
 type NodalCoordinatesBlock = TensorRank1Vec<3, 1>;
 type ReferenceNodalCoordinatesBlock = TensorRank1Vec<3, 0>;
-
 type NodalVelocitiesBlock = TensorRank1Vec<3, 1>;
-
 type NodalForcesBlock = TensorRank1Vec<3, 1>;
 type NodalStiffnessesBlock = TensorRank2Vec2D<3, 1, 1>;
-
-// do Vector, Matrix, and MatrixSym as the 1D and 2D Vec types
-// MatrixSym so you can do Cholesky and store ~1/2 the data
-// try to keep MatrixSym from impl less-efficient things that don't use things like Cholesky
-
-// benchmark this stuff before merging!
 
 type Basis<const I: usize> = Vectors<I, 2>;
 type Bases<const I: usize, const P: usize> = TensorRank1List2D<3, I, 2, P>;
