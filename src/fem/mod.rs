@@ -4,20 +4,20 @@ mod block;
 
 pub use block::{
     element::{
-        // composite::{
-        //     localization::{
-        //         wedge::Wedge as CompositeWedgeLocalization, CompositeLocalizationElement,
-        //     },
-        //     surface::{triangle::Triangle as CompositeTriangle, CompositeSurfaceElement},
-        //     tetrahedron::Tetrahedron as CompositeTetrahedron,
-        //     CompositeElement, ElasticCompositeElement, ElasticHyperviscousCompositeElement,
-        //     HyperelasticCompositeElement, HyperviscoelasticCompositeElement,
-        //     ViscoelasticCompositeElement,
-        // },
+        composite::{
+            localization::{
+                wedge::Wedge as CompositeWedgeLocalization, CompositeLocalizationElement,
+            },
+            surface::{triangle::Triangle as CompositeTriangle, CompositeSurfaceElement},
+            tetrahedron::Tetrahedron as CompositeTetrahedron,
+            CompositeElement, ElasticCompositeElement, ElasticHyperviscousCompositeElement,
+            HyperelasticCompositeElement, HyperviscoelasticCompositeElement,
+            ViscoelasticCompositeElement,
+        },
         linear::{
-            // cohesive::{wedge::Wedge as LinearWedgeCohesive, LinearCohesiveElement},
-            // localization::{wedge::Wedge as LinearWedgeLocalization, LinearLocalizationElement},
-            // surface::{triangle::Triangle as LinearTriangle, LinearSurfaceElement},
+            cohesive::{wedge::Wedge as LinearWedgeCohesive, LinearCohesiveElement},
+            localization::{wedge::Wedge as LinearWedgeLocalization, LinearLocalizationElement},
+            surface::{triangle::Triangle as LinearTriangle, LinearSurfaceElement},
             tetrahedron::Tetrahedron as LinearTetrahedron,
             ElasticHyperviscousLinearElement,
             ElasticLinearElement,
@@ -56,11 +56,11 @@ use crate::{
         TensorRank3List3D, ONE_SIXTH, ONE_TWENTY_FOURTH,
     },
     mechanics::{
-        Coordinates, CurrentCoordinate, CurrentCoordinates, DeformationGradient,
+        Coordinates, CurrentCoordinates, DeformationGradient,
         DeformationGradientRate, DeformationGradientRates, DeformationGradients,
         DeformationGradientss, Displacement, FirstPiolaKirchoffRateTangentStiffnesses,
         FirstPiolaKirchoffStresses, FirstPiolaKirchoffTangentStiffnesses, Forces,
-        ReferenceCoordinate, ReferenceCoordinates, Scalar, Scalars, Stiffnesses, Vector, Vectors,
+        ReferenceCoordinates, Scalar, Scalars, Stiffnesses, Vector, Vectors,
         Vectors2D, IDENTITY, LEVI_CIVITA, ZERO_VECTOR,
     },
 };
