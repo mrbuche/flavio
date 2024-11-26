@@ -327,18 +327,17 @@ where
         _values_n: Option<&[Scalar]>,
         optimization: GradientDescent,
     ) -> Result<NodalCoordinatesBlock, OptimizeError> {
-        // optimization.minimize(
-        //     |nodal_coordinates: &NodalCoordinatesBlock| {
-        //         Ok(self.calculate_nodal_forces(nodal_coordinates)?)
-        //     },
-        //     initial_coordinates,
-        //     Some(Dirichlet {
-        //         places: places_d.unwrap(),
-        //         values: values_d.unwrap(),
-        //     }),
-        //     None,
-        // )
-        todo!()
+        optimization.minimize(
+            |nodal_coordinates: &NodalCoordinatesBlock| {
+                Ok(self.calculate_nodal_forces(nodal_coordinates)?)
+            },
+            initial_coordinates,
+            Some(Dirichlet {
+                places: places_d.unwrap(),
+                values: values_d.unwrap(),
+            }),
+            None,
+        )
     }
 }
 
