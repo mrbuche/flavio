@@ -1,7 +1,4 @@
 #[cfg(test)]
-mod test;
-
-#[cfg(test)]
 use super::super::test::ErrorTensor;
 
 use crate::math::{Tensor, TensorRank0, TensorRank2};
