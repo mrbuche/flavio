@@ -42,9 +42,9 @@ use crate::{
     },
     math::{
         tensor_rank_1_zero, ContractSecondFourthIndicesWithFirstIndicesOf, Tensor, TensorRank1,
-        TensorRank1List, TensorRank1List2D, TensorRank2, TensorRank2List, TensorRank2List2D,
-        TensorRank3, TensorRank3List, TensorRank3List2D, TensorRank3List3D, ONE_SIXTH,
-        ONE_TWENTY_FOURTH,
+        TensorRank1List, TensorRank1List2D, TensorRank1Vec, TensorRank2, TensorRank2List,
+        TensorRank2List2D, TensorRank2Vec2D, TensorRank3, TensorRank3List, TensorRank3List2D,
+        TensorRank3List3D, ONE_SIXTH, ONE_TWENTY_FOURTH,
     },
     mechanics::{
         Coordinates, CurrentCoordinates, DeformationGradient, DeformationGradientRate,
@@ -54,6 +54,12 @@ use crate::{
         Stiffnesses, Vector, Vectors, Vectors2D, IDENTITY, LEVI_CIVITA, ZERO_VECTOR,
     },
 };
+
+type NodalCoordinatesBlock = TensorRank1Vec<3, 1>;
+type ReferenceNodalCoordinatesBlock = TensorRank1Vec<3, 0>;
+type NodalVelocitiesBlock = TensorRank1Vec<3, 1>;
+type NodalForcesBlock = TensorRank1Vec<3, 1>;
+type NodalStiffnessesBlock = TensorRank2Vec2D<3, 1, 1>;
 
 type Basis<const I: usize> = Vectors<I, 2>;
 type Bases<const I: usize, const P: usize> = TensorRank1List2D<3, I, 2, P>;

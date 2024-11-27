@@ -41,7 +41,7 @@ impl<X: Tensor> FirstOrder<X> for GradientDescent {
         // And then within the NLCG, different formulas for beta?
         //
         let mut residual;
-        let mut residual_change = X::zero();
+        let mut residual_change = initial_guess.copy() * 0.0;
         let mut solution = initial_guess;
         let mut solution_change = solution.copy();
         let mut step_size = 1e-2;

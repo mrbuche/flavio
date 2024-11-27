@@ -35,8 +35,8 @@ fn get_connectivity() -> Connectivity<E, N> {
     ]
 }
 
-fn get_coordinates_block() -> NodalCoordinates<D> {
-    NodalCoordinates::new([
+fn get_coordinates_block() -> NodalCoordinatesBlock {
+    NodalCoordinatesBlock::new_vec(&[
         [0.48219277, 0.54126292, 0.03953903],
         [-0.53252101, 0.48863541, 0.02114387],
         [0.11774076, 0.46116171, 0.00839197],
@@ -60,8 +60,8 @@ fn get_reference_coordinates() -> ReferenceNodalCoordinates<N> {
     ReferenceNodalCoordinates::new([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
 }
 
-fn get_reference_coordinates_block() -> ReferenceNodalCoordinates<D> {
-    ReferenceNodalCoordinates::new([
+fn get_reference_coordinates_block() -> ReferenceNodalCoordinatesBlock {
+    ReferenceNodalCoordinatesBlock::new_vec(&[
         [0.5, 0.5, 0.0],
         [-0.5, 0.5, 0.0],
         [1.0 / 6.0, 0.5, 0.0],
@@ -81,8 +81,8 @@ fn get_reference_coordinates_block() -> ReferenceNodalCoordinates<D> {
     ])
 }
 
-fn get_velocities_block() -> NodalVelocities<D> {
-    NodalVelocities::new([
+fn get_velocities_block() -> NodalVelocitiesBlock {
+    NodalVelocitiesBlock::new_vec(&[
         [-0.08580606, -0.03719631, -0.06520447],
         [0.07911747, 0.05345331, -0.01990356],
         [-0.06609921, -0.05301467, 0.07700232],

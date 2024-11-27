@@ -145,7 +145,7 @@ impl<const D: usize, const I: usize, const W: usize> Tensor for TensorRank1List<
     fn identity() -> Self {
         Self(from_fn(|_| Self::Item::identity()))
     }
-    fn iter(&self) -> impl Iterator<Item = &TensorRank1<D, I>> {
+    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()
     }
     fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
