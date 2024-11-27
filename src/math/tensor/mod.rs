@@ -113,9 +113,3 @@ where
     /// Returns the zero tensor.
     fn zero() -> Self;
 }
-
-// do Vector, Matrix, and MatrixSym as the 1D and 2D Vec types
-// MatrixSym so you can do Cholesky and store ~1/2 the data
-// try to keep MatrixSym from impl less-efficient things that don't use things like Cholesky
-
-// benchmark this stuff before merging!
