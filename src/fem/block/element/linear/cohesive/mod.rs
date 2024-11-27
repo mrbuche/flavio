@@ -1,6 +1,6 @@
 pub mod wedge;
 
-use super::{*, surface::LinearSurfaceElement};
+use super::{surface::LinearSurfaceElement, *};
 
 pub trait LinearCohesiveElement<
     'a,

@@ -145,10 +145,10 @@ impl<const D: usize, const I: usize> TensorRank1Vec<D, I> {
     pub fn len(&self) -> usize {
         self.0.len()
     }
-    pub fn new_vec<const W: usize>(array: [[TensorRank0; D]; W]) -> Self {
-        array
+    pub fn new_vec(slice: &[[TensorRank0; D]]) -> Self {
+        slice
             .iter()
-            .map(|array_i| TensorRank1::new(*array_i))
+            .map(|slice_entry| TensorRank1::new(*slice_entry))
             .collect()
     }
     pub fn zero_vec(len: usize) -> Self {
