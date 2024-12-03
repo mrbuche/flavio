@@ -61,6 +61,7 @@ impl Tensor for TensorRank0 {
 
 impl TensorArray for TensorRank0 {
     type Array = [Self; 1];
+    type Item = TensorRank0;
     fn as_array(&self) -> Self::Array {
         [self.copy()]
     }

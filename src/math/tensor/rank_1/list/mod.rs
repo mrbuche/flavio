@@ -10,7 +10,7 @@ use std::{
     ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
 };
 
-use crate::math::{Tensor, TensorRank2};
+use crate::math::{Tensor, TensorArray, TensorRank2};
 
 use super::{
     super::{super::write_tensor_rank_0, Convert},
@@ -123,6 +123,25 @@ impl<const D: usize, const I: usize, const W: usize> TensorRank1List<D, I, W> {
 }
 
 impl<const D: usize, const I: usize, const W: usize> Tensor for TensorRank1List<D, I, W> {
+    type Item = TensorRank1<D, I>;
+    fn copy(&self) -> Self {
+        self.iter().map(|entry| entry.copy()).collect()
+    }
+    fn get_at(&self, indices: &[usize]) -> &TensorRank0 {
+        &self[indices[0]][indices[1]]
+    }
+    fn get_at_mut(&mut self, indices: &[usize]) -> &mut TensorRank0 {
+        &mut self[indices[0]][indices[1]]
+    }
+    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
+        self.0.iter()
+    }
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
+        self.0.iter_mut()
+    }
+}
+
+impl<const D: usize, const I: usize, const W: usize> TensorArray for TensorRank1List<D, I, W> {
     type Array = [[TensorRank0; D]; W];
     type Item = TensorRank1<D, I>;
     fn as_array(&self) -> Self::Array {
@@ -133,23 +152,8 @@ impl<const D: usize, const I: usize, const W: usize> Tensor for TensorRank1List<
             .for_each(|(entry, tensor_rank_1)| *entry = tensor_rank_1.as_array());
         array
     }
-    fn copy(&self) -> Self {
-        self.iter().map(|entry| entry.copy()).collect()
-    }
-    fn get_at(&self, indices: &[usize]) -> &TensorRank0 {
-        &self[indices[0]][indices[1]]
-    }
-    fn get_at_mut(&mut self, indices: &[usize]) -> &mut TensorRank0 {
-        &mut self[indices[0]][indices[1]]
-    }
     fn identity() -> Self {
         Self(from_fn(|_| Self::Item::identity()))
-    }
-    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
-        self.0.iter()
-    }
-    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
-        self.0.iter_mut()
     }
     fn new(array: Self::Array) -> Self {
         array

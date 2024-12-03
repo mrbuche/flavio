@@ -55,6 +55,7 @@ impl<const W: usize> Tensor for TensorRank0List<W> {
 
 impl<const W: usize> TensorArray for TensorRank0List<W> {
     type Array = [TensorRank0; W];
+    type Item = TensorRank0;
     fn as_array(&self) -> Self::Array {
         self.0
     }

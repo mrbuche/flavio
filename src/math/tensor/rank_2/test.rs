@@ -3,7 +3,7 @@ use super::{
         test::{assert_eq, assert_eq_within_tols, ErrorTensor, TestError},
         TensorError,
     },
-    Tensor, TensorRank0, TensorRank1, TensorRank1List, TensorRank2, TensorRank2List2D, TensorRank4,
+    Tensor, TensorArray, TensorRank0, TensorRank1, TensorRank1List, TensorRank2, TensorRank2List2D, TensorRank4,
 };
 use crate::{ABS_TOL, REL_TOL};
 use std::cmp::Ordering;

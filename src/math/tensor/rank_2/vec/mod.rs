@@ -125,7 +125,6 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2Vec<D, I, J> {
 }
 
 impl<const D: usize, const I: usize, const J: usize> Tensor for TensorRank2Vec<D, I, J> {
-    type Array = [[TensorRank0; D]; 0];
     type Item = TensorRank2<D, I, J>;
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()

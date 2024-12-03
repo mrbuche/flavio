@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod test;
 
-use super::{super::Tensor, list::TensorRank1List, TensorRank0};
+use super::{super::{Tensor, TensorArray}, list::TensorRank1List, TensorRank0};
 use std::array::from_fn;
 use std::{
     fmt::{Display, Formatter, Result},
@@ -27,6 +27,21 @@ impl<const D: usize, const I: usize, const W: usize, const X: usize> Display
 impl<const D: usize, const I: usize, const W: usize, const X: usize> Tensor
     for TensorRank1List2D<D, I, W, X>
 {
+    type Item = TensorRank1List<D, I, W>;
+    fn copy(&self) -> Self {
+        self.iter().map(|entry| entry.copy()).collect()
+    }
+    fn iter(&self) -> impl Iterator<Item = &TensorRank1List<D, I, W>> {
+        self.0.iter()
+    }
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
+        self.0.iter_mut()
+    }
+}
+
+impl<const D: usize, const I: usize, const W: usize, const X: usize> TensorArray
+    for TensorRank1List2D<D, I, W, X>
+{
     type Array = [[[TensorRank0; D]; W]; X];
     type Item = TensorRank1List<D, I, W>;
     fn as_array(&self) -> Self::Array {
@@ -37,17 +52,8 @@ impl<const D: usize, const I: usize, const W: usize, const X: usize> Tensor
             .for_each(|(entry, tensor_rank_1_list)| *entry = tensor_rank_1_list.as_array());
         array
     }
-    fn copy(&self) -> Self {
-        self.iter().map(|entry| entry.copy()).collect()
-    }
     fn identity() -> Self {
         Self(from_fn(|_| Self::Item::identity()))
-    }
-    fn iter(&self) -> impl Iterator<Item = &TensorRank1List<D, I, W>> {
-        self.0.iter()
-    }
-    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
-        self.0.iter_mut()
     }
     fn new(array: Self::Array) -> Self {
         array

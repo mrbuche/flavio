@@ -105,10 +105,7 @@ where
     }
 }
 
-// separate out the methods that won't work with Vec derived types (and Array type) into other traits?
-// to start, move those to panic! in default impl?
-
-/// ???
+/// Common methods for tensors derived from arrays.
 pub trait TensorArray {
     type Array;
     type Item;

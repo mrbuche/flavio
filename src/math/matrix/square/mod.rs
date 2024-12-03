@@ -5,6 +5,7 @@ use crate::math::{Tensor, TensorRank0};
 // try to keep MatrixSym from impl less-efficient things that don't use things like Cholesky
 
 // can also have ode solvers use tspan like matlab/etc. now
+// might want to do that now since they use zero(), i.e. turn U into Type(Vec<Y>)
 
 // remember: trying to get something more pliable (TensorVec, Matrix, etc.) to go back to Lagrange multipliers instead of constraints
 
@@ -12,11 +13,7 @@ use crate::math::{Tensor, TensorRank0};
 pub struct SquareMatrix(Vec<Vec<TensorRank0>>);
 
 impl Tensor for SquareMatrix {
-    type Array = [[TensorRank0; 0]; 0]
     type Item = Vec<TensorRank0>;
-    fn as_array(&self) -> Self::Array {
-        panic!()
-    }
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
     }
@@ -26,9 +23,6 @@ impl Tensor for SquareMatrix {
     fn get_at_mut(&mut self, indices: &[usize]) -> &mut TensorRank0 {
         &mut self[indices[0]][indices[1]]
     }
-    fn identity() -> Self {
-        panic!()
-    }
     fn is_positive_definite(&self) -> bool {
         todo!()
     }
@@ -37,11 +31,5 @@ impl Tensor for SquareMatrix {
     }
     fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
         self.0.iter_mut()
-    }
-    fn new(_array: Self::Array) -> Self {
-        panic!()
-    }
-    fn zero() -> Self {
-        todo!()
     }
 }

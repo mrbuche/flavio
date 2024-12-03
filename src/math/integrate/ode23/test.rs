@@ -1,7 +1,7 @@
 use super::{
     super::{
         super::{
-            test::TestError, Tensor, TensorRank0, TensorRank0List, TensorRank1, TensorRank1List,
+            test::TestError, Tensor, TensorArray, TensorRank0, TensorRank0List, TensorRank1, TensorRank1List,
         },
         test::zero_to_tau,
     },

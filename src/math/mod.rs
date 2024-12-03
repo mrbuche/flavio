@@ -6,8 +6,8 @@ pub mod test;
 /// Special functions.
 pub mod special;
 
-// /// Integration and ODEs.
-// pub mod integrate;
+/// Integration and ODEs.
+pub mod integrate;
 
 /// Optimization and root finding.
 pub mod optimize;

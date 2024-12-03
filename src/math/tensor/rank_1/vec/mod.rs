@@ -154,7 +154,6 @@ impl<const D: usize, const I: usize> TensorRank1Vec<D, I> {
 }
 
 impl<const D: usize, const I: usize> Tensor for TensorRank1Vec<D, I> {
-    type Array = [[TensorRank0; D]; 0];
     type Item = TensorRank1<D, I>;
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()

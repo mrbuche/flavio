@@ -4,7 +4,7 @@ pub mod test;
 #[cfg(test)]
 use super::super::test::ErrorTensor;
 
-use super::{super::{Tensor TensorArray}, list_2d::TensorRank3List2D, TensorRank0};
+use super::{super::{Tensor, TensorArray}, list_2d::TensorRank3List2D, TensorRank0};
 use std::{
     array::from_fn,
     fmt::{Display, Formatter, Result},
@@ -195,7 +195,7 @@ impl<
         const Y: usize,
     > TensorArray for TensorRank3List3D<D, I, J, K, W, X, Y>
 {
-    type Array = [[[MakeClippyHappy<D>; W]; X]; Y];
+    type Array = [[[[[[TensorRank0; D]; D]; D]; W]; X]; Y];
     type Item = TensorRank3List2D<D, I, J, K, W, X>;
     fn as_array(&self) -> Self::Array {
         let mut array = [[[[[[0.0; D]; D]; D]; W]; X]; Y];
