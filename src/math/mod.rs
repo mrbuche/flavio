@@ -24,7 +24,7 @@ pub const SEVEN_THIRDS: TensorRank0 = 7.0 / 3.0;
 pub const TWO_THIRDS: TensorRank0 = 2.0 / 3.0;
 
 pub use matrix::{
-    square::SquareMatrix, symmetric::SymmetricMatrix
+    square::SquareMatrix, symmetric::SymmetricMatrix, vector::Vector,
 };
 pub use tensor::{
     rank_0::{list::TensorRank0List, TensorRank0},
