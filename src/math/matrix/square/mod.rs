@@ -5,7 +5,6 @@ use crate::math::{Tensor, TensorRank0};
 // try to keep MatrixSym from impl less-efficient things that don't use things like Cholesky
 
 // can also have ode solvers use tspan like matlab/etc. now
-// might want to do that now since they use zero(), i.e. turn U into Type(Vec<Y>)
 
 // remember: trying to get something more pliable (TensorVec, Matrix, etc.) to go back to Lagrange multipliers instead of constraints
 

@@ -2,7 +2,7 @@
 mod test;
 
 use super::{
-    super::{Tensor, TensorRank0, TensorRank0List},
+    super::{Tensor, TensorArray, TensorRank0, TensorRank0List},
     Explicit, IntegrationError, OdeSolver,
 };
 use crate::{ABS_TOL, REL_TOL};
@@ -61,7 +61,7 @@ impl<Y, U, const W: usize> Explicit<Y, U, W> for Ode23
 where
     Y: Tensor,
     for<'a> &'a Y: Mul<TensorRank0, Output = Y> + Sub<&'a Y, Output = Y>,
-    U: Tensor<Item = Y>,
+    U: Tensor<Item = Y> + TensorArray,
 {
     fn integrate(
         &self,

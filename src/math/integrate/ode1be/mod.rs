@@ -4,7 +4,7 @@ mod test;
 use super::{
     super::{
         optimize::{FirstOrder, NewtonRaphson, Optimization, SecondOrder},
-        Tensor, TensorRank0, TensorRank0List,
+        Tensor, TensorArray, TensorRank0, TensorRank0List,
     },
     Implicit, IntegrationError, OdeSolver,
 };
@@ -45,8 +45,8 @@ impl<Y, J, U, const W: usize> Implicit<Y, J, U, W> for Ode1be
 where
     Y: Tensor + Div<J, Output = Y>,
     for<'a> &'a Y: Mul<TensorRank0, Output = Y> + Sub<&'a Y, Output = Y>,
-    J: Tensor,
-    U: Tensor<Item = Y>,
+    J: Tensor + TensorArray,
+    U: Tensor<Item = Y> + TensorArray,
 {
     fn integrate(
         &self,
