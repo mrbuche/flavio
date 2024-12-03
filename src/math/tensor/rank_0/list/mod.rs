@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod test;
 
-use super::{super::super::write_tensor_rank_0, Tensor, TensorRank0};
+use super::{super::super::write_tensor_rank_0, Tensor, TensorArray, TensorRank0};
 use std::{
     fmt::{Display, Formatter, Result},
     ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
@@ -37,9 +37,6 @@ impl<const W: usize> Display for TensorRank0List<W> {
 impl<const W: usize> Tensor for TensorRank0List<W> {
     type Array = [TensorRank0; W];
     type Item = TensorRank0;
-    fn as_array(&self) -> Self::Array {
-        self.0
-    }
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
     }
@@ -49,14 +46,21 @@ impl<const W: usize> Tensor for TensorRank0List<W> {
             .map(|(self_entry, tensor_rank_0)| self_entry * tensor_rank_0)
             .sum()
     }
-    fn identity() -> Self {
-        Self([1.0; W])
-    }
     fn iter(&self) -> impl Iterator<Item = &TensorRank0> {
         self.0.iter()
     }
     fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
         self.0.iter_mut()
+    }
+}
+
+impl<const W: usize> TensorArray for TensorRank0List<W> {
+    type Array = [TensorRank0; W];
+    fn as_array(&self) -> Self::Array {
+        self.0
+    }
+    fn identity() -> Self {
+        Self([1.0; W])
     }
     fn new(array: Self::Array) -> Self {
         Self(array)

@@ -14,7 +14,7 @@ use std::{
     ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
 };
 
-use super::{rank_0::TensorRank0, rank_2::TensorRank2, Tensor};
+use super::{rank_0::TensorRank0, rank_2::TensorRank2, Tensor, TensorArray};
 
 /// Returns the rank-3 Levi-Civita symbol.
 pub fn levi_civita<const I: usize, const J: usize, const K: usize>() -> TensorRank3<3, I, J, K> {
@@ -124,8 +124,27 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize> ErrorTensor
 impl<const D: usize, const I: usize, const J: usize, const K: usize> Tensor
     for TensorRank3<D, I, J, K>
 {
-    type Array = [[[TensorRank0; D]; D]; D];
     type Item = TensorRank2<D, J, K>;
+    fn copy(&self) -> Self {
+        self.iter()
+            .map(|entry_rank_2| entry_rank_2.copy())
+            .collect()
+    }
+    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
+        self.0.iter()
+    }
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
+        self.0.iter_mut()
+    }
+    fn normalized(&self) -> Self {
+        self / self.norm()
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize> TensorArray
+    for TensorRank3<D, I, J, K>
+{
+    type Array = [[[TensorRank0; D]; D]; D];
     fn as_array(&self) -> Self::Array {
         let mut array = [[[0.0; D]; D]; D];
         array
@@ -134,25 +153,11 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize> Tensor
             .for_each(|(entry_rank_2, tensor_rank_2)| *entry_rank_2 = tensor_rank_2.as_array());
         array
     }
-    fn copy(&self) -> Self {
-        self.iter()
-            .map(|entry_rank_2| entry_rank_2.copy())
-            .collect()
-    }
     fn identity() -> Self {
         panic!()
     }
-    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
-        self.0.iter()
-    }
-    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
-        self.0.iter_mut()
-    }
     fn new(array: Self::Array) -> Self {
         array.iter().map(|entry| TensorRank2::new(*entry)).collect()
-    }
-    fn normalized(&self) -> Self {
-        self / self.norm()
     }
     fn zero() -> Self {
         Self(from_fn(|_| TensorRank2::zero()))

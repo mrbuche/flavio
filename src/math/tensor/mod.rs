@@ -55,10 +55,7 @@ where
         + SubAssign<&'a Self>,
     Self::Item: Tensor,
 {
-    type Array;
     type Item;
-    /// Returns the tensor as an array.
-    fn as_array(&self) -> Self::Array;
     /// Returns a copy.
     ///
     /// This method was implemented instead of the Copy trait to avoid unintended copy creations.
@@ -78,8 +75,6 @@ where
     fn get_at_mut(&mut self, _indices: &[usize]) -> &mut TensorRank0 {
         panic!("Need to implement get_at_mut() for {:?}.", self)
     }
-    /// Returns the identity tensor.
-    fn identity() -> Self;
     /// Checks whether the tensor is positive-definite.
     fn is_positive_definite(&self) -> bool {
         panic!("Need to implement is_positive_definite() for {:?}.", self)
@@ -91,13 +86,13 @@ where
     /// Returns an iterator.
     ///
     /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    fn iter(&self) -> impl Iterator<Item = &Self::Item>;
+    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
+        self.0.iter()
+    }
     /// Returns an iterator that allows modifying each value.
     ///
     /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
     fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item>;
-    /// Returns a tensor given an array.
-    fn new(array: Self::Array) -> Self;
     /// Returns the tensor norm.
     fn norm(&self) -> TensorRank0 {
         self.norm_squared().sqrt()
@@ -110,6 +105,20 @@ where
     fn normalized(&self) -> Self {
         panic!("Need to implement normalized() for {:?}.", self)
     }
+}
+
+// separate out the methods that won't work with Vec derived types (and Array type) into other traits?
+// to start, move those to panic! in default impl?
+
+/// ???
+pub trait TensorArray {
+    type Array;
+    /// Returns the tensor as an array.
+    fn as_array(&self) -> Self::Array;
+    /// Returns the identity tensor.
+    fn identity() -> Self;
+    /// Returns a tensor given an array.
+    fn new(array: Self::Array) -> Self;
     /// Returns the zero tensor.
     fn zero() -> Self;
 }

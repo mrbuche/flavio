@@ -6,8 +6,7 @@ use crate::math::{Tensor, TensorRank0};
 
 // can also have ode solvers use tspan like matlab/etc. now
 
-// separate out the methods that won't work with Vec derived types (and Array type) into another trait?
-// to start, move those to panic! in default impl?
+// remember: trying to get something more pliable (TensorVec, Matrix, etc.) to go back to Lagrange multipliers instead of constraints
 
 /// ???
 pub struct SquareMatrix(Vec<Vec<TensorRank0>>);

@@ -11,7 +11,7 @@ use std::{
 };
 
 use super::{
-    rank_0::TensorRank0, rank_1::TensorRank1, rank_2::TensorRank2, rank_3::TensorRank3, Tensor,
+    rank_0::TensorRank0, rank_1::TensorRank1, rank_2::TensorRank2, rank_3::TensorRank3, Tensor, TensorArray
 };
 
 pub mod list;
@@ -209,23 +209,11 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
 impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> Tensor
     for TensorRank4<D, I, J, K, L>
 {
-    type Array = [[[[TensorRank0; D]; D]; D]; D];
     type Item = TensorRank3<D, J, K, L>;
-    fn as_array(&self) -> Self::Array {
-        let mut array = [[[[0.0; D]; D]; D]; D];
-        array
-            .iter_mut()
-            .zip(self.iter())
-            .for_each(|(entry_rank_3, tensor_rank_3)| *entry_rank_3 = tensor_rank_3.as_array());
-        array
-    }
     fn copy(&self) -> Self {
         self.iter()
             .map(|entry_rank_3| entry_rank_3.copy())
             .collect()
-    }
-    fn identity() -> Self {
-        Self::dyad_ij_kl(&TensorRank2::identity(), &TensorRank2::identity())
     }
     fn is_positive_definite(&self) -> bool {
         self.as_tensor_rank_2().cholesky_decomposition().is_ok()
@@ -236,11 +224,28 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
     fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
         self.0.iter_mut()
     }
-    fn new(array: Self::Array) -> Self {
-        array.iter().map(|entry| TensorRank3::new(*entry)).collect()
-    }
     fn normalized(&self) -> Self {
         self / self.norm()
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> TensorArray
+    for TensorRank4<D, I, J, K, L>
+{
+    type Array = [[[[TensorRank0; D]; D]; D]; D];
+    fn as_array(&self) -> Self::Array {
+        let mut array = [[[[0.0; D]; D]; D]; D];
+        array
+            .iter_mut()
+            .zip(self.iter())
+            .for_each(|(entry_rank_3, tensor_rank_3)| *entry_rank_3 = tensor_rank_3.as_array());
+        array
+    }
+    fn identity() -> Self {
+        Self::dyad_ij_kl(&TensorRank2::identity(), &TensorRank2::identity())
+    }
+    fn new(array: Self::Array) -> Self {
+        array.iter().map(|entry| TensorRank3::new(*entry)).collect()
     }
     fn zero() -> Self {
         Self(from_fn(|_| TensorRank3::zero()))

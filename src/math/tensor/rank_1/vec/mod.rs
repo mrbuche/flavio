@@ -156,9 +156,6 @@ impl<const D: usize, const I: usize> TensorRank1Vec<D, I> {
 impl<const D: usize, const I: usize> Tensor for TensorRank1Vec<D, I> {
     type Array = [[TensorRank0; D]; 0];
     type Item = TensorRank1<D, I>;
-    fn as_array(&self) -> Self::Array {
-        panic!()
-    }
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
     }
@@ -168,20 +165,11 @@ impl<const D: usize, const I: usize> Tensor for TensorRank1Vec<D, I> {
     fn get_at_mut(&mut self, indices: &[usize]) -> &mut TensorRank0 {
         &mut self[indices[0]][indices[1]]
     }
-    fn identity() -> Self {
-        panic!()
-    }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()
     }
     fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
         self.0.iter_mut()
-    }
-    fn new(_array: Self::Array) -> Self {
-        panic!()
-    }
-    fn zero() -> Self {
-        panic!()
     }
 }
 

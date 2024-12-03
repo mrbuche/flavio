@@ -127,26 +127,14 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2Vec<D, I, J> {
 impl<const D: usize, const I: usize, const J: usize> Tensor for TensorRank2Vec<D, I, J> {
     type Array = [[TensorRank0; D]; 0];
     type Item = TensorRank2<D, I, J>;
-    fn as_array(&self) -> Self::Array {
-        panic!()
-    }
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
-    }
-    fn identity() -> Self {
-        panic!()
     }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()
     }
     fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
         self.0.iter_mut()
-    }
-    fn new(_array: Self::Array) -> Self {
-        panic!()
-    }
-    fn zero() -> Self {
-        panic!()
     }
 }
 
