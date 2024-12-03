@@ -35,7 +35,6 @@ impl<const W: usize> Display for TensorRank0List<W> {
 }
 
 impl<const W: usize> Tensor for TensorRank0List<W> {
-    type Array = [TensorRank0; W];
     type Item = TensorRank0;
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()

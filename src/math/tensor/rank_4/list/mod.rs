@@ -7,7 +7,7 @@ use std::{
     ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
 };
 
-use super::{Tensor, TensorRank0, TensorRank4};
+use super::{Tensor, TensorArray, TensorRank0, TensorRank4};
 
 /// A list of *d*-dimensional tensor of rank 4.
 ///
@@ -45,6 +45,27 @@ impl<
         const W: usize,
     > Tensor for TensorRank4List<D, I, J, K, L, W>
 {
+    type Item = TensorRank4<D, I, J, K, L>;
+    fn copy(&self) -> Self {
+        self.iter().map(|entry| entry.copy()).collect()
+    }
+    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
+        self.0.iter()
+    }
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
+        self.0.iter_mut()
+    }
+}
+
+impl<
+        const D: usize,
+        const I: usize,
+        const J: usize,
+        const K: usize,
+        const L: usize,
+        const W: usize,
+    > TensorArray for TensorRank4List<D, I, J, K, L, W>
+{
     type Array = [[[[[TensorRank0; D]; D]; D]; D]; W];
     type Item = TensorRank4<D, I, J, K, L>;
     fn as_array(&self) -> Self::Array {
@@ -55,17 +76,8 @@ impl<
             .for_each(|(entry_rank_4, tensor_rank_4)| *entry_rank_4 = tensor_rank_4.as_array());
         array
     }
-    fn copy(&self) -> Self {
-        self.iter().map(|entry| entry.copy()).collect()
-    }
     fn identity() -> Self {
         Self(from_fn(|_| Self::Item::identity()))
-    }
-    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
-        self.0.iter()
-    }
-    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
-        self.0.iter_mut()
     }
     fn new(array: Self::Array) -> Self {
         array

@@ -35,7 +35,6 @@ impl ErrorTensor for TensorRank0 {
 }
 
 impl Tensor for TensorRank0 {
-    type Array = [Self; 1];
     type Item = TensorRank0;
     fn copy(&self) -> TensorRank0 {
         *self

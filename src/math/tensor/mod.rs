@@ -86,9 +86,7 @@ where
     /// Returns an iterator.
     ///
     /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
-    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
-        self.0.iter()
-    }
+    fn iter(&self) -> impl Iterator<Item = &Self::Item>;
     /// Returns an iterator that allows modifying each value.
     ///
     /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
@@ -113,6 +111,7 @@ where
 /// ???
 pub trait TensorArray {
     type Array;
+    type Item;
     /// Returns the tensor as an array.
     fn as_array(&self) -> Self::Array;
     /// Returns the identity tensor.

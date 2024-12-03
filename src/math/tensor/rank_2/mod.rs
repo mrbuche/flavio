@@ -21,7 +21,7 @@ use super::{
     rank_0::TensorRank0,
     rank_1::{list::TensorRank1List, vec::TensorRank1Vec, TensorRank1},
     rank_4::TensorRank4,
-    Convert, Tensor, TensorError,
+    Convert, Tensor, TensorArray, TensorError,
 };
 use list_2d::TensorRank2List2D;
 use vec_2d::TensorRank2Vec2D;
@@ -594,23 +594,9 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2<D, I, J> {
 }
 
 impl<const D: usize, const I: usize, const J: usize> Tensor for TensorRank2<D, I, J> {
-    type Array = [[TensorRank0; D]; D];
     type Item = TensorRank1<D, J>;
-    fn as_array(&self) -> Self::Array {
-        let mut array = [[0.0; D]; D];
-        array
-            .iter_mut()
-            .zip(self.iter())
-            .for_each(|(entry, tensor_rank_1)| *entry = tensor_rank_1.as_array());
-        array
-    }
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
-    }
-    fn identity() -> Self {
-        (0..D)
-            .map(|i| (0..D).map(|j| ((i == j) as u8) as TensorRank0).collect())
-            .collect()
     }
     fn is_positive_definite(&self) -> bool {
         self.cholesky_decomposition().is_ok()
@@ -621,14 +607,31 @@ impl<const D: usize, const I: usize, const J: usize> Tensor for TensorRank2<D, I
     fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
         self.0.iter_mut()
     }
+    fn normalized(&self) -> Self {
+        self / self.norm()
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize> TensorArray for TensorRank2<D, I, J> {
+    type Array = [[TensorRank0; D]; D];
+    fn as_array(&self) -> Self::Array {
+        let mut array = [[0.0; D]; D];
+        array
+            .iter_mut()
+            .zip(self.iter())
+            .for_each(|(entry, tensor_rank_1)| *entry = tensor_rank_1.as_array());
+        array
+    }
+    fn identity() -> Self {
+        (0..D)
+            .map(|i| (0..D).map(|j| ((i == j) as u8) as TensorRank0).collect())
+            .collect()
+    }
     fn new(array: Self::Array) -> Self {
         array
             .iter()
             .map(|array_i| TensorRank1::new(*array_i))
             .collect()
-    }
-    fn normalized(&self) -> Self {
-        self / self.norm()
     }
     fn zero() -> Self {
         Self(from_fn(|_| TensorRank1::zero()))
