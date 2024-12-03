@@ -614,6 +614,7 @@ impl<const D: usize, const I: usize, const J: usize> Tensor for TensorRank2<D, I
 
 impl<const D: usize, const I: usize, const J: usize> TensorArray for TensorRank2<D, I, J> {
     type Array = [[TensorRank0; D]; D];
+    type Item = TensorRank1<D, J>;
     fn as_array(&self) -> Self::Array {
         let mut array = [[0.0; D]; D];
         array
@@ -630,11 +631,11 @@ impl<const D: usize, const I: usize, const J: usize> TensorArray for TensorRank2
     fn new(array: Self::Array) -> Self {
         array
             .iter()
-            .map(|array_i| TensorRank1::new(*array_i))
+            .map(|array_i| Self::Item::new(*array_i))
             .collect()
     }
     fn zero() -> Self {
-        Self(from_fn(|_| TensorRank1::zero()))
+        Self(from_fn(|_| Self::Item::zero()))
     }
 }
 

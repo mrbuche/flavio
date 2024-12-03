@@ -10,7 +10,7 @@ use std::{
     ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
 };
 
-use super::{Tensor, TensorRank0, TensorRank2};
+use super::{Tensor, TensorArray, TensorRank0, TensorRank2};
 
 /// A list of *d*-dimensional tensors of rank 2.
 ///
@@ -97,6 +97,21 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> ErrorTensor
 impl<const D: usize, const I: usize, const J: usize, const W: usize> Tensor
     for TensorRank2List<D, I, J, W>
 {
+    type Item = TensorRank2<D, I, J>;
+    fn copy(&self) -> Self {
+        self.iter().map(|entry| entry.copy()).collect()
+    }
+    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
+        self.0.iter()
+    }
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
+        self.0.iter_mut()
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const W: usize> TensorArray
+    for TensorRank2List<D, I, J, W>
+{
     type Array = [[[TensorRank0; D]; D]; W];
     type Item = TensorRank2<D, I, J>;
     fn as_array(&self) -> Self::Array {
@@ -107,17 +122,8 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize> Tensor
             .for_each(|(entry_rank_2, tensor_rank_2)| *entry_rank_2 = tensor_rank_2.as_array());
         array
     }
-    fn copy(&self) -> Self {
-        self.iter().map(|entry| entry.copy()).collect()
-    }
     fn identity() -> Self {
         Self(from_fn(|_| Self::Item::identity()))
-    }
-    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
-        self.0.iter()
-    }
-    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
-        self.0.iter_mut()
     }
     fn new(array: Self::Array) -> Self {
         array

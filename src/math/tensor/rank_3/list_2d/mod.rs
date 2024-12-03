@@ -4,7 +4,7 @@ pub mod test;
 #[cfg(test)]
 use super::super::test::ErrorTensor;
 
-use super::{super::Tensor, list::TensorRank3List, TensorRank0};
+use super::{super::{Tensor, TensorArray}, list::TensorRank3List, TensorRank0};
 use std::{
     array::from_fn,
     fmt::{Display, Formatter, Result},
@@ -146,6 +146,27 @@ impl<
         const X: usize,
     > Tensor for TensorRank3List2D<D, I, J, K, W, X>
 {
+    type Item = TensorRank3List<D, I, J, K, W>;
+    fn copy(&self) -> Self {
+        self.iter().map(|entry| entry.copy()).collect()
+    }
+    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
+        self.0.iter()
+    }
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
+        self.0.iter_mut()
+    }
+}
+
+impl<
+        const D: usize,
+        const I: usize,
+        const J: usize,
+        const K: usize,
+        const W: usize,
+        const X: usize,
+    > TensorArray for TensorRank3List2D<D, I, J, K, W, X>
+{
     type Array = [[[[[TensorRank0; D]; D]; D]; W]; X];
     type Item = TensorRank3List<D, I, J, K, W>;
     fn as_array(&self) -> Self::Array {
@@ -158,26 +179,17 @@ impl<
             });
         array
     }
-    fn copy(&self) -> Self {
-        self.iter().map(|entry| entry.copy()).collect()
-    }
     fn identity() -> Self {
         Self(from_fn(|_| Self::Item::identity()))
-    }
-    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
-        self.0.iter()
-    }
-    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
-        self.0.iter_mut()
     }
     fn new(array: Self::Array) -> Self {
         array
             .iter()
-            .map(|array_i| TensorRank3List::new(*array_i))
+            .map(|array_i| Self::Item::new(*array_i))
             .collect()
     }
     fn zero() -> Self {
-        Self(from_fn(|_| TensorRank3List::zero()))
+        Self(from_fn(|_| Self::Item::zero()))
     }
 }
 

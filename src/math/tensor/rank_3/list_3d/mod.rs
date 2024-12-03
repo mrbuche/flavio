@@ -4,14 +4,12 @@ pub mod test;
 #[cfg(test)]
 use super::super::test::ErrorTensor;
 
-use super::{super::Tensor, list_2d::TensorRank3List2D, TensorRank0};
+use super::{super::{Tensor TensorArray}, list_2d::TensorRank3List2D, TensorRank0};
 use std::{
     array::from_fn,
     fmt::{Display, Formatter, Result},
     ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
 };
-
-type MakeClippyHappy<const D: usize> = [[[TensorRank0; D]; D]; D];
 
 /// A 3D list of *d*-dimensional tensors of rank 3.
 ///
@@ -175,6 +173,28 @@ impl<
         const Y: usize,
     > Tensor for TensorRank3List3D<D, I, J, K, W, X, Y>
 {
+    type Item = TensorRank3List2D<D, I, J, K, W, X>;
+    fn copy(&self) -> Self {
+        self.iter().map(|entry| entry.copy()).collect()
+    }
+    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
+        self.0.iter()
+    }
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
+        self.0.iter_mut()
+    }
+}
+
+impl<
+        const D: usize,
+        const I: usize,
+        const J: usize,
+        const K: usize,
+        const W: usize,
+        const X: usize,
+        const Y: usize,
+    > TensorArray for TensorRank3List3D<D, I, J, K, W, X, Y>
+{
     type Array = [[[MakeClippyHappy<D>; W]; X]; Y];
     type Item = TensorRank3List2D<D, I, J, K, W, X>;
     fn as_array(&self) -> Self::Array {
@@ -186,26 +206,17 @@ impl<
         );
         array
     }
-    fn copy(&self) -> Self {
-        self.iter().map(|entry| entry.copy()).collect()
-    }
     fn identity() -> Self {
         Self(from_fn(|_| Self::Item::identity()))
-    }
-    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
-        self.0.iter()
-    }
-    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
-        self.0.iter_mut()
     }
     fn new(array: Self::Array) -> Self {
         array
             .iter()
-            .map(|array_i| TensorRank3List2D::new(*array_i))
+            .map(|array_i| Self::Item::new(*array_i))
             .collect()
     }
     fn zero() -> Self {
-        Self(from_fn(|_| TensorRank3List2D::zero()))
+        Self(from_fn(|_| Self::Item::zero()))
     }
 }
 

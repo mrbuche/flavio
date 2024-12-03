@@ -10,7 +10,7 @@ use std::{
     ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
 };
 
-use super::{super::Tensor, list::TensorRank2List, TensorRank0, TensorRank2};
+use super::{super::{Tensor, TensorArray}, list::TensorRank2List, TensorRank0, TensorRank2};
 
 /// A 2D list of *d*-dimensional tensors of rank 2.
 ///
@@ -143,6 +143,21 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: us
 impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize> Tensor
     for TensorRank2List2D<D, I, J, W, X>
 {
+    type Item = TensorRank2List<D, I, J, W>;
+    fn copy(&self) -> Self {
+        self.iter().map(|entry| entry.copy()).collect()
+    }
+    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
+        self.0.iter()
+    }
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
+        self.0.iter_mut()
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: usize> TensorArray
+    for TensorRank2List2D<D, I, J, W, X>
+{
     type Array = [[[[TensorRank0; D]; D]; W]; X];
     type Item = TensorRank2List<D, I, J, W>;
     fn as_array(&self) -> Self::Array {
@@ -155,26 +170,17 @@ impl<const D: usize, const I: usize, const J: usize, const W: usize, const X: us
             });
         array
     }
-    fn copy(&self) -> Self {
-        self.iter().map(|entry| entry.copy()).collect()
-    }
     fn identity() -> Self {
         Self(from_fn(|_| Self::Item::identity()))
-    }
-    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
-        self.0.iter()
-    }
-    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
-        self.0.iter_mut()
     }
     fn new(array: Self::Array) -> Self {
         array
             .iter()
-            .map(|array_i| TensorRank2List::new(*array_i))
+            .map(|array_i| Self::Item::new(*array_i))
             .collect()
     }
     fn zero() -> Self {
-        Self(from_fn(|_| TensorRank2List::zero()))
+        Self(from_fn(|_| Self::Item::zero()))
     }
 }
 

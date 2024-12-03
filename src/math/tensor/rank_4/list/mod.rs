@@ -82,11 +82,11 @@ impl<
     fn new(array: Self::Array) -> Self {
         array
             .iter()
-            .map(|array_i| TensorRank4::new(*array_i))
+            .map(|array_i| Self::Item::new(*array_i))
             .collect()
     }
     fn zero() -> Self {
-        Self(from_fn(|_| TensorRank4::zero()))
+        Self(from_fn(|_| Self::Item::zero()))
     }
 }
 

@@ -1,7 +1,7 @@
 #[cfg(test)]
 use super::super::test::ErrorTensor;
 
-use crate::math::{write_tensor_rank_0, Tensor, TensorRank0, TensorRank1, TensorRank2};
+use crate::math::{write_tensor_rank_0, Tensor, TensorArray, TensorRank0, TensorRank1, TensorRank2};
 use std::{
     fmt::{Display, Formatter, Result},
     ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},

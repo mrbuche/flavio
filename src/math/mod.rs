@@ -47,7 +47,7 @@ pub use tensor::{
         ContractSecondFourthIndicesWithFirstIndicesOf, ContractSecondIndexWithFirstIndexOf,
         ContractThirdFourthIndicesWithFirstSecondIndicesOf, TensorRank4,
     },
-    Convert, Tensor,
+    Convert, Tensor, TensorArray,
 };
 
 use std::fmt;
