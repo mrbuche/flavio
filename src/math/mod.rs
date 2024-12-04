@@ -12,7 +12,7 @@ pub mod integrate;
 /// Optimization and root finding.
 pub mod optimize;
 
-// mod matrix;
+mod matrix;
 mod tensor;
 
 pub const FOUR_THIRDS: TensorRank0 = 4.0 / 3.0;
@@ -23,9 +23,7 @@ pub const ONE_TWENTY_FOURTH: TensorRank0 = 1.0 / 24.0;
 pub const SEVEN_THIRDS: TensorRank0 = 7.0 / 3.0;
 pub const TWO_THIRDS: TensorRank0 = 2.0 / 3.0;
 
-// pub use matrix::{
-//     square::SquareMatrix, symmetric::SymmetricMatrix, vector::Vector,
-// };
+pub use matrix::{square::SquareMatrix, symmetric::SymmetricMatrix, vector::Vector};
 pub use tensor::{
     rank_0::{list::TensorRank0List, TensorRank0},
     rank_1::{
