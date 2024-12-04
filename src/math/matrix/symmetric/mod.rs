@@ -100,7 +100,29 @@ impl Hessian for SymmetricMatrix {
 }
 
 impl Rank2 for SymmetricMatrix {
+    type Transpose = Self;
     fn cholesky_decomposition(&self) -> Result<SymmetricMatrix, TensorError> {
+        todo!()
+    }
+    fn deviatoric(&self) -> Self {
+        todo!()
+    }
+    fn deviatoric_and_trace(&self) -> (Self, TensorRank0) {
+        todo!()
+    }
+    fn is_diagonal(&self) -> bool {
+        todo!()
+    }
+    fn is_identity(&self) -> bool {
+        todo!()
+    }
+    fn squared_trace(&self) -> TensorRank0 {
+        todo!()
+    }
+    fn trace(&self) -> TensorRank0 {
+        todo!()
+    }
+    fn transpose(&self) -> Self::Transpose {
         todo!()
     }
 }

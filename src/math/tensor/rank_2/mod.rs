@@ -159,18 +159,6 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2<D, I, J> {
                 .product()
         }
     }
-    /// Returns the deviatoric component of the rank-2 tensor.
-    pub fn deviatoric(&self) -> Self {
-        Self::identity() * (self.trace() / -(D as TensorRank0)) + self
-    }
-    /// Returns the deviatoric component and trace of the rank-2 tensor.
-    pub fn deviatoric_and_trace(&self) -> (Self, TensorRank0) {
-        let trace = self.trace();
-        (
-            Self::identity() * (trace / -(D as TensorRank0)) + self,
-            trace,
-        )
-    }
     /// Returns a rank-2 tensor constructed from a dyad of the given vectors.
     pub fn dyad(vector_a: &TensorRank1<D, I>, vector_b: &TensorRank1<D, J>) -> Self {
         vector_a
@@ -426,34 +414,6 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2<D, I, J> {
             panic!()
         }
     }
-    /// Checks whether the tensor is a diagonal tensor.
-    pub fn is_diagonal(&self) -> bool {
-        self.iter()
-            .enumerate()
-            .map(|(i, self_i)| {
-                self_i
-                    .iter()
-                    .enumerate()
-                    .map(|(j, self_ij)| (self_ij == &0.0) as u8 * (i != j) as u8)
-                    .sum::<u8>()
-            })
-            .sum::<u8>()
-            == (D * D - D) as u8
-    }
-    /// Checks whether the tensor is the identity tensor.
-    pub fn is_identity(&self) -> bool {
-        self.iter()
-            .enumerate()
-            .map(|(i, self_i)| {
-                self_i
-                    .iter()
-                    .enumerate()
-                    .map(|(j, self_ij)| (self_ij == &((i == j) as u8 as f64)) as u8)
-                    .sum::<u8>()
-            })
-            .sum::<u8>()
-            == (D * D) as u8
-    }
     /// Returns the LU decomposition of the rank-2 tensor.
     pub fn lu_decomposition(&self) -> (TensorRank2<D, I, 88>, TensorRank2<D, 88, J>) {
         let mut tensor_l = TensorRank2::zero();
@@ -535,33 +495,6 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2<D, I, J> {
         }
         (tensor_l, tensor_u)
     }
-    /// Returns the second invariant of the rank-2 tensor.
-    pub fn second_invariant(&self) -> TensorRank0 {
-        0.5 * (self.trace().powi(2) - self.squared_trace())
-    }
-    /// Returns the trace of the rank-2 tensor squared.
-    pub fn squared_trace(&self) -> TensorRank0 {
-        self.iter()
-            .enumerate()
-            .map(|(i, self_i)| {
-                self_i
-                    .iter()
-                    .zip(self.iter())
-                    .map(|(self_ij, self_j)| self_ij * self_j[i])
-                    .sum::<TensorRank0>()
-            })
-            .sum()
-    }
-    /// Returns the trace of the rank-2 tensor.
-    pub fn trace(&self) -> TensorRank0 {
-        (0..D).map(|i| self[i][i]).sum()
-    }
-    /// Returns the transpose of the rank-2 tensor.
-    pub fn transpose(&self) -> TensorRank2<D, J, I> {
-        (0..D)
-            .map(|i| (0..D).map(|j| self[j][i]).collect())
-            .collect()
-    }
 }
 
 impl<const D: usize, const I: usize, const J: usize> Hessian for TensorRank2<D, I, J> {
@@ -571,6 +504,7 @@ impl<const D: usize, const I: usize, const J: usize> Hessian for TensorRank2<D, 
 }
 
 impl<const D: usize, const I: usize, const J: usize> Rank2 for TensorRank2<D, I, J> {
+    type Transpose = TensorRank2<D, J, I>;
     fn cholesky_decomposition(&self) -> Result<TensorRank2<D, I, J>, TensorError> {
         let mut check = 0.0;
         let mut tensor_l = Self::zero();
@@ -598,6 +532,62 @@ impl<const D: usize, const I: usize, const J: usize> Rank2 for TensorRank2<D, I,
             }
         })?;
         Ok(tensor_l)
+    }
+    fn deviatoric(&self) -> Self {
+        Self::identity() * (self.trace() / -(D as TensorRank0)) + self
+    }
+    fn deviatoric_and_trace(&self) -> (Self, TensorRank0) {
+        let trace = self.trace();
+        (
+            Self::identity() * (trace / -(D as TensorRank0)) + self,
+            trace,
+        )
+    }
+    fn is_diagonal(&self) -> bool {
+        self.iter()
+            .enumerate()
+            .map(|(i, self_i)| {
+                self_i
+                    .iter()
+                    .enumerate()
+                    .map(|(j, self_ij)| (self_ij == &0.0) as u8 * (i != j) as u8)
+                    .sum::<u8>()
+            })
+            .sum::<u8>()
+            == (D.pow(2) - D) as u8
+    }
+    fn is_identity(&self) -> bool {
+        self.iter()
+            .enumerate()
+            .map(|(i, self_i)| {
+                self_i
+                    .iter()
+                    .enumerate()
+                    .map(|(j, self_ij)| (self_ij == &((i == j) as u8 as f64)) as u8)
+                    .sum::<u8>()
+            })
+            .sum::<u8>()
+            == D.pow(2) as u8
+    }
+    fn squared_trace(&self) -> TensorRank0 {
+        self.iter()
+            .enumerate()
+            .map(|(i, self_i)| {
+                self_i
+                    .iter()
+                    .zip(self.iter())
+                    .map(|(self_ij, self_j)| self_ij * self_j[i])
+                    .sum::<TensorRank0>()
+            })
+            .sum()
+    }
+    fn trace(&self) -> TensorRank0 {
+        self.iter().enumerate().map(|(i, self_i)| self_i[i]).sum()
+    }
+    fn transpose(&self) -> Self::Transpose {
+        (0..D)
+            .map(|i| (0..D).map(|j| self[j][i]).collect())
+            .collect()
     }
 }
 

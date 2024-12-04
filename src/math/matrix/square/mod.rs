@@ -112,6 +112,7 @@ impl Hessian for SquareMatrix {
 }
 
 impl Rank2 for SquareMatrix {
+    type Transpose = Self;
     fn cholesky_decomposition(&self) -> Result<SquareMatrix, TensorError> {
         let mut check = 0.0;
         let mut tensor_l = SquareMatrix::zero(self.len());
@@ -139,6 +140,58 @@ impl Rank2 for SquareMatrix {
             }
         })?;
         Ok(tensor_l)
+    }
+    fn deviatoric(&self) -> Self {
+        todo!()
+    }
+    fn deviatoric_and_trace(&self) -> (Self, TensorRank0) {
+        todo!()
+    }
+    fn is_diagonal(&self) -> bool {
+        self.iter()
+            .enumerate()
+            .map(|(i, self_i)| {
+                self_i
+                    .iter()
+                    .enumerate()
+                    .map(|(j, self_ij)| (self_ij == &0.0) as u8 * (i != j) as u8)
+                    .sum::<u8>()
+            })
+            .sum::<u8>()
+            == (self.len().pow(2) - self.len()) as u8
+    }
+    fn is_identity(&self) -> bool {
+        self.iter()
+            .enumerate()
+            .map(|(i, self_i)| {
+                self_i
+                    .iter()
+                    .enumerate()
+                    .map(|(j, self_ij)| (self_ij == &((i == j) as u8 as f64)) as u8)
+                    .sum::<u8>()
+            })
+            .sum::<u8>()
+            == self.len().pow(2) as u8
+    }
+    fn squared_trace(&self) -> TensorRank0 {
+        self.iter()
+            .enumerate()
+            .map(|(i, self_i)| {
+                self_i
+                    .iter()
+                    .zip(self.iter())
+                    .map(|(self_ij, self_j)| self_ij * self_j[i])
+                    .sum::<TensorRank0>()
+            })
+            .sum()
+    }
+    fn trace(&self) -> TensorRank0 {
+        self.iter().enumerate().map(|(i, self_i)| self_i[i]).sum()
+    }
+    fn transpose(&self) -> Self::Transpose {
+        (0..self.len())
+            .map(|i| (0..self.len()).map(|j| self[j][i]).collect())
+            .collect()
     }
 }
 

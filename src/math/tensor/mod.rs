@@ -45,8 +45,27 @@ pub trait Hessian {
 
 /// Common methods for rank-2 tensors.
 pub trait Rank2: Sized {
+    type Transpose;
     /// Returns the Cholesky decomposition of the rank-2 tensor.
     fn cholesky_decomposition(&self) -> Result<Self, TensorError>;
+    /// Returns the deviatoric component of the rank-2 tensor.
+    fn deviatoric(&self) -> Self;
+    /// Returns the deviatoric component and trace of the rank-2 tensor.
+    fn deviatoric_and_trace(&self) -> (Self, TensorRank0);
+    /// Checks whether the tensor is a diagonal tensor.
+    fn is_diagonal(&self) -> bool;
+    /// Checks whether the tensor is the identity tensor.
+    fn is_identity(&self) -> bool;
+    /// Returns the second invariant of the rank-2 tensor.
+    fn second_invariant(&self) -> TensorRank0 {
+        0.5 * (self.trace().powi(2) - self.squared_trace())
+    }
+    /// Returns the trace of the rank-2 tensor squared.
+    fn squared_trace(&self) -> TensorRank0;
+    /// Returns the trace of the rank-2 tensor.
+    fn trace(&self) -> TensorRank0;
+    /// Returns the transpose of the rank-2 tensor.
+    fn transpose(&self) -> Self::Transpose;
 }
 
 /// Common methods for tensors.
