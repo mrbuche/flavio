@@ -6,7 +6,7 @@ use super::test::ErrorTensor;
 
 pub mod list;
 
-use super::{Tensor, TensorArray};
+use super::{Hessian, Tensor, TensorArray};
 
 /// A tensor of rank 0 (a scalar).
 pub type TensorRank0 = f64;
@@ -34,6 +34,12 @@ impl ErrorTensor for TensorRank0 {
     }
 }
 
+impl Hessian for TensorRank0 {
+    fn is_positive_definite(&self) -> bool {
+        self > &0.0
+    }
+}
+
 impl Tensor for TensorRank0 {
     type Item = TensorRank0;
     fn copy(&self) -> TensorRank0 {
@@ -41,9 +47,6 @@ impl Tensor for TensorRank0 {
     }
     fn full_contraction(&self, tensor_rank_0: &Self) -> TensorRank0 {
         self * tensor_rank_0
-    }
-    fn is_positive_definite(&self) -> bool {
-        self > &0.0
     }
     fn is_zero(&self) -> bool {
         self == &0.0
@@ -54,7 +57,7 @@ impl Tensor for TensorRank0 {
     fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
         [self].into_iter()
     }
-    fn normalized(&self) -> Self {
+    fn normalized(self) -> Self {
         1.0
     }
 }

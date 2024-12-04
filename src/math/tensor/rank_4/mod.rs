@@ -11,7 +11,7 @@ use std::{
 };
 
 use super::{
-    rank_0::TensorRank0, rank_1::TensorRank1, rank_2::TensorRank2, rank_3::TensorRank3, Tensor,
+    rank_0::TensorRank0, rank_1::TensorRank1, rank_2::TensorRank2, rank_3::TensorRank3, Hessian, Tensor,
     TensorArray,
 };
 
@@ -207,6 +207,14 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
     }
 }
 
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> Hessian
+    for TensorRank4<D, I, J, K, L>
+{
+    fn is_positive_definite(&self) -> bool {
+        self.as_tensor_rank_2().cholesky_decomposition().is_ok()
+    }
+}
+
 impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> Tensor
     for TensorRank4<D, I, J, K, L>
 {
@@ -216,17 +224,11 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
             .map(|entry_rank_3| entry_rank_3.copy())
             .collect()
     }
-    fn is_positive_definite(&self) -> bool {
-        self.as_tensor_rank_2().cholesky_decomposition().is_ok()
-    }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()
     }
     fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
         self.0.iter_mut()
-    }
-    fn normalized(&self) -> Self {
-        self / self.norm()
     }
 }
 

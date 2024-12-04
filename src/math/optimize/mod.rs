@@ -4,7 +4,7 @@ mod test;
 mod gradient_descent;
 mod newton_raphson;
 
-use super::{Tensor, TensorRank0};
+use super::{Hessian, Tensor, TensorRank0};
 use crate::get_defeat_message;
 use std::{fmt, ops::Div};
 
@@ -35,7 +35,7 @@ pub trait FirstOrder<X: Tensor> {
 }
 
 /// Second-order optimization algorithms.
-pub trait SecondOrder<H: Tensor, J: Tensor, X: Tensor>
+pub trait SecondOrder<H: Hessian, J: Tensor, X: Tensor>
 where
     J: Div<H, Output = X>,
 {

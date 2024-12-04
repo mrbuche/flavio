@@ -9,6 +9,25 @@ impl FromIterator<TensorRank0> for Vector {
     }
 }
 
+// impl Tensor for Vector {
+//     type Item = TensorRank0;
+//     fn copy(&self) -> Self {
+//         self.iter().map(|entry| entry.copy()).collect()
+//     }
+//     fn get_at(&self, indices: &[usize]) -> &TensorRank0 {
+//         &self[indices[0]]
+//     }
+//     fn get_at_mut(&mut self, indices: &[usize]) -> &mut TensorRank0 {
+//         &mut self[indices[0]]
+//     }
+//     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
+//         self.0.iter()
+//     }
+//     fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
+//         self.0.iter_mut()
+//     }
+// }
+
 impl<'a> TensorVec<'a> for Vector {
     type Item = TensorRank0;
     type Slice = &'a [TensorRank0];

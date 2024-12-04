@@ -2,7 +2,7 @@
 mod test;
 
 use super::{
-    super::{Tensor, TensorRank0},
+    super::{Hessian, Tensor, TensorRank0},
     Dirichlet, Neumann, OptimizeError, SecondOrder,
 };
 use crate::ABS_TOL;
@@ -29,7 +29,7 @@ impl Default for NewtonRaphson {
     }
 }
 
-impl<H: Tensor, J: Tensor, X: Tensor> SecondOrder<H, J, X> for NewtonRaphson
+impl<H: Hessian, J: Tensor, X: Tensor> SecondOrder<H, J, X> for NewtonRaphson
 where
     J: Div<H, Output = X>,
 {

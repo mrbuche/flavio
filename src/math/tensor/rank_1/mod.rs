@@ -107,9 +107,6 @@ impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
     fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
         self.0.iter_mut()
     }
-    fn normalized(&self) -> Self {
-        self / self.norm()
-    }
 }
 
 impl<const D: usize, const I: usize> TensorArray for TensorRank1<D, I> {

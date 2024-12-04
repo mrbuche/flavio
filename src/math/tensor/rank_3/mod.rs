@@ -136,9 +136,6 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize> Tensor
     fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
         self.0.iter_mut()
     }
-    fn normalized(&self) -> Self {
-        self / self.norm()
-    }
 }
 
 impl<const D: usize, const I: usize, const J: usize, const K: usize> TensorArray

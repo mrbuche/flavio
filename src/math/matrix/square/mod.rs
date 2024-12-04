@@ -28,9 +28,6 @@ impl FromIterator<Vector> for SquareMatrix {
 //     fn get_at_mut(&mut self, indices: &[usize]) -> &mut TensorRank0 {
 //         &mut self[indices[0]][indices[1]]
 //     }
-//     fn is_positive_definite(&self) -> bool {
-//         todo!()
-//     }
 //     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
 //         self.0.iter()
 //     }

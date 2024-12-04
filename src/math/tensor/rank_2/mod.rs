@@ -21,7 +21,7 @@ use super::{
     rank_0::TensorRank0,
     rank_1::{list::TensorRank1List, vec::TensorRank1Vec, TensorRank1},
     rank_4::TensorRank4,
-    Convert, Tensor, TensorArray, TensorError,
+    Convert, Hessian, Tensor, TensorArray, TensorError,
 };
 use list_2d::TensorRank2List2D;
 use vec_2d::TensorRank2Vec2D;
@@ -593,22 +593,22 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2<D, I, J> {
     }
 }
 
+impl<const D: usize, const I: usize, const J: usize> Hessian for TensorRank2<D, I, J> {
+    fn is_positive_definite(&self) -> bool {
+        self.cholesky_decomposition().is_ok()
+    }
+}
+
 impl<const D: usize, const I: usize, const J: usize> Tensor for TensorRank2<D, I, J> {
     type Item = TensorRank1<D, J>;
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
-    }
-    fn is_positive_definite(&self) -> bool {
-        self.cholesky_decomposition().is_ok()
     }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()
     }
     fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
         self.0.iter_mut()
-    }
-    fn normalized(&self) -> Self {
-        self / self.norm()
     }
 }
 

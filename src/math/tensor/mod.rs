@@ -37,6 +37,12 @@ impl PartialEq for TensorError {
     }
 }
 
+/// Common methods for Hessians.
+pub trait Hessian {
+    /// Checks whether the Hessian is positive-definite.
+    fn is_positive_definite(&self) -> bool;
+}
+
 /// Common methods for tensors.
 pub trait Tensor
 where
@@ -75,10 +81,6 @@ where
     fn get_at_mut(&mut self, _indices: &[usize]) -> &mut TensorRank0 {
         panic!("Need to implement get_at_mut() for {:?}.", self)
     }
-    /// Checks whether the tensor is positive-definite.
-    fn is_positive_definite(&self) -> bool {
-        panic!("Need to implement is_positive_definite() for {:?}.", self)
-    }
     /// Checks whether the tensor is the zero tensor.
     fn is_zero(&self) -> bool {
         self.iter().filter(|entry| !entry.is_zero()).count() == 0
@@ -100,8 +102,9 @@ where
         self.full_contraction(self)
     }
     /// Returns the tensor normalized.
-    fn normalized(&self) -> Self {
-        panic!("Need to implement normalized() for {:?}.", self)
+    fn normalized(self) -> Self {
+        let norm = self.norm();
+        self / norm
     }
 }
 
