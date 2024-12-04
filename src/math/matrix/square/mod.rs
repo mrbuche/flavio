@@ -6,8 +6,6 @@ use crate::math::{Tensor, TensorRank0, TensorVec, Vector};
 
 // can also have ode solvers use tspan like matlab/etc. now
 
-// TensorVec trait? with things you have in base impls for other vec types
-
 // remember: trying to get something more pliable (TensorVec, Matrix, etc.) to go back to Lagrange multipliers instead of constraints
 
 /// ???
