@@ -43,6 +43,12 @@ pub trait Hessian {
     fn is_positive_definite(&self) -> bool;
 }
 
+/// Common methods for rank-2 tensors.
+pub trait Rank2: Sized {
+    /// Returns the Cholesky decomposition of the rank-2 tensor.
+    fn cholesky_decomposition(&self) -> Result<Self, TensorError>;
+}
+
 /// Common methods for tensors.
 pub trait Tensor
 where

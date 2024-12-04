@@ -21,7 +21,7 @@ use super::{
     rank_0::TensorRank0,
     rank_1::{list::TensorRank1List, vec::TensorRank1Vec, TensorRank1},
     rank_4::TensorRank4,
-    Convert, Hessian, Tensor, TensorArray, TensorError,
+    Convert, Hessian, Rank2, Tensor, TensorArray, TensorError,
 };
 use list_2d::TensorRank2List2D;
 use vec_2d::TensorRank2Vec2D;
@@ -125,35 +125,6 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2<D, I, J> {
                 .for_each(|(j, self_ij)| tensor_rank_1[3 * i + j] = *self_ij)
         });
         tensor_rank_1
-    }
-    /// Returns the Cholesky decomposition of the rank-2 tensor.
-    pub fn cholesky_decomposition(&self) -> Result<TensorRank2<D, I, J>, TensorError> {
-        let mut check = 0.0;
-        let mut tensor_l = TensorRank2::zero();
-        self.iter().enumerate().try_for_each(|(j, self_j)| {
-            check = self_j[j]
-                - tensor_l[j]
-                    .iter()
-                    .take(j)
-                    .map(|tensor_l_jk| tensor_l_jk.powi(2))
-                    .sum::<TensorRank0>();
-            if check < 0.0 {
-                Err(TensorError::NotPositiveDefinite)
-            } else {
-                tensor_l[j][j] = check.sqrt();
-                self.iter().enumerate().skip(j + 1).for_each(|(i, self_i)| {
-                    check = tensor_l[i]
-                        .iter()
-                        .zip(tensor_l[j].iter())
-                        .take(j)
-                        .map(|(tensor_l_ik, tensor_l_jk)| tensor_l_ik * tensor_l_jk)
-                        .sum();
-                    tensor_l[i][j] = (self_i[j] - check) / tensor_l[j][j];
-                });
-                Ok(())
-            }
-        })?;
-        Ok(tensor_l)
     }
     /// Returns the determinant of the rank-2 tensor.
     pub fn determinant(&self) -> TensorRank0 {
@@ -596,6 +567,37 @@ impl<const D: usize, const I: usize, const J: usize> TensorRank2<D, I, J> {
 impl<const D: usize, const I: usize, const J: usize> Hessian for TensorRank2<D, I, J> {
     fn is_positive_definite(&self) -> bool {
         self.cholesky_decomposition().is_ok()
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize> Rank2 for TensorRank2<D, I, J> {
+    fn cholesky_decomposition(&self) -> Result<TensorRank2<D, I, J>, TensorError> {
+        let mut check = 0.0;
+        let mut tensor_l = Self::zero();
+        self.iter().enumerate().try_for_each(|(j, self_j)| {
+            check = self_j[j]
+                - tensor_l[j]
+                    .iter()
+                    .take(j)
+                    .map(|tensor_l_jk| tensor_l_jk.powi(2))
+                    .sum::<TensorRank0>();
+            if check < 0.0 {
+                Err(TensorError::NotPositiveDefinite)
+            } else {
+                tensor_l[j][j] = check.sqrt();
+                self.iter().enumerate().skip(j + 1).for_each(|(i, self_i)| {
+                    check = tensor_l[i]
+                        .iter()
+                        .zip(tensor_l[j].iter())
+                        .take(j)
+                        .map(|(tensor_l_ik, tensor_l_jk)| tensor_l_ik * tensor_l_jk)
+                        .sum();
+                    tensor_l[i][j] = (self_i[j] - check) / tensor_l[j][j];
+                });
+                Ok(())
+            }
+        })?;
+        Ok(tensor_l)
     }
 }
 

@@ -11,7 +11,7 @@ use std::{
 };
 
 use super::{
-    rank_0::TensorRank0, rank_1::TensorRank1, rank_2::TensorRank2, rank_3::TensorRank3, Hessian, Tensor,
+    rank_0::TensorRank0, rank_1::TensorRank1, rank_2::TensorRank2, rank_3::TensorRank3, Hessian, Rank2, Tensor,
     TensorArray,
 };
 
