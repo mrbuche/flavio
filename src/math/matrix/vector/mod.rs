@@ -1,6 +1,6 @@
 use crate::math::{Tensor, TensorRank0, TensorVec};
 
-/// ???
+/// A vector.
 pub struct Vector(Vec<TensorRank0>);
 
 impl FromIterator<TensorRank0> for Vector {

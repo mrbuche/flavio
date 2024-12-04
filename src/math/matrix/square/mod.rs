@@ -8,7 +8,7 @@ use crate::math::{Tensor, TensorRank0, TensorVec, Vector};
 
 // remember: trying to get something more pliable (TensorVec, Matrix, etc.) to go back to Lagrange multipliers instead of constraints
 
-/// ???
+/// A square matrix.
 pub struct SquareMatrix(Vec<Vector>);
 
 impl FromIterator<Vector> for SquareMatrix {
