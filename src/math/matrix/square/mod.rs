@@ -7,6 +7,7 @@ use crate::math::{Tensor, TensorRank0, TensorVec, Vector};
 // can also have ode solvers use tspan like matlab/etc. now
 
 // remember: trying to get something more pliable (TensorVec, Matrix, etc.) to go back to Lagrange multipliers instead of constraints
+//           and might want to try to get rid of get_at methods if possible?
 
 /// A square matrix.
 pub struct SquareMatrix(Vec<Vector>);
