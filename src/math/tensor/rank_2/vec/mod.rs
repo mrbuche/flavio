@@ -1,7 +1,7 @@
 #[cfg(test)]
 use super::super::test::ErrorTensor;
 
-use crate::math::{Tensor, TensorArray, TensorRank0, TensorRank2};
+use crate::math::{Tensor, TensorArray, TensorRank0, TensorRank2, TensorVec};
 use std::{
     fmt::{Display, Formatter, Result},
     ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
@@ -106,21 +106,23 @@ impl<const D: usize, const I: usize, const J: usize> IndexMut<usize> for TensorR
     }
 }
 
-impl<const D: usize, const I: usize, const J: usize> TensorRank2Vec<D, I, J> {
-    pub fn is_empty(&self) -> bool {
+impl<'a, const D: usize, const I: usize, const J: usize> TensorVec<'a> for TensorRank2Vec<D, I, J> {
+    type Item = TensorRank2<D, I, J>;
+    type Slice = &'a [[[TensorRank0; D]; D]];
+    fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
-    pub fn len(&self) -> usize {
+    fn len(&self) -> usize {
         self.0.len()
     }
-    pub fn new_vec(slice: &[[[TensorRank0; D]; D]]) -> Self {
+    fn new(slice: Self::Slice) -> Self {
         slice
             .iter()
-            .map(|slice_entry| TensorRank2::new(*slice_entry))
+            .map(|slice_entry| Self::Item::new(*slice_entry))
             .collect()
     }
-    pub fn zero_vec(len: usize) -> Self {
-        (0..len).map(|_| TensorRank2::zero()).collect()
+    fn zero(len: usize) -> Self {
+        (0..len).map(|_| Self::Item::zero()).collect()
     }
 }
 

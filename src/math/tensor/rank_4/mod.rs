@@ -11,7 +11,8 @@ use std::{
 };
 
 use super::{
-    rank_0::TensorRank0, rank_1::TensorRank1, rank_2::TensorRank2, rank_3::TensorRank3, Tensor, TensorArray
+    rank_0::TensorRank0, rank_1::TensorRank1, rank_2::TensorRank2, rank_3::TensorRank3, Tensor,
+    TensorArray,
 };
 
 pub mod list;

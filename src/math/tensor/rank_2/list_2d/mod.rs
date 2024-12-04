@@ -10,7 +10,11 @@ use std::{
     ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
 };
 
-use super::{super::{Tensor, TensorArray}, list::TensorRank2List, TensorRank0, TensorRank2};
+use super::{
+    super::{Tensor, TensorArray},
+    list::TensorRank2List,
+    TensorRank0, TensorRank2,
+};
 
 /// A 2D list of *d*-dimensional tensors of rank 2.
 ///

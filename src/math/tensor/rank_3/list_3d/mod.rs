@@ -4,7 +4,11 @@ pub mod test;
 #[cfg(test)]
 use super::super::test::ErrorTensor;
 
-use super::{super::{Tensor, TensorArray}, list_2d::TensorRank3List2D, TensorRank0};
+use super::{
+    super::{Tensor, TensorArray},
+    list_2d::TensorRank3List2D,
+    TensorRank0,
+};
 use std::{
     array::from_fn,
     fmt::{Display, Formatter, Result},

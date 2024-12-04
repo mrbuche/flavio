@@ -1,7 +1,11 @@
 #[cfg(test)]
 mod test;
 
-use super::{super::{Tensor, TensorArray}, list::TensorRank1List, TensorRank0};
+use super::{
+    super::{Tensor, TensorArray},
+    list::TensorRank1List,
+    TensorRank0,
+};
 use std::array::from_fn;
 use std::{
     fmt::{Display, Formatter, Result},

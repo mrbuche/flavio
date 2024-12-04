@@ -1,5 +1,8 @@
 use super::{
-    super::{super::{Tensor, TensorArray}, TensorRank3},
+    super::{
+        super::{Tensor, TensorArray},
+        TensorRank3,
+    },
     TensorRank0, TensorRank3List2D,
 };
 

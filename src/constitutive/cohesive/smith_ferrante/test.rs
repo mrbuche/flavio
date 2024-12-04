@@ -1,8 +1,5 @@
 use super::{super::test::SMITHFERRANTEPARAMETERS, *};
-use crate::{
-    EPSILON,
-    math::TensorArray
-};
+use crate::{math::TensorArray, EPSILON};
 
 #[test]
 fn finite_difference_1() {

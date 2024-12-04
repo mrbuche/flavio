@@ -274,7 +274,7 @@ where
         &self,
         nodal_coordinates: &NodalCoordinatesBlock,
     ) -> Result<NodalForcesBlock, ConstitutiveError> {
-        let mut nodal_forces = NodalForcesBlock::zero_vec(nodal_coordinates.len());
+        let mut nodal_forces = NodalForcesBlock::zero(nodal_coordinates.len());
         self.get_elements()
             .iter()
             .zip(self.get_connectivity().iter())
@@ -295,7 +295,7 @@ where
         &self,
         nodal_coordinates: &NodalCoordinatesBlock,
     ) -> Result<NodalStiffnessesBlock, ConstitutiveError> {
-        let mut nodal_stiffnesses = NodalStiffnessesBlock::zero_vec(nodal_coordinates.len());
+        let mut nodal_stiffnesses = NodalStiffnessesBlock::zero(nodal_coordinates.len());
         self.get_elements()
             .iter()
             .zip(self.get_connectivity().iter())
@@ -459,7 +459,7 @@ where
         nodal_coordinates: &NodalCoordinatesBlock,
         nodal_velocities: &NodalVelocitiesBlock,
     ) -> Result<NodalForcesBlock, ConstitutiveError> {
-        let mut nodal_forces = NodalForcesBlock::zero_vec(nodal_coordinates.len());
+        let mut nodal_forces = NodalForcesBlock::zero(nodal_coordinates.len());
         self.get_elements()
             .iter()
             .zip(self.get_connectivity().iter())
@@ -487,7 +487,7 @@ where
         nodal_coordinates: &NodalCoordinatesBlock,
         nodal_velocities: &NodalVelocitiesBlock,
     ) -> Result<NodalStiffnessesBlock, ConstitutiveError> {
-        let mut nodal_stiffnesses = NodalStiffnessesBlock::zero_vec(nodal_coordinates.len());
+        let mut nodal_stiffnesses = NodalStiffnessesBlock::zero(nodal_coordinates.len());
         self.get_elements()
             .iter()
             .zip(self.get_connectivity().iter())

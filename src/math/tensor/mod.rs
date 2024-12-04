@@ -118,3 +118,17 @@ pub trait TensorArray {
     /// Returns the zero tensor.
     fn zero() -> Self;
 }
+
+/// Common methods for tensors derived from Vec.
+pub trait TensorVec<'a> {
+    type Item;
+    type Slice;
+    /// Returns `true` if the vector contains no elements.
+    fn is_empty(&self) -> bool;
+    /// Returns the number of elements in the vector, also referred to as its ‘length’.
+    fn len(&self) -> usize;
+    /// Returns a tensor given a slice.
+    fn new(slice: Self::Slice) -> Self;
+    /// Returns the zero tensor.
+    fn zero(len: usize) -> Self;
+}
