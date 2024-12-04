@@ -6,7 +6,7 @@ use super::{
 };
 use crate::math::{
     test::{assert_eq_within_tols, TestError},
-    Tensor, TensorArray,
+    Rank2, Tensor, TensorArray,
 };
 
 pub fn get_deformation_gradient() -> DeformationGradient {
