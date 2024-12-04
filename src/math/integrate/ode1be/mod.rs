@@ -11,7 +11,9 @@ use super::{
 use crate::{ABS_TOL, REL_TOL};
 use std::ops::{Div, Mul, Sub};
 
-/// Implicit, single-stage, first-order, variable-step, Runge-Kutta method (the backward Euler method).
+/// Implicit, single-stage, first-order, variable-step, Runge-Kutta method.[^cite]
+///
+/// [^cite]: Also known as the backward Euler method.
 #[derive(Debug)]
 pub struct Ode1be {
     /// Absolute error tolerance.

@@ -3,7 +3,9 @@ mod test;
 
 use super::*;
 
-/// The Gent hyperelastic constitutive model.
+/// The Gent hyperelastic constitutive model.[^cite]
+///
+/// [^cite]: A.N. Gent, [Rubber Chem. Technol. **69**, 59 (1996)](https://doi.org/10.5254/1.3538357).
 ///
 /// **Parameters**
 /// - The bulk modulus $`\kappa`$.

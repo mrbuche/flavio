@@ -8,7 +8,9 @@ use super::{
 use crate::{ABS_TOL, REL_TOL};
 use std::ops::{Mul, Sub};
 
-/// Explicit, three-stage, third-order, variable-step, Runge-Kutta method ([Bogacki and Shampine, 1989](https://doi.org/10.1016/0893-9659(89)90079-7)).
+/// Explicit, three-stage, third-order, variable-step, Runge-Kutta method.[^cite]
+///
+/// [^cite]: P. Bogacki and L.F. Shampine, [Appl. Math. Lett. **2**, 321 (1989)](https://doi.org/10.1016/0893-9659(89)90079-7).
 ///
 /// ```math
 /// \frac{dy}{dt} = f(t, y)

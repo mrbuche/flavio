@@ -25,9 +25,11 @@ pub fn inverse_langevin(y: f64) -> f64 {
     }
 }
 
-/// Returns an approximation of the inverse Langevin function.
+/// Returns an approximation of the inverse Langevin function.[^cite]
 ///
-/// The approximation given by [Jedynak](https://doi.org/10.1177%2F1081286518811395) has a maximum relative error of 0.082%.
+/// This approximation has a maximum relative error of 0.082%.
+///
+/// [^cite]: R. Jedynak, [Math. Mech. Solids **24**, 1992 (2019)](https://doi.org/10.1177/1081286518811395).
 ///
 /// ```math
 /// \mathcal{L}^{-1}(y) \approx \frac{2.14234 y^3 - 4.22785 y^2 + 3y}{(1 - y)(0.71716 y^3 - 0.41103 y^2 - 0.39165 y + 1)}

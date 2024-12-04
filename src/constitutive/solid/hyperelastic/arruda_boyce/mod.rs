@@ -4,7 +4,9 @@ mod test;
 use super::*;
 use crate::math::special::{inverse_langevin, langevin_derivative};
 
-/// The Arruda-Boyce hyperelastic constitutive model.
+/// The Arruda-Boyce hyperelastic constitutive model.[^cite]
+///
+/// [^cite]: E.M. Arruda and M.C. Boyce, [J. Mech. Phys. Solids **41**, 389 (1993)](https://doi.org/10.1016/0022-5096(93)90013-6).
 ///
 /// **Parameters**
 /// - The bulk modulus $`\kappa`$.

@@ -45,6 +45,7 @@ pub trait Hessian {
 
 /// Common methods for rank-2 tensors.
 pub trait Rank2: Sized {
+    /// The type that is the transpose of the tensor.
     type Transpose;
     /// Returns the Cholesky decomposition of the rank-2 tensor.
     fn cholesky_decomposition(&self) -> Result<Self, TensorError>;
@@ -86,6 +87,7 @@ where
         + SubAssign<&'a Self>,
     Self::Item: Tensor,
 {
+    /// The type of item encountered when iterating over the tensor.
     type Item;
     /// Returns a copy.
     ///
@@ -135,7 +137,9 @@ where
 
 /// Common methods for tensors derived from arrays.
 pub trait TensorArray {
+    /// The type of array corresponding to the tensor.
     type Array;
+    /// The type of item encountered when iterating over the tensor.
     type Item;
     /// Returns the tensor as an array.
     fn as_array(&self) -> Self::Array;
@@ -149,7 +153,9 @@ pub trait TensorArray {
 
 /// Common methods for tensors derived from Vec.
 pub trait TensorVec<'a> {
+    /// The type of item encountered when iterating over the tensor.
     type Item;
+    /// The type of slice corresponding to the tensor.
     type Slice;
     /// Returns `true` if the vector contains no elements.
     fn is_empty(&self) -> bool;

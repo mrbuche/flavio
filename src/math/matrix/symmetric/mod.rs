@@ -27,6 +27,7 @@ pub struct SymmetricMatrix(Vec<Vector>);
 //
 // maybe just worry about trying to match the speed of SquareMatrix for now
 // while also testing that the storage size is correct (N*(N+1)/2 instead of N*N)
+//
 
 //
 // use Cholesky for inverse and things?

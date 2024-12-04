@@ -50,7 +50,7 @@ pub use tensor::{
 
 use std::fmt;
 
-pub fn write_tensor_rank_0(f: &mut fmt::Formatter, tensor_rank_0: &TensorRank0) -> fmt::Result {
+fn write_tensor_rank_0(f: &mut fmt::Formatter, tensor_rank_0: &TensorRank0) -> fmt::Result {
     let num = (tensor_rank_0 * 1e6).round() / 1e6;
     let num_abs = num.abs();
     if num.is_nan() {
