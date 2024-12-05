@@ -43,7 +43,19 @@ pub struct SymmetricMatrix(Vec<Vector>);
 //
 // remember: trying to get something more pliable (TensorVec, Matrix, etc.) to go back to Lagrange multipliers instead of constraints
 //           and might want to try to get rid of get_at methods if possible?
+//           Eventually: Newton-Raphson only guarantees local convergence, need stuff for global convergence
+// See slides and
+// https://en.wikipedia.org/wiki/Sequential_quadratic_programming
 //
+// seems like you will need to do the SQP subproblem (is actually quadratic) since you may not be able to invert!
+// also check out how he moved lambda from RHS (where would be in nodal force) to other side in lambda-tilde
+// need to understand the inertia thing, seems like you need to just ensure there are no zero eigenvalues
+// and I guess once you are close (nearby local minimum is global minimum), you won't need the gamma (so maybe start with gamma=0 as first guess)
+
+// should you separate the constrained and unconstrained optimization methods?
+// would be nice for cases that do not need constraints
+// and the full SQP using Newton's method is going to be quite different than Newton's method
+// can you pass in NewtonRaphson as an Option for the SQP to use?
 
 #[cfg(test)]
 impl ErrorTensor for SymmetricMatrix {
