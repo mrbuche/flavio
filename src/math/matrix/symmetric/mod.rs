@@ -55,6 +55,10 @@ pub struct SymmetricMatrix(Vec<Vector>);
 
 // apparently the [[H, dc], [dc, 0]] is "never positive definite even is H is?" (in QP wiki)
 
+// maybe the full NP it's recast as the QP because you might not be able to solve the equation?
+// meaning it's not inverible, or at least bad idea to try and invert?
+// so then you are minimizing the QP instead?
+
 // should you separate the constrained and unconstrained optimization methods?
 // would be nice for cases that do not need constraints
 // and the full SQP using Newton's method is going to be quite different than Newton's method
