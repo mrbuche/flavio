@@ -54,6 +54,7 @@ pub struct SymmetricMatrix(Vec<Vector>);
 // and I guess once you are close (nearby local minimum is global minimum), you won't need the gamma (so maybe start with gamma=0 as first guess)
 
 // apparently the [[H, dc], [dc, 0]] is "never positive definite even is H is?" (in QP wiki)
+// so then you have to verify minima some other way? or the processes guarentees it somehow?
 
 // maybe the full NP it's recast as the QP because you might not be able to solve the equation?
 // meaning it's not inverible, or at least bad idea to try and invert?
