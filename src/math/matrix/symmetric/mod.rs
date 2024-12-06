@@ -53,6 +53,8 @@ pub struct SymmetricMatrix(Vec<Vector>);
 // need to understand the inertia thing, seems like you need to just ensure there are no zero eigenvalues
 // and I guess once you are close (nearby local minimum is global minimum), you won't need the gamma (so maybe start with gamma=0 as first guess)
 
+// apparently the [[H, dc], [dc, 0]] is "never positive definite even is H is?" (in QP wiki)
+
 // should you separate the constrained and unconstrained optimization methods?
 // would be nice for cases that do not need constraints
 // and the full SQP using Newton's method is going to be quite different than Newton's method
