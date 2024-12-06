@@ -49,6 +49,7 @@ pub struct SymmetricMatrix(Vec<Vector>);
 //
 // seems like you will need to do the SQP subproblem (is actually quadratic) since you may not be able to invert!
 // also check out how he moved lambda from RHS (where would be in nodal force) to other side in lambda-tilde
+// IT TOTAL JUST FACTORS OUT! nice trick for sure
 // need to understand the inertia thing, seems like you need to just ensure there are no zero eigenvalues
 // and I guess once you are close (nearby local minimum is global minimum), you won't need the gamma (so maybe start with gamma=0 as first guess)
 
