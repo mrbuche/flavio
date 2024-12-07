@@ -1,7 +1,10 @@
 #[cfg(test)]
 use crate::math::test::ErrorTensor;
 
-use crate::math::{Hessian, Rank2, Tensor, TensorRank0, TensorVec, Vector, write_tensor_rank_0, tensor::TensorError};
+use crate::math::{
+    tensor::TensorError, write_tensor_rank_0, Hessian, Rank2, Tensor, TensorRank0, TensorVec,
+    Vector,
+};
 use std::{
     fmt,
     ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
@@ -142,10 +145,32 @@ impl Rank2 for SquareMatrix {
         Ok(tensor_l)
     }
     fn deviatoric(&self) -> Self {
-        todo!()
+        let len = self.len();
+        let scale = -self.trace() / len as TensorRank0;
+        (0..len)
+            .map(|i| {
+                (0..len)
+                    .map(|j| ((i == j) as u8) as TensorRank0 * scale)
+                    .collect()
+            })
+            .collect::<Self>()
+            + self
     }
     fn deviatoric_and_trace(&self) -> (Self, TensorRank0) {
-        todo!()
+        let len = self.len();
+        let trace = self.trace();
+        let scale = -trace / len as TensorRank0;
+        (
+            (0..len)
+                .map(|i| {
+                    (0..len)
+                        .map(|j| ((i == j) as u8) as TensorRank0 * scale)
+                        .collect()
+                })
+                .collect::<Self>()
+                + self,
+            trace,
+        )
     }
     fn is_diagonal(&self) -> bool {
         self.iter()
@@ -199,12 +224,6 @@ impl Tensor for SquareMatrix {
     type Item = Vector;
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
-    }
-    fn get_at(&self, indices: &[usize]) -> &TensorRank0 {
-        &self[indices[0]][indices[1]]
-    }
-    fn get_at_mut(&mut self, indices: &[usize]) -> &mut TensorRank0 {
-        &mut self[indices[0]][indices[1]]
     }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()

@@ -3,8 +3,8 @@ use super::{
     ContractAllIndicesWithFirstIndicesOf, ContractFirstSecondIndicesWithSecondIndicesOf,
     ContractFirstThirdFourthIndicesWithFirstIndicesOf,
     ContractSecondFourthIndicesWithFirstIndicesOf, ContractSecondIndexWithFirstIndexOf,
-    ContractThirdFourthIndicesWithFirstSecondIndicesOf, Rank2, TensorRank0, TensorRank1, TensorRank2,
-    TensorRank3, TensorRank4,
+    ContractThirdFourthIndicesWithFirstSecondIndicesOf, Rank2, TensorRank0, TensorRank1,
+    TensorRank2, TensorRank3, TensorRank4,
 };
 use crate::{ABS_TOL, REL_TOL};
 

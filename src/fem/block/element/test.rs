@@ -11,7 +11,7 @@ macro_rules! test_finite_element {
                 },
                 math::{
                     test::{assert_eq, assert_eq_from_fd, assert_eq_within_tols, TestError},
-                    Convert, TensorRank2,
+                    Convert, Rank2, TensorRank2,
                 },
                 EPSILON,
             };
@@ -171,7 +171,10 @@ pub(crate) use setup_for_element_tests_any_element;
 
 macro_rules! setup_for_elements {
     ($element: ident) => {
-        use crate::mechanics::test::{get_deformation_gradient, get_deformation_gradient_rate};
+        use crate::{
+            math::Rank2,
+            mechanics::test::{get_deformation_gradient, get_deformation_gradient_rate},
+        };
         fn get_coordinates() -> NodalCoordinates<N> {
             get_deformation_gradient() * get_reference_coordinates()
         }
@@ -204,6 +207,7 @@ pub(crate) use setup_for_surface_or_localization_elements;
 
 macro_rules! setup_for_surface_elements {
     ($element: ident) => {
+        use crate::math::Rank2;
         fn get_coordinates() -> NodalCoordinates<N> {
             get_deformation_gradient() * get_reference_coordinates()
         }
@@ -223,7 +227,7 @@ pub(crate) use setup_for_surface_elements;
 
 macro_rules! setup_for_localization_elements {
     ($element: ident) => {
-        use crate::fem::block::element::linear::surface::test::THICKNESS;
+        use crate::{fem::block::element::linear::surface::test::THICKNESS, math::Rank2};
         fn get_coordinates() -> NodalCoordinates<N> {
             get_deformation_gradient_rotation() * get_coordinates_unrotated()
         }
@@ -265,7 +269,10 @@ pub(crate) use setup_for_localization_elements;
 
 macro_rules! setup_for_composite_elements {
     ($element: ident) => {
-        use crate::mechanics::test::{get_deformation_gradient, get_deformation_gradient_rate};
+        use crate::{
+            math::Rank2,
+            mechanics::test::{get_deformation_gradient, get_deformation_gradient_rate},
+        };
         fn get_coordinates() -> NodalCoordinates<N> {
             get_deformation_gradient() * get_reference_coordinates()
         }
