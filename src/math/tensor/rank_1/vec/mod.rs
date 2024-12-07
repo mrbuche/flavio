@@ -1,7 +1,9 @@
 #[cfg(test)]
 use super::super::test::ErrorTensor;
 
-use crate::math::{write_tensor_rank_0, Tensor, TensorRank0, TensorRank1, TensorRank2};
+use crate::math::{
+    write_tensor_rank_0, Tensor, TensorArray, TensorRank0, TensorRank1, TensorRank2, TensorVec,
+};
 use std::{
     fmt::{Display, Formatter, Result},
     ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
@@ -136,29 +138,30 @@ impl<const D: usize, const I: usize> TensorRank1Vec<D, I> {
             .map(|(entry, tensor)| entry * tensor)
             .sum()
     }
-    pub fn is_empty(&self) -> bool {
+}
+
+impl<'a, const D: usize, const I: usize> TensorVec<'a> for TensorRank1Vec<D, I> {
+    type Item = TensorRank1<D, I>;
+    type Slice = &'a [[TensorRank0; D]];
+    fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
-    pub fn len(&self) -> usize {
+    fn len(&self) -> usize {
         self.0.len()
     }
-    pub fn new_vec(slice: &[[TensorRank0; D]]) -> Self {
+    fn new(slice: Self::Slice) -> Self {
         slice
             .iter()
-            .map(|slice_entry| TensorRank1::new(*slice_entry))
+            .map(|slice_entry| Self::Item::new(*slice_entry))
             .collect()
     }
-    pub fn zero_vec(len: usize) -> Self {
+    fn zero(len: usize) -> Self {
         (0..len).map(|_| super::zero()).collect()
     }
 }
 
 impl<const D: usize, const I: usize> Tensor for TensorRank1Vec<D, I> {
-    type Array = [[TensorRank0; D]; 0];
     type Item = TensorRank1<D, I>;
-    fn as_array(&self) -> Self::Array {
-        panic!()
-    }
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
     }
@@ -168,20 +171,11 @@ impl<const D: usize, const I: usize> Tensor for TensorRank1Vec<D, I> {
     fn get_at_mut(&mut self, indices: &[usize]) -> &mut TensorRank0 {
         &mut self[indices[0]][indices[1]]
     }
-    fn identity() -> Self {
-        panic!()
-    }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()
     }
     fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
         self.0.iter_mut()
-    }
-    fn new(_array: Self::Array) -> Self {
-        panic!()
-    }
-    fn zero() -> Self {
-        panic!()
     }
 }
 

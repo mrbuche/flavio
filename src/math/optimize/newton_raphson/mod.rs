@@ -2,7 +2,7 @@
 mod test;
 
 use super::{
-    super::{Tensor, TensorRank0},
+    super::{Hessian, Tensor, TensorRank0},
     Dirichlet, Neumann, OptimizeError, SecondOrder,
 };
 use crate::ABS_TOL;
@@ -29,7 +29,7 @@ impl Default for NewtonRaphson {
     }
 }
 
-impl<H: Tensor, J: Tensor, X: Tensor> SecondOrder<H, J, X> for NewtonRaphson
+impl<H: Hessian, J: Tensor, X: Tensor> SecondOrder<H, J, X> for NewtonRaphson
 where
     J: Div<H, Output = X>,
 {
@@ -38,31 +38,37 @@ where
         jacobian: impl Fn(&X) -> Result<J, OptimizeError>,
         hessian: impl Fn(&X) -> Result<H, OptimizeError>,
         initial_guess: X,
-        dirichlet: Option<Dirichlet>,
-        neumann: Option<Neumann>,
+        _dirichlet: Option<Dirichlet>,
+        _neumann: Option<Neumann>,
     ) -> Result<X, OptimizeError> {
+        //
+        // consider having separate implementations for constrained and unconstrained optimization
+        // mostly because what you are planning for constrained optimization isn't really NewtonRaphson anymore
+        // so would have unconstrained GD, unconstrained NR, and the constrained solver for fem
+        // maybe you can pass Option<SecondOrder> into that solver?
+        //
         let mut residual;
         let mut solution = initial_guess;
-        if let Some(ref bc) = dirichlet {
-            bc.places
-                .iter()
-                .zip(bc.values.iter())
-                .for_each(|(place, value)| *solution.get_at_mut(place) = *value)
-        }
+        // if let Some(ref bc) = dirichlet {
+        //     bc.places
+        //         .iter()
+        //         .zip(bc.values.iter())
+        //         .for_each(|(place, value)| *solution.get_at_mut(place) = *value)
+        // }
         let mut tangent;
         for _ in 0..self.max_steps {
             residual = jacobian(&solution)?;
-            if let Some(ref bc) = neumann {
-                bc.places
-                    .iter()
-                    .zip(bc.values.iter())
-                    .for_each(|(place, value)| *residual.get_at_mut(place) -= value)
-            }
-            if let Some(ref bc) = dirichlet {
-                bc.places
-                    .iter()
-                    .for_each(|place| *residual.get_at_mut(place) = 0.0)
-            }
+            // if let Some(ref bc) = neumann {
+            //     bc.places
+            //         .iter()
+            //         .zip(bc.values.iter())
+            //         .for_each(|(place, value)| *residual.get_at_mut(place) -= value)
+            // }
+            // if let Some(ref bc) = dirichlet {
+            //     bc.places
+            //         .iter()
+            //         .for_each(|place| *residual.get_at_mut(place) = 0.0)
+            // }
             tangent = hessian(&solution)?;
             if residual.norm() < self.abs_tol {
                 if self.check_minimum && !tangent.is_positive_definite() {

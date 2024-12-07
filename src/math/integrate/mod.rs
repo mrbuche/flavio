@@ -10,7 +10,7 @@ mod ode23;
 pub use ode1be::Ode1be;
 pub use ode23::Ode23;
 
-use super::{Tensor, TensorRank0, TensorRank0List};
+use super::{Tensor, TensorArray, TensorRank0, TensorRank0List};
 use crate::get_defeat_message;
 use std::{
     fmt,
@@ -96,7 +96,7 @@ pub trait Explicit<Y, U, const W: usize>: OdeSolver<Y, U, W>
 where
     Y: Tensor,
     for<'a> &'a Y: Mul<TensorRank0, Output = Y> + Sub<&'a Y, Output = Y>,
-    U: Tensor<Item = Y>,
+    U: Tensor<Item = Y> + TensorArray,
 {
     /// Solves an initial value problem by explicitly integrating a system of ordinary differential equations.
     ///
@@ -117,8 +117,8 @@ pub trait Implicit<Y, J, U, const W: usize>: OdeSolver<Y, U, W>
 where
     Y: Tensor + Div<J, Output = Y>,
     for<'a> &'a Y: Mul<TensorRank0, Output = Y> + Sub<&'a Y, Output = Y>,
-    J: Tensor,
-    U: Tensor<Item = Y>,
+    J: Tensor + TensorArray,
+    U: Tensor<Item = Y> + TensorArray,
 {
     /// Solves an initial value problem by implicitly integrating a system of ordinary differential equations.
     ///

@@ -3,7 +3,8 @@ use super::{
         super::{
             optimize::{GradientDescent, NewtonRaphson, Optimization},
             test::TestError,
-            Tensor, TensorRank0, TensorRank0List, TensorRank1, TensorRank1List, TensorRank2,
+            Tensor, TensorArray, TensorRank0, TensorRank0List, TensorRank1, TensorRank1List,
+            TensorRank2,
         },
         test::zero_to_tau,
     },

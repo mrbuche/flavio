@@ -3,7 +3,9 @@ mod test;
 
 use super::*;
 
-/// The Fung hyperelastic constitutive model.
+/// The Fung hyperelastic constitutive model.[^cite]
+///
+/// [^cite]: Y.C. Fung, [Am. J. Physiol. **213**, 1532 (1967)](https://doi.org/10.1152/ajplegacy.1967.213.6.1532).
 ///
 /// **Parameters**
 /// - The bulk modulus $`\kappa`$.

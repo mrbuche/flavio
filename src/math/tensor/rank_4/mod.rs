@@ -11,7 +11,8 @@ use std::{
 };
 
 use super::{
-    rank_0::TensorRank0, rank_1::TensorRank1, rank_2::TensorRank2, rank_3::TensorRank3, Tensor,
+    rank_0::TensorRank0, rank_1::TensorRank1, rank_2::TensorRank2, rank_3::TensorRank3, Hessian,
+    Rank2, Tensor, TensorArray,
 };
 
 pub mod list;
@@ -206,7 +207,32 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
     }
 }
 
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> Hessian
+    for TensorRank4<D, I, J, K, L>
+{
+    fn is_positive_definite(&self) -> bool {
+        self.as_tensor_rank_2().cholesky_decomposition().is_ok()
+    }
+}
+
 impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> Tensor
+    for TensorRank4<D, I, J, K, L>
+{
+    type Item = TensorRank3<D, J, K, L>;
+    fn copy(&self) -> Self {
+        self.iter()
+            .map(|entry_rank_3| entry_rank_3.copy())
+            .collect()
+    }
+    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
+        self.0.iter()
+    }
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
+        self.0.iter_mut()
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: usize> TensorArray
     for TensorRank4<D, I, J, K, L>
 {
     type Array = [[[[TensorRank0; D]; D]; D]; D];
@@ -219,31 +245,14 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const L: us
             .for_each(|(entry_rank_3, tensor_rank_3)| *entry_rank_3 = tensor_rank_3.as_array());
         array
     }
-    fn copy(&self) -> Self {
-        self.iter()
-            .map(|entry_rank_3| entry_rank_3.copy())
-            .collect()
-    }
     fn identity() -> Self {
         Self::dyad_ij_kl(&TensorRank2::identity(), &TensorRank2::identity())
     }
-    fn is_positive_definite(&self) -> bool {
-        self.as_tensor_rank_2().cholesky_decomposition().is_ok()
-    }
-    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
-        self.0.iter()
-    }
-    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
-        self.0.iter_mut()
-    }
     fn new(array: Self::Array) -> Self {
-        array.iter().map(|entry| TensorRank3::new(*entry)).collect()
-    }
-    fn normalized(&self) -> Self {
-        self / self.norm()
+        array.iter().map(|entry| Self::Item::new(*entry)).collect()
     }
     fn zero() -> Self {
-        Self(from_fn(|_| TensorRank3::zero()))
+        Self(from_fn(|_| Self::Item::zero()))
     }
 }
 

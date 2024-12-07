@@ -7,7 +7,7 @@ use std::{
     ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
 };
 
-use super::{Tensor, TensorRank0, TensorRank3};
+use super::{Tensor, TensorArray, TensorRank0, TensorRank3};
 
 /// A list of *d*-dimensional tensors of rank 3.
 ///
@@ -32,6 +32,21 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: us
 impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize> Tensor
     for TensorRank3List<D, I, J, K, W>
 {
+    type Item = TensorRank3<D, I, J, K>;
+    fn copy(&self) -> Self {
+        self.iter().map(|entry| entry.copy()).collect()
+    }
+    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
+        self.0.iter()
+    }
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
+        self.0.iter_mut()
+    }
+}
+
+impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: usize> TensorArray
+    for TensorRank3List<D, I, J, K, W>
+{
     type Array = [[[[TensorRank0; D]; D]; D]; W];
     type Item = TensorRank3<D, I, J, K>;
     fn as_array(&self) -> Self::Array {
@@ -42,26 +57,17 @@ impl<const D: usize, const I: usize, const J: usize, const K: usize, const W: us
             .for_each(|(entry_rank_3, tensor_rank_3)| *entry_rank_3 = tensor_rank_3.as_array());
         array
     }
-    fn copy(&self) -> Self {
-        self.iter().map(|entry| entry.copy()).collect()
-    }
     fn identity() -> Self {
         Self(from_fn(|_| Self::Item::identity()))
-    }
-    fn iter(&self) -> impl Iterator<Item = &Self::Item> {
-        self.0.iter()
-    }
-    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
-        self.0.iter_mut()
     }
     fn new(array: Self::Array) -> Self {
         array
             .iter()
-            .map(|array_i| TensorRank3::new(*array_i))
+            .map(|array_i| Self::Item::new(*array_i))
             .collect()
     }
     fn zero() -> Self {
-        Self(from_fn(|_| TensorRank3::zero()))
+        Self(from_fn(|_| Self::Item::zero()))
     }
 }
 

@@ -1,9 +1,13 @@
 use super::{
-    super::{super::Tensor, TensorRank3},
-    MakeClippyHappy, TensorRank3List3D,
+    super::{
+        super::{Tensor, TensorArray},
+        TensorRank0, TensorRank3,
+    },
+    TensorRank3List3D,
 };
 
-fn get_array() -> [[[MakeClippyHappy<3>; 2]; 2]; 2] {
+#[allow(clippy::type_complexity)]
+fn get_array() -> [[[[[[TensorRank0; 3]; 3]; 3]; 2]; 2]; 2] {
     [
         [
             [

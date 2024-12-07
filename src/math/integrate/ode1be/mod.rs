@@ -4,14 +4,16 @@ mod test;
 use super::{
     super::{
         optimize::{FirstOrder, NewtonRaphson, Optimization, SecondOrder},
-        Tensor, TensorRank0, TensorRank0List,
+        Hessian, Tensor, TensorArray, TensorRank0, TensorRank0List,
     },
     Implicit, IntegrationError, OdeSolver,
 };
 use crate::{ABS_TOL, REL_TOL};
 use std::ops::{Div, Mul, Sub};
 
-/// Implicit, single-stage, first-order, variable-step, Runge-Kutta method (the backward Euler method).
+/// Implicit, single-stage, first-order, variable-step, Runge-Kutta method.[^cite]
+///
+/// [^cite]: Also known as the backward Euler method.
 #[derive(Debug)]
 pub struct Ode1be {
     /// Absolute error tolerance.
@@ -45,8 +47,8 @@ impl<Y, J, U, const W: usize> Implicit<Y, J, U, W> for Ode1be
 where
     Y: Tensor + Div<J, Output = Y>,
     for<'a> &'a Y: Mul<TensorRank0, Output = Y> + Sub<&'a Y, Output = Y>,
-    J: Tensor,
-    U: Tensor<Item = Y>,
+    J: Hessian + Tensor + TensorArray,
+    U: Tensor<Item = Y> + TensorArray,
 {
     fn integrate(
         &self,

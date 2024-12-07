@@ -37,6 +37,38 @@ impl PartialEq for TensorError {
     }
 }
 
+/// Common methods for Hessians.
+pub trait Hessian {
+    /// Checks whether the Hessian is positive-definite.
+    fn is_positive_definite(&self) -> bool;
+}
+
+/// Common methods for rank-2 tensors.
+pub trait Rank2: Sized {
+    /// The type that is the transpose of the tensor.
+    type Transpose;
+    /// Returns the Cholesky decomposition of the rank-2 tensor.
+    fn cholesky_decomposition(&self) -> Result<Self, TensorError>;
+    /// Returns the deviatoric component of the rank-2 tensor.
+    fn deviatoric(&self) -> Self;
+    /// Returns the deviatoric component and trace of the rank-2 tensor.
+    fn deviatoric_and_trace(&self) -> (Self, TensorRank0);
+    /// Checks whether the tensor is a diagonal tensor.
+    fn is_diagonal(&self) -> bool;
+    /// Checks whether the tensor is the identity tensor.
+    fn is_identity(&self) -> bool;
+    /// Returns the second invariant of the rank-2 tensor.
+    fn second_invariant(&self) -> TensorRank0 {
+        0.5 * (self.trace().powi(2) - self.squared_trace())
+    }
+    /// Returns the trace of the rank-2 tensor squared.
+    fn squared_trace(&self) -> TensorRank0;
+    /// Returns the trace of the rank-2 tensor.
+    fn trace(&self) -> TensorRank0;
+    /// Returns the transpose of the rank-2 tensor.
+    fn transpose(&self) -> Self::Transpose;
+}
+
 /// Common methods for tensors.
 pub trait Tensor
 where
@@ -55,10 +87,8 @@ where
         + SubAssign<&'a Self>,
     Self::Item: Tensor,
 {
-    type Array;
+    /// The type of item encountered when iterating over the tensor.
     type Item;
-    /// Returns the tensor as an array.
-    fn as_array(&self) -> Self::Array;
     /// Returns a copy.
     ///
     /// This method was implemented instead of the Copy trait to avoid unintended copy creations.
@@ -78,12 +108,6 @@ where
     fn get_at_mut(&mut self, _indices: &[usize]) -> &mut TensorRank0 {
         panic!("Need to implement get_at_mut() for {:?}.", self)
     }
-    /// Returns the identity tensor.
-    fn identity() -> Self;
-    /// Checks whether the tensor is positive-definite.
-    fn is_positive_definite(&self) -> bool {
-        panic!("Need to implement is_positive_definite() for {:?}.", self)
-    }
     /// Checks whether the tensor is the zero tensor.
     fn is_zero(&self) -> bool {
         self.iter().filter(|entry| !entry.is_zero()).count() == 0
@@ -96,8 +120,6 @@ where
     ///
     /// The iterator yields all items from start to end. [Read more](https://doc.rust-lang.org/std/iter/)
     fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item>;
-    /// Returns a tensor given an array.
-    fn new(array: Self::Array) -> Self;
     /// Returns the tensor norm.
     fn norm(&self) -> TensorRank0 {
         self.norm_squared().sqrt()
@@ -107,9 +129,40 @@ where
         self.full_contraction(self)
     }
     /// Returns the tensor normalized.
-    fn normalized(&self) -> Self {
-        panic!("Need to implement normalized() for {:?}.", self)
+    fn normalized(self) -> Self {
+        let norm = self.norm();
+        self / norm
     }
+}
+
+/// Common methods for tensors derived from arrays.
+pub trait TensorArray {
+    /// The type of array corresponding to the tensor.
+    type Array;
+    /// The type of item encountered when iterating over the tensor.
+    type Item;
+    /// Returns the tensor as an array.
+    fn as_array(&self) -> Self::Array;
+    /// Returns the identity tensor.
+    fn identity() -> Self;
+    /// Returns a tensor given an array.
+    fn new(array: Self::Array) -> Self;
     /// Returns the zero tensor.
     fn zero() -> Self;
+}
+
+/// Common methods for tensors derived from Vec.
+pub trait TensorVec<'a> {
+    /// The type of item encountered when iterating over the tensor.
+    type Item;
+    /// The type of slice corresponding to the tensor.
+    type Slice;
+    /// Returns `true` if the vector contains no elements.
+    fn is_empty(&self) -> bool;
+    /// Returns the number of elements in the vector, also referred to as its ‘length’.
+    fn len(&self) -> usize;
+    /// Returns a tensor given a slice.
+    fn new(slice: Self::Slice) -> Self;
+    /// Returns the zero tensor.
+    fn zero(len: usize) -> Self;
 }

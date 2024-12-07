@@ -15,6 +15,7 @@ use std::{
 
 use super::{
     super::write_tensor_rank_0, rank_0::TensorRank0, rank_2::TensorRank2, Convert, Tensor,
+    TensorArray,
 };
 
 /// A *d*-dimensional tensor of rank 1.
@@ -93,19 +94,12 @@ impl<const D: usize, const I: usize> ErrorTensor for TensorRank1<D, I> {
 }
 
 impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
-    type Array = [TensorRank0; D];
     type Item = TensorRank0;
-    fn as_array(&self) -> Self::Array {
-        self.0
-    }
     fn copy(&self) -> Self {
         self.iter().map(|entry| entry.copy()).collect()
     }
     fn full_contraction(&self, tensor_rank_1: &Self) -> TensorRank0 {
         self * tensor_rank_1
-    }
-    fn identity() -> Self {
-        panic!()
     }
     fn iter(&self) -> impl Iterator<Item = &Self::Item> {
         self.0.iter()
@@ -113,11 +107,19 @@ impl<const D: usize, const I: usize> Tensor for TensorRank1<D, I> {
     fn iter_mut(&mut self) -> impl Iterator<Item = &mut Self::Item> {
         self.0.iter_mut()
     }
+}
+
+impl<const D: usize, const I: usize> TensorArray for TensorRank1<D, I> {
+    type Array = [TensorRank0; D];
+    type Item = TensorRank0;
+    fn as_array(&self) -> Self::Array {
+        self.0
+    }
+    fn identity() -> Self {
+        panic!()
+    }
     fn new(array: Self::Array) -> Self {
         array.into_iter().collect()
-    }
-    fn normalized(&self) -> Self {
-        self / self.norm()
     }
     fn zero() -> Self {
         zero()

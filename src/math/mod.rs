@@ -12,6 +12,7 @@ pub mod integrate;
 /// Optimization and root finding.
 pub mod optimize;
 
+mod matrix;
 mod tensor;
 
 pub const FOUR_THIRDS: TensorRank0 = 4.0 / 3.0;
@@ -22,6 +23,7 @@ pub const ONE_TWENTY_FOURTH: TensorRank0 = 1.0 / 24.0;
 pub const SEVEN_THIRDS: TensorRank0 = 7.0 / 3.0;
 pub const TWO_THIRDS: TensorRank0 = 2.0 / 3.0;
 
+pub use matrix::{square::SquareMatrix, vector::Vector};
 pub use tensor::{
     rank_0::{list::TensorRank0List, TensorRank0},
     rank_1::{
@@ -43,12 +45,12 @@ pub use tensor::{
         ContractSecondFourthIndicesWithFirstIndicesOf, ContractSecondIndexWithFirstIndexOf,
         ContractThirdFourthIndicesWithFirstSecondIndicesOf, TensorRank4,
     },
-    Convert, Tensor,
+    Convert, Hessian, Rank2, Tensor, TensorArray, TensorVec,
 };
 
 use std::fmt;
 
-pub fn write_tensor_rank_0(f: &mut fmt::Formatter, tensor_rank_0: &TensorRank0) -> fmt::Result {
+fn write_tensor_rank_0(f: &mut fmt::Formatter, tensor_rank_0: &TensorRank0) -> fmt::Result {
     let num = (tensor_rank_0 * 1e6).round() / 1e6;
     let num_abs = num.abs();
     if num.is_nan() {
