@@ -25,3 +25,4 @@ rustdoc-args = ["--html-in-header", ".github/katex.html"]
 codegen-units = 1
 lto = true
 panic = "abort"
+strip = "symbols"
