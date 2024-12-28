@@ -36,6 +36,7 @@ fn get_defeat_message<'a>() -> &'a str {
         8 => "You have died of dysentery.",
         9.. => "You've met with a terrible fate, haven't you?",
         // Now let's all agree to never be creative again.
+        // You lost the game.
     }
 }
 
@@ -44,8 +45,9 @@ fn get_victory_message<'a>() -> &'a str {
     match get_random_number() {
         0 => "Flawless victory.",
         1 => "Hey, that's pretty good!",
-        2 => "That's Numberwang!",
-        3.. => "Totes yeet, yo!",
+        2 => "Nice work, bone daddy.",
+        3 => "That's Numberwang!",
+        4.. => "Totes yeet, yo!",
     }
 }
 
